@@ -123,17 +123,32 @@ class _EditBookScreenState extends State<EditBookScreen> {
   }
 
   Future<void> _selectDate(BuildContext context, TextEditingController controller) async {
+    // Parse existing date from controller if present (stored as ISO)
+    DateTime? initialDate;
+    if (controller.text.isNotEmpty) {
+      initialDate = DateTime.tryParse(controller.text);
+    }
+    
     final DateTime? picked = await showDatePicker(
       context: context,
-      initialDate: DateTime.now(),
+      initialDate: initialDate ?? DateTime.now(),
       firstDate: DateTime(2000),
       lastDate: DateTime.now(),
     );
     if (picked != null) {
       setState(() {
+        // Store as ISO format for parsing, but display will be human-readable
         controller.text = picked.toIso8601String().split('T')[0];
       });
     }
+  }
+
+  // Format date for display (human-readable)
+  String _formatDateForDisplay(String? isoDate) {
+    if (isoDate == null || isoDate.isEmpty) return '';
+    final date = DateTime.tryParse(isoDate);
+    if (date == null) return isoDate;
+    return '${date.day.toString().padLeft(2, '0')}/${date.month.toString().padLeft(2, '0')}/${date.year}';
   }
 
   Future<void> _saveBook() async {
@@ -504,30 +519,41 @@ class _EditBookScreenState extends State<EditBookScreen> {
             // Reading Dates (Conditional)
             if (_readingStatus != 'to_read' && _readingStatus != 'wanted') ...[
               _buildLabel(TranslationService.translate(context, 'started_reading_label')),
-              TextFormField(
-                controller: _startedDateController,
-                decoration: _buildInputDecoration(
-                  hint: TranslationService.translate(context, 'select_date'),
-                  suffixIcon: const Icon(Icons.calendar_today),
-                ),
-                readOnly: true,
+              GestureDetector(
                 onTap: () => _selectDate(context, _startedDateController),
+                child: AbsorbPointer(
+                  child: TextFormField(
+                    controller: TextEditingController(
+                      text: _formatDateForDisplay(_startedDateController.text),
+                    ),
+                    decoration: _buildInputDecoration(
+                      hint: TranslationService.translate(context, 'select_date'),
+                      suffixIcon: const Icon(Icons.calendar_today),
+                    ),
+                    readOnly: true,
+                  ),
+                ),
               ),
               const SizedBox(height: 24),
             ],
 
             if (_readingStatus == 'read') ...[
               _buildLabel(TranslationService.translate(context, 'finished_reading_label')),
-              TextFormField(
-                controller: _finishedDateController,
-                decoration: _buildInputDecoration(
-                  hint: TranslationService.translate(context, 'select_date'),
-                  suffixIcon: const Icon(Icons.calendar_today),
-                ),
-                readOnly: true,
+              GestureDetector(
                 onTap: () => _selectDate(context, _finishedDateController),
+                child: AbsorbPointer(
+                  child: TextFormField(
+                    controller: TextEditingController(
+                      text: _formatDateForDisplay(_finishedDateController.text),
+                    ),
+                    decoration: _buildInputDecoration(
+                      hint: TranslationService.translate(context, 'select_date'),
+                      suffixIcon: const Icon(Icons.calendar_today),
+                    ),
+                    readOnly: true,
+                  ),
+                ),
               ),
-              const SizedBox(height: 24),
               const SizedBox(height: 24),
             ],
 

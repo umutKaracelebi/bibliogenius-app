@@ -214,7 +214,10 @@ class _ProfileScreenState extends State<ProfileScreen> {
             },
           ),
           const SizedBox(height: 16),
-          Text(TranslationService.translate(context, 'librarian'), style: Theme.of(context).textTheme.headlineMedium),
+          Text(
+            TranslationService.translate(context, _config?['profile_type'] ?? 'individual'),
+            style: Theme.of(context).textTheme.headlineMedium,
+          ),
           const SizedBox(height: 8),
           StatusBadge(level: level, size: 32),
           const SizedBox(height: 32),

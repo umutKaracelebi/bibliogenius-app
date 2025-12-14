@@ -88,15 +88,15 @@ class BadgeCollectionWidget extends StatelessWidget {
                     mainAxisAlignment: MainAxisAlignment.center,
                     children: [
                       SizedBox(
-                        width: 70,
-                        height: 70,
+                        width: 80,
+                        height: 80,
                         child: Stack(
                           alignment: Alignment.center,
                           children: [
                             // Background circle (like track background)
                             Container(
-                              width: 60,
-                              height: 60,
+                              width: 70,
+                              height: 70,
                               decoration: BoxDecoration(
                                 shape: BoxShape.circle,
                                 color: isUnlocked 
@@ -124,8 +124,8 @@ class BadgeCollectionWidget extends StatelessWidget {
                                 opacity: isUnlocked ? 1.0 : 0.5,
                                 child: Image.asset(
                                   badgeInfo.assetPath,
-                                  width: 32,
-                                  height: 32,
+                                  width: 48,
+                                  height: 48,
                                   filterQuality: FilterQuality.high,
                                   isAntiAlias: true,
                                   errorBuilder: (context, error, stackTrace) => Icon(

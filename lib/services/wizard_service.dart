@@ -47,7 +47,7 @@ class WizardService {
     required Function() onFinish,
   }) {
     final theme = Theme.of(context);
-    
+
     List<TargetFocus> targets = [
       TargetFocus(
         identify: "menu_key",
@@ -138,7 +138,7 @@ class WizardService {
     required GlobalKey addKey,
   }) {
     final theme = Theme.of(context);
-    
+
     List<TargetFocus> targets = [
       TargetFocus(
         identify: "add_key",
@@ -165,7 +165,10 @@ class WizardService {
             builder: (context, controller) {
               return _buildWizardContent(
                 context,
-                TranslationService.translate(context, 'wizard_books_scan_title'),
+                TranslationService.translate(
+                  context,
+                  'wizard_books_scan_title',
+                ),
                 TranslationService.translate(context, 'wizard_books_scan_desc'),
               );
             },
@@ -181,8 +184,14 @@ class WizardService {
             builder: (context, controller) {
               return _buildWizardContent(
                 context,
-                TranslationService.translate(context, 'wizard_books_search_title'),
-                TranslationService.translate(context, 'wizard_books_search_desc'),
+                TranslationService.translate(
+                  context,
+                  'wizard_books_search_title',
+                ),
+                TranslationService.translate(
+                  context,
+                  'wizard_books_search_desc',
+                ),
               );
             },
           ),
@@ -197,8 +206,14 @@ class WizardService {
             builder: (context, controller) {
               return _buildWizardContent(
                 context,
-                TranslationService.translate(context, 'wizard_books_external_title'),
-                TranslationService.translate(context, 'wizard_books_external_desc'),
+                TranslationService.translate(
+                  context,
+                  'wizard_books_external_title',
+                ),
+                TranslationService.translate(
+                  context,
+                  'wizard_books_external_desc',
+                ),
               );
             },
           ),
@@ -213,7 +228,10 @@ class WizardService {
             builder: (context, controller) {
               return _buildWizardContent(
                 context,
-                TranslationService.translate(context, 'wizard_books_view_title'),
+                TranslationService.translate(
+                  context,
+                  'wizard_books_view_title',
+                ),
                 TranslationService.translate(context, 'wizard_books_view_desc'),
               );
             },
@@ -256,7 +274,7 @@ class WizardService {
     required GlobalKey filterKey,
   }) {
     final theme = Theme.of(context);
-    
+
     List<TargetFocus> targets = [
       TargetFocus(
         identify: "add_key",
@@ -267,8 +285,14 @@ class WizardService {
             builder: (context, controller) {
               return _buildWizardContent(
                 context,
-                TranslationService.translate(context, 'wizard_contacts_add_title'),
-                TranslationService.translate(context, 'wizard_contacts_add_desc'),
+                TranslationService.translate(
+                  context,
+                  'wizard_contacts_add_title',
+                ),
+                TranslationService.translate(
+                  context,
+                  'wizard_contacts_add_desc',
+                ),
               );
             },
           ),
@@ -283,8 +307,14 @@ class WizardService {
             builder: (context, controller) {
               return _buildWizardContent(
                 context,
-                TranslationService.translate(context, 'wizard_contacts_filter_title'),
-                TranslationService.translate(context, 'wizard_contacts_filter_desc'),
+                TranslationService.translate(
+                  context,
+                  'wizard_contacts_filter_title',
+                ),
+                TranslationService.translate(
+                  context,
+                  'wizard_contacts_filter_desc',
+                ),
               );
             },
           ),
@@ -308,7 +338,11 @@ class WizardService {
     ).show(context: context);
   }
 
-  static Widget _buildWizardContent(BuildContext context, String title, String desc) {
+  static Widget _buildWizardContent(
+    BuildContext context,
+    String title,
+    String desc,
+  ) {
     return Container(
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
@@ -328,10 +362,7 @@ class WizardService {
             ),
           ),
           const SizedBox(height: 10),
-          Text(
-            desc,
-            style: const TextStyle(color: Colors.black87),
-          ),
+          Text(desc, style: const TextStyle(color: Colors.black87)),
         ],
       ),
     );

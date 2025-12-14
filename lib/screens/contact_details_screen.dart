@@ -28,14 +28,25 @@ class _ContactDetailsScreenState extends State<ContactDetailsScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text(TranslationService.translate(context, 'contact_details_title') ?? 'Contact Details'),
+        title: Text(
+          TranslationService.translate(context, 'contact_details_title') ??
+              'Contact Details',
+        ),
         actions: [
           IconButton(
             icon: const Icon(Icons.edit),
             onPressed: () {
               // TODO: Navigate to edit screen
               ScaffoldMessenger.of(context).showSnackBar(
-                SnackBar(content: Text(TranslationService.translate(context, 'edit_feature_soon') ?? 'Coming soon')),
+                SnackBar(
+                  content: Text(
+                    TranslationService.translate(
+                          context,
+                          'edit_feature_soon',
+                        ) ??
+                        'Coming soon',
+                  ),
+                ),
               );
             },
           ),
@@ -51,7 +62,9 @@ class _ContactDetailsScreenState extends State<ContactDetailsScreen> {
                   ? Colors.blue
                   : Colors.purple,
               child: Icon(
-                _contact.type == 'borrower' ? Icons.person : Icons.library_books,
+                _contact.type == 'borrower'
+                    ? Icons.person
+                    : Icons.library_books,
                 size: 50,
                 color: Colors.white,
               ),
@@ -61,13 +74,13 @@ class _ContactDetailsScreenState extends State<ContactDetailsScreen> {
           Center(
             child: Text(
               _contact.displayName,
-              style: Theme.of(context).textTheme.headlineSmall?.copyWith(
-                fontWeight: FontWeight.bold,
-              ),
+              style: Theme.of(
+                context,
+              ).textTheme.headlineSmall?.copyWith(fontWeight: FontWeight.bold),
             ),
           ),
           const SizedBox(height: 24),
-          
+
           // Action buttons
           Row(
             children: [
@@ -76,7 +89,13 @@ class _ContactDetailsScreenState extends State<ContactDetailsScreen> {
                   child: FilledButton.icon(
                     onPressed: () => _borrowFromContact(context),
                     icon: const Icon(Icons.book_outlined),
-                    label: Text(TranslationService.translate(context, 'borrow_from_contact') ?? 'Borrow a book'),
+                    label: Text(
+                      TranslationService.translate(
+                            context,
+                            'borrow_from_contact',
+                          ) ??
+                          'Borrow a book',
+                    ),
                     style: FilledButton.styleFrom(
                       backgroundColor: Colors.teal,
                       padding: const EdgeInsets.symmetric(vertical: 12),
@@ -89,7 +108,10 @@ class _ContactDetailsScreenState extends State<ContactDetailsScreen> {
                 child: OutlinedButton.icon(
                   onPressed: () => _lendToContact(context),
                   icon: const Icon(Icons.handshake_outlined),
-                  label: Text(TranslationService.translate(context, 'lend_to_contact') ?? 'Lend a book'),
+                  label: Text(
+                    TranslationService.translate(context, 'lend_to_contact') ??
+                        'Lend a book',
+                  ),
                   style: OutlinedButton.styleFrom(
                     foregroundColor: Colors.purple,
                     side: const BorderSide(color: Colors.purple),
@@ -99,32 +121,63 @@ class _ContactDetailsScreenState extends State<ContactDetailsScreen> {
               ),
             ],
           ),
-          
+
           const SizedBox(height: 24),
-        _buildInfoCard(context, TranslationService.translate(context, 'contact_type_label'), 
-          _contact.type == 'borrower' 
-              ? TranslationService.translate(context, 'role_borrower')
-              : TranslationService.translate(context, 'role_library')),
-        _buildInfoCard(context, TranslationService.translate(context, 'contact_name_label'), _contact.name),
-        if (_contact.email != null) _buildInfoCard(context, TranslationService.translate(context, 'contact_email_label'), _contact.email!),
-        if (_contact.phone != null) _buildInfoCard(context, TranslationService.translate(context, 'contact_phone_label'), _contact.phone!),
-        if (_contact.address != null)
-          _buildInfoCard(context, TranslationService.translate(context, 'contact_address_label'), _contact.address!),
-        if (_contact.notes != null) _buildInfoCard(context, TranslationService.translate(context, 'contact_notes_label'), _contact.notes!),
-        _buildInfoCard(
-          context,
-          TranslationService.translate(context, 'status_label'),
-          _contact.isActive 
-              ? TranslationService.translate(context, 'status_active')
-              : TranslationService.translate(context, 'status_inactive'),
-          valueColor: _contact.isActive ? Colors.green : Colors.grey,
-        ),
+          _buildInfoCard(
+            context,
+            TranslationService.translate(context, 'contact_type_label'),
+            _contact.type == 'borrower'
+                ? TranslationService.translate(context, 'role_borrower')
+                : TranslationService.translate(context, 'role_library'),
+          ),
+          _buildInfoCard(
+            context,
+            TranslationService.translate(context, 'contact_name_label'),
+            _contact.name,
+          ),
+          if (_contact.email != null)
+            _buildInfoCard(
+              context,
+              TranslationService.translate(context, 'contact_email_label'),
+              _contact.email!,
+            ),
+          if (_contact.phone != null)
+            _buildInfoCard(
+              context,
+              TranslationService.translate(context, 'contact_phone_label'),
+              _contact.phone!,
+            ),
+          if (_contact.address != null)
+            _buildInfoCard(
+              context,
+              TranslationService.translate(context, 'contact_address_label'),
+              _contact.address!,
+            ),
+          if (_contact.notes != null)
+            _buildInfoCard(
+              context,
+              TranslationService.translate(context, 'contact_notes_label'),
+              _contact.notes!,
+            ),
+          _buildInfoCard(
+            context,
+            TranslationService.translate(context, 'status_label'),
+            _contact.isActive
+                ? TranslationService.translate(context, 'status_active')
+                : TranslationService.translate(context, 'status_inactive'),
+            valueColor: _contact.isActive ? Colors.green : Colors.grey,
+          ),
         ],
       ),
     );
   }
 
-  Widget _buildInfoCard(BuildContext context, String label, String value, {Color? valueColor}) {
+  Widget _buildInfoCard(
+    BuildContext context,
+    String label,
+    String value, {
+    Color? valueColor,
+  }) {
     return Card(
       margin: const EdgeInsets.only(bottom: 12),
       child: Padding(
@@ -158,7 +211,7 @@ class _ContactDetailsScreenState extends State<ContactDetailsScreen> {
     if (result == null || !context.mounted) return;
 
     final apiService = Provider.of<ApiService>(context, listen: false);
-    
+
     try {
       // Create the book with borrowed status
       final bookData = {
@@ -169,7 +222,7 @@ class _ContactDetailsScreenState extends State<ContactDetailsScreen> {
       };
 
       final response = await apiService.createBook(bookData);
-      
+
       if (context.mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
@@ -181,9 +234,9 @@ class _ContactDetailsScreenState extends State<ContactDetailsScreen> {
       }
     } catch (e) {
       if (context.mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('Error: $e')),
-        );
+        ScaffoldMessenger.of(
+          context,
+        ).showSnackBar(SnackBar(content: Text('Error: $e')));
       }
     }
   }
@@ -220,7 +273,10 @@ class _BorrowBookDialogState extends State<_BorrowBookDialog> {
   @override
   Widget build(BuildContext context) {
     return AlertDialog(
-      title: Text(TranslationService.translate(context, 'borrow_book_title') ?? 'Borrow a Book'),
+      title: Text(
+        TranslationService.translate(context, 'borrow_book_title') ??
+            'Borrow a Book',
+      ),
       content: Form(
         key: _formKey,
         child: SingleChildScrollView(
@@ -235,12 +291,18 @@ class _BorrowBookDialogState extends State<_BorrowBookDialog> {
               TextFormField(
                 controller: _titleController,
                 decoration: InputDecoration(
-                  labelText: TranslationService.translate(context, 'title_label') ?? 'Title',
+                  labelText:
+                      TranslationService.translate(context, 'title_label') ??
+                      'Title',
                   border: const OutlineInputBorder(),
                 ),
                 validator: (value) {
                   if (value == null || value.isEmpty) {
-                    return TranslationService.translate(context, 'title_required') ?? 'Title is required';
+                    return TranslationService.translate(
+                          context,
+                          'title_required',
+                        ) ??
+                        'Title is required';
                   }
                   return null;
                 },
@@ -249,7 +311,9 @@ class _BorrowBookDialogState extends State<_BorrowBookDialog> {
               TextFormField(
                 controller: _authorController,
                 decoration: InputDecoration(
-                  labelText: TranslationService.translate(context, 'author_label') ?? 'Author',
+                  labelText:
+                      TranslationService.translate(context, 'author_label') ??
+                      'Author',
                   border: const OutlineInputBorder(),
                 ),
               ),
@@ -264,7 +328,15 @@ class _BorrowBookDialogState extends State<_BorrowBookDialog> {
                     onPressed: () {
                       // TODO: Implement barcode scanning
                       ScaffoldMessenger.of(context).showSnackBar(
-                        SnackBar(content: Text(TranslationService.translate(context, 'scan_coming_soon') ?? 'Scan coming soon')),
+                        SnackBar(
+                          content: Text(
+                            TranslationService.translate(
+                                  context,
+                                  'scan_coming_soon',
+                                ) ??
+                                'Scan coming soon',
+                          ),
+                        ),
                       );
                     },
                   ),
@@ -277,19 +349,27 @@ class _BorrowBookDialogState extends State<_BorrowBookDialog> {
       actions: [
         TextButton(
           onPressed: () => Navigator.of(context).pop(),
-          child: Text(TranslationService.translate(context, 'cancel') ?? 'Cancel'),
+          child: Text(
+            TranslationService.translate(context, 'cancel') ?? 'Cancel',
+          ),
         ),
         FilledButton(
           onPressed: () {
             if (_formKey.currentState!.validate()) {
               Navigator.of(context).pop({
                 'title': _titleController.text,
-                'author': _authorController.text.isEmpty ? null : _authorController.text,
-                'isbn': _isbnController.text.isEmpty ? null : _isbnController.text,
+                'author': _authorController.text.isEmpty
+                    ? null
+                    : _authorController.text,
+                'isbn': _isbnController.text.isEmpty
+                    ? null
+                    : _isbnController.text,
               });
             }
           },
-          child: Text(TranslationService.translate(context, 'borrow_btn') ?? 'Borrow'),
+          child: Text(
+            TranslationService.translate(context, 'borrow_btn') ?? 'Borrow',
+          ),
         ),
       ],
     );

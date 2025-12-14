@@ -1,9 +1,12 @@
+import 'dart:io' show Platform;
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:provider/provider.dart';
 import 'package:go_router/go_router.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
+import 'package:path_provider/path_provider.dart';
+import 'package:flutter_rust_bridge/flutter_rust_bridge_for_generated.dart';
 import 'services/auth_service.dart';
 import 'services/api_service.dart';
 import 'services/sync_service.dart';
@@ -15,18 +18,15 @@ import 'screens/add_book_screen.dart';
 import 'screens/book_copies_screen.dart';
 import 'screens/book_details_screen.dart';
 import 'screens/edit_book_screen.dart';
-// Note: ContactsScreen replaced by NetworkScreen
 import 'screens/add_contact_screen.dart';
 import 'screens/contact_details_screen.dart';
 import 'models/book.dart';
 import 'models/contact.dart';
 import 'screens/scan_screen.dart';
-// Note: P2PScreen replaced by NetworkScreen
 import 'screens/profile_screen.dart';
 import 'screens/setup_screen.dart';
 import 'screens/external_search_screen.dart';
 import 'screens/borrow_requests_screen.dart';
-// Note: PeerListScreen replaced by NetworkScreen
 import 'screens/peer_book_list_screen.dart';
 import 'screens/search_peer_screen.dart';
 import 'screens/genie_chat_screen.dart';
@@ -41,10 +41,12 @@ import 'screens/feedback_screen.dart';
 import 'services/wizard_service.dart';
 import 'widgets/scaffold_with_nav.dart';
 
-
 import 'package:flutter/gestures.dart';
-import 'services/backend_service.dart';
-import 'widgets/app_lifecycle_observer.dart';
+
+
+// FFI imports for native platforms
+import 'src/rust/frb_generated.dart';
+import 'src/rust/api/frb.dart' as frb;
 
 class AppScrollBehavior extends MaterialScrollBehavior {
   @override
@@ -56,6 +58,41 @@ class AppScrollBehavior extends MaterialScrollBehavior {
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
+  
+  // Custom error widget to display errors visibly for debugging
+  ErrorWidget.builder = (FlutterErrorDetails details) {
+    return MaterialApp(
+      debugShowCheckedModeBanner: false,
+      home: Scaffold(
+        backgroundColor: Colors.red.shade50,
+        body: SafeArea(
+          child: SingleChildScrollView(
+            padding: const EdgeInsets.all(16),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                const Text(
+                  '⚠️ Error',
+                  style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold, color: Colors.red),
+                ),
+                const SizedBox(height: 16),
+                Text(
+                  details.exception.toString(),
+                  style: const TextStyle(fontSize: 14, color: Colors.black87),
+                ),
+                const SizedBox(height: 16),
+                Text(
+                  details.stack?.toString() ?? 'No stack trace',
+                  style: const TextStyle(fontSize: 10, color: Colors.black54, fontFamily: 'monospace'),
+                ),
+              ],
+            ),
+          ),
+        ),
+      ),
+    );
+  };
+  
   try {
     await dotenv.load(fileName: ".env");
   } catch (e) {
@@ -63,78 +100,100 @@ void main() async {
   }
   await TranslationService.loadFromCache();
   final themeProvider = ThemeProvider();
-  
-  // Initialize and start backend service (not on web)
-  final backendService = BackendService();
+
+  // Initialize FFI for native platforms
+  bool useFfi = false;
+
   if (!kIsWeb) {
+    // FFI enabled for all native platforms (macOS, iOS, Android, Linux, Windows)
     try {
-      await backendService.start();
-    } catch (e) {
-      debugPrint('Failed to start bundled backend: $e');
-      // Continue anyway, maybe user has external backend
+      debugPrint('FFI: Starting RustLib.init()...');
+      // Initialize Flutter-Rust bridge
+      // On iOS/macOS, the library is statically linked, so use DynamicLibrary.process()
+      // On Android/Linux/Windows, load the dynamic library from the bundle
+      if (Platform.isIOS || Platform.isMacOS) {
+        debugPrint('FFI: Using DynamicLibrary.process() for iOS/macOS...');
+        await RustLib.init(
+          externalLibrary: ExternalLibrary.process(iKnowHowToUseIt: true),
+        );
+      } else {
+        await RustLib.init();
+      }
+      debugPrint('FFI: RustLib.init() succeeded');
+      
+      // Get database path
+      debugPrint('FFI: Getting application documents directory...');
+      final appDocDir = await getApplicationDocumentsDirectory();
+      final dbPath = '${appDocDir.path}/bibliogenius.db';
+      debugPrint('FFI: Database path: $dbPath');
+      
+      // Initialize Rust backend with database
+      debugPrint('FFI: Calling initBackend...');
+      final result = await frb.initBackend(dbPath: dbPath);
+      debugPrint('FFI Backend initialized: $result');
+      useFfi = true;
+      debugPrint('FFI: useFfi set to TRUE');
+    } catch (e, stackTrace) {
+      debugPrint('FFI initialization failed: $e');
+      debugPrint('FFI stack trace: $stackTrace');
+      // FFI initialization failed, will fall back to configured HTTP URL or default
     }
   }
-  
+
   try {
     await themeProvider.loadSettings();
   } catch (e, stackTrace) {
     debugPrint('Error loading settings: $e');
     debugPrint(stackTrace.toString());
-    // Continue with default settings
   }
 
   runApp(MyApp(
     themeProvider: themeProvider,
-    backendService: backendService,
+    useFfi: useFfi,
   ));
 }
 
 class MyApp extends StatelessWidget {
   final ThemeProvider themeProvider;
-  final BackendService backendService;
+  final bool useFfi;
 
   const MyApp({
     super.key,
     required this.themeProvider,
-    required this.backendService,
+    required this.useFfi,
   });
 
   @override
   Widget build(BuildContext context) {
     final authService = AuthService();
-    
-    // Determine base URL:
-    // 1. If API_BASE_URL is set in .env, use it (Developer override)
-    // 2. If backend service is running, use its port
-    // 3. Fallback to default (usually localhost:8001)
-    
+
+    // Determine base URL for HTTP mode (web or fallback)
     String baseUrl = dotenv.env['API_BASE_URL'] ?? '';
-    
-    if (baseUrl.isNotEmpty) {
-       debugPrint('Using API_BASE_URL from .env: $baseUrl');
-    } else if (backendService.isRunning && backendService.port != null) {
-      baseUrl = 'http://localhost:${backendService.port}';
-      debugPrint('Using Bundled Backend at: $baseUrl');
+
+    if (useFfi) {
+      // FFI mode: no HTTP needed for local operations
+      baseUrl = 'ffi://local'; // Placeholder, ApiService will detect FFI mode
+      debugPrint('Using FFI mode for local database operations');
+    } else if (baseUrl.isNotEmpty) {
+      debugPrint('Using API_BASE_URL from .env: $baseUrl');
     } else {
       baseUrl = ApiService.defaultBaseUrl;
       debugPrint('Using Default Backend URL: $baseUrl');
     }
-    
-    final apiService = ApiService(authService, baseUrl: baseUrl);
 
-    return AppLifecycleObserver(
-      backendService: backendService,
-      child: MultiProvider(
-        providers: [
-          ChangeNotifierProvider<ThemeProvider>.value(value: themeProvider),
-          Provider<AuthService>.value(value: authService),
-          Provider<ApiService>.value(value: apiService),
-          Provider<SyncService>(create: (_) => SyncService(apiService)),
-          Provider<BackendService>.value(value: backendService),
-        ],
-        child: const AppRouter(),
-      ),
+    final apiService = ApiService(authService, baseUrl: baseUrl, useFfi: useFfi);
+
+    Widget app = MultiProvider(
+      providers: [
+        ChangeNotifierProvider<ThemeProvider>.value(value: themeProvider),
+        Provider<AuthService>.value(value: authService),
+        Provider<ApiService>.value(value: apiService),
+        Provider<SyncService>(create: (_) => SyncService(apiService)),
+      ],
+      child: const AppRouter(),
     );
+
+    return app;
   }
 }
 
@@ -163,7 +222,6 @@ class _AppRouterState extends State<AppRouter> {
 
         if (!isSetup && !isSetupRoute) return '/setup';
         if (isSetup && isSetupRoute) {
-          // After setup, check if should show onboarding tour
           final hasSeenTour = await WizardService.hasSeenOnboardingTour();
           if (!hasSeenTour && !isOnboardingRoute) {
             return '/onboarding';
@@ -241,12 +299,10 @@ class _AppRouterState extends State<AppRouter> {
                 ),
               ],
             ),
-            // Unified Network screen (contacts + peers merged)
             GoRoute(
               path: '/network',
               builder: (context, state) => const NetworkScreen(),
               routes: [
-                // Keep sub-routes for contact management
                 GoRoute(
                   path: 'contact/:id',
                   builder: (context, state) {
@@ -254,17 +310,14 @@ class _AppRouterState extends State<AppRouter> {
                     if (contact != null) {
                       return ContactDetailsScreen(contact: contact);
                     }
-                    // Fallback - this shouldn't happen but handle gracefully
                     return const NetworkScreen();
                   },
                 ),
               ],
             ),
-            // Keep /contacts for backward compatibility and sub-routes
             GoRoute(
               path: '/contacts',
               redirect: (context, state) {
-                // Redirect base /contacts to /network
                 if (state.uri.path == '/contacts') {
                   return '/network';
                 }
@@ -357,6 +410,7 @@ class _AppRouterState extends State<AppRouter> {
 
     return MaterialApp.router(
       title: 'BiblioGenius',
+      debugShowCheckedModeBanner: false,
       theme: themeProvider.themeData,
       locale: themeProvider.locale,
       localizationsDelegates: const [
@@ -365,10 +419,10 @@ class _AppRouterState extends State<AppRouter> {
         GlobalCupertinoLocalizations.delegate,
       ],
       supportedLocales: const [
-        Locale('en'), // English
-        Locale('fr'), // French
-        Locale('es'), // Spanish
-        Locale('de'), // German
+        Locale('en'),
+        Locale('fr'),
+        Locale('es'),
+        Locale('de'),
       ],
       scrollBehavior: AppScrollBehavior(),
       routerConfig: _router,

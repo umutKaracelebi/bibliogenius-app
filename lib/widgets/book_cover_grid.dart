@@ -23,9 +23,9 @@ class BookCoverGrid extends StatelessWidget {
             const SizedBox(height: 16),
             Text(
               'No books found',
-              style: Theme.of(context).textTheme.titleMedium?.copyWith(
-                    color: Colors.grey,
-                  ),
+              style: Theme.of(
+                context,
+              ).textTheme.titleMedium?.copyWith(color: Colors.grey),
             ),
           ],
         ),
@@ -43,10 +43,7 @@ class BookCoverGrid extends StatelessWidget {
       itemCount: books.length,
       itemBuilder: (context, index) {
         final book = books[index];
-        return BookCoverCard(
-          book: book,
-          onTap: () => onBookTap(book),
-        );
+        return BookCoverCard(book: book, onTap: () => onBookTap(book));
       },
     );
   }

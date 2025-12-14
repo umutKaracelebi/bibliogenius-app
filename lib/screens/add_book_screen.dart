@@ -32,7 +32,8 @@ class _AddBookScreenState extends State<AddBookScreen> {
   List<dynamic>? _authorsData;
   bool _isFetchingDetails = false;
   bool _isSaving = false;
-  List<String> _selectedTags = [];
+  String? _lastLookedUpIsbn; // Prevent duplicate lookups
+  final List<String> _selectedTags = [];
   late TextEditingController _tagsController;
 
   @override
@@ -60,25 +61,35 @@ class _AddBookScreenState extends State<AddBookScreen> {
 
   void _onIsbnChanged() {
     final isbn = _isbnController.text.replaceAll(RegExp(r'[^0-9X]'), '');
-    if ((isbn.length == 10 || isbn.length == 13) && !_isFetchingDetails) {
+    // Only lookup if valid length, not currently fetching, and not already looked up
+    if ((isbn.length == 10 || isbn.length == 13) && 
+        !_isFetchingDetails && 
+        isbn != _lastLookedUpIsbn) {
       _fetchBookDetails(isbn);
     }
   }
 
   Future<void> _fetchBookDetails(String isbn) async {
+    _lastLookedUpIsbn = isbn; // Prevent duplicate lookups
     setState(() => _isFetchingDetails = true);
     try {
       // Use backend (Inventaire with OpenLibrary cover enrichment)
       final api = Provider.of<ApiService>(context, listen: false);
       final bookData = await api.lookupBook(isbn);
-      
+
       if (bookData != null && mounted) {
         setState(() {
-          if (_titleController.text.isEmpty) _titleController.text = bookData['title'] ?? '';
-          if (_authorController.text.isEmpty) _authorController.text = bookData['author'] ?? '';
-          if (_publisherController.text.isEmpty) _publisherController.text = bookData['publisher'] ?? '';
-          if (_publicationYearController.text.isEmpty) _publicationYearController.text = bookData['year']?.toString() ?? '';
-          if (_summaryController.text.isEmpty) _summaryController.text = bookData['summary'] ?? '';
+          if (_titleController.text.isEmpty)
+            _titleController.text = bookData['title'] ?? '';
+          if (_authorController.text.isEmpty)
+            _authorController.text = bookData['author'] ?? '';
+          if (_publisherController.text.isEmpty)
+            _publisherController.text = bookData['publisher'] ?? '';
+          if (_publicationYearController.text.isEmpty)
+            _publicationYearController.text =
+                bookData['year']?.toString() ?? '';
+          if (_summaryController.text.isEmpty)
+            _summaryController.text = bookData['summary'] ?? '';
           if (_coverUrl == null && bookData['cover_url'] != null) {
             _coverUrl = bookData['cover_url'];
           }
@@ -87,12 +98,19 @@ class _AddBookScreenState extends State<AddBookScreen> {
           }
         });
         ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text(TranslationService.translate(context, 'book_details_found'))),
+          SnackBar(
+            content: Text(
+              TranslationService.translate(context, 'book_details_found'),
+            ),
+          ),
         );
       } else if (mounted) {
-         ScaffoldMessenger.of(context).showSnackBar(
+        ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
-            content: Text(TranslationService.translate(context, 'book_not_found') ?? 'Book not found in database'),
+            content: Text(
+              TranslationService.translate(context, 'book_not_found') ??
+                  'Book not found in database',
+            ),
             backgroundColor: Colors.orange,
           ),
         );
@@ -129,7 +147,11 @@ class _AddBookScreenState extends State<AddBookScreen> {
     } catch (e) {
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('${TranslationService.translate(context, 'error_saving_book')}: $e')),
+          SnackBar(
+            content: Text(
+              '${TranslationService.translate(context, 'error_saving_book')}: $e',
+            ),
+          ),
         );
         setState(() => _isSaving = false);
       }
@@ -145,7 +167,10 @@ class _AddBookScreenState extends State<AddBookScreen> {
           TextButton.icon(
             onPressed: () => context.push('/search/external'),
             icon: const Icon(Icons.search, color: Colors.white),
-            label: Text(TranslationService.translate(context, 'btn_search_online'), style: const TextStyle(color: Colors.white)),
+            label: Text(
+              TranslationService.translate(context, 'btn_search_online'),
+              style: const TextStyle(color: Colors.white),
+            ),
           ),
         ],
       ),
@@ -157,7 +182,11 @@ class _AddBookScreenState extends State<AddBookScreen> {
             // Header
             Row(
               children: [
-                Icon(Icons.library_add, size: 32, color: Theme.of(context).primaryColor),
+                Icon(
+                  Icons.library_add,
+                  size: 32,
+                  color: Theme.of(context).primaryColor,
+                ),
                 const SizedBox(width: 12),
                 Text(
                   TranslationService.translate(context, 'add_new_book'),
@@ -181,58 +210,87 @@ class _AddBookScreenState extends State<AddBookScreen> {
                     if (textEditingValue.text.isEmpty) {
                       return const Iterable<Map<String, dynamic>>.empty();
                     }
-                    
+
                     // Check cache first
                     final cached = _searchCache.get(textEditingValue.text);
                     if (cached != null) {
                       return cached;
                     }
-                    
+
                     // Use OpenLibrary for title search (better relevance, covers, authors)
                     // Inventaire search is too basic (missing authors) for autocomplete
-                    final results = await _openLibraryService.searchBooks(textEditingValue.text);
-                    
+                    final results = await _openLibraryService.searchBooks(
+                      textEditingValue.text,
+                    );
+
                     // Filter out "Independently Published" (POD/self-published reprints)
                     // These pollute results with low-quality editions of public domain works
                     final filteredResults = results.where((book) {
                       final publisher = book.toMap()['publisher'] as String?;
                       return publisher != 'Independently Published';
                     }).toList();
-                    
-                    final resultMaps = filteredResults.map((book) => book.toMap()).toList();
-                    
+
+                    final resultMaps = filteredResults
+                        .map((book) => book.toMap())
+                        .toList();
+
                     // Cache the results
                     _searchCache.set(textEditingValue.text, resultMaps);
-                    
+
                     return resultMaps;
                   },
                   displayStringForOption: (option) => option['title'] ?? '',
                   onSelected: (Map<String, dynamic> selection) {
                     setState(() {
-                      if (selection['title'] != null) _titleController.text = selection['title'];
-                      if (selection['author'] != null) _authorController.text = selection['author'];
-                      if (selection['isbn'] != null) _isbnController.text = selection['isbn'];
-                      if (selection['publisher'] != null) _publisherController.text = selection['publisher'];
-                      if (selection['publication_year'] != null) _publicationYearController.text = selection['publication_year'].toString();
-                      if (selection['summary'] != null) _summaryController.text = selection['summary'];
-                      if (selection['cover_url'] != null) _coverUrl = selection['cover_url'];
+                      if (selection['title'] != null)
+                        _titleController.text = selection['title'];
+                      if (selection['author'] != null)
+                        _authorController.text = selection['author'];
+                      if (selection['isbn'] != null)
+                        _isbnController.text = selection['isbn'];
+                      if (selection['publisher'] != null)
+                        _publisherController.text = selection['publisher'];
+                      if (selection['publication_year'] != null)
+                        _publicationYearController.text =
+                            selection['publication_year'].toString();
+                      if (selection['summary'] != null)
+                        _summaryController.text = selection['summary'];
+                      if (selection['cover_url'] != null)
+                        _coverUrl = selection['cover_url'];
                     });
                   },
-                  fieldViewBuilder: (context, textEditingController, focusNode, onFieldSubmitted) {
-                    return TextFormField(
-                      controller: textEditingController,
-                      focusNode: focusNode,
-                      decoration: _buildInputDecoration(
-                        hint: TranslationService.translate(context, 'enter_book_title'),
-                        suffixIcon: const Icon(Icons.search),
-                      ),
-                      validator: (value) => value == null || value.isEmpty ? TranslationService.translate(context, 'enter_title_error') : null,
-                    );
-                  },
+                  fieldViewBuilder:
+                      (
+                        context,
+                        textEditingController,
+                        focusNode,
+                        onFieldSubmitted,
+                      ) {
+                        return TextFormField(
+                          controller: textEditingController,
+                          focusNode: focusNode,
+                          decoration: _buildInputDecoration(
+                            hint: TranslationService.translate(
+                              context,
+                              'enter_book_title',
+                            ),
+                            suffixIcon: const Icon(Icons.search),
+                          ),
+                          validator: (value) => value == null || value.isEmpty
+                              ? TranslationService.translate(
+                                  context,
+                                  'enter_title_error',
+                                )
+                              : null,
+                        );
+                      },
                   optionsViewBuilder: (context, onSelected, options) {
-                    final themeProvider = Provider.of<ThemeProvider>(context, listen: false);
+                    final themeProvider = Provider.of<ThemeProvider>(
+                      context,
+                      listen: false,
+                    );
                     final isJuniorReader = themeProvider.isKid;
-                    
+
                     return Align(
                       alignment: Alignment.topLeft,
                       child: Material(
@@ -248,11 +306,13 @@ class _AddBookScreenState extends State<AddBookScreen> {
                               final cover = option['cover_url'] as String?;
                               final author = option['author'] as String?;
                               final publisher = option['publisher'] as String?;
-                              
+
                               // For adults: show "Author • Publisher"
                               // For kids: show just "Author" (simpler)
                               String subtitle = author ?? '';
-                              if (!isJuniorReader && publisher != null && publisher.isNotEmpty) {
+                              if (!isJuniorReader &&
+                                  publisher != null &&
+                                  publisher.isNotEmpty) {
                                 if (subtitle.isNotEmpty) {
                                   subtitle += ' • $publisher';
                                 } else {
@@ -262,10 +322,21 @@ class _AddBookScreenState extends State<AddBookScreen> {
 
                               return ListTile(
                                 leading: cover != null && cover.isNotEmpty
-                                    ? Image.network(cover, width: 40, errorBuilder: (context, error, stackTrace) => const Icon(Icons.book))
+                                    ? Image.network(
+                                        cover,
+                                        width: 40,
+                                        errorBuilder:
+                                            (context, error, stackTrace) =>
+                                                const Icon(Icons.book),
+                                      )
                                     : const Icon(Icons.book),
                                 title: Text(option['title'] ?? ''),
-                                subtitle: subtitle.isNotEmpty ? Text(subtitle, style: const TextStyle(fontSize: 12)) : null,
+                                subtitle: subtitle.isNotEmpty
+                                    ? Text(
+                                        subtitle,
+                                        style: const TextStyle(fontSize: 12),
+                                      )
+                                    : null,
                                 onTap: () => onSelected(option),
                               );
                             },
@@ -283,7 +354,9 @@ class _AddBookScreenState extends State<AddBookScreen> {
             _buildLabel(TranslationService.translate(context, 'author_label')),
             TextFormField(
               controller: _authorController,
-              decoration: _buildInputDecoration(hint: TranslationService.translate(context, 'author_hint')),
+              decoration: _buildInputDecoration(
+                hint: TranslationService.translate(context, 'author_hint'),
+              ),
             ),
             if (_authorsData != null && _authorsData!.isNotEmpty) ...[
               const SizedBox(height: 16),
@@ -294,13 +367,16 @@ class _AddBookScreenState extends State<AddBookScreen> {
                 final imageUrl = author['image_url'] as String?;
                 final birth = author['birth_year'] as String?;
                 final death = author['death_year'] as String?;
-                
-                String lifeSpan = '';
-                if (birth != null) lifeSpan += '$birth';
-                if (death != null) lifeSpan += ' - $death';
-                else if (birth != null) lifeSpan += ' - Present';
 
-                if (bio == null && imageUrl == null && lifeSpan.isEmpty) return const SizedBox.shrink();
+                String lifeSpan = '';
+                if (birth != null) lifeSpan += birth;
+                if (death != null) {
+                  lifeSpan += ' - $death';
+                } else if (birth != null)
+                  lifeSpan += ' - Present';
+
+                if (bio == null && imageUrl == null && lifeSpan.isEmpty)
+                  return const SizedBox.shrink();
 
                 return Card(
                   margin: const EdgeInsets.only(bottom: 12),
@@ -309,39 +385,51 @@ class _AddBookScreenState extends State<AddBookScreen> {
                     child: Row(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                         if (imageUrl != null)
-                           Padding(
-                             padding: const EdgeInsets.only(right: 12.0),
-                             child: ClipRRect(
-                               borderRadius: BorderRadius.circular(40),
-                               child: Image.network(
-                                 imageUrl,
-                                 width: 60,
-                                 height: 60,
-                                 fit: BoxFit.cover,
-                                 errorBuilder: (_, __, ___) => const Icon(Icons.person, size: 40),
-                               ),
-                             ),
-                           ),
-                         Expanded(
-                           child: Column(
-                             crossAxisAlignment: CrossAxisAlignment.start,
-                             children: [
-                               Text(name, style: const TextStyle(fontWeight: FontWeight.bold)),
-                               if (lifeSpan.isNotEmpty)
-                                 Text(lifeSpan, style: TextStyle(fontSize: 12, color: Colors.grey[600])),
-                               if (bio != null) ...[
-                                 const SizedBox(height: 4),
-                                 Text(
-                                   bio,
-                                   maxLines: 4,
-                                   overflow: TextOverflow.ellipsis,
-                                   style: const TextStyle(fontSize: 13),
-                                 ),
-                               ],
-                             ],
-                           ),
-                         ),
+                        if (imageUrl != null)
+                          Padding(
+                            padding: const EdgeInsets.only(right: 12.0),
+                            child: ClipRRect(
+                              borderRadius: BorderRadius.circular(40),
+                              child: Image.network(
+                                imageUrl,
+                                width: 60,
+                                height: 60,
+                                fit: BoxFit.cover,
+                                errorBuilder: (_, __, ___) =>
+                                    const Icon(Icons.person, size: 40),
+                              ),
+                            ),
+                          ),
+                        Expanded(
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Text(
+                                name,
+                                style: const TextStyle(
+                                  fontWeight: FontWeight.bold,
+                                ),
+                              ),
+                              if (lifeSpan.isNotEmpty)
+                                Text(
+                                  lifeSpan,
+                                  style: TextStyle(
+                                    fontSize: 12,
+                                    color: Colors.grey[600],
+                                  ),
+                                ),
+                              if (bio != null) ...[
+                                const SizedBox(height: 4),
+                                Text(
+                                  bio,
+                                  maxLines: 4,
+                                  overflow: TextOverflow.ellipsis,
+                                  style: const TextStyle(fontSize: 13),
+                                ),
+                              ],
+                            ],
+                          ),
+                        ),
                       ],
                     ),
                   ),
@@ -355,7 +443,10 @@ class _AddBookScreenState extends State<AddBookScreen> {
             TextFormField(
               controller: _isbnController,
               decoration: _buildInputDecoration(
-                hint: TranslationService.translate(context, 'enter_isbn_autofill'),
+                hint: TranslationService.translate(
+                  context,
+                  'enter_isbn_autofill',
+                ),
                 suffixIcon: _isFetchingDetails
                     ? const Padding(
                         padding: EdgeInsets.all(12.0),
@@ -367,8 +458,12 @@ class _AddBookScreenState extends State<AddBookScreen> {
                       )
                     : IconButton(
                         icon: const Icon(Icons.search),
-                        onPressed: () => _fetchBookDetails(_isbnController.text),
-                        tooltip: TranslationService.translate(context, 'lookup_isbn'),
+                        onPressed: () =>
+                            _fetchBookDetails(_isbnController.text),
+                        tooltip: TranslationService.translate(
+                          context,
+                          'lookup_isbn',
+                        ),
                       ),
               ),
               keyboardType: TextInputType.number,
@@ -383,10 +478,20 @@ class _AddBookScreenState extends State<AddBookScreen> {
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      _buildLabel(TranslationService.translate(context, 'publisher_label')),
+                      _buildLabel(
+                        TranslationService.translate(
+                          context,
+                          'publisher_label',
+                        ),
+                      ),
                       TextFormField(
                         controller: _publisherController,
-                        decoration: _buildInputDecoration(hint: TranslationService.translate(context, 'publisher_hint')),
+                        decoration: _buildInputDecoration(
+                          hint: TranslationService.translate(
+                            context,
+                            'publisher_hint',
+                          ),
+                        ),
                       ),
                     ],
                   ),
@@ -396,10 +501,17 @@ class _AddBookScreenState extends State<AddBookScreen> {
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      _buildLabel(TranslationService.translate(context, 'year_label')),
+                      _buildLabel(
+                        TranslationService.translate(context, 'year_label'),
+                      ),
                       TextFormField(
                         controller: _publicationYearController,
-                        decoration: _buildInputDecoration(hint: TranslationService.translate(context, 'year_hint')),
+                        decoration: _buildInputDecoration(
+                          hint: TranslationService.translate(
+                            context,
+                            'year_hint',
+                          ),
+                        ),
                         keyboardType: TextInputType.number,
                       ),
                     ],
@@ -413,7 +525,9 @@ class _AddBookScreenState extends State<AddBookScreen> {
             _buildLabel(TranslationService.translate(context, 'summary_label')),
             TextFormField(
               controller: _summaryController,
-              decoration: _buildInputDecoration(hint: TranslationService.translate(context, 'summary_hint')),
+              decoration: _buildInputDecoration(
+                hint: TranslationService.translate(context, 'summary_hint'),
+              ),
               maxLines: 4,
             ),
             const SizedBox(height: 24),
@@ -422,12 +536,15 @@ class _AddBookScreenState extends State<AddBookScreen> {
             _buildLabel(TranslationService.translate(context, 'status_label')),
             Builder(
               builder: (context) {
-                final themeProvider = Provider.of<ThemeProvider>(context, listen: false);
+                final themeProvider = Provider.of<ThemeProvider>(
+                  context,
+                  listen: false,
+                );
                 final isLibrarian = themeProvider.isLibrarian;
                 final statusOptions = getStatusOptions(context, isLibrarian);
-                
+
                 return DropdownButtonFormField<String>(
-                  value: _readingStatus,
+                  initialValue: _readingStatus,
                   decoration: _buildInputDecoration(),
                   items: statusOptions.map((status) {
                     return DropdownMenuItem<String>(
@@ -454,18 +571,20 @@ class _AddBookScreenState extends State<AddBookScreen> {
                 if (textEditingValue.text == '') {
                   return const Iterable<String>.empty();
                 }
-                
+
                 try {
                   final api = Provider.of<ApiService>(context, listen: false);
                   final tags = await api.getTags();
                   final tagNames = tags.map((t) => t.name).toList();
-                  
+
                   return tagNames.where((String option) {
-                    return option.toLowerCase().contains(textEditingValue.text.toLowerCase()) && 
-                          !_selectedTags.contains(option);
+                    return option.toLowerCase().contains(
+                          textEditingValue.text.toLowerCase(),
+                        ) &&
+                        !_selectedTags.contains(option);
                   });
                 } catch (e) {
-                   return const Iterable<String>.empty();
+                  return const Iterable<String>.empty();
                 }
               },
               onSelected: (String selection) {
@@ -477,42 +596,46 @@ class _AddBookScreenState extends State<AddBookScreen> {
                   _tagsController.clear();
                 });
               },
-              fieldViewBuilder: (context, controller, focusNode, onFieldSubmitted) {
-                _tagsController = controller;
-                return TextFormField(
-                  controller: controller,
-                  focusNode: focusNode,
-                  decoration: _buildInputDecoration(
-                    hint: TranslationService.translate(context, 'add_tag_hint'),
-                    suffixIcon: IconButton(
-                      icon: const Icon(Icons.add),
-                      onPressed: () {
-                        if (controller.text.trim().isNotEmpty) {
+              fieldViewBuilder:
+                  (context, controller, focusNode, onFieldSubmitted) {
+                    _tagsController = controller;
+                    return TextFormField(
+                      controller: controller,
+                      focusNode: focusNode,
+                      decoration: _buildInputDecoration(
+                        hint: TranslationService.translate(
+                          context,
+                          'add_tag_hint',
+                        ),
+                        suffixIcon: IconButton(
+                          icon: const Icon(Icons.add),
+                          onPressed: () {
+                            if (controller.text.trim().isNotEmpty) {
+                              setState(() {
+                                final val = controller.text.trim();
+                                if (!_selectedTags.contains(val)) {
+                                  _selectedTags.add(val);
+                                }
+                                controller.clear();
+                              });
+                            }
+                          },
+                        ),
+                      ),
+                      onFieldSubmitted: (String value) {
+                        final trimmed = value.trim();
+                        if (trimmed.isNotEmpty) {
                           setState(() {
-                             final val = controller.text.trim();
-                             if (!_selectedTags.contains(val)) {
-                               _selectedTags.add(val);
-                             }
-                             controller.clear();
+                            if (!_selectedTags.contains(trimmed)) {
+                              _selectedTags.add(trimmed);
+                            }
+                            controller.clear();
                           });
+                          focusNode.requestFocus();
                         }
                       },
-                    ),
-                  ),
-                  onFieldSubmitted: (String value) {
-                     final trimmed = value.trim();
-                     if (trimmed.isNotEmpty) {
-                        setState(() {
-                           if (!_selectedTags.contains(trimmed)) {
-                             _selectedTags.add(trimmed);
-                           }
-                           controller.clear();
-                        });
-                        focusNode.requestFocus();
-                     }
+                    );
                   },
-                );
-              },
             ),
             const SizedBox(height: 12),
             Wrap(
@@ -537,13 +660,29 @@ class _AddBookScreenState extends State<AddBookScreen> {
               height: 50,
               child: ElevatedButton.icon(
                 onPressed: _isSaving ? null : _saveBook,
-                icon: _isSaving 
-                  ? const SizedBox(width: 20, height: 20, child: CircularProgressIndicator(strokeWidth: 2, color: Colors.white))
-                  : const Icon(Icons.save),
-                label: Text(_isSaving ? TranslationService.translate(context, 'saving') : TranslationService.translate(context, 'save_book')),
+                icon: _isSaving
+                    ? const SizedBox(
+                        width: 20,
+                        height: 20,
+                        child: CircularProgressIndicator(
+                          strokeWidth: 2,
+                          color: Colors.white,
+                        ),
+                      )
+                    : const Icon(Icons.save),
+                label: Text(
+                  _isSaving
+                      ? TranslationService.translate(context, 'saving')
+                      : TranslationService.translate(context, 'save_book'),
+                ),
                 style: ElevatedButton.styleFrom(
-                  textStyle: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
-                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
+                  textStyle: const TextStyle(
+                    fontSize: 16,
+                    fontWeight: FontWeight.bold,
+                  ),
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(8),
+                  ),
                 ),
               ),
             ),

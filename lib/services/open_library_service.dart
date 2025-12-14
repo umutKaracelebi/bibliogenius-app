@@ -24,7 +24,8 @@ class OpenLibraryBook {
   factory OpenLibraryBook.fromJson(Map<String, dynamic> json) {
     // Extract author
     String author = 'Unknown Author';
-    if (json['author_name'] != null && (json['author_name'] as List).isNotEmpty) {
+    if (json['author_name'] != null &&
+        (json['author_name'] as List).isNotEmpty) {
       author = json['author_name'][0];
     }
 
@@ -89,7 +90,8 @@ class OpenLibraryService {
         queryParameters: {
           'q': query,
           'limit': 10,
-          'fields': 'title,author_name,isbn,publisher,first_publish_year,cover_i,key',
+          'fields':
+              'title,author_name,isbn,publisher,first_publish_year,cover_i,key',
         },
       );
 
@@ -115,18 +117,19 @@ class OpenLibraryService {
 
       if (response.statusCode == 200) {
         final data = response.data;
-        
+
         // Extract basic info
         String title = data['title'] ?? 'Unknown Title';
         String? publisher;
         int? year;
         String? coverUrl;
-        
+
         // Extract publishers
-        if (data['publishers'] != null && (data['publishers'] as List).isNotEmpty) {
+        if (data['publishers'] != null &&
+            (data['publishers'] as List).isNotEmpty) {
           publisher = data['publishers'][0];
         }
-        
+
         // Extract publish date and parse year
         if (data['publish_date'] != null) {
           final publishDate = data['publish_date'] as String;
@@ -136,16 +139,16 @@ class OpenLibraryService {
             year = int.tryParse(yearMatch.group(0)!);
           }
         }
-        
+
         // Get cover from cover IDs
         if (data['covers'] != null && (data['covers'] as List).isNotEmpty) {
           final coverId = data['covers'][0];
           coverUrl = 'https://covers.openlibrary.org/b/id/$coverId-L.jpg';
         }
-        
+
         // Extract author - this is the tricky part
         String author = 'Unknown Author';
-        
+
         // Try to get author from the edition data
         if (data['authors'] != null && (data['authors'] as List).isNotEmpty) {
           // Authors in /isbn/ endpoint are usually just references like {"key": "/authors/OL1234A"}
@@ -154,14 +157,19 @@ class OpenLibraryService {
             final authorRef = data['authors'][0];
             if (authorRef is Map && authorRef['key'] != null) {
               final authorKey = authorRef['key'] as String;
-              final authorResponse = await _dio.get('$_baseUrl$authorKey.json',
+              final authorResponse = await _dio.get(
+                '$_baseUrl$authorKey.json',
                 options: Options(
-                  validateStatus: (status) => status! < 500, // Accept 4xx errors gracefully
-                  receiveTimeout: const Duration(seconds: 3), // Don't hang on slow requests
+                  validateStatus: (status) =>
+                      status! < 500, // Accept 4xx errors gracefully
+                  receiveTimeout: const Duration(
+                    seconds: 3,
+                  ), // Don't hang on slow requests
                 ),
               );
-              
-              if (authorResponse.statusCode == 200 && authorResponse.data['name'] != null) {
+
+              if (authorResponse.statusCode == 200 &&
+                  authorResponse.data['name'] != null) {
                 author = authorResponse.data['name'];
               }
             }
@@ -170,12 +178,12 @@ class OpenLibraryService {
             // Keep 'Unknown Author' as fallback
           }
         }
-        
+
         // Try to get author from 'by_statement' field as last resort
         if (author == 'Unknown Author' && data['by_statement'] != null) {
           author = data['by_statement'] as String;
         }
-        
+
         return OpenLibraryBook(
           title: title,
           author: author,

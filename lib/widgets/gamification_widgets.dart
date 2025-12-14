@@ -54,10 +54,7 @@ BadgeInfo getBadgeInfo(int level) {
 class BadgeCollectionWidget extends StatelessWidget {
   final int maxTrackLevel;
 
-  const BadgeCollectionWidget({
-    super.key,
-    required this.maxTrackLevel,
-  });
+  const BadgeCollectionWidget({super.key, required this.maxTrackLevel});
 
   @override
   Widget build(BuildContext context) {
@@ -65,9 +62,17 @@ class BadgeCollectionWidget extends StatelessWidget {
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         Padding(
-          padding: const EdgeInsets.only(left: 24.0, right: 24.0, top: 8.0, bottom: 12.0),
+          padding: const EdgeInsets.only(
+            left: 24.0,
+            right: 24.0,
+            top: 8.0,
+            bottom: 12.0,
+          ),
           child: Text(
-            TranslationService.translate(context, 'badge_collection').toUpperCase(),
+            TranslationService.translate(
+              context,
+              'badge_collection',
+            ).toUpperCase(),
             style: TextStyle(
               fontSize: 12,
               fontWeight: FontWeight.bold,
@@ -78,98 +83,119 @@ class BadgeCollectionWidget extends StatelessWidget {
         ),
         Padding(
           padding: const EdgeInsets.symmetric(horizontal: 24.0),
-            child: Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              children: List.generate(4, (index) {
-                final badgeInfo = getBadgeInfo(index);
-                final isUnlocked = maxTrackLevel >= index;
+          child: Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: List.generate(4, (index) {
+              final badgeInfo = getBadgeInfo(index);
+              final isUnlocked = maxTrackLevel >= index;
 
-                return Expanded(
-                  child: Column(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: [
-                      SizedBox(
-                        width: 80,
-                        height: 80,
-                        child: Stack(
-                          alignment: Alignment.center,
-                          children: [
-                            // Background circle (like track background)
-                            Container(
-                              width: 70,
-                              height: 70,
-                              decoration: BoxDecoration(
-                                shape: BoxShape.circle,
-                                color: isUnlocked 
-                                    ? badgeInfo.color.withValues(alpha: 0.1) 
-                                    : Colors.grey.withValues(alpha: 0.05),
-                                border: Border.all(
-                                  color: isUnlocked 
-                                      ? badgeInfo.color.withValues(alpha: 0.3)
-                                      : Colors.grey.withValues(alpha: 0.2),
-                                  width: 3,
-                                ),
+              return Expanded(
+                child: Column(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    SizedBox(
+                      width: 80,
+                      height: 80,
+                      child: Stack(
+                        alignment: Alignment.center,
+                        children: [
+                          // Background circle (like track background)
+                          Container(
+                            width: 70,
+                            height: 70,
+                            decoration: BoxDecoration(
+                              shape: BoxShape.circle,
+                              color: isUnlocked
+                                  ? badgeInfo.color.withValues(alpha: 0.1)
+                                  : Colors.grey.withValues(alpha: 0.05),
+                              border: Border.all(
+                                color: isUnlocked
+                                    ? badgeInfo.color.withValues(alpha: 0.3)
+                                    : Colors.grey.withValues(alpha: 0.2),
+                                width: 3,
                               ),
                             ),
-                            // Badge icon
-                            Opacity(
-                              opacity: isUnlocked ? 1.0 : 0.5,
-                              child: SvgPicture.asset(
-                                badgeInfo.assetPath,
-                                width: 48,
-                                height: 48,
-                                fit: BoxFit.contain,
-                                colorFilter: isUnlocked 
-                                    ? null
-                                    : const ColorFilter.matrix(<double>[
-                                        0.2126, 0.7152, 0.0722, 0, 0,
-                                        0.2126, 0.7152, 0.0722, 0, 0,
-                                        0.2126, 0.7152, 0.0722, 0, 0,
-                                        0, 0, 0, 1, 0,
-                                      ]),
-                              ),
-                            ),
-                            // Lock icon for locked badges
-                            if (!isUnlocked)
-                              Positioned(
-                                bottom: 0,
-                                right: 4,
-                                child: Container(
-                                  padding: const EdgeInsets.all(3),
-                                  decoration: BoxDecoration(
-                                    color: Colors.grey[300],
-                                    shape: BoxShape.circle,
-                                  ),
-                                  child: Icon(
-                                    Icons.lock,
-                                    size: 10,
-                                    color: Colors.grey[600],
-                                  ),
-                                ),
-                              ),
-                          ],
-                        ),
-                      ),
-                      const SizedBox(height: 8),
-                      Padding(
-                        padding: const EdgeInsets.symmetric(horizontal: 2.0),
-                        child: Text(
-                          TranslationService.translate(context, badgeInfo.translationKey).split(' ').last,
-                          textAlign: TextAlign.center,
-                          style: TextStyle(
-                            fontSize: 11,
-                            fontWeight: isUnlocked ? FontWeight.bold : FontWeight.normal,
-                            color: isUnlocked ? badgeInfo.color : Colors.grey,
                           ),
-                          maxLines: 1,
-                          overflow: TextOverflow.ellipsis,
-                        ),
+                          // Badge icon
+                          Opacity(
+                            opacity: isUnlocked ? 1.0 : 0.5,
+                            child: SvgPicture.asset(
+                              badgeInfo.assetPath,
+                              width: 48,
+                              height: 48,
+                              fit: BoxFit.contain,
+                              colorFilter: isUnlocked
+                                  ? null
+                                  : const ColorFilter.matrix(<double>[
+                                      0.2126,
+                                      0.7152,
+                                      0.0722,
+                                      0,
+                                      0,
+                                      0.2126,
+                                      0.7152,
+                                      0.0722,
+                                      0,
+                                      0,
+                                      0.2126,
+                                      0.7152,
+                                      0.0722,
+                                      0,
+                                      0,
+                                      0,
+                                      0,
+                                      0,
+                                      1,
+                                      0,
+                                    ]),
+                            ),
+                          ),
+                          // Lock icon for locked badges
+                          if (!isUnlocked)
+                            Positioned(
+                              bottom: 0,
+                              right: 4,
+                              child: Container(
+                                padding: const EdgeInsets.all(3),
+                                decoration: BoxDecoration(
+                                  color: Colors.grey[300],
+                                  shape: BoxShape.circle,
+                                ),
+                                child: Icon(
+                                  Icons.lock,
+                                  size: 10,
+                                  color: Colors.grey[600],
+                                ),
+                              ),
+                            ),
+                        ],
                       ),
-                    ],
-                  ),
-                );
-              }),
-            ),
+                    ),
+                    const SizedBox(height: 8),
+                    Padding(
+                      padding: const EdgeInsets.symmetric(horizontal: 2.0),
+                      child: Text(
+                        TranslationService.translate(
+                          context,
+                          badgeInfo.translationKey,
+                        ).split(' ').last,
+                        textAlign: TextAlign.center,
+                        style: TextStyle(
+                          fontSize: 11,
+                          fontWeight: isUnlocked
+                              ? FontWeight.bold
+                              : FontWeight.normal,
+                          color: isUnlocked ? badgeInfo.color : Colors.grey,
+                        ),
+                        maxLines: 1,
+                        overflow: TextOverflow.ellipsis,
+                      ),
+                    ),
+                  ],
+                ),
+              );
+            }),
+          ),
         ),
       ],
     );
@@ -179,16 +205,14 @@ class BadgeCollectionWidget extends StatelessWidget {
 class CurrentBadgeWidget extends StatefulWidget {
   final int maxTrackLevel;
 
-  const CurrentBadgeWidget({
-    super.key,
-    required this.maxTrackLevel,
-  });
+  const CurrentBadgeWidget({super.key, required this.maxTrackLevel});
 
   @override
   State<CurrentBadgeWidget> createState() => _CurrentBadgeWidgetState();
 }
 
-class _CurrentBadgeWidgetState extends State<CurrentBadgeWidget> with SingleTickerProviderStateMixin {
+class _CurrentBadgeWidgetState extends State<CurrentBadgeWidget>
+    with SingleTickerProviderStateMixin {
   late AnimationController _pulseController;
   late Animation<double> _pulseAnimation;
 
@@ -199,7 +223,7 @@ class _CurrentBadgeWidgetState extends State<CurrentBadgeWidget> with SingleTick
       duration: const Duration(seconds: 2),
       vsync: this,
     )..repeat(reverse: true);
-    
+
     _pulseAnimation = Tween<double>(begin: 1.0, end: 1.1).animate(
       CurvedAnimation(parent: _pulseController, curve: Curves.easeInOut),
     );
@@ -222,7 +246,7 @@ class _CurrentBadgeWidgetState extends State<CurrentBadgeWidget> with SingleTick
         gradient: LinearGradient(
           colors: [
             badgeInfo.color.withValues(alpha: 0.1),
-            badgeInfo.secondaryColor.withValues(alpha: 0.05)
+            badgeInfo.secondaryColor.withValues(alpha: 0.05),
           ],
           begin: Alignment.topLeft,
           end: Alignment.bottomRight,
@@ -256,14 +280,20 @@ class _CurrentBadgeWidgetState extends State<CurrentBadgeWidget> with SingleTick
               ),
             ),
           ),
-          
+
           Padding(
-            padding: const EdgeInsets.symmetric(vertical: 32.0, horizontal: 24.0),
+            padding: const EdgeInsets.symmetric(
+              vertical: 32.0,
+              horizontal: 24.0,
+            ),
             child: Column(
               children: [
                 // Level Name Pill
                 Container(
-                  padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 16,
+                    vertical: 8,
+                  ),
                   decoration: BoxDecoration(
                     color: Theme.of(context).cardColor,
                     borderRadius: BorderRadius.circular(20),
@@ -272,7 +302,7 @@ class _CurrentBadgeWidgetState extends State<CurrentBadgeWidget> with SingleTick
                         color: Colors.black.withValues(alpha: 0.05),
                         blurRadius: 4,
                         offset: const Offset(0, 2),
-                      )
+                      ),
                     ],
                     border: Border.all(
                       color: badgeInfo.color.withValues(alpha: 0.5),
@@ -280,9 +310,12 @@ class _CurrentBadgeWidgetState extends State<CurrentBadgeWidget> with SingleTick
                     ),
                   ),
                   child: Text(
-                    isPrestige 
-                        ? '${TranslationService.translate(context, badgeInfo.translationKey)} ${widget.maxTrackLevel}' 
-                        : TranslationService.translate(context, badgeInfo.translationKey),
+                    isPrestige
+                        ? '${TranslationService.translate(context, badgeInfo.translationKey)} ${widget.maxTrackLevel}'
+                        : TranslationService.translate(
+                            context,
+                            badgeInfo.translationKey,
+                          ),
                     style: TextStyle(
                       fontSize: 18,
                       fontWeight: FontWeight.bold,
@@ -290,18 +323,22 @@ class _CurrentBadgeWidgetState extends State<CurrentBadgeWidget> with SingleTick
                     ),
                   ),
                 ),
-                
+
                 const SizedBox(height: 32),
-                
+
                 // Badge Image
                 ScaleTransition(
-                  scale: isPrestige ? _pulseAnimation : const AlwaysStoppedAnimation(1.0),
+                  scale: isPrestige
+                      ? _pulseAnimation
+                      : const AlwaysStoppedAnimation(1.0),
                   child: Container(
                     decoration: BoxDecoration(
                       shape: BoxShape.circle,
                       boxShadow: [
                         BoxShadow(
-                          color: badgeInfo.color.withValues(alpha: isPrestige ? 0.6 : 0.4),
+                          color: badgeInfo.color.withValues(
+                            alpha: isPrestige ? 0.6 : 0.4,
+                          ),
                           blurRadius: isPrestige ? 30 : 20,
                           spreadRadius: isPrestige ? 5 : 0,
                           offset: const Offset(0, 8),
@@ -329,17 +366,22 @@ class _CurrentBadgeWidgetState extends State<CurrentBadgeWidget> with SingleTick
                     ),
                   ),
                 ),
-                
+
                 const SizedBox(height: 24),
-                
+
                 // Current Level Label
                 Text(
-                  TranslationService.translate(context, 'your_current_level').toUpperCase(),
+                  TranslationService.translate(
+                    context,
+                    'your_current_level',
+                  ).toUpperCase(),
                   style: TextStyle(
                     fontSize: 12,
                     letterSpacing: 1.5,
                     fontWeight: FontWeight.w600,
-                    color: Theme.of(context).textTheme.bodySmall?.color?.withValues(alpha: 0.8),
+                    color: Theme.of(
+                      context,
+                    ).textTheme.bodySmall?.color?.withValues(alpha: 0.8),
                   ),
                 ),
               ],
@@ -351,9 +393,8 @@ class _CurrentBadgeWidgetState extends State<CurrentBadgeWidget> with SingleTick
   }
 }
 
-
 /// A circular progress widget for displaying a single gamification track.
-/// 
+///
 /// Shows a circular progress indicator with an icon in the center,
 /// the track name, and the current level badge.
 class TrackProgressWidget extends StatelessWidget {
@@ -415,11 +456,7 @@ class TrackProgressWidget extends StatelessWidget {
                   shape: BoxShape.circle,
                   color: color.withValues(alpha: 0.1),
                 ),
-                child: Icon(
-                  icon,
-                  color: color,
-                  size: size * 0.35,
-                ),
+                child: Icon(icon, color: color, size: size * 0.35),
               ),
               // Level badge (top-right corner)
               if (track.level > 0)
@@ -449,15 +486,15 @@ class TrackProgressWidget extends StatelessWidget {
         const SizedBox(height: 8),
         Text(
           trackName,
-          style: Theme.of(context).textTheme.bodySmall?.copyWith(
-            fontWeight: FontWeight.w500,
-          ),
+          style: Theme.of(
+            context,
+          ).textTheme.bodySmall?.copyWith(fontWeight: FontWeight.w500),
         ),
         Text(
           '${track.current}/${track.nextThreshold}',
-          style: Theme.of(context).textTheme.bodySmall?.copyWith(
-            color: Colors.grey,
-          ),
+          style: Theme.of(
+            context,
+          ).textTheme.bodySmall?.copyWith(color: Colors.grey),
         ),
       ],
     );
@@ -481,10 +518,7 @@ class TrackProgressWidget extends StatelessWidget {
 class TracksProgressRow extends StatelessWidget {
   final GamificationStatus status;
 
-  const TracksProgressRow({
-    super.key,
-    required this.status,
-  });
+  const TracksProgressRow({super.key, required this.status});
 
   @override
   Widget build(BuildContext context) {
@@ -498,7 +532,10 @@ class TracksProgressRow extends StatelessWidget {
               Expanded(
                 child: TrackProgressWidget(
                   track: status.collector,
-                  trackName: TranslationService.translate(context, 'track_collector'),
+                  trackName: TranslationService.translate(
+                    context,
+                    'track_collector',
+                  ),
                   icon: Icons.collections_bookmark,
                   color: Colors.blue,
                 ),
@@ -506,7 +543,10 @@ class TracksProgressRow extends StatelessWidget {
               Expanded(
                 child: TrackProgressWidget(
                   track: status.reader,
-                  trackName: TranslationService.translate(context, 'track_reader'),
+                  trackName: TranslationService.translate(
+                    context,
+                    'track_reader',
+                  ),
                   icon: Icons.menu_book,
                   color: Colors.green,
                 ),
@@ -514,7 +554,10 @@ class TracksProgressRow extends StatelessWidget {
               Expanded(
                 child: TrackProgressWidget(
                   track: status.lender,
-                  trackName: TranslationService.translate(context, 'track_lender'),
+                  trackName: TranslationService.translate(
+                    context,
+                    'track_lender',
+                  ),
                   icon: Icons.volunteer_activism,
                   color: Colors.orange,
                 ),
@@ -522,7 +565,10 @@ class TracksProgressRow extends StatelessWidget {
               Expanded(
                 child: TrackProgressWidget(
                   track: status.cataloguer,
-                  trackName: TranslationService.translate(context, 'track_cataloguer'),
+                  trackName: TranslationService.translate(
+                    context,
+                    'track_cataloguer',
+                  ),
                   icon: Icons.list_alt,
                   color: Colors.purple,
                 ),
@@ -538,25 +584,37 @@ class TracksProgressRow extends StatelessWidget {
             children: [
               TrackProgressWidget(
                 track: status.collector,
-                trackName: TranslationService.translate(context, 'track_collector'),
+                trackName: TranslationService.translate(
+                  context,
+                  'track_collector',
+                ),
                 icon: Icons.library_books,
                 color: Colors.blue,
               ),
               TrackProgressWidget(
                 track: status.reader,
-                trackName: TranslationService.translate(context, 'track_reader'),
+                trackName: TranslationService.translate(
+                  context,
+                  'track_reader',
+                ),
                 icon: Icons.menu_book,
                 color: Colors.green,
               ),
               TrackProgressWidget(
                 track: status.lender,
-                trackName: TranslationService.translate(context, 'track_lender'),
+                trackName: TranslationService.translate(
+                  context,
+                  'track_lender',
+                ),
                 icon: Icons.handshake,
                 color: Colors.orange,
               ),
               TrackProgressWidget(
                 track: status.cataloguer,
-                trackName: TranslationService.translate(context, 'track_cataloguer'),
+                trackName: TranslationService.translate(
+                  context,
+                  'track_cataloguer',
+                ),
                 icon: Icons.sort,
                 color: Colors.purple,
               ),
@@ -572,10 +630,7 @@ class TracksProgressRow extends StatelessWidget {
 class StreakWidget extends StatelessWidget {
   final StreakInfo streak;
 
-  const StreakWidget({
-    super.key,
-    required this.streak,
-  });
+  const StreakWidget({super.key, required this.streak});
 
   @override
   Widget build(BuildContext context) {
@@ -593,7 +648,11 @@ class StreakWidget extends StatelessWidget {
       child: Row(
         mainAxisSize: MainAxisSize.min,
         children: [
-          const Icon(Icons.local_fire_department, color: Colors.orange, size: 20),
+          const Icon(
+            Icons.local_fire_department,
+            color: Colors.orange,
+            size: 20,
+          ),
           const SizedBox(width: 4),
           Text(
             '${streak.current}',
@@ -622,37 +681,27 @@ class GamificationSummaryCard extends StatelessWidget {
   final GamificationStatus status;
   final VoidCallback? onTap;
 
-  const GamificationSummaryCard({
-    super.key,
-    required this.status,
-    this.onTap,
-  });
+  const GamificationSummaryCard({super.key, required this.status, this.onTap});
 
   @override
   Widget build(BuildContext context) {
     final isDark = Theme.of(context).brightness == Brightness.dark;
-    
+
     return Container(
       decoration: BoxDecoration(
         borderRadius: BorderRadius.circular(20),
         gradient: LinearGradient(
           begin: Alignment.topLeft,
           end: Alignment.bottomRight,
-          colors: isDark 
-            ? [
-                const Color(0xFF1a1a2e),
-                const Color(0xFF16213e),
-              ]
-            : [
-                Colors.white,
-                const Color(0xFFF5F7FA),
-              ],
+          colors: isDark
+              ? [const Color(0xFF1a1a2e), const Color(0xFF16213e)]
+              : [Colors.white, const Color(0xFFF5F7FA)],
         ),
         boxShadow: [
           BoxShadow(
-            color: isDark 
-              ? Colors.black.withValues(alpha: 0.3)
-              : Colors.grey.withValues(alpha: 0.15),
+            color: isDark
+                ? Colors.black.withValues(alpha: 0.3)
+                : Colors.grey.withValues(alpha: 0.15),
             blurRadius: 20,
             offset: const Offset(0, 8),
           ),
@@ -692,10 +741,12 @@ class GamificationSummaryCard extends StatelessWidget {
                           ),
                           const SizedBox(width: 12),
                           Text(
-                            TranslationService.translate(context, 'your_progress'),
-                            style: Theme.of(context).textTheme.titleMedium?.copyWith(
-                              fontWeight: FontWeight.bold,
+                            TranslationService.translate(
+                              context,
+                              'your_progress',
                             ),
+                            style: Theme.of(context).textTheme.titleMedium
+                                ?.copyWith(fontWeight: FontWeight.bold),
                           ),
                         ],
                       ),
@@ -703,10 +754,10 @@ class GamificationSummaryCard extends StatelessWidget {
                     ],
                   ),
                   const SizedBox(height: 24),
-                  
+
                   // Badge Collection
                   BadgeCollectionWidget(maxTrackLevel: status.maxTrackLevel),
-                   
+
                   const SizedBox(height: 24),
                   const Divider(height: 1, indent: 24, endIndent: 24),
                   const SizedBox(height: 24),
@@ -716,22 +767,22 @@ class GamificationSummaryCard extends StatelessWidget {
                     padding: const EdgeInsets.symmetric(horizontal: 24.0),
                     child: TracksProgressRow(status: status),
                   ),
-                  
+
                   // Reading goal progress (if enabled)
                   if (status.config.readingGoalYearly > 0) ...[
                     const SizedBox(height: 20),
                     _buildReadingGoalSection(context),
                   ],
-                  
+
                   // Achievements section
                   if (status.hasAchievements) ...[
                     const SizedBox(height: 20),
                     Container(
                       padding: const EdgeInsets.all(12),
                       decoration: BoxDecoration(
-                        color: isDark 
-                          ? Colors.white.withValues(alpha: 0.05)
-                          : Colors.black.withValues(alpha: 0.03),
+                        color: isDark
+                            ? Colors.white.withValues(alpha: 0.05)
+                            : Colors.black.withValues(alpha: 0.03),
                         borderRadius: BorderRadius.circular(12),
                       ),
                       child: Column(
@@ -746,10 +797,12 @@ class GamificationSummaryCard extends StatelessWidget {
                               ),
                               const SizedBox(width: 6),
                               Text(
-                                TranslationService.translate(context, 'recent_achievements'),
-                                style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                                  fontWeight: FontWeight.w600,
+                                TranslationService.translate(
+                                  context,
+                                  'recent_achievements',
                                 ),
+                                style: Theme.of(context).textTheme.bodySmall
+                                    ?.copyWith(fontWeight: FontWeight.w600),
                               ),
                             ],
                           ),
@@ -779,7 +832,7 @@ class GamificationSummaryCard extends StatelessWidget {
     final progress = status.config.goalProgress;
     final current = status.config.readingGoalProgress;
     final goal = status.config.readingGoalYearly;
-    
+
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
@@ -801,9 +854,9 @@ class GamificationSummaryCard extends StatelessWidget {
             ),
             Text(
               '$current / $goal',
-              style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                color: Colors.grey,
-              ),
+              style: Theme.of(
+                context,
+              ).textTheme.bodySmall?.copyWith(color: Colors.grey),
             ),
           ],
         ),
@@ -840,11 +893,7 @@ class GamificationSummaryCard extends StatelessWidget {
       child: Row(
         mainAxisSize: MainAxisSize.min,
         children: [
-          Icon(
-            _getAchievementIcon(id),
-            size: 14,
-            color: Colors.amber[700],
-          ),
+          Icon(_getAchievementIcon(id), size: 14, color: Colors.amber[700]),
           const SizedBox(width: 4),
           Text(
             _getAchievementName(context, id),
@@ -865,9 +914,15 @@ class GamificationSummaryCard extends StatelessWidget {
     final translated = TranslationService.translate(context, key);
     if (translated == key) {
       // Not translated, format the ID
-      return id.replaceAll('_', ' ').split(' ').map((word) => 
-        word.isNotEmpty ? '${word[0].toUpperCase()}${word.substring(1)}' : ''
-      ).join(' ');
+      return id
+          .replaceAll('_', ' ')
+          .split(' ')
+          .map(
+            (word) => word.isNotEmpty
+                ? '${word[0].toUpperCase()}${word.substring(1)}'
+                : '',
+          )
+          .join(' ');
     }
     return translated;
   }

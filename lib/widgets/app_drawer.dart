@@ -3,7 +3,6 @@ import 'package:go_router/go_router.dart';
 import 'package:provider/provider.dart';
 import '../services/translation_service.dart';
 import '../providers/theme_provider.dart';
-import '../services/wizard_service.dart';
 
 class AppDrawer extends StatelessWidget {
   const AppDrawer({super.key});
@@ -50,15 +49,19 @@ class AppDrawer extends StatelessWidget {
           ),
           ListTile(
             leading: const Icon(Icons.book),
-            title: Text(TranslationService.translate(context, 'nav_my_library')),
+            title: Text(
+              TranslationService.translate(context, 'nav_my_library'),
+            ),
             onTap: () {
               Navigator.pop(context);
               context.go('/books');
             },
           ),
           ListTile(
-            leading: const Icon(Icons.shelves), 
-            title: Text(TranslationService.translate(context, 'shelves') ?? 'Shelves'),
+            leading: const Icon(Icons.shelves),
+            title: Text(
+              TranslationService.translate(context, 'shelves') ?? 'Shelves',
+            ),
             onTap: () {
               Navigator.pop(context);
               context.go('/shelves');
@@ -93,7 +96,9 @@ class AppDrawer extends StatelessWidget {
           ),
           ListTile(
             leading: const Icon(Icons.insights),
-            title: Text(TranslationService.translate(context, 'nav_statistics')),
+            title: Text(
+              TranslationService.translate(context, 'nav_statistics'),
+            ),
             onTap: () {
               Navigator.pop(context);
               context.go('/statistics');
@@ -117,7 +122,9 @@ class AppDrawer extends StatelessWidget {
           ),
           ListTile(
             leading: const Icon(Icons.bug_report),
-            title: Text(TranslationService.translate(context, 'nav_report_bug')),
+            title: Text(
+              TranslationService.translate(context, 'nav_report_bug'),
+            ),
             onTap: () {
               Navigator.pop(context);
               context.push('/feedback');

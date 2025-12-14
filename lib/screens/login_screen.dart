@@ -35,16 +35,15 @@ class _LoginScreenState extends State<LoginScreen>
       vsync: this,
     );
 
-    _fadeAnimation = Tween<double>(begin: 0.0, end: 1.0).animate(
-      CurvedAnimation(parent: _animController, curve: Curves.easeIn),
-    );
+    _fadeAnimation = Tween<double>(
+      begin: 0.0,
+      end: 1.0,
+    ).animate(CurvedAnimation(parent: _animController, curve: Curves.easeIn));
 
     _slideAnimation = Tween<Offset>(
       begin: const Offset(0, 0.1),
       end: Offset.zero,
-    ).animate(
-      CurvedAnimation(parent: _animController, curve: Curves.easeOut),
-    );
+    ).animate(CurvedAnimation(parent: _animController, curve: Curves.easeOut));
 
     _animController.forward();
   }
@@ -180,16 +179,21 @@ class _LoginScreenState extends State<LoginScreen>
                             context,
                             listen: false,
                           );
-                          final apiService = Provider.of<ApiService>(context, listen: false);
+                          final apiService = Provider.of<ApiService>(
+                            context,
+                            listen: false,
+                          );
                           final navigator = Navigator.of(context);
                           final messenger = ScaffoldMessenger.of(context);
-                          
+
                           await authService.logout();
                           apiService.setBaseUrl(controller.text);
                           navigator.pop();
                           messenger.showSnackBar(
                             SnackBar(
-                              content: Text('Server changed to ${controller.text}'),
+                              content: Text(
+                                'Server changed to ${controller.text}',
+                              ),
                               behavior: SnackBarBehavior.floating,
                             ),
                           );
@@ -220,9 +224,7 @@ class _LoginScreenState extends State<LoginScreen>
   Widget build(BuildContext context) {
     return Scaffold(
       body: Container(
-        decoration: const BoxDecoration(
-          gradient: AppDesign.primaryGradient,
-        ),
+        decoration: const BoxDecoration(gradient: AppDesign.primaryGradient),
         child: SafeArea(
           child: Center(
             child: SingleChildScrollView(
@@ -272,7 +274,10 @@ class _LoginScreenState extends State<LoginScreen>
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
                             Text(
-                              TranslationService.translate(context, 'login_title'),
+                              TranslationService.translate(
+                                context,
+                                'login_title',
+                              ),
                               style: const TextStyle(
                                 fontSize: 24,
                                 fontWeight: FontWeight.bold,
@@ -300,12 +305,18 @@ class _LoginScreenState extends State<LoginScreen>
                                 ),
                                 child: Row(
                                   children: [
-                                    Icon(Icons.error_outline, color: Colors.red[700], size: 20),
+                                    Icon(
+                                      Icons.error_outline,
+                                      color: Colors.red[700],
+                                      size: 20,
+                                    ),
                                     const SizedBox(width: 8),
                                     Expanded(
                                       child: Text(
                                         _errorMessage!,
-                                        style: TextStyle(color: Colors.red[700]),
+                                        style: TextStyle(
+                                          color: Colors.red[700],
+                                        ),
                                       ),
                                     ),
                                   ],
@@ -326,11 +337,16 @@ class _LoginScreenState extends State<LoginScreen>
                                 ),
                                 enabledBorder: OutlineInputBorder(
                                   borderRadius: BorderRadius.circular(12),
-                                  borderSide: BorderSide(color: Colors.grey[300]!),
+                                  borderSide: BorderSide(
+                                    color: Colors.grey[300]!,
+                                  ),
                                 ),
                                 focusedBorder: OutlineInputBorder(
                                   borderRadius: BorderRadius.circular(12),
-                                  borderSide: const BorderSide(color: Color(0xFF6366F1), width: 2),
+                                  borderSide: const BorderSide(
+                                    color: Color(0xFF6366F1),
+                                    width: 2,
+                                  ),
                                 ),
                               ),
                             ),
@@ -352,7 +368,10 @@ class _LoginScreenState extends State<LoginScreen>
                                         : Icons.visibility_outlined,
                                   ),
                                   onPressed: () {
-                                    setState(() => _obscurePassword = !_obscurePassword);
+                                    setState(
+                                      () =>
+                                          _obscurePassword = !_obscurePassword,
+                                    );
                                   },
                                 ),
                                 border: OutlineInputBorder(
@@ -360,11 +379,16 @@ class _LoginScreenState extends State<LoginScreen>
                                 ),
                                 enabledBorder: OutlineInputBorder(
                                   borderRadius: BorderRadius.circular(12),
-                                  borderSide: BorderSide(color: Colors.grey[300]!),
+                                  borderSide: BorderSide(
+                                    color: Colors.grey[300]!,
+                                  ),
                                 ),
                                 focusedBorder: OutlineInputBorder(
                                   borderRadius: BorderRadius.circular(12),
-                                  borderSide: const BorderSide(color: Color(0xFF6366F1), width: 2),
+                                  borderSide: const BorderSide(
+                                    color: Color(0xFF6366F1),
+                                    width: 2,
+                                  ),
                                 ),
                               ),
                             ),
@@ -379,7 +403,9 @@ class _LoginScreenState extends State<LoginScreen>
                                 style: ElevatedButton.styleFrom(
                                   backgroundColor: const Color(0xFF6366F1),
                                   foregroundColor: Colors.white,
-                                  disabledBackgroundColor: const Color(0xFF6366F1).withValues(alpha: 0.5),
+                                  disabledBackgroundColor: const Color(
+                                    0xFF6366F1,
+                                  ).withValues(alpha: 0.5),
                                   shape: RoundedRectangleBorder(
                                     borderRadius: BorderRadius.circular(12),
                                   ),
@@ -391,11 +417,17 @@ class _LoginScreenState extends State<LoginScreen>
                                         height: 24,
                                         child: CircularProgressIndicator(
                                           strokeWidth: 2.5,
-                                          valueColor: AlwaysStoppedAnimation<Color>(Colors.white),
+                                          valueColor:
+                                              AlwaysStoppedAnimation<Color>(
+                                                Colors.white,
+                                              ),
                                         ),
                                       )
                                     : Text(
-                                        TranslationService.translate(context, 'login_btn'),
+                                        TranslationService.translate(
+                                          context,
+                                          'login_btn',
+                                        ),
                                         style: const TextStyle(
                                           fontSize: 16,
                                           fontWeight: FontWeight.bold,
@@ -410,8 +442,13 @@ class _LoginScreenState extends State<LoginScreen>
                               child: TextButton(
                                 onPressed: () => context.go('/setup'),
                                 child: Text(
-                                  TranslationService.translate(context, 'new_server_setup'),
-                                  style: const TextStyle(color: Color(0xFF6366F1)),
+                                  TranslationService.translate(
+                                    context,
+                                    'new_server_setup',
+                                  ),
+                                  style: const TextStyle(
+                                    color: Color(0xFF6366F1),
+                                  ),
                                 ),
                               ),
                             ),
@@ -424,7 +461,11 @@ class _LoginScreenState extends State<LoginScreen>
                       // Server settings button
                       TextButton.icon(
                         onPressed: _showServerSettings,
-                        icon: const Icon(Icons.settings, color: Colors.white70, size: 18),
+                        icon: const Icon(
+                          Icons.settings,
+                          color: Colors.white70,
+                          size: 18,
+                        ),
                         label: const Text(
                           'Server Settings',
                           style: TextStyle(color: Colors.white70),

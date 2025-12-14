@@ -26,7 +26,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
   bool _isLoading = true;
   Quote? _dailyQuote;
   String? _userName;
-  Map<String, dynamic> _stats = {};
+  final Map<String, dynamic> _stats = {};
   List<Book> _recentBooks = [];
   List<Book> _readingListBooks = [];
   Book? _heroBook;
@@ -75,58 +75,66 @@ class _DashboardScreenState extends State<DashboardScreen> {
     final api = Provider.of<ApiService>(context, listen: false);
     // Background fetch of translations
     TranslationService.fetchTranslations(context);
-    
+
     setState(() => _isLoading = true);
-    
+
     try {
       try {
         var books = await api.getBooks();
         final configRes = await api.getLibraryConfig();
-        
-        if (configRes.statusCode == 200) {
-             final config = configRes.data;
-             if (config['show_borrowed_books'] != true) {
-               books = books.where((b) => b.readingStatus != 'borrowed').toList();
-             }
-             // Store library name
-             if (mounted) {
-               setState(() {
-                 _libraryName = config['library_name'] ?? config['name'];
-               });
-             }
-        }
 
+        if (configRes.statusCode == 200) {
+          final config = configRes.data;
+          if (config['show_borrowed_books'] != true) {
+            books = books.where((b) => b.readingStatus != 'borrowed').toList();
+          }
+          // Store library name
           if (mounted) {
             setState(() {
-              _stats['total_books'] = books.length;
-              _stats['borrowed_count'] = books.where((b) => b.readingStatus == 'borrowed').length;
-              
-              final readingListCandidates = books.where((b) => 
-                ['reading', 'to_read'].contains(b.readingStatus)
-              ).toList();
-              
-              readingListCandidates.sort((a, b) {
-                if (a.readingStatus == 'reading' && b.readingStatus != 'reading') return -1;
-                if (a.readingStatus != 'reading' && b.readingStatus == 'reading') return 1;
-                return 0;
-              });
-              
-              _readingListBooks = readingListCandidates.take(10).toList();
-
-              final readingListIds = _readingListBooks.map((b) => b.id).toSet();
-              
-              final recentCandidates = books.where((b) => !readingListIds.contains(b.id)).toList();
-              recentCandidates.sort((a, b) => (b.id ?? 0).compareTo(a.id ?? 0));
-              
-              _recentBooks = recentCandidates.take(10).toList();
-
-              _heroBook = _readingListBooks.isNotEmpty ? _readingListBooks.first : (_recentBooks.isNotEmpty ? _recentBooks.first : null);
-              if (_heroBook != null) {
-                _readingListBooks.removeWhere((book) => book.id == _heroBook!.id);
-                _recentBooks.removeWhere((book) => book.id == _heroBook!.id);
-              }
+              _libraryName = config['library_name'] ?? config['name'];
             });
           }
+        }
+
+        if (mounted) {
+          setState(() {
+            _stats['total_books'] = books.length;
+            _stats['borrowed_count'] = books
+                .where((b) => b.readingStatus == 'borrowed')
+                .length;
+
+            final readingListCandidates = books
+                .where((b) => ['reading', 'to_read'].contains(b.readingStatus))
+                .toList();
+
+            readingListCandidates.sort((a, b) {
+              if (a.readingStatus == 'reading' && b.readingStatus != 'reading')
+                return -1;
+              if (a.readingStatus != 'reading' && b.readingStatus == 'reading')
+                return 1;
+              return 0;
+            });
+
+            _readingListBooks = readingListCandidates.take(10).toList();
+
+            final readingListIds = _readingListBooks.map((b) => b.id).toSet();
+
+            final recentCandidates = books
+                .where((b) => !readingListIds.contains(b.id))
+                .toList();
+            recentCandidates.sort((a, b) => (b.id ?? 0).compareTo(a.id ?? 0));
+
+            _recentBooks = recentCandidates.take(10).toList();
+
+            _heroBook = _readingListBooks.isNotEmpty
+                ? _readingListBooks.first
+                : (_recentBooks.isNotEmpty ? _recentBooks.first : null);
+            if (_heroBook != null) {
+              _readingListBooks.removeWhere((book) => book.id == _heroBook!.id);
+              _recentBooks.removeWhere((book) => book.id == _heroBook!.id);
+            }
+          });
+        }
       } catch (e) {
         debugPrint('Error fetching books: $e');
       }
@@ -163,22 +171,25 @@ class _DashboardScreenState extends State<DashboardScreen> {
 
       // Fetch Quote
       if (mounted) {
-         final allBooks = [..._recentBooks, ..._readingListBooks]; 
-         if (allBooks.isNotEmpty) {
-           final quoteService = QuoteService();
-           final quote = await quoteService.fetchRandomQuote(allBooks);
-           if (mounted) {
-              setState(() {
-                _dailyQuote = quote;
-              });
-           }
-         }
+        final allBooks = [..._recentBooks, ..._readingListBooks];
+        if (allBooks.isNotEmpty) {
+          final quoteService = QuoteService();
+          final quote = await quoteService.fetchRandomQuote(allBooks);
+          if (mounted) {
+            setState(() {
+              _dailyQuote = quote;
+            });
+          }
+        }
       }
-
     } catch (e) {
-       if (mounted) {
+      if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('${TranslationService.translate(context, 'error_loading_dashboard')}: $e')),
+          SnackBar(
+            content: Text(
+              '${TranslationService.translate(context, 'error_loading_dashboard')}: $e',
+            ),
+          ),
         );
       }
     } finally {
@@ -197,25 +208,24 @@ class _DashboardScreenState extends State<DashboardScreen> {
 
     // Greeting logic removed as per user request
 
-
     return Scaffold(
       extendBodyBehindAppBar: true,
       appBar: GenieAppBar(
         title: 'BiblioGenius',
-        leading: isWide 
-          ? null 
-          : IconButton(
-              key: _menuKey,
-              icon: const Icon(Icons.menu, color: Colors.white),
-              onPressed: () => Scaffold.of(context).openDrawer(),
-            ),
+        leading: isWide
+            ? null
+            : IconButton(
+                key: _menuKey,
+                icon: const Icon(Icons.menu, color: Colors.white),
+                onPressed: () => Scaffold.of(context).openDrawer(),
+              ),
         automaticallyImplyLeading: false,
         actions: [
           IconButton(
             key: _searchKey,
             icon: const Icon(Icons.search, color: Colors.white),
             onPressed: () {
-               context.push('/books'); 
+              context.push('/books');
             },
           ),
         ],
@@ -227,7 +237,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
         backgroundColor: Colors.blueAccent,
         child: const Icon(Icons.auto_awesome, color: Colors.white),
       ),
-      bottomNavigationBar: Container(
+      body: Container(
         decoration: const BoxDecoration(
           gradient: AppDesign.pageGradient, // Discrete light background
         ),
@@ -242,7 +252,10 @@ class _DashboardScreenState extends State<DashboardScreen> {
                   onRefresh: _fetchDashboardData,
                   child: SingleChildScrollView(
                     physics: const AlwaysScrollableScrollPhysics(),
-                    padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 20),
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: 20,
+                      vertical: 20,
+                    ),
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
@@ -257,7 +270,10 @@ class _DashboardScreenState extends State<DashboardScreen> {
                             Expanded(
                               child: _buildStatCard(
                                 context,
-                                TranslationService.translate(context, 'my_books'),
+                                TranslationService.translate(
+                                  context,
+                                  'my_books',
+                                ),
                                 (_stats['total_books'] ?? 0).toString(),
                                 Icons.menu_book,
                               ),
@@ -267,7 +283,10 @@ class _DashboardScreenState extends State<DashboardScreen> {
                             Expanded(
                               child: _buildStatCard(
                                 context,
-                                TranslationService.translate(context, 'lent_status'),
+                                TranslationService.translate(
+                                  context,
+                                  'lent_status',
+                                ),
                                 (_stats['active_loans'] ?? 0).toString(),
                                 Icons.arrow_upward,
                                 isAccent: true,
@@ -279,7 +298,10 @@ class _DashboardScreenState extends State<DashboardScreen> {
                               Expanded(
                                 child: _buildStatCard(
                                   context,
-                                  TranslationService.translate(context, 'borrowed_status'),
+                                  TranslationService.translate(
+                                    context,
+                                    'borrowed_status',
+                                  ),
                                   (_stats['borrowed_count'] ?? 0).toString(),
                                   Icons.arrow_downward,
                                 ),
@@ -290,7 +312,15 @@ class _DashboardScreenState extends State<DashboardScreen> {
                               Expanded(
                                 child: _buildStatCard(
                                   context,
-                                  themeProvider.isLibrarian ? TranslationService.translate(context, 'borrowers') : TranslationService.translate(context, 'contacts'),
+                                  themeProvider.isLibrarian
+                                      ? TranslationService.translate(
+                                          context,
+                                          'borrowers',
+                                        )
+                                      : TranslationService.translate(
+                                          context,
+                                          'contacts',
+                                        ),
                                   (_stats['contacts_count'] ?? 0).toString(),
                                   Icons.people,
                                 ),
@@ -312,14 +342,23 @@ class _DashboardScreenState extends State<DashboardScreen> {
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
                             if (isKid) ...[
-                              _buildSectionTitle(context, TranslationService.translate(context, 'quick_actions')),
+                              _buildSectionTitle(
+                                context,
+                                TranslationService.translate(
+                                  context,
+                                  'quick_actions',
+                                ),
+                              ),
                               const SizedBox(height: 16),
                               Row(
                                 children: [
                                   Expanded(
                                     child: _buildKidActionCard(
                                       context,
-                                      TranslationService.translate(context, 'action_scan_barcode'),
+                                      TranslationService.translate(
+                                        context,
+                                        'action_scan_barcode',
+                                      ),
                                       Icons.qr_code_scanner,
                                       Colors.orange,
                                       () => context.push('/scan'),
@@ -329,7 +368,10 @@ class _DashboardScreenState extends State<DashboardScreen> {
                                   Expanded(
                                     child: _buildKidActionCard(
                                       context,
-                                      TranslationService.translate(context, 'action_search_online'),
+                                      TranslationService.translate(
+                                        context,
+                                        'action_search_online',
+                                      ),
                                       Icons.search,
                                       Colors.blue,
                                       () => context.push('/books/add'),
@@ -341,9 +383,15 @@ class _DashboardScreenState extends State<DashboardScreen> {
                             ] else if (_heroBook != null)
                               // Hero Section
                               _buildHeroBook(context, _heroBook!),
-                            
+
                             if (!isKid) ...[
-                              _buildSectionTitle(context, TranslationService.translate(context, 'quick_actions')),
+                              _buildSectionTitle(
+                                context,
+                                TranslationService.translate(
+                                  context,
+                                  'quick_actions',
+                                ),
+                              ),
                               const SizedBox(height: 16),
                               Container(
                                 padding: const EdgeInsets.all(20),
@@ -352,13 +400,17 @@ class _DashboardScreenState extends State<DashboardScreen> {
                                   borderRadius: BorderRadius.circular(20),
                                   boxShadow: [
                                     BoxShadow(
-                                      color: Colors.black.withValues(alpha: 0.08),
+                                      color: Colors.black.withValues(
+                                        alpha: 0.08,
+                                      ),
                                       blurRadius: 15,
                                       offset: const Offset(0, 4),
                                     ),
                                   ],
                                   border: Border.all(
-                                    color: const Color(0xFF667eea).withValues(alpha: 0.1),
+                                    color: const Color(
+                                      0xFF667eea,
+                                    ).withValues(alpha: 0.1),
                                     width: 1,
                                   ),
                                 ),
@@ -368,7 +420,10 @@ class _DashboardScreenState extends State<DashboardScreen> {
                                   children: [
                                     _buildActionButton(
                                       context,
-                                      TranslationService.translate(context, 'action_add_book'),
+                                      TranslationService.translate(
+                                        context,
+                                        'action_add_book',
+                                      ),
                                       Icons.add,
                                       () => context.push('/books/add'),
                                       isPrimary: true,
@@ -376,17 +431,21 @@ class _DashboardScreenState extends State<DashboardScreen> {
                                     ),
                                     _buildActionButton(
                                       context,
-                                      TranslationService.translate(context, 'action_checkout_book'),
+                                      TranslationService.translate(
+                                        context,
+                                        'action_checkout_book',
+                                      ),
                                       Icons.upload_file,
                                       () => context.push('/network-search'),
                                     ),
                                     _buildActionButton(
                                       context,
-                                      TranslationService.translate(context, 'ask_genie'), // Translated
+                                      TranslationService.translate(
+                                        context,
+                                        'ask_genie',
+                                      ), // Translated
                                       Icons.auto_awesome,
-                                      () => context.push(
-                                        '/genie-chat', 
-                                      ), 
+                                      () => context.push('/genie-chat'),
                                     ),
                                   ],
                                 ),
@@ -396,8 +455,13 @@ class _DashboardScreenState extends State<DashboardScreen> {
 
                             // Recent Books
                             if (_recentBooks.isNotEmpty) ...[
-                              _buildSectionTitle(context,
-                                  TranslationService.translate(context, 'recent_books')),
+                              _buildSectionTitle(
+                                context,
+                                TranslationService.translate(
+                                  context,
+                                  'recent_books',
+                                ),
+                              ),
                               const SizedBox(height: 16),
                               Container(
                                 padding: const EdgeInsets.all(16),
@@ -406,21 +470,35 @@ class _DashboardScreenState extends State<DashboardScreen> {
                                   borderRadius: BorderRadius.circular(20),
                                   boxShadow: [
                                     BoxShadow(
-                                      color: Colors.black.withValues(alpha: 0.08),
+                                      color: Colors.black.withValues(
+                                        alpha: 0.08,
+                                      ),
                                       blurRadius: 15,
                                       offset: const Offset(0, 4),
                                     ),
                                   ],
                                 ),
-                                child: _buildBookList(context, _recentBooks, TranslationService.translate(context, 'no_recent_books')),
+                                child: _buildBookList(
+                                  context,
+                                  _recentBooks,
+                                  TranslationService.translate(
+                                    context,
+                                    'no_recent_books',
+                                  ),
+                                ),
                               ),
                               const SizedBox(height: 32),
                             ],
 
                             // Reading List
                             if (_readingListBooks.isNotEmpty) ...[
-                              _buildSectionTitle(context,
-                                  TranslationService.translate(context, 'reading_list')),
+                              _buildSectionTitle(
+                                context,
+                                TranslationService.translate(
+                                  context,
+                                  'reading_list',
+                                ),
+                              ),
                               const SizedBox(height: 16),
                               Container(
                                 padding: const EdgeInsets.all(16),
@@ -429,14 +507,22 @@ class _DashboardScreenState extends State<DashboardScreen> {
                                   borderRadius: BorderRadius.circular(20),
                                   boxShadow: [
                                     BoxShadow(
-                                      color: Colors.black.withValues(alpha: 0.08),
+                                      color: Colors.black.withValues(
+                                        alpha: 0.08,
+                                      ),
                                       blurRadius: 15,
                                       offset: const Offset(0, 4),
                                     ),
                                   ],
                                 ),
-                                child: _buildBookList(context, _readingListBooks,
-                                    TranslationService.translate(context, 'no_reading_list')),
+                                child: _buildBookList(
+                                  context,
+                                  _readingListBooks,
+                                  TranslationService.translate(
+                                    context,
+                                    'no_reading_list',
+                                  ),
+                                ),
                               ),
                             ],
 
@@ -445,18 +531,36 @@ class _DashboardScreenState extends State<DashboardScreen> {
                               Center(
                                 child: ScaleOnTap(
                                   child: TextButton.icon(
-                                    onPressed: () => context.push('/statistics'),
-                                    icon: const Icon(Icons.insights, color: Colors.black54),
+                                    onPressed: () =>
+                                        context.push('/statistics'),
+                                    icon: const Icon(
+                                      Icons.insights,
+                                      color: Colors.black54,
+                                    ),
                                     label: Text(
-                                      TranslationService.translate(context, 'view_insights'),
-                                      style: const TextStyle(color: Colors.black54),
+                                      TranslationService.translate(
+                                        context,
+                                        'view_insights',
+                                      ),
+                                      style: const TextStyle(
+                                        color: Colors.black54,
+                                      ),
                                     ),
                                     style: TextButton.styleFrom(
-                                      padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 16),
-                                      backgroundColor: Colors.black.withValues(alpha: 0.05),
+                                      padding: const EdgeInsets.symmetric(
+                                        horizontal: 24,
+                                        vertical: 16,
+                                      ),
+                                      backgroundColor: Colors.black.withValues(
+                                        alpha: 0.05,
+                                      ),
                                       shape: RoundedRectangleBorder(
                                         borderRadius: BorderRadius.circular(30),
-                                        side: BorderSide(color: Colors.black.withValues(alpha: 0.1)),
+                                        side: BorderSide(
+                                          color: Colors.black.withValues(
+                                            alpha: 0.1,
+                                          ),
+                                        ),
                                       ),
                                     ),
                                   ),
@@ -476,7 +580,6 @@ class _DashboardScreenState extends State<DashboardScreen> {
 
   Widget _buildHeader(BuildContext context) {
     // Greeting logic removed as per user request
-
 
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
@@ -508,7 +611,9 @@ class _DashboardScreenState extends State<DashboardScreen> {
                 decoration: BoxDecoration(
                   color: Colors.white.withValues(alpha: 0.2),
                   borderRadius: BorderRadius.circular(16),
-                  border: Border.all(color: Colors.white.withValues(alpha: 0.3)),
+                  border: Border.all(
+                    color: Colors.white.withValues(alpha: 0.3),
+                  ),
                 ),
                 child: const Icon(
                   Icons.auto_awesome,
@@ -533,13 +638,18 @@ class _DashboardScreenState extends State<DashboardScreen> {
                       maxLines: 1,
                       overflow: TextOverflow.ellipsis,
                     ),
-                    if (_gamificationStatus != null && _gamificationStatus!.streak.hasStreak)
+                    if (_gamificationStatus != null &&
+                        _gamificationStatus!.streak.hasStreak)
                       Padding(
                         padding: const EdgeInsets.only(top: 6),
                         child: Row(
                           mainAxisSize: MainAxisSize.min,
                           children: [
-                            const Icon(Icons.local_fire_department, color: Colors.orange, size: 14),
+                            const Icon(
+                              Icons.local_fire_department,
+                              color: Colors.orange,
+                              size: 14,
+                            ),
                             const SizedBox(width: 4),
                             Text(
                               '${_gamificationStatus!.streak.current} ${TranslationService.translate(context, 'days')}',
@@ -611,7 +721,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
 
   Widget _buildGamificationMini(BuildContext context) {
     if (_gamificationStatus == null) return const SizedBox.shrink();
-    
+
     return GestureDetector(
       onTap: () => context.push('/profile'),
       child: Container(
@@ -637,7 +747,11 @@ class _DashboardScreenState extends State<DashboardScreen> {
                         ),
                         borderRadius: BorderRadius.circular(8),
                       ),
-                      child: const Icon(Icons.emoji_events, color: Colors.white, size: 14),
+                      child: const Icon(
+                        Icons.emoji_events,
+                        color: Colors.white,
+                        size: 14,
+                      ),
                     ),
                     const SizedBox(width: 8),
                     Text(
@@ -692,7 +806,13 @@ class _DashboardScreenState extends State<DashboardScreen> {
     );
   }
 
-  Widget _buildMiniTrack(BuildContext context, IconData icon, TrackProgress track, Color color, String label) {
+  Widget _buildMiniTrack(
+    BuildContext context,
+    IconData icon,
+    TrackProgress track,
+    Color color,
+    String label,
+  ) {
     return Column(
       children: [
         Stack(
@@ -760,34 +880,52 @@ class _DashboardScreenState extends State<DashboardScreen> {
 
   Color _getLevelColor(int level) {
     switch (level) {
-      case 1: return const Color(0xFFCD7F32); // Bronze
-      case 2: return const Color(0xFFC0C0C0); // Silver
-      case 3: return const Color(0xFFFFD700); // Gold
-      default: return Colors.grey;
+      case 1:
+        return const Color(0xFFCD7F32); // Bronze
+      case 2:
+        return const Color(0xFFC0C0C0); // Silver
+      case 3:
+        return const Color(0xFFFFD700); // Gold
+      default:
+        return Colors.grey;
     }
   }
 
-  Widget _buildStatCard(BuildContext context, String label, String value, IconData icon, {bool isAccent = false}) {
+  Widget _buildStatCard(
+    BuildContext context,
+    String label,
+    String value,
+    IconData icon, {
+    bool isAccent = false,
+  }) {
     return Container(
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
         color: isAccent ? Theme.of(context).primaryColor : Colors.white,
         borderRadius: BorderRadius.circular(20),
         border: Border.all(
-          color: isAccent ? Colors.transparent : Colors.grey.withValues(alpha: 0.3),
+          color: isAccent
+              ? Colors.transparent
+              : Colors.grey.withValues(alpha: 0.3),
         ),
-        boxShadow: isAccent ? [
-          BoxShadow(
-            color: Colors.black.withValues(alpha: 0.1),
-            blurRadius: 10,
-            offset: const Offset(0, 5),
-          )
-        ] : AppDesign.subtleShadow,
+        boxShadow: isAccent
+            ? [
+                BoxShadow(
+                  color: Colors.black.withValues(alpha: 0.1),
+                  blurRadius: 10,
+                  offset: const Offset(0, 5),
+                ),
+              ]
+            : AppDesign.subtleShadow,
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Icon(icon, color: isAccent ? Colors.white : Theme.of(context).primaryColor, size: 24),
+          Icon(
+            icon,
+            color: isAccent ? Colors.white : Theme.of(context).primaryColor,
+            size: 24,
+          ),
           const SizedBox(height: 12),
           Text(
             value,
@@ -815,14 +953,16 @@ class _DashboardScreenState extends State<DashboardScreen> {
 
   Widget _buildSectionTitle(BuildContext context, String title) {
     IconData icon = Icons.auto_stories;
-    if (title.toLowerCase().contains('recent') || title.toLowerCase().contains('récent')) {
+    if (title.toLowerCase().contains('recent') ||
+        title.toLowerCase().contains('récent')) {
       icon = Icons.history;
-    } else if (title.toLowerCase().contains('reading') || title.toLowerCase().contains('lecture')) {
+    } else if (title.toLowerCase().contains('reading') ||
+        title.toLowerCase().contains('lecture')) {
       icon = Icons.bookmark;
     } else if (title.toLowerCase().contains('action')) {
       icon = Icons.bolt;
     }
-    
+
     return Container(
       margin: const EdgeInsets.only(top: 8),
       child: Row(
@@ -878,8 +1018,12 @@ class _DashboardScreenState extends State<DashboardScreen> {
         icon: Icon(icon, size: 18),
         label: Text(label),
         style: ElevatedButton.styleFrom(
-          backgroundColor: isPrimary ? Theme.of(context).primaryColor : Colors.white,
-          foregroundColor: isPrimary ? Colors.white : Theme.of(context).primaryColor,
+          backgroundColor: isPrimary
+              ? Theme.of(context).primaryColor
+              : Colors.white,
+          foregroundColor: isPrimary
+              ? Colors.white
+              : Theme.of(context).primaryColor,
           elevation: isPrimary ? 4 : 2,
           padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 14),
           shape: RoundedRectangleBorder(
@@ -891,8 +1035,11 @@ class _DashboardScreenState extends State<DashboardScreen> {
     );
   }
 
-
-  Widget _buildBookList(BuildContext context, List<Book> books, String emptyMessage) {
+  Widget _buildBookList(
+    BuildContext context,
+    List<Book> books,
+    String emptyMessage,
+  ) {
     if (books.isEmpty) {
       return Container(
         padding: const EdgeInsets.all(24),
@@ -902,7 +1049,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
             emptyMessage,
             textAlign: TextAlign.center,
             style: const TextStyle(color: Colors.black54),
-          )
+          ),
         ),
       );
     }

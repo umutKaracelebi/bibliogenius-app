@@ -43,13 +43,13 @@ class _HelpScreenState extends State<HelpScreen> {
     _HelpTopic(
       icon: Icons.cloud_sync,
       titleKey: 'help_topic_network',
-      descKey: 'help_desc_network_p2p',  // Updated for P2P roadmap
+      descKey: 'help_desc_network_p2p', // Updated for P2P roadmap
       gradient: AppDesign.accentGradient,
     ),
     _HelpTopic(
       icon: Icons.swap_horiz,
       titleKey: 'help_topic_requests',
-      descKey: 'help_desc_requests_p2p',  // Updated for P2P roadmap
+      descKey: 'help_desc_requests_p2p', // Updated for P2P roadmap
       gradient: AppDesign.darkGradient,
     ),
     _HelpTopic(
@@ -112,7 +112,10 @@ class _HelpScreenState extends State<HelpScreen> {
                 ),
                 const SizedBox(height: 8),
                 Text(
-                  TranslationService.translate(context, 'help_welcome_subtitle'),
+                  TranslationService.translate(
+                    context,
+                    'help_welcome_subtitle',
+                  ),
                   textAlign: TextAlign.center,
                   style: TextStyle(
                     fontSize: 14,
@@ -130,9 +133,9 @@ class _HelpScreenState extends State<HelpScreen> {
             padding: const EdgeInsets.symmetric(horizontal: 4, vertical: 8),
             child: Text(
               TranslationService.translate(context, 'help_faq_title'),
-              style: Theme.of(context).textTheme.titleMedium?.copyWith(
-                fontWeight: FontWeight.bold,
-              ),
+              style: Theme.of(
+                context,
+              ).textTheme.titleMedium?.copyWith(fontWeight: FontWeight.bold),
             ),
           ),
 
@@ -140,7 +143,7 @@ class _HelpScreenState extends State<HelpScreen> {
           ...List.generate(_topics.length, (index) {
             final topic = _topics[index];
             final isExpanded = _expandedIndex == index;
-            
+
             return Padding(
               padding: const EdgeInsets.only(bottom: 12),
               child: _buildHelpCard(context, topic, index, isExpanded),
@@ -176,7 +179,7 @@ class _HelpScreenState extends State<HelpScreen> {
           borderRadius: BorderRadius.circular(AppDesign.radiusMedium),
           boxShadow: isExpanded ? AppDesign.cardShadow : AppDesign.subtleShadow,
           border: Border.all(
-            color: isExpanded 
+            color: isExpanded
                 ? (topic.gradient.colors.first).withValues(alpha: 0.5)
                 : Colors.grey.withValues(alpha: 0.1),
             width: isExpanded ? 2 : 1,
@@ -260,9 +263,9 @@ class _HelpScreenState extends State<HelpScreen> {
           padding: const EdgeInsets.symmetric(horizontal: 4, vertical: 8),
           child: Text(
             TranslationService.translate(context, 'help_quick_actions'),
-            style: Theme.of(context).textTheme.titleMedium?.copyWith(
-              fontWeight: FontWeight.bold,
-            ),
+            style: Theme.of(
+              context,
+            ).textTheme.titleMedium?.copyWith(fontWeight: FontWeight.bold),
           ),
         ),
         Row(
@@ -287,9 +290,7 @@ class _HelpScreenState extends State<HelpScreen> {
                   final Uri emailUri = Uri(
                     scheme: 'mailto',
                     path: 'contact@bibliogenius.org',
-                    queryParameters: {
-                      'subject': 'BiblioGenius - Contact',
-                    },
+                    queryParameters: {'subject': 'BiblioGenius - Contact'},
                   );
                   if (await canLaunchUrl(emailUri)) {
                     await launchUrl(emailUri);

@@ -11,7 +11,7 @@ class Book {
   final String? author;
   final List<String>? subjects;
   final String? _coverUrl; // Stored cover URL
-  final int? userRating;  // 0-10 scale
+  final int? userRating; // 0-10 scale
 
   Book({
     this.id,
@@ -43,16 +43,18 @@ class Book {
         // debugPrint('Book.fromJson: raw="$raw", normalized="$normalized"');
         return normalized;
       })(),
-      finishedReadingAt: json['finished_reading_at'] != null 
-          ? DateTime.tryParse(json['finished_reading_at']) 
+      finishedReadingAt: json['finished_reading_at'] != null
+          ? DateTime.tryParse(json['finished_reading_at'])
           : null,
-      startedReadingAt: json['started_reading_at'] != null 
-          ? DateTime.tryParse(json['started_reading_at']) 
+      startedReadingAt: json['started_reading_at'] != null
+          ? DateTime.tryParse(json['started_reading_at'])
           : null,
       author: json['author'],
-      coverUrl: (json['cover_url'] as String?)?.trim().isEmpty == true ? null : json['cover_url'],
-      subjects: json['subjects'] != null 
-          ? List<String>.from(json['subjects']) 
+      coverUrl: (json['cover_url'] as String?)?.trim().isEmpty == true
+          ? null
+          : json['cover_url'],
+      subjects: json['subjects'] != null
+          ? List<String>.from(json['subjects'])
           : null,
       userRating: json['user_rating'],
     );
@@ -98,7 +100,7 @@ class Book {
   }
 
   String? get coverUrl {
-    if (_coverUrl != null && _coverUrl!.isNotEmpty) return _coverUrl;
+    if (_coverUrl != null && _coverUrl.isNotEmpty) return _coverUrl;
     if (isbn != null && isbn!.isNotEmpty) {
       return 'https://covers.openlibrary.org/b/isbn/$isbn-M.jpg?default=false';
     }
@@ -106,7 +108,8 @@ class Book {
   }
 
   String? get largeCoverUrl {
-    if (_coverUrl != null && _coverUrl!.isNotEmpty) return _coverUrl; // Or try to get large version if possible
+    if (_coverUrl != null && _coverUrl.isNotEmpty)
+      return _coverUrl; // Or try to get large version if possible
     if (isbn != null && isbn!.isNotEmpty) {
       return 'https://covers.openlibrary.org/b/isbn/$isbn-L.jpg?default=false';
     }

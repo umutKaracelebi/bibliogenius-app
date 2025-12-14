@@ -20,6 +20,7 @@ class _ScanScreenState extends State<ScanScreen> {
   );
   bool _isScanning = true;
   bool _isTorchOn = false;
+  String? _lastScannedIsbn; // Prevent duplicate navigation for same ISBN
 
   @override
   void dispose() {
@@ -38,23 +39,29 @@ class _ScanScreenState extends State<ScanScreen> {
     for (final barcode in barcodes) {
       final rawValue = barcode.rawValue;
       if (rawValue != null && IsbnValidator.isValid(rawValue)) {
+        // Skip if we already scanned this ISBN (prevents rapid duplicate scans)
+        if (rawValue == _lastScannedIsbn) return;
+        
         foundValid = true;
+        _lastScannedIsbn = rawValue; // Remember this ISBN
+        
         // Valid ISBN found
         setState(() {
           _isScanning = false;
         });
-        
+
         // Haptic feedback
         HapticFeedback.lightImpact();
 
         // Navigate to add book screen with ISBN
         context.push('/books/add', extra: {'isbn': rawValue});
-        
-        // Delay to prevent multiple scans if user comes back
-        Future.delayed(const Duration(seconds: 2), () {
+
+        // Delay to allow re-scanning (with different ISBN) after coming back
+        Future.delayed(const Duration(seconds: 3), () {
           if (mounted) {
             setState(() {
               _isScanning = true;
+              _lastScannedIsbn = null; // Allow same ISBN after delay
             });
           }
         });
@@ -65,12 +72,15 @@ class _ScanScreenState extends State<ScanScreen> {
     // Feedback for invalid barcodes (debounced)
     if (!foundValid && barcodes.isNotEmpty) {
       final now = DateTime.now();
-      if (_lastInvalidScanTime == null || 
+      if (_lastInvalidScanTime == null ||
           now.difference(_lastInvalidScanTime!) > const Duration(seconds: 2)) {
         _lastInvalidScanTime = now;
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
-            content: Text(TranslationService.translate(context, 'invalid_isbn_scanned') ?? 'Not a valid book barcode'),
+            content: Text(
+              TranslationService.translate(context, 'invalid_isbn_scanned') ??
+                  'Not a valid book barcode',
+            ),
             duration: const Duration(seconds: 1),
             backgroundColor: Colors.orange,
           ),
@@ -106,7 +116,9 @@ class _ScanScreenState extends State<ScanScreen> {
           IconButton(
             icon: const Icon(Icons.cameraswitch),
             onPressed: () => controller.switchCamera(),
-            tooltip: TranslationService.translate(context, 'switch_camera') ?? 'Switch Camera',
+            tooltip:
+                TranslationService.translate(context, 'switch_camera') ??
+                'Switch Camera',
           ),
         ],
       ),
@@ -134,13 +146,18 @@ class _ScanScreenState extends State<ScanScreen> {
             left: 20,
             right: 20,
             child: Text(
-              TranslationService.translate(context, 'scan_instruction') ?? 'Align barcode within the frame',
+              TranslationService.translate(context, 'scan_instruction') ??
+                  'Align barcode within the frame',
               textAlign: TextAlign.center,
               style: const TextStyle(
                 color: Colors.white,
                 fontSize: 16,
                 shadows: [
-                  Shadow(offset: Offset(1, 1), blurRadius: 2, color: Colors.black),
+                  Shadow(
+                    offset: Offset(1, 1),
+                    blurRadius: 2,
+                    color: Colors.black,
+                  ),
                 ],
               ),
             ),
@@ -151,9 +168,12 @@ class _ScanScreenState extends State<ScanScreen> {
             right: 50,
             child: ElevatedButton.icon(
               icon: const Icon(Icons.keyboard),
-              label: Text(TranslationService.translate(context, 'btn_enter_manually') ?? 'Enter Manually'),
+              label: Text(
+                TranslationService.translate(context, 'btn_enter_manually') ??
+                    'Enter Manually',
+              ),
               onPressed: () {
-                 context.push('/books/add');
+                context.push('/books/add');
               },
               style: ElevatedButton.styleFrom(
                 backgroundColor: Colors.white,
@@ -177,9 +197,11 @@ class ScannerOverlayPainter extends CustomPainter {
   void paint(Canvas canvas, Size size) {
     final backgroundPath = Path()
       ..addRect(Rect.fromLTWH(0, 0, size.width, size.height));
-    
+
     final cutoutPath = Path()
-      ..addRRect(RRect.fromRectAndRadius(scanWindow, const Radius.circular(12)));
+      ..addRRect(
+        RRect.fromRectAndRadius(scanWindow, const Radius.circular(12)),
+      );
 
     final backgroundPaint = Paint()
       ..color = Colors.black.withOpacity(0.5)
@@ -189,7 +211,7 @@ class ScannerOverlayPainter extends CustomPainter {
     // To create the hole, we need to use a layer composite or path difference.
     // Simpler approach for standard overlay:
     // Draw semi-transparent background everywhere EXCEPT the hole.
-    
+
     // Actually, simple path operation:
     final backgroundWithHole = Path.combine(
       PathOperation.difference,
@@ -209,13 +231,13 @@ class ScannerOverlayPainter extends CustomPainter {
       RRect.fromRectAndRadius(scanWindow, const Radius.circular(12)),
       borderPaint,
     );
-    
+
     // Draw red line in center
     final linePaint = Paint()
       ..color = Colors.red.withOpacity(0.8)
       ..style = PaintingStyle.stroke
       ..strokeWidth = 2.0;
-      
+
     canvas.drawLine(
       Offset(scanWindow.left + 20, scanWindow.center.dy),
       Offset(scanWindow.right - 20, scanWindow.center.dy),

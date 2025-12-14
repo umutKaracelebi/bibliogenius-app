@@ -13,7 +13,7 @@ class _OnboardingTourScreenState extends State<OnboardingTourScreen>
     with TickerProviderStateMixin {
   final PageController _pageController = PageController();
   int _currentPage = 0;
-  
+
   late AnimationController _iconAnimationController;
   late Animation<double> _iconScaleAnimation;
   late Animation<double> _iconRotationAnimation;
@@ -59,21 +59,18 @@ class _OnboardingTourScreenState extends State<OnboardingTourScreen>
       duration: const Duration(milliseconds: 800),
       vsync: this,
     );
-    
+
     _iconScaleAnimation = Tween<double>(begin: 0.0, end: 1.0).animate(
       CurvedAnimation(
         parent: _iconAnimationController,
         curve: Curves.elasticOut,
       ),
     );
-    
+
     _iconRotationAnimation = Tween<double>(begin: -0.1, end: 0.0).animate(
-      CurvedAnimation(
-        parent: _iconAnimationController,
-        curve: Curves.easeOut,
-      ),
+      CurvedAnimation(parent: _iconAnimationController, curve: Curves.easeOut),
     );
-    
+
     _iconAnimationController.forward();
   }
 
@@ -120,7 +117,7 @@ class _OnboardingTourScreenState extends State<OnboardingTourScreen>
   @override
   Widget build(BuildContext context) {
     final currentSlide = _slides[_currentPage];
-    
+
     return Scaffold(
       body: AnimatedContainer(
         duration: const Duration(milliseconds: 400),
@@ -232,11 +229,7 @@ class _OnboardingTourScreenState extends State<OnboardingTourScreen>
                   ),
                 ],
               ),
-              child: Icon(
-                slide.icon,
-                size: 70,
-                color: Colors.white,
-              ),
+              child: Icon(slide.icon, size: 70, color: Colors.white),
             ),
           ),
           const SizedBox(height: 40),
@@ -270,7 +263,10 @@ class _OnboardingTourScreenState extends State<OnboardingTourScreen>
             runSpacing: 8,
             children: slide.features.map((featureKey) {
               return Container(
-                padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
+                padding: const EdgeInsets.symmetric(
+                  horizontal: 16,
+                  vertical: 10,
+                ),
                 decoration: BoxDecoration(
                   color: Colors.white.withValues(alpha: 0.2),
                   borderRadius: BorderRadius.circular(25),
@@ -309,19 +305,32 @@ class _OnboardingTourScreenState extends State<OnboardingTourScreen>
 
   IconData _getFeatureIcon(String featureKey) {
     switch (featureKey) {
-      case 'feature_organize': return Icons.folder_outlined;
-      case 'feature_discover': return Icons.explore_outlined;
-      case 'feature_share': return Icons.share_outlined;
-      case 'feature_scan': return Icons.qr_code_scanner;
-      case 'feature_search': return Icons.search;
-      case 'feature_manual': return Icons.edit_outlined;
-      case 'feature_connect': return Icons.link;
-      case 'feature_borrow': return Icons.swap_horiz;
-      case 'feature_track': return Icons.track_changes;
-      case 'feature_stats': return Icons.bar_chart;
-      case 'feature_goals': return Icons.flag_outlined;
-      case 'feature_history': return Icons.history;
-      default: return Icons.check_circle_outline;
+      case 'feature_organize':
+        return Icons.folder_outlined;
+      case 'feature_discover':
+        return Icons.explore_outlined;
+      case 'feature_share':
+        return Icons.share_outlined;
+      case 'feature_scan':
+        return Icons.qr_code_scanner;
+      case 'feature_search':
+        return Icons.search;
+      case 'feature_manual':
+        return Icons.edit_outlined;
+      case 'feature_connect':
+        return Icons.link;
+      case 'feature_borrow':
+        return Icons.swap_horiz;
+      case 'feature_track':
+        return Icons.track_changes;
+      case 'feature_stats':
+        return Icons.bar_chart;
+      case 'feature_goals':
+        return Icons.flag_outlined;
+      case 'feature_history':
+        return Icons.history;
+      default:
+        return Icons.check_circle_outline;
     }
   }
 
@@ -374,8 +383,14 @@ class _OnboardingTourScreenState extends State<OnboardingTourScreen>
                 children: [
                   Text(
                     isLastPage
-                        ? TranslationService.translate(context, 'onboarding_finish')
-                        : TranslationService.translate(context, 'onboarding_next'),
+                        ? TranslationService.translate(
+                            context,
+                            'onboarding_finish',
+                          )
+                        : TranslationService.translate(
+                            context,
+                            'onboarding_next',
+                          ),
                     style: const TextStyle(
                       fontSize: 18,
                       fontWeight: FontWeight.bold,

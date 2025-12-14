@@ -32,11 +32,11 @@ class _NetworkSearchScreenState extends State<NetworkSearchScreen> {
     });
 
     final apiService = Provider.of<ApiService>(context, listen: false);
-    
+
     try {
       // Get all connected peers
       final peersResponse = await apiService.getPeers();
-      
+
       if (peersResponse.statusCode == 200) {
         final List<dynamic> peers = peersResponse.data['peers'] ?? [];
         List<dynamic> allBooks = [];
@@ -45,7 +45,9 @@ class _NetworkSearchScreenState extends State<NetworkSearchScreen> {
         for (var peer in peers) {
           if (peer['status'] == 'accepted' && peer['url'] != null) {
             try {
-              final booksResponse = await apiService.getPeerBooksByUrl(peer['url']);
+              final booksResponse = await apiService.getPeerBooksByUrl(
+                peer['url'],
+              );
               if (booksResponse.statusCode == 200) {
                 final List<dynamic> books = booksResponse.data['books'] ?? [];
                 // Add peer info to each book for display
@@ -83,7 +85,11 @@ class _NetworkSearchScreenState extends State<NetworkSearchScreen> {
           _isSearching = false;
         });
         ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('${TranslationService.translate(context, 'search_failed')}: $e')),
+          SnackBar(
+            content: Text(
+              '${TranslationService.translate(context, 'search_failed')}: $e',
+            ),
+          ),
         );
       }
     }
@@ -91,7 +97,7 @@ class _NetworkSearchScreenState extends State<NetworkSearchScreen> {
 
   Future<void> _requestBook(dynamic book) async {
     final apiService = Provider.of<ApiService>(context, listen: false);
-    
+
     try {
       await apiService.requestBook(
         book['_peer_id'],
@@ -111,7 +117,11 @@ class _NetworkSearchScreenState extends State<NetworkSearchScreen> {
     } catch (e) {
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('${TranslationService.translate(context, 'connection_error')}: $e')),
+          SnackBar(
+            content: Text(
+              '${TranslationService.translate(context, 'connection_error')}: $e',
+            ),
+          ),
         );
       }
     }
@@ -130,7 +140,10 @@ class _NetworkSearchScreenState extends State<NetworkSearchScreen> {
             child: TextField(
               controller: _searchController,
               decoration: InputDecoration(
-                hintText: TranslationService.translate(context, 'network_search_hint'),
+                hintText: TranslationService.translate(
+                  context,
+                  'network_search_hint',
+                ),
                 prefixIcon: const Icon(Icons.search),
                 suffixIcon: _searchController.text.isNotEmpty
                     ? IconButton(
@@ -156,76 +169,103 @@ class _NetworkSearchScreenState extends State<NetworkSearchScreen> {
             child: _isSearching
                 ? const Center(child: CircularProgressIndicator())
                 : _hasSearched
-                    ? _searchResults.isEmpty
-                        ? Center(
-                            child: Column(
-                              mainAxisAlignment: MainAxisAlignment.center,
-                              children: [
-                                Icon(Icons.search_off, size: 64, color: Colors.grey[400]),
-                                const SizedBox(height: 16),
-                                Text(
-                                  TranslationService.translate(context, 'network_search_no_results'),
-                                  style: TextStyle(color: Colors.grey[600]),
+                ? _searchResults.isEmpty
+                      ? Center(
+                          child: Column(
+                            mainAxisAlignment: MainAxisAlignment.center,
+                            children: [
+                              Icon(
+                                Icons.search_off,
+                                size: 64,
+                                color: Colors.grey[400],
+                              ),
+                              const SizedBox(height: 16),
+                              Text(
+                                TranslationService.translate(
+                                  context,
+                                  'network_search_no_results',
                                 ),
-                              ],
-                            ),
-                          )
-                        : ListView.builder(
-                            itemCount: _searchResults.length,
-                            itemBuilder: (context, index) {
-                              final book = _searchResults[index];
-                              return Card(
-                                margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-                                child: ListTile(
-                                  leading: const Icon(Icons.book, size: 40),
-                                  title: Text(
-                                    book['title'] ?? 'Unknown Title',
-                                    style: const TextStyle(fontWeight: FontWeight.bold),
+                                style: TextStyle(color: Colors.grey[600]),
+                              ),
+                            ],
+                          ),
+                        )
+                      : ListView.builder(
+                          itemCount: _searchResults.length,
+                          itemBuilder: (context, index) {
+                            final book = _searchResults[index];
+                            return Card(
+                              margin: const EdgeInsets.symmetric(
+                                horizontal: 16,
+                                vertical: 8,
+                              ),
+                              child: ListTile(
+                                leading: const Icon(Icons.book, size: 40),
+                                title: Text(
+                                  book['title'] ?? 'Unknown Title',
+                                  style: const TextStyle(
+                                    fontWeight: FontWeight.bold,
                                   ),
-                                  subtitle: Column(
-                                    crossAxisAlignment: CrossAxisAlignment.start,
-                                    children: [
-                                      Text(book['author'] ?? 'Unknown Author'),
-                                      const SizedBox(height: 4),
-                                      Row(
-                                        children: [
-                                          Icon(Icons.library_books, size: 14, color: Theme.of(context).primaryColor),
-                                          const SizedBox(width: 4),
-                                          Text(
-                                            book['_peer_name'] ?? 'Unknown Library',
-                                            style: TextStyle(
-                                              fontSize: 12,
-                                              color: Theme.of(context).primaryColor,
-                                              fontWeight: FontWeight.w500,
-                                            ),
+                                ),
+                                subtitle: Column(
+                                  crossAxisAlignment: CrossAxisAlignment.start,
+                                  children: [
+                                    Text(book['author'] ?? 'Unknown Author'),
+                                    const SizedBox(height: 4),
+                                    Row(
+                                      children: [
+                                        Icon(
+                                          Icons.library_books,
+                                          size: 14,
+                                          color: Theme.of(context).primaryColor,
+                                        ),
+                                        const SizedBox(width: 4),
+                                        Text(
+                                          book['_peer_name'] ??
+                                              'Unknown Library',
+                                          style: TextStyle(
+                                            fontSize: 12,
+                                            color: Theme.of(
+                                              context,
+                                            ).primaryColor,
+                                            fontWeight: FontWeight.w500,
                                           ),
-                                        ],
-                                      ),
-                                    ],
-                                  ),
-                                  trailing: ElevatedButton.icon(
-                                    onPressed: () => _requestBook(book),
-                                    icon: const Icon(Icons.send, size: 16),
-                                    label: Text(TranslationService.translate(context, 'request_book_btn')),
+                                        ),
+                                      ],
+                                    ),
+                                  ],
+                                ),
+                                trailing: ElevatedButton.icon(
+                                  onPressed: () => _requestBook(book),
+                                  icon: const Icon(Icons.send, size: 16),
+                                  label: Text(
+                                    TranslationService.translate(
+                                      context,
+                                      'request_book_btn',
+                                    ),
                                   ),
                                 ),
-                              );
-                            },
-                          )
-                    : Center(
-                        child: Column(
-                          mainAxisAlignment: MainAxisAlignment.center,
-                          children: [
-                            Icon(Icons.search, size: 64, color: Colors.grey[400]),
-                            const SizedBox(height: 16),
-                            Text(
-                              TranslationService.translate(context, 'network_search_prompt'),
-                              style: TextStyle(color: Colors.grey[600]),
-                              textAlign: TextAlign.center,
-                            ),
-                          ],
+                              ),
+                            );
+                          },
+                        )
+                : Center(
+                    child: Column(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        Icon(Icons.search, size: 64, color: Colors.grey[400]),
+                        const SizedBox(height: 16),
+                        Text(
+                          TranslationService.translate(
+                            context,
+                            'network_search_prompt',
+                          ),
+                          style: TextStyle(color: Colors.grey[600]),
+                          textAlign: TextAlign.center,
                         ),
-                      ),
+                      ],
+                    ),
+                  ),
           ),
         ],
       ),

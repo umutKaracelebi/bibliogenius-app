@@ -189,10 +189,7 @@ class AppDesign {
     return LinearGradient(
       begin: fromTop ? Alignment.topCenter : Alignment.bottomCenter,
       end: fromTop ? Alignment.bottomCenter : Alignment.topCenter,
-      colors: [
-        Colors.transparent,
-        Colors.black.withValues(alpha: 0.7),
-      ],
+      colors: [Colors.transparent, Colors.black.withValues(alpha: 0.7)],
     );
   }
 

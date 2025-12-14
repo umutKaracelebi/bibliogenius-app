@@ -20,12 +20,15 @@ class ScaffoldWithNav extends StatelessWidget {
           if (useRail)
             NavigationRail(
               selectedIndex: _calculateSelectedIndex(context),
-              onDestinationSelected: (int index) => _onItemTapped(index, context),
+              onDestinationSelected: (int index) =>
+                  _onItemTapped(index, context),
               labelType: NavigationRailLabelType.all,
               destinations: [
                 NavigationRailDestination(
                   icon: Icon(Icons.dashboard),
-                  label: Text(TranslationService.translate(context, 'dashboard')),
+                  label: Text(
+                    TranslationService.translate(context, 'dashboard'),
+                  ),
                 ),
                 NavigationRailDestination(
                   icon: Icon(Icons.book),
@@ -33,7 +36,10 @@ class ScaffoldWithNav extends StatelessWidget {
                 ),
                 NavigationRailDestination(
                   icon: Icon(Icons.shelves),
-                  label: Text(TranslationService.translate(context, 'shelves') ?? 'Shelves'),
+                  label: Text(
+                    TranslationService.translate(context, 'shelves') ??
+                        'Shelves',
+                  ),
                 ),
                 // Unified Network (contacts + peers merged)
                 NavigationRailDestination(
@@ -42,7 +48,9 @@ class ScaffoldWithNav extends StatelessWidget {
                 ),
                 NavigationRailDestination(
                   icon: Icon(Icons.swap_horiz),
-                  label: Text(TranslationService.translate(context, 'requests')),
+                  label: Text(
+                    TranslationService.translate(context, 'requests'),
+                  ),
                 ),
                 NavigationRailDestination(
                   icon: Icon(Icons.person),
@@ -50,19 +58,27 @@ class ScaffoldWithNav extends StatelessWidget {
                 ),
                 NavigationRailDestination(
                   icon: Icon(Icons.insights),
-                  label: Text(TranslationService.translate(context, 'nav_statistics')),
+                  label: Text(
+                    TranslationService.translate(context, 'nav_statistics'),
+                  ),
                 ),
                 NavigationRailDestination(
                   icon: Icon(Icons.school),
-                  label: Text(TranslationService.translate(context, 'menu_tutorial')),
+                  label: Text(
+                    TranslationService.translate(context, 'menu_tutorial'),
+                  ),
                 ),
                 NavigationRailDestination(
                   icon: Icon(Icons.help_outline),
-                  label: Text(TranslationService.translate(context, 'nav_help')),
+                  label: Text(
+                    TranslationService.translate(context, 'nav_help'),
+                  ),
                 ),
                 NavigationRailDestination(
                   icon: Icon(Icons.bug_report),
-                  label: Text(TranslationService.translate(context, 'nav_report_bug')),
+                  label: Text(
+                    TranslationService.translate(context, 'nav_report_bug'),
+                  ),
                 ),
               ],
             ),
@@ -79,9 +95,11 @@ class ScaffoldWithNav extends StatelessWidget {
     if (location.startsWith('/dashboard')) return 0;
     if (location.startsWith('/books')) return 1;
     if (location.startsWith('/shelves')) return 2;
-    if (location.startsWith('/network') || 
-        location.startsWith('/contacts') || 
-        location.startsWith('/peers')) return 3;
+    if (location.startsWith('/network') ||
+        location.startsWith('/contacts') ||
+        location.startsWith('/peers')) {
+      return 3;
+    }
     if (location.startsWith('/requests')) return 4;
     if (location.startsWith('/profile')) return 5;
     if (location.startsWith('/statistics')) return 6;

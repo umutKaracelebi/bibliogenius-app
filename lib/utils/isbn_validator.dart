@@ -1,16 +1,16 @@
 class IsbnValidator {
   static bool isValid(String? isbn) {
     if (isbn == null || isbn.isEmpty) return false;
-    
+
     // Remove hyphens and spaces
     final cleanIsbn = isbn.replaceAll(RegExp(r'[\s-]'), '').toUpperCase();
-    
+
     if (cleanIsbn.length == 10) {
       return _isValidIsbn10(cleanIsbn);
     } else if (cleanIsbn.length == 13) {
       return _isValidIsbn13(cleanIsbn);
     }
-    
+
     return false;
   }
 
@@ -36,7 +36,7 @@ class IsbnValidator {
     if (!RegExp(r'^\d{13}$').hasMatch(isbn)) return false;
 
     int sum = 0;
-    
+
     // Check for standard Bookland EAN prefix (978 or 979)
     if (!isbn.startsWith('978') && !isbn.startsWith('979')) {
       return false;

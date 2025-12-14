@@ -32,7 +32,7 @@ class _SearchPeerScreenState extends State<SearchPeerScreen> {
       // Actually, let's use the dio instance from ApiService if possible, or add the method.
       // For now, I'll assume we added searchPeers to ApiService.
       final response = await api.searchPeers(query);
-      
+
       if (mounted) {
         setState(() {
           _results = response.data['data'] ?? [];
@@ -42,7 +42,8 @@ class _SearchPeerScreenState extends State<SearchPeerScreen> {
     } catch (e) {
       if (mounted) {
         setState(() {
-          _error = '${TranslationService.translate(context, 'connection_error')}: $e';
+          _error =
+              '${TranslationService.translate(context, 'connection_error')}: $e';
           _isLoading = false;
         });
       }
@@ -55,14 +56,22 @@ class _SearchPeerScreenState extends State<SearchPeerScreen> {
       await api.connectPeer(peer['name'], peer['url']);
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('${TranslationService.translate(context, 'request_sent_to')} ${peer['name']}')),
+          SnackBar(
+            content: Text(
+              '${TranslationService.translate(context, 'request_sent_to')} ${peer['name']}',
+            ),
+          ),
         );
         context.pop(true); // Return true to refresh list
       }
     } catch (e) {
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('${TranslationService.translate(context, 'connection_error')}: $e')),
+          SnackBar(
+            content: Text(
+              '${TranslationService.translate(context, 'connection_error')}: $e',
+            ),
+          ),
         );
       }
     }
@@ -71,7 +80,9 @@ class _SearchPeerScreenState extends State<SearchPeerScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: GenieAppBar(title: TranslationService.translate(context, 'nav_network')),
+      appBar: GenieAppBar(
+        title: TranslationService.translate(context, 'nav_network'),
+      ),
       body: Column(
         children: [
           Padding(
@@ -80,7 +91,10 @@ class _SearchPeerScreenState extends State<SearchPeerScreen> {
               controller: _searchController,
               decoration: InputDecoration(
                 labelText: TranslationService.translate(context, 'nav_network'),
-                hintText: TranslationService.translate(context, 'peer_search_hint'),
+                hintText: TranslationService.translate(
+                  context,
+                  'peer_search_hint',
+                ),
                 prefixIcon: const Icon(Icons.search),
                 suffixIcon: IconButton(
                   icon: const Icon(Icons.arrow_forward),
@@ -100,26 +114,38 @@ class _SearchPeerScreenState extends State<SearchPeerScreen> {
               padding: const EdgeInsets.all(16.0),
               child: Text(_error!, style: const TextStyle(color: Colors.red)),
             ),
-          
+
           Expanded(
             child: _results.isEmpty
                 ? Center(
                     child: Column(
                       mainAxisAlignment: MainAxisAlignment.center,
                       children: [
-                        Icon(Icons.person_search, size: 64, color: Colors.grey[300]),
+                        Icon(
+                          Icons.person_search,
+                          size: 64,
+                          color: Colors.grey[300],
+                        ),
                         const SizedBox(height: 16),
                         Text(
-                          TranslationService.translate(context, 'peer_search_hint'),
+                          TranslationService.translate(
+                            context,
+                            'peer_search_hint',
+                          ),
                           style: TextStyle(color: Colors.grey[600]),
                         ),
                         const SizedBox(height: 8),
                         TextButton.icon(
                           onPressed: () {
                             context.push('/p2p');
-                          }, 
+                          },
                           icon: const Icon(Icons.qr_code_scanner),
-                          label: Text(TranslationService.translate(context, 'scan_qr_code')),
+                          label: Text(
+                            TranslationService.translate(
+                              context,
+                              'scan_qr_code',
+                            ),
+                          ),
                         ),
                       ],
                     ),
@@ -129,7 +155,9 @@ class _SearchPeerScreenState extends State<SearchPeerScreen> {
                     itemBuilder: (context, index) {
                       final peer = _results[index];
                       final isLocal = peer['source'] == 'local';
-                      final isConnected = peer['status'] == 'active' || peer['status'] == 'pending';
+                      final isConnected =
+                          peer['status'] == 'active' ||
+                          peer['status'] == 'pending';
 
                       return ListTile(
                         leading: CircleAvatar(
@@ -138,10 +166,22 @@ class _SearchPeerScreenState extends State<SearchPeerScreen> {
                         title: Text(peer['name']),
                         subtitle: Text(peer['url']),
                         trailing: isConnected
-                            ? Chip(label: Text(TranslationService.translate(context, 'already_connected')))
+                            ? Chip(
+                                label: Text(
+                                  TranslationService.translate(
+                                    context,
+                                    'already_connected',
+                                  ),
+                                ),
+                              )
                             : ElevatedButton(
                                 onPressed: () => _connect(peer),
-                                child: Text(TranslationService.translate(context, 'add_peer_btn')),
+                                child: Text(
+                                  TranslationService.translate(
+                                    context,
+                                    'add_peer_btn',
+                                  ),
+                                ),
                               ),
                       );
                     },

@@ -30,7 +30,7 @@ const List<Avatar> availableAvatars = [
   // TODO: Add dinosaur avatar (for kid)
   // TODO: Add dragon avatar (for kid)
   // TODO: Add unicorn avatar (for kid)
-  
+
   // Individual Avatars
   Avatar(
     id: 'bookworm',
@@ -57,7 +57,7 @@ const List<Avatar> availableAvatars = [
   // TODO: Add grandfather avatar
   // TODO: Add man avatar
   // TODO: Add woman avatar
-  
+
   // Librarian Avatars
   Avatar(
     id: 'head_librarian',
@@ -77,11 +77,16 @@ const List<Avatar> availableAvatars = [
 
 // Get avatars filtered by profile type
 List<Avatar> getAvatarsByProfileType(BuildContext context, String profileType) {
-  return availableAvatars.where((a) => a.profileType == profileType).map((a) => Avatar(
-    id: a.id,
-    assetPath: a.assetPath,
-    label: TranslationService.translate(context, a.label),
-    themeColor: a.themeColor,
-    profileType: a.profileType,
-  )).toList();
+  return availableAvatars
+      .where((a) => a.profileType == profileType)
+      .map(
+        (a) => Avatar(
+          id: a.id,
+          assetPath: a.assetPath,
+          label: TranslationService.translate(context, a.label),
+          themeColor: a.themeColor,
+          profileType: a.profileType,
+        ),
+      )
+      .toList();
 }

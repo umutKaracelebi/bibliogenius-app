@@ -7,12 +7,11 @@ import '../services/sync_service.dart';
 import '../services/translation_service.dart';
 import '../models/book.dart';
 import '../widgets/bookshelf_view.dart';
-import '../widgets/book_cover_grid.dart'; 
+import '../widgets/book_cover_grid.dart';
 import '../widgets/premium_book_card.dart';
 import '../theme/app_design.dart';
 import '../providers/theme_provider.dart';
 import '../utils/avatars.dart';
-
 
 enum ViewMode {
   coverGrid, // Netflix style
@@ -32,11 +31,11 @@ class BookListScreen extends StatefulWidget {
 class _BookListScreenState extends State<BookListScreen> {
   List<Book> _books = [];
   List<Book> _filteredBooks = [];
-  
+
   // Filter state
   String? _selectedStatus;
   String? _tagFilter;
-  
+
   bool _isLoading = true;
   ViewMode _viewMode = ViewMode.coverGrid; // Default to cover grid
   String _searchQuery = '';
@@ -63,14 +62,14 @@ class _BookListScreenState extends State<BookListScreen> {
     WidgetsBinding.instance.addPostFrameCallback((_) {
       Provider.of<SyncService>(context, listen: false).syncAllPeers();
       _checkWizard();
-      
+
       // Initialize filters from query params
       final state = GoRouterState.of(context);
       if (state.uri.queryParameters.containsKey('tag')) {
-         setState(() {
-           _tagFilter = state.uri.queryParameters['tag'];
-           _filterBooks();
-         });
+        setState(() {
+          _tagFilter = state.uri.queryParameters['tag'];
+          _filterBooks();
+        });
       }
     });
   }
@@ -98,16 +97,19 @@ class _BookListScreenState extends State<BookListScreen> {
     super.dispose();
   }
 
-
   @override
   Widget build(BuildContext context) {
     // Banner always shows translated "My Library"
     dynamic titleWidget = _isSearching
-            ? _buildSearchField() // Use custom search field with autocomplete
-            : TranslationService.translate(context, 'my_library_title');
-    
+        ? _buildSearchField() // Use custom search field with autocomplete
+        : TranslationService.translate(context, 'my_library_title');
+
     if (_isReordering) {
-      titleWidget = Text(TranslationService.translate(context, 'reordering_shelf') ?? 'Reordering Shelf...', style: const TextStyle(color: Colors.white, fontSize: 18));
+      titleWidget = Text(
+        TranslationService.translate(context, 'reordering_shelf') ??
+            'Reordering Shelf...',
+        style: const TextStyle(color: Colors.white, fontSize: 18),
+      );
     }
 
     final width = MediaQuery.of(context).size.width;
@@ -126,26 +128,26 @@ class _BookListScreenState extends State<BookListScreen> {
         automaticallyImplyLeading: false,
         actions: [
           if (_isReordering) ...[
-             IconButton(
-               icon: const Icon(Icons.sort_by_alpha, color: Colors.white),
-               tooltip: 'Sort A→Z by Author',
-               onPressed: _autoSortByAuthor,
-             ),
-             IconButton(
-               icon: const Icon(Icons.check, color: Colors.white),
-               tooltip: 'Save Order',
-               onPressed: _saveOrder,
-             ),
-             IconButton(
-               icon: const Icon(Icons.close, color: Colors.white),
-               tooltip: 'Cancel',
-               onPressed: () {
-                 setState(() {
-                   _isReordering = false;
-                   _fetchBooks(); // Reset to original order
-                 });
-               },
-             ),
+            IconButton(
+              icon: const Icon(Icons.sort_by_alpha, color: Colors.white),
+              tooltip: 'Sort A→Z by Author',
+              onPressed: _autoSortByAuthor,
+            ),
+            IconButton(
+              icon: const Icon(Icons.check, color: Colors.white),
+              tooltip: 'Save Order',
+              onPressed: _saveOrder,
+            ),
+            IconButton(
+              icon: const Icon(Icons.close, color: Colors.white),
+              tooltip: 'Cancel',
+              onPressed: () {
+                setState(() {
+                  _isReordering = false;
+                  _fetchBooks(); // Reset to original order
+                });
+              },
+            ),
           ] else ...[
             // Reorder Button (Only when Tag Filter is Active)
             if (_tagFilter != null && !_isSearching)
@@ -160,10 +162,16 @@ class _BookListScreenState extends State<BookListScreen> {
                 },
               ),
 
-             IconButton(
+            IconButton(
               key: _searchKey,
-              icon: Icon(_isSearching ? Icons.close : Icons.search, color: Colors.white),
-              tooltip: TranslationService.translate(context, _isSearching ? 'cancel' : 'search_books'),
+              icon: Icon(
+                _isSearching ? Icons.close : Icons.search,
+                color: Colors.white,
+              ),
+              tooltip: TranslationService.translate(
+                context,
+                _isSearching ? 'cancel' : 'search_books',
+              ),
               onPressed: () {
                 setState(() {
                   if (_isSearching) {
@@ -177,12 +185,15 @@ class _BookListScreenState extends State<BookListScreen> {
               },
             ),
           ], // End else
-          
+
           if (!_isSearching && !_isReordering) ...[
             IconButton(
               key: _viewKey,
               icon: Icon(_getViewIcon(_viewMode), color: Colors.white),
-              tooltip: TranslationService.translate(context, 'action_change_view'),
+              tooltip: TranslationService.translate(
+                context,
+                'action_change_view',
+              ),
               onPressed: () {
                 setState(() {
                   _viewMode = _getNextViewMode(_viewMode);
@@ -200,13 +211,15 @@ class _BookListScreenState extends State<BookListScreen> {
             IconButton(
               icon: const Icon(Icons.refresh, color: Colors.white),
               tooltip: TranslationService.translate(context, 'action_refresh'),
-              onPressed: _fetchBooks
+              onPressed: _fetchBooks,
             ),
             IconButton(
               key: _externalSearchKey,
               icon: const Icon(Icons.public, color: Colors.white),
-              tooltip:
-                  TranslationService.translate(context, 'btn_search_online'),
+              tooltip: TranslationService.translate(
+                context,
+                'btn_search_online',
+              ),
               onPressed: () async {
                 final result = await context.push('/search/external');
                 if (result == true) {
@@ -228,7 +241,13 @@ class _BookListScreenState extends State<BookListScreen> {
               _buildFilterBar(),
               Expanded(
                 child: _isLoading
-                    ? const Center(child: CircularProgressIndicator(valueColor: AlwaysStoppedAnimation<Color>(Colors.black54)))
+                    ? const Center(
+                        child: CircularProgressIndicator(
+                          valueColor: AlwaysStoppedAnimation<Color>(
+                            Colors.black54,
+                          ),
+                        ),
+                      )
                     : _buildBody(),
               ),
             ],
@@ -248,25 +267,26 @@ class _BookListScreenState extends State<BookListScreen> {
     );
   }
 
-
   bool _showBorrowedConfig = true; // Store config value
-  
+
   Future<void> _fetchBooks() async {
     setState(() => _isLoading = true);
     final apiService = Provider.of<ApiService>(context, listen: false);
-    
+
     try {
-      debugPrint('Fetching books with status: $_selectedStatus, tag: $_tagFilter, search: $_searchQuery');
+      debugPrint(
+        'Fetching books with status: $_selectedStatus, tag: $_tagFilter, search: $_searchQuery',
+      );
       // Fetch all books initially, filtering will happen locally
       final books = await apiService.getBooks();
 
-      final configRes = await apiService.getLibraryConfig(); 
+      final configRes = await apiService.getLibraryConfig();
       String? libraryName;
       if (configRes.statusCode == 200) {
-         _showBorrowedConfig = configRes.data['show_borrowed_books'] == true;
-         libraryName = configRes.data['library_name'] as String?;
+        _showBorrowedConfig = configRes.data['show_borrowed_books'] == true;
+        libraryName = configRes.data['library_name'] as String?;
       }
-      
+
       if (mounted) {
         setState(() {
           _books = books; // Store ALL books, filtering happens in _filterBooks
@@ -286,55 +306,68 @@ class _BookListScreenState extends State<BookListScreen> {
   // Triggered when filters change or search query changes
   void _filterBooks() {
     List<Book> tempBooks = List.from(_books);
-    
+
     // Apply "show borrowed" config logic:
     // If config says hide borrowed books, ONLY hide them if the user hasn't explicitly asked to see them.
     if (!_showBorrowedConfig && _selectedStatus != 'borrowed') {
-         tempBooks = tempBooks.where((b) => b.readingStatus != 'borrowed').toList();
+      tempBooks = tempBooks
+          .where((b) => b.readingStatus != 'borrowed')
+          .toList();
     }
 
     // Apply status filter
     if (_selectedStatus != null) {
-      tempBooks = tempBooks.where((book) => book.readingStatus == _selectedStatus).toList();
+      tempBooks = tempBooks
+          .where((book) => book.readingStatus == _selectedStatus)
+          .toList();
     }
 
     // Apply tag filter
     if (_tagFilter != null) {
       final filterLower = _tagFilter!.toLowerCase();
       tempBooks = tempBooks.where((book) {
-        final bookTags = book.subjects?.map((s) => s.toLowerCase()).toSet() ?? {};
+        final bookTags =
+            book.subjects?.map((s) => s.toLowerCase()).toSet() ?? {};
         return bookTags.contains(filterLower);
       }).toList();
     }
 
     // Apply search query filter
     if (_searchQuery.isNotEmpty) {
-      tempBooks = tempBooks.where((book) => 
-        book.title.toLowerCase().contains(_searchQuery.toLowerCase()) ||
-        (book.author?.toLowerCase().contains(_searchQuery.toLowerCase()) ?? false)
-      ).toList();
+      tempBooks = tempBooks
+          .where(
+            (book) =>
+                book.title.toLowerCase().contains(_searchQuery.toLowerCase()) ||
+                (book.author?.toLowerCase().contains(
+                      _searchQuery.toLowerCase(),
+                    ) ??
+                    false),
+          )
+          .toList();
     }
 
     setState(() {
       _filteredBooks = tempBooks;
     });
   }
-  
+
   void _showTagFilterDialog() async {
     final apiService = Provider.of<ApiService>(context, listen: false);
-    
+
     try {
       final tags = await apiService.getTags();
-      
+
       if (!mounted) return;
-      
+
       if (tags.isEmpty) {
         ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text(TranslationService.translate(context, 'no_tags'))),
+          SnackBar(
+            content: Text(TranslationService.translate(context, 'no_tags')),
+          ),
         );
         return;
       }
-      
+
       showModalBottomSheet(
         context: context,
         shape: const RoundedRectangleBorder(
@@ -382,7 +415,7 @@ class _BookListScreenState extends State<BookListScreen> {
       debugPrint('Error loading tags: $e');
     }
   }
-  
+
   // _fetchSuggestions is removed as Autocomplete now works directly on _allBooks
 
   Widget _buildSearchField() {
@@ -400,38 +433,50 @@ class _BookListScreenState extends State<BookListScreen> {
             return const Iterable<Book>.empty();
           }
           return _books.where((Book book) {
-            return book.title.toLowerCase().contains(textEditingValue.text.toLowerCase()) ||
-                   (book.author?.toLowerCase().contains(textEditingValue.text.toLowerCase()) ?? false);
+            return book.title.toLowerCase().contains(
+                  textEditingValue.text.toLowerCase(),
+                ) ||
+                (book.author?.toLowerCase().contains(
+                      textEditingValue.text.toLowerCase(),
+                    ) ??
+                    false);
           });
         },
         onSelected: (Book selection) {
           context.push('/books/${selection.id}');
         },
-        fieldViewBuilder: (context, textEditingController, focusNode, onFieldSubmitted) {
-          // Sync internal _searchQuery with Autocomplete's controller
-          if (_searchQuery != textEditingController.text) {
-            textEditingController.text = _searchQuery;
-          }
+        fieldViewBuilder:
+            (context, textEditingController, focusNode, onFieldSubmitted) {
+              // Sync internal _searchQuery with Autocomplete's controller
+              if (_searchQuery != textEditingController.text) {
+                textEditingController.text = _searchQuery;
+              }
 
-          return TextField(
-            controller: textEditingController,
-            focusNode: focusNode,
-            style: const TextStyle(color: Colors.black87),
-            decoration: InputDecoration(
-              hintText: TranslationService.translate(context, 'search_books'),
-              hintStyle: const TextStyle(color: Colors.black38),
-              prefixIcon: const Icon(Icons.search, color: Colors.black54),
-              border: InputBorder.none,
-              contentPadding: const EdgeInsets.symmetric(horizontal: 20, vertical: 15),
-            ),
-            onChanged: (value) {
-              setState(() {
-                _searchQuery = value;
-                _filterBooks(); // Trigger filter on search query change
-              });
+              return TextField(
+                controller: textEditingController,
+                focusNode: focusNode,
+                style: const TextStyle(color: Colors.black87),
+                decoration: InputDecoration(
+                  hintText: TranslationService.translate(
+                    context,
+                    'search_books',
+                  ),
+                  hintStyle: const TextStyle(color: Colors.black38),
+                  prefixIcon: const Icon(Icons.search, color: Colors.black54),
+                  border: InputBorder.none,
+                  contentPadding: const EdgeInsets.symmetric(
+                    horizontal: 20,
+                    vertical: 15,
+                  ),
+                ),
+                onChanged: (value) {
+                  setState(() {
+                    _searchQuery = value;
+                    _filterBooks(); // Trigger filter on search query change
+                  });
+                },
+              );
             },
-          );
-        },
         optionsViewBuilder: (context, onSelected, options) {
           return Align(
             alignment: Alignment.topLeft,
@@ -440,7 +485,10 @@ class _BookListScreenState extends State<BookListScreen> {
               color: Colors.white,
               borderRadius: BorderRadius.circular(12),
               child: ConstrainedBox(
-                constraints: const BoxConstraints(maxHeight: 200, maxWidth: 300), // Adjust width as needed
+                constraints: const BoxConstraints(
+                  maxHeight: 200,
+                  maxWidth: 300,
+                ), // Adjust width as needed
                 child: ListView.builder(
                   padding: EdgeInsets.zero,
                   shrinkWrap: true,
@@ -451,10 +499,28 @@ class _BookListScreenState extends State<BookListScreen> {
                       onTap: () => onSelected(option),
                       child: ListTile(
                         leading: option.coverUrl != null
-                          ? Image.network(option.coverUrl!, width: 30, fit: BoxFit.cover, errorBuilder: (_,__,___) => const Icon(Icons.book, size: 30))
-                          : const Icon(Icons.book, size: 30, color: Colors.grey),
-                        title: Text(option.title, maxLines: 1, overflow: TextOverflow.ellipsis),
-                        subtitle: Text(option.author ?? 'Unknown', maxLines: 1, overflow: TextOverflow.ellipsis),
+                            ? Image.network(
+                                option.coverUrl!,
+                                width: 30,
+                                fit: BoxFit.cover,
+                                errorBuilder: (_, __, ___) =>
+                                    const Icon(Icons.book, size: 30),
+                              )
+                            : const Icon(
+                                Icons.book,
+                                size: 30,
+                                color: Colors.grey,
+                              ),
+                        title: Text(
+                          option.title,
+                          maxLines: 1,
+                          overflow: TextOverflow.ellipsis,
+                        ),
+                        subtitle: Text(
+                          option.author ?? 'Unknown',
+                          maxLines: 1,
+                          overflow: TextOverflow.ellipsis,
+                        ),
                       ),
                     );
                   },
@@ -469,16 +535,18 @@ class _BookListScreenState extends State<BookListScreen> {
 
   Widget _buildHeader(BuildContext context) {
     // Use library name if available, otherwise fallback to translation
-    final libraryTitle = _libraryName ?? TranslationService.translate(context, 'my_library_title');
+    final libraryTitle =
+        _libraryName ??
+        TranslationService.translate(context, 'my_library_title');
     final themeProvider = Provider.of<ThemeProvider>(context);
-    
+
     // Get avatar info
     final avatarConfig = themeProvider.avatarConfig;
     final avatar = availableAvatars.firstWhere(
       (a) => a.id == themeProvider.currentAvatarId,
       orElse: () => availableAvatars.first,
     );
-    
+
     return Padding(
       padding: const EdgeInsets.fromLTRB(20, 10, 20, 10),
       child: Row(
@@ -493,7 +561,12 @@ class _BookListScreenState extends State<BookListScreen> {
                 shape: BoxShape.circle,
                 border: Border.all(color: avatar.themeColor, width: 2),
                 color: avatarConfig?.style == 'genie'
-                    ? Color(int.parse('FF${avatarConfig?.genieBackground ?? "fbbf24"}', radix: 16))
+                    ? Color(
+                        int.parse(
+                          'FF${avatarConfig?.genieBackground ?? "fbbf24"}',
+                          radix: 16,
+                        ),
+                      )
                     : Colors.white,
               ),
               child: ClipOval(
@@ -505,7 +578,8 @@ class _BookListScreenState extends State<BookListScreen> {
                     : Image.network(
                         avatarConfig?.toUrl(size: 48, format: 'png') ?? '',
                         fit: BoxFit.cover,
-                        errorBuilder: (_, __, ___) => Image.asset(avatar.assetPath, fit: BoxFit.cover),
+                        errorBuilder: (_, __, ___) =>
+                            Image.asset(avatar.assetPath, fit: BoxFit.cover),
                       ),
               ),
             ),
@@ -515,7 +589,7 @@ class _BookListScreenState extends State<BookListScreen> {
             child: Text(
               libraryTitle,
               style: const TextStyle(
-                fontSize: 28, 
+                fontSize: 28,
                 fontWeight: FontWeight.bold,
                 color: Colors.black87, // Dark text
               ),
@@ -571,7 +645,7 @@ class _BookListScreenState extends State<BookListScreen> {
             ),
           ),
           const SizedBox(width: 12),
-          
+
           // Tag Filter (if active)
           if (_tagFilter != null) ...[
             _buildFilterPill(
@@ -589,16 +663,25 @@ class _BookListScreenState extends State<BookListScreen> {
               child: ScaleOnTap(
                 onTap: () => _showTagFilterDialog(),
                 child: Container(
-                  padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 16,
+                    vertical: 8,
+                  ),
                   decoration: BoxDecoration(
                     color: Colors.white,
                     borderRadius: BorderRadius.circular(20),
-                    border: Border.all(color: Colors.grey.withValues(alpha: 0.3)),
+                    border: Border.all(
+                      color: Colors.grey.withValues(alpha: 0.3),
+                    ),
                   ),
                   child: Row(
                     mainAxisSize: MainAxisSize.min,
                     children: [
-                      Icon(Icons.label_outline, size: 16, color: Theme.of(context).primaryColor),
+                      Icon(
+                        Icons.label_outline,
+                        size: 16,
+                        color: Theme.of(context).primaryColor,
+                      ),
                       const SizedBox(width: 4),
                       Text(
                         TranslationService.translate(context, 'tags'),
@@ -614,14 +697,44 @@ class _BookListScreenState extends State<BookListScreen> {
             ),
 
           // Status Filters
-          _buildFilterPill(status: null, label: TranslationService.translate(context, 'filter_all')),
-          _buildFilterPill(status: 'reading', label: TranslationService.translate(context, 'reading_status_reading')),
-          _buildFilterPill(status: 'to_read', label: TranslationService.translate(context, 'reading_status_to_read')),
-          _buildFilterPill(status: 'wanting', label: TranslationService.translate(context, 'reading_status_wanting')),
-          _buildFilterPill(status: 'read', label: TranslationService.translate(context, 'reading_status_read')),
-          _buildFilterPill(status: 'lent', label: TranslationService.translate(context, 'lent_status')),
+          _buildFilterPill(
+            status: null,
+            label: TranslationService.translate(context, 'filter_all'),
+          ),
+          _buildFilterPill(
+            status: 'reading',
+            label: TranslationService.translate(
+              context,
+              'reading_status_reading',
+            ),
+          ),
+          _buildFilterPill(
+            status: 'to_read',
+            label: TranslationService.translate(
+              context,
+              'reading_status_to_read',
+            ),
+          ),
+          _buildFilterPill(
+            status: 'wanting',
+            label: TranslationService.translate(
+              context,
+              'reading_status_wanting',
+            ),
+          ),
+          _buildFilterPill(
+            status: 'read',
+            label: TranslationService.translate(context, 'reading_status_read'),
+          ),
+          _buildFilterPill(
+            status: 'lent',
+            label: TranslationService.translate(context, 'lent_status'),
+          ),
           if (!Provider.of<ThemeProvider>(context).isLibrarian)
-            _buildFilterPill(status: 'borrowed', label: TranslationService.translate(context, 'borrowed_status')),
+            _buildFilterPill(
+              status: 'borrowed',
+              label: TranslationService.translate(context, 'borrowed_status'),
+            ),
         ],
       ),
     );
@@ -638,7 +751,9 @@ class _BookListScreenState extends State<BookListScreen> {
       child: Container(
         padding: const EdgeInsets.all(8),
         decoration: BoxDecoration(
-          color: isSelected ? Theme.of(context).primaryColor : Colors.transparent,
+          color: isSelected
+              ? Theme.of(context).primaryColor
+              : Colors.transparent,
           borderRadius: BorderRadius.circular(8),
         ),
         child: Icon(
@@ -676,20 +791,22 @@ class _BookListScreenState extends State<BookListScreen> {
         child: Container(
           padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
           decoration: BoxDecoration(
-            color: isClearAction 
+            color: isClearAction
                 ? Colors.redAccent.withOpacity(0.8)
                 : (isSelected ? Theme.of(context).primaryColor : Colors.white),
             borderRadius: BorderRadius.circular(20),
             border: Border.all(
-              color: isSelected ? Colors.transparent : Colors.grey.withOpacity(0.3),
+              color: isSelected
+                  ? Colors.transparent
+                  : Colors.grey.withOpacity(0.3),
             ),
-             boxShadow: isSelected && !isClearAction
+            boxShadow: isSelected && !isClearAction
                 ? [
                     BoxShadow(
                       color: Theme.of(context).primaryColor.withOpacity(0.3),
                       blurRadius: 8,
                       offset: const Offset(0, 4),
-                    )
+                    ),
                   ]
                 : null,
           ),
@@ -703,7 +820,9 @@ class _BookListScreenState extends State<BookListScreen> {
               Text(
                 label,
                 style: TextStyle(
-                  color: isClearAction ? Colors.white : (isSelected ? Colors.white : Colors.black54),
+                  color: isClearAction
+                      ? Colors.white
+                      : (isSelected ? Colors.white : Colors.black54),
                   fontWeight: isSelected ? FontWeight.bold : FontWeight.w500,
                   fontSize: 13,
                 ),
@@ -721,8 +840,6 @@ class _BookListScreenState extends State<BookListScreen> {
       _fetchBooks();
     }
   }
-
-
 
   ViewMode _getNextViewMode(ViewMode current) {
     switch (current) {
@@ -747,55 +864,56 @@ class _BookListScreenState extends State<BookListScreen> {
   }
 
   Widget _buildBody() {
-  if (_filteredBooks.isEmpty && !_isLoading) {
-    return RefreshIndicator(
-      onRefresh: _fetchBooks,
-      child: SingleChildScrollView(
-        physics: const AlwaysScrollableScrollPhysics(),
-        child: SizedBox(
-          height: MediaQuery.of(context).size.height * 0.6,
-          child: Center(
-            child: Column(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: [
-                Icon(Icons.search_off, size: 64, color: Colors.grey.withOpacity(0.5)),
-                const SizedBox(height: 16),
-                Text(
-                  TranslationService.translate(context, 'no_books_found'),
-                  style: TextStyle(fontSize: 18, color: Colors.grey.withOpacity(0.8)),
-                ),
-              ],
+    if (_filteredBooks.isEmpty && !_isLoading) {
+      return RefreshIndicator(
+        onRefresh: _fetchBooks,
+        child: SingleChildScrollView(
+          physics: const AlwaysScrollableScrollPhysics(),
+          child: SizedBox(
+            height: MediaQuery.of(context).size.height * 0.6,
+            child: Center(
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  Icon(
+                    Icons.search_off,
+                    size: 64,
+                    color: Colors.grey.withOpacity(0.5),
+                  ),
+                  const SizedBox(height: 16),
+                  Text(
+                    TranslationService.translate(context, 'no_books_found'),
+                    style: TextStyle(
+                      fontSize: 18,
+                      color: Colors.grey.withOpacity(0.8),
+                    ),
+                  ),
+                ],
+              ),
             ),
           ),
         ),
-      ),
-    );
+      );
+    }
+
+    switch (_viewMode) {
+      case ViewMode.coverGrid:
+        return RefreshIndicator(
+          onRefresh: _fetchBooks,
+          child: BookCoverGrid(books: _filteredBooks, onBookTap: _onBookTap),
+        );
+      case ViewMode.spineShelf:
+        return RefreshIndicator(
+          onRefresh: _fetchBooks,
+          child: BookshelfView(books: _filteredBooks, onBookTap: _onBookTap),
+        );
+      case ViewMode.list:
+        return RefreshIndicator(
+          onRefresh: _fetchBooks,
+          child: _buildListView(),
+        );
+    }
   }
-  
-  switch (_viewMode) {
-    case ViewMode.coverGrid:
-      return RefreshIndicator(
-        onRefresh: _fetchBooks,
-        child: BookCoverGrid(
-          books: _filteredBooks,
-          onBookTap: _onBookTap,
-        ),
-      );
-    case ViewMode.spineShelf:
-      return RefreshIndicator(
-        onRefresh: _fetchBooks,
-        child: BookshelfView(
-          books: _filteredBooks,
-          onBookTap: _onBookTap,
-        ),
-      );
-    case ViewMode.list:
-      return RefreshIndicator(
-        onRefresh: _fetchBooks,
-        child: _buildListView(),
-      );
-  }
-}
 
   Widget _buildListView() {
     if (_isReordering) {
@@ -819,7 +937,12 @@ class _BookListScreenState extends State<BookListScreen> {
             child: ListTile(
               contentPadding: const EdgeInsets.all(8),
               leading: book.coverUrl != null
-                  ? Image.network(book.coverUrl!, width: 40, fit: BoxFit.cover, errorBuilder: (_,__,___) => const Icon(Icons.book))
+                  ? Image.network(
+                      book.coverUrl!,
+                      width: 40,
+                      fit: BoxFit.cover,
+                      errorBuilder: (_, __, ___) => const Icon(Icons.book),
+                    )
                   : const Icon(Icons.book, size: 40, color: Colors.grey),
               title: Text(book.title),
               subtitle: Text(book.author ?? 'Unknown'),
@@ -856,21 +979,21 @@ class _BookListScreenState extends State<BookListScreen> {
     try {
       final ids = _filteredBooks.map((b) => b.id!).toList();
       await apiService.reorderBooks(ids);
-      
+
       setState(() {
         _isReordering = false;
         _isLoading = false;
       });
       // Optionally refresh
       _fetchBooks();
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('Shelf order saved!')),
-      );
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(SnackBar(content: Text('Shelf order saved!')));
     } catch (e) {
       setState(() => _isLoading = false);
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('Error saving order: $e')),
-      );
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(SnackBar(content: Text('Error saving order: $e')));
     }
   }
 

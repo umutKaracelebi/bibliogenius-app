@@ -35,10 +35,13 @@ class _GenieChatScreenState extends State<GenieChatScreen> {
   void initState() {
     super.initState();
     // specific initial greeting
-    _messages.add(_GenieMessage(
-      text: "Hello! I'm the Genie. You can ask me to add books or search your library.",
-      isUser: false,
-    ));
+    _messages.add(
+      _GenieMessage(
+        text:
+            "Hello! I'm the Genie. You can ask me to add books or search your library.",
+        isUser: false,
+      ),
+    );
   }
 
   Future<void> _sendMessage(String text) async {
@@ -56,20 +59,25 @@ class _GenieChatScreenState extends State<GenieChatScreen> {
       final response = await apiService.sendGenieChat(text);
 
       setState(() {
-        _messages.add(_GenieMessage(
-          text: response.text,
-          isUser: false,
-          actions: response.actions,
-        ));
+        _messages.add(
+          _GenieMessage(
+            text: response.text,
+            isUser: false,
+            actions: response.actions,
+          ),
+        );
         _isLoading = false;
       });
       _scrollToBottom();
     } catch (e) {
       setState(() {
-        _messages.add(_GenieMessage(
-          text: "Sorry, I had trouble talking to the spirits. Please try again.",
-          isUser: false,
-        ));
+        _messages.add(
+          _GenieMessage(
+            text:
+                "Sorry, I had trouble talking to the spirits. Please try again.",
+            isUser: false,
+          ),
+        );
         _isLoading = false;
       });
       _scrollToBottom();
@@ -93,15 +101,14 @@ class _GenieChatScreenState extends State<GenieChatScreen> {
       Navigator.push(
         context,
         MaterialPageRoute(
-          builder: (context) => BookListScreen(initialSearchQuery: action.payload),
+          builder: (context) =>
+              BookListScreen(initialSearchQuery: action.payload),
         ),
       );
     } else if (action.actionType == 'AddBook') {
       Navigator.push(
         context,
-        MaterialPageRoute(
-          builder: (context) => const AddBookScreen(), 
-        ),
+        MaterialPageRoute(builder: (context) => const AddBookScreen()),
       );
     }
   }
@@ -113,7 +120,9 @@ class _GenieChatScreenState extends State<GenieChatScreen> {
       child: Container(
         margin: const EdgeInsets.symmetric(vertical: 4, horizontal: 8),
         padding: const EdgeInsets.all(12),
-        constraints: BoxConstraints(maxWidth: MediaQuery.of(context).size.width * 0.75),
+        constraints: BoxConstraints(
+          maxWidth: MediaQuery.of(context).size.width * 0.75,
+        ),
         decoration: BoxDecoration(
           color: isUser ? Colors.blueAccent : Colors.grey.shade200,
           borderRadius: BorderRadius.only(
@@ -179,7 +188,7 @@ class _GenieChatScreenState extends State<GenieChatScreen> {
             decoration: BoxDecoration(
               color: Colors.white,
               boxShadow: [
-                 BoxShadow(
+                BoxShadow(
                   color: Colors.black.withValues(alpha: 0.05),
                   offset: const Offset(0, -2),
                   blurRadius: 4,

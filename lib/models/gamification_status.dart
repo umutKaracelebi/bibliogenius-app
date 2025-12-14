@@ -1,15 +1,15 @@
 /// Gamification status model matching the new V3 backend API.
-/// 
+///
 /// This model represents the user's gamification progress across
 /// three distinct tracks: Collector, Reader, and Lender.
 library;
 
 /// Progress information for a single gamification track.
 class TrackProgress {
-  final int level;           // 0=None, 1=Bronze, 2=Silver, 3=Gold
-  final double progress;     // 0.0 to 1.0 progress to next level
-  final int current;         // Current value (books, reads, loans)
-  final int nextThreshold;   // Next level threshold
+  final int level; // 0=None, 1=Bronze, 2=Silver, 3=Gold
+  final double progress; // 0.0 to 1.0 progress to next level
+  final int current; // Current value (books, reads, loans)
+  final int nextThreshold; // Next level threshold
 
   const TrackProgress({
     required this.level,
@@ -50,10 +50,7 @@ class StreakInfo {
   final int current;
   final int longest;
 
-  const StreakInfo({
-    required this.current,
-    required this.longest,
-  });
+  const StreakInfo({required this.current, required this.longest});
 
   factory StreakInfo.fromJson(Map<String, dynamic> json) {
     return StreakInfo(
@@ -68,7 +65,7 @@ class StreakInfo {
 
 /// Gamification configuration for the current user.
 class GamificationConfig {
-  final String achievementsStyle;  // 'minimal', 'fun', 'professional'
+  final String achievementsStyle; // 'minimal', 'fun', 'professional'
   final int readingGoalYearly;
   final int readingGoalProgress;
 
@@ -94,7 +91,7 @@ class GamificationConfig {
 }
 
 /// Complete gamification status for a user.
-/// 
+///
 /// Contains all three tracks, streak info, recent achievements,
 /// and configuration. Also includes legacy fields for backward
 /// compatibility with older UI components.
@@ -106,7 +103,7 @@ class GamificationStatus {
   final StreakInfo streak;
   final List<String> recentAchievements;
   final GamificationConfig config;
-  
+
   // Legacy fields for backward compatibility
   final String level;
   final int loansCount;
@@ -131,7 +128,7 @@ class GamificationStatus {
 
   factory GamificationStatus.fromJson(Map<String, dynamic> json) {
     final tracks = json['tracks'] as Map<String, dynamic>? ?? {};
-    
+
     return GamificationStatus(
       collector: TrackProgress.fromJson(
         tracks['collector'] as Map<String, dynamic>? ?? {},
@@ -148,9 +145,11 @@ class GamificationStatus {
       streak: StreakInfo.fromJson(
         json['streak'] as Map<String, dynamic>? ?? {},
       ),
-      recentAchievements: (json['recent_achievements'] as List<dynamic>?)
-          ?.map((e) => e.toString())
-          .toList() ?? [],
+      recentAchievements:
+          (json['recent_achievements'] as List<dynamic>?)
+              ?.map((e) => e.toString())
+              .toList() ??
+          [],
       config: GamificationConfig.fromJson(
         json['config'] as Map<String, dynamic>? ?? {},
       ),
@@ -158,24 +157,39 @@ class GamificationStatus {
       level: json['level'] as String? ?? 'Member',
       loansCount: (json['loans_count'] as num?)?.toInt() ?? 0,
       editsCount: (json['edits_count'] as num?)?.toInt() ?? 0,
-      nextLevelProgress: (json['next_level_progress'] as num?)?.toDouble() ?? 0.0,
+      nextLevelProgress:
+          (json['next_level_progress'] as num?)?.toDouble() ?? 0.0,
       badgeUrl: json['badge_url'] as String? ?? 'assets/badges/member.png',
     );
   }
 
   /// Returns the highest level achieved across all tracks.
-  int get maxTrackLevel => [collector.level, reader.level, lender.level, cataloguer.level]
-      .reduce((a, b) => a > b ? a : b);
+  int get maxTrackLevel => [
+    collector.level,
+    reader.level,
+    lender.level,
+    cataloguer.level,
+  ].reduce((a, b) => a > b ? a : b);
 
   /// Returns true if user has any achievements.
   bool get hasAchievements => recentAchievements.isNotEmpty;
 
   /// Default empty status for initial state.
   static GamificationStatus get empty => const GamificationStatus(
-    collector: TrackProgress(level: 0, progress: 0, current: 0, nextThreshold: 10),
+    collector: TrackProgress(
+      level: 0,
+      progress: 0,
+      current: 0,
+      nextThreshold: 10,
+    ),
     reader: TrackProgress(level: 0, progress: 0, current: 0, nextThreshold: 5),
     lender: TrackProgress(level: 0, progress: 0, current: 0, nextThreshold: 5),
-    cataloguer: TrackProgress(level: 0, progress: 0, current: 0, nextThreshold: 10),
+    cataloguer: TrackProgress(
+      level: 0,
+      progress: 0,
+      current: 0,
+      nextThreshold: 10,
+    ),
     streak: StreakInfo(current: 0, longest: 0),
     recentAchievements: [],
     config: GamificationConfig(

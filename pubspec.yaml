@@ -60,6 +60,10 @@ dependencies:
   cached_network_image: ^3.4.1
   universal_html: ^2.3.0
   package_info_plus: ^9.0.0
+  rust_lib_app:
+    path: rust_builder
+  flutter_rust_bridge: 2.11.1
+  freezed_annotation: ^3.1.0
 
 dev_dependencies:
   flutter_test:
@@ -74,6 +78,10 @@ dev_dependencies:
   network_image_mock: ^2.1.1
   http_mock_adapter: ^0.6.1
   flutter_launcher_icons: ^0.14.4
+  integration_test:
+    sdk: flutter
+  freezed: ^3.2.3
+  build_runner: ^2.10.4
 
 # For information on the generic Dart part of this file, see the
 # following page: https://dart.dev/tools/pub/pubspec

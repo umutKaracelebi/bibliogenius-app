@@ -1,0 +1,3 @@
+rust_input: crate::api::frb
+rust_root: ../bibliogenius/
+dart_output: lib/src/rust

@@ -45,7 +45,9 @@ class _AddContactScreenState extends State<AddContactScreen> {
       final contactData = {
         'type': _type,
         'name': _nameController.text,
-        'first_name': _firstNameController.text.isEmpty ? null : _firstNameController.text,
+        'first_name': _firstNameController.text.isEmpty
+            ? null
+            : _firstNameController.text,
         'email': _emailController.text.isEmpty ? null : _emailController.text,
         'phone': _phoneController.text.isEmpty ? null : _phoneController.text,
         'address': _addressController.text.isEmpty
@@ -60,16 +62,24 @@ class _AddContactScreenState extends State<AddContactScreen> {
 
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text(TranslationService.translate(context, 'contact_created'))),
+          SnackBar(
+            content: Text(
+              TranslationService.translate(context, 'contact_created'),
+            ),
+          ),
         );
         context.pop();
       }
     } catch (e) {
       setState(() => _isSaving = false);
       if (mounted) {
-        ScaffoldMessenger.of(
-          context,
-        ).showSnackBar(SnackBar(content: Text('${TranslationService.translate(context, 'error_creating_contact')}: $e')));
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text(
+              '${TranslationService.translate(context, 'error_creating_contact')}: $e',
+            ),
+          ),
+        );
       }
     }
   }
@@ -77,7 +87,9 @@ class _AddContactScreenState extends State<AddContactScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: Text(TranslationService.translate(context, 'add_contact_title'))),
+      appBar: AppBar(
+        title: Text(TranslationService.translate(context, 'add_contact_title')),
+      ),
       body: Form(
         key: _formKey,
         child: ListView(
@@ -86,12 +98,25 @@ class _AddContactScreenState extends State<AddContactScreen> {
             DropdownButtonFormField<String>(
               initialValue: _type,
               decoration: InputDecoration(
-                labelText: TranslationService.translate(context, 'contact_type_label'),
+                labelText: TranslationService.translate(
+                  context,
+                  'contact_type_label',
+                ),
                 border: const OutlineInputBorder(),
               ),
               items: [
-                DropdownMenuItem(value: 'borrower', child: Text(TranslationService.translate(context, 'role_borrower'))),
-                DropdownMenuItem(value: 'library', child: Text(TranslationService.translate(context, 'role_library'))),
+                DropdownMenuItem(
+                  value: 'borrower',
+                  child: Text(
+                    TranslationService.translate(context, 'role_borrower'),
+                  ),
+                ),
+                DropdownMenuItem(
+                  value: 'library',
+                  child: Text(
+                    TranslationService.translate(context, 'role_library'),
+                  ),
+                ),
               ],
               onChanged: (value) {
                 setState(() => _type = value!);
@@ -101,12 +126,18 @@ class _AddContactScreenState extends State<AddContactScreen> {
             TextFormField(
               controller: _nameController,
               decoration: InputDecoration(
-                labelText: TranslationService.translate(context, 'contact_name_label'),
+                labelText: TranslationService.translate(
+                  context,
+                  'contact_name_label',
+                ),
                 border: const OutlineInputBorder(),
               ),
               validator: (value) {
                 if (value == null || value.isEmpty) {
-                  return TranslationService.translate(context, 'contact_name_required');
+                  return TranslationService.translate(
+                    context,
+                    'contact_name_required',
+                  );
                 }
                 return null;
               },
@@ -117,8 +148,14 @@ class _AddContactScreenState extends State<AddContactScreen> {
               TextFormField(
                 controller: _firstNameController,
                 decoration: InputDecoration(
-                  labelText: TranslationService.translate(context, 'contact_first_name_label'),
-                  hintText: TranslationService.translate(context, 'contact_first_name_hint'),
+                  labelText: TranslationService.translate(
+                    context,
+                    'contact_first_name_label',
+                  ),
+                  hintText: TranslationService.translate(
+                    context,
+                    'contact_first_name_hint',
+                  ),
                   border: const OutlineInputBorder(),
                 ),
               ),
@@ -127,14 +164,20 @@ class _AddContactScreenState extends State<AddContactScreen> {
             TextFormField(
               controller: _emailController,
               decoration: InputDecoration(
-                labelText: TranslationService.translate(context, 'contact_email_label'),
+                labelText: TranslationService.translate(
+                  context,
+                  'contact_email_label',
+                ),
                 border: const OutlineInputBorder(),
               ),
               keyboardType: TextInputType.emailAddress,
               validator: (value) {
                 if (value != null && value.isNotEmpty) {
                   if (!value.contains('@')) {
-                    return TranslationService.translate(context, 'contact_email_invalid');
+                    return TranslationService.translate(
+                      context,
+                      'contact_email_invalid',
+                    );
                   }
                 }
                 return null;
@@ -144,7 +187,10 @@ class _AddContactScreenState extends State<AddContactScreen> {
             TextFormField(
               controller: _phoneController,
               decoration: InputDecoration(
-                labelText: TranslationService.translate(context, 'contact_phone_label'),
+                labelText: TranslationService.translate(
+                  context,
+                  'contact_phone_label',
+                ),
                 border: const OutlineInputBorder(),
               ),
               keyboardType: TextInputType.phone,
@@ -153,7 +199,10 @@ class _AddContactScreenState extends State<AddContactScreen> {
             TextFormField(
               controller: _addressController,
               decoration: InputDecoration(
-                labelText: TranslationService.translate(context, 'contact_address_label'),
+                labelText: TranslationService.translate(
+                  context,
+                  'contact_address_label',
+                ),
                 border: const OutlineInputBorder(),
               ),
               maxLines: 2,
@@ -162,7 +211,10 @@ class _AddContactScreenState extends State<AddContactScreen> {
             TextFormField(
               controller: _notesController,
               decoration: InputDecoration(
-                labelText: TranslationService.translate(context, 'contact_notes_label'),
+                labelText: TranslationService.translate(
+                  context,
+                  'contact_notes_label',
+                ),
                 border: const OutlineInputBorder(),
               ),
               maxLines: 3,

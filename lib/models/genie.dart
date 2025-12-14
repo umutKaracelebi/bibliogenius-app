@@ -22,10 +22,7 @@ class GenieResponse {
   final String text;
   final List<GenieAction> actions;
 
-  GenieResponse({
-    required this.text,
-    required this.actions,
-  });
+  GenieResponse({required this.text, required this.actions});
 
   factory GenieResponse.fromJson(Map<String, dynamic> json) {
     var actionsList = json['actions'] as List? ?? [];
@@ -33,9 +30,6 @@ class GenieResponse {
         .map((i) => GenieAction.fromJson(i))
         .toList();
 
-    return GenieResponse(
-      text: json['text'] ?? '',
-      actions: actions,
-    );
+    return GenieResponse(text: json['text'] ?? '', actions: actions);
   }
 }

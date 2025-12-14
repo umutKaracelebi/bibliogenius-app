@@ -8,12 +8,12 @@ class AvatarConfig {
   final String? clothing;
   final String? clothingColor;
   final String? mouth; // New parameter for facial expression
-  
+
   // Genie-specific options
   final String? genieColor; // For genie avatar
   final String? genieBackground; // For genie avatar
   final String? genieExpression; // 'happy', 'excited', 'focused'
-  
+
   final String seed;
 
   const AvatarConfig({
@@ -34,10 +34,10 @@ class AvatarConfig {
 
   /// Returns true if this is the Genie mascot avatar (local asset)
   bool get isGenie => style == 'genie';
-  
+
   /// Returns true if this avatar should use a local asset (currently only genie)
   bool get isAsset => isGenie;
-  
+
   /// Returns the asset path if isAsset is true
   String get assetPath => 'assets/genie_mascot.jpg';
 
@@ -47,18 +47,22 @@ class AvatarConfig {
     if (style == 'genie') {
       return 'assets/genie_mascot.jpg';
     }
-    
+
     // Map presets to actual API styles
     String apiStyle = style;
-    if (['man', 'woman', 'boy', 'girl', 'grandfather', 'grandmother'].contains(style)) {
+    if ([
+      'man',
+      'woman',
+      'boy',
+      'girl',
+      'grandfather',
+      'grandmother',
+    ].contains(style)) {
       apiStyle = 'avataaars';
     }
 
-    final params = <String, String>{
-      'seed': seed,
-      'size': size.toString(),
-    };
-    
+    final params = <String, String>{'seed': seed, 'size': size.toString()};
+
     if (hairStyle != null) {
       if (hairStyle == 'none') {
         params['topProbability'] = '0';
@@ -67,7 +71,7 @@ class AvatarConfig {
         params['topProbability'] = '100';
       }
     }
-    
+
     if (facialHair != null) {
       if (facialHair == 'none') {
         params['facialHairProbability'] = '0';
@@ -79,7 +83,7 @@ class AvatarConfig {
 
     if (skinColor != null) params['skinColor'] = skinColor!;
     if (hairColor != null) params['hairColor'] = hairColor!;
-    
+
     if (accessories != null && accessories != 'none') {
       params['accessories'] = accessories!;
       params['accessoriesProbability'] = '100';
@@ -92,7 +96,10 @@ class AvatarConfig {
     if (mouth != null) params['mouth'] = mouth!;
 
     final queryString = params.entries
-        .map((e) => '${Uri.encodeComponent(e.key)}=${Uri.encodeComponent(e.value)}')
+        .map(
+          (e) =>
+              '${Uri.encodeComponent(e.key)}=${Uri.encodeComponent(e.value)}',
+        )
         .join('&');
 
     return 'https://api.dicebear.com/7.x/$apiStyle/$format?$queryString';
@@ -100,37 +107,37 @@ class AvatarConfig {
 
   // Convert to JSON for storage
   Map<String, dynamic> toJson() => {
-        'style': style,
-        'hairStyle': hairStyle,
-        'facialHair': facialHair,
-        'skinColor': skinColor,
-        'hairColor': hairColor,
-        'accessories': accessories,
-        'clothing': clothing,
-        'clothingColor': clothingColor,
-        'genieColor': genieColor,
-        'genieBackground': genieBackground,
-        'genieExpression': genieExpression,
-        'mouth': mouth,
-        'seed': seed,
-      };
+    'style': style,
+    'hairStyle': hairStyle,
+    'facialHair': facialHair,
+    'skinColor': skinColor,
+    'hairColor': hairColor,
+    'accessories': accessories,
+    'clothing': clothing,
+    'clothingColor': clothingColor,
+    'genieColor': genieColor,
+    'genieBackground': genieBackground,
+    'genieExpression': genieExpression,
+    'mouth': mouth,
+    'seed': seed,
+  };
 
   // Create from JSON
   factory AvatarConfig.fromJson(Map<String, dynamic> json) => AvatarConfig(
-        style: json['style'] ?? 'avataaars',
-        hairStyle: json['hairStyle'],
-        facialHair: json['facialHair'],
-        skinColor: json['skinColor'],
-        hairColor: json['hairColor'],
-        accessories: json['accessories'],
-        clothing: json['clothing'],
-        clothingColor: json['clothingColor'],
-        genieColor: json['genieColor'],
-        genieBackground: json['genieBackground'],
-        genieExpression: json['genieExpression'],
-        mouth: json['mouth'],
-        seed: json['seed'] ?? 'default',
-      );
+    style: json['style'] ?? 'avataaars',
+    hairStyle: json['hairStyle'],
+    facialHair: json['facialHair'],
+    skinColor: json['skinColor'],
+    hairColor: json['hairColor'],
+    accessories: json['accessories'],
+    clothing: json['clothing'],
+    clothingColor: json['clothingColor'],
+    genieColor: json['genieColor'],
+    genieBackground: json['genieBackground'],
+    genieExpression: json['genieExpression'],
+    mouth: json['mouth'],
+    seed: json['seed'] ?? 'default',
+  );
 
   // Create copy with changes
   AvatarConfig copyWith({
@@ -148,28 +155,25 @@ class AvatarConfig {
 
     String? mouth,
     String? seed,
-  }) =>
-      AvatarConfig(
-        style: style ?? this.style,
-        hairStyle: hairStyle ?? this.hairStyle,
-        facialHair: facialHair ?? this.facialHair,
-        skinColor: skinColor ?? this.skinColor,
-        hairColor: hairColor ?? this.hairColor,
-        accessories: accessories ?? this.accessories,
-        clothing: clothing ?? this.clothing,
-        clothingColor: clothingColor ?? this.clothingColor,
-        genieColor: genieColor ?? this.genieColor,
-        genieBackground: genieBackground ?? this.genieBackground,
-        genieExpression: genieExpression ?? this.genieExpression,
-        mouth: mouth ?? this.mouth,
-        seed: seed ?? this.seed,
-      );
+  }) => AvatarConfig(
+    style: style ?? this.style,
+    hairStyle: hairStyle ?? this.hairStyle,
+    facialHair: facialHair ?? this.facialHair,
+    skinColor: skinColor ?? this.skinColor,
+    hairColor: hairColor ?? this.hairColor,
+    accessories: accessories ?? this.accessories,
+    clothing: clothing ?? this.clothing,
+    clothingColor: clothingColor ?? this.clothingColor,
+    genieColor: genieColor ?? this.genieColor,
+    genieBackground: genieBackground ?? this.genieBackground,
+    genieExpression: genieExpression ?? this.genieExpression,
+    mouth: mouth ?? this.mouth,
+    seed: seed ?? this.seed,
+  );
 
   // Default config - using neutral "initials" style instead of random human avatars
-  static AvatarConfig get defaultConfig => AvatarConfig(
-        seed: 'bibliogenius',
-        style: 'initials',
-      );
+  static AvatarConfig get defaultConfig =>
+      AvatarConfig(seed: 'bibliogenius', style: 'initials');
 }
 
 // Available options for customization
@@ -341,7 +345,8 @@ class AvatarOptions {
   }
 
   static const Map<String, String> hairColors = {
-    '4a312c': 'Brun', // Colors usually don't need translation or can stay as is for now
+    '4a312c':
+        'Brun', // Colors usually don't need translation or can stay as is for now
     'ffd700': 'Blond',
     'ff0000': 'Roux',
     '000000': 'Noir',
@@ -431,13 +436,7 @@ class AvatarOptions {
       accessories: 'prescription01',
       skinColor: 'ffdbb4',
     ),
-    'bottts': AvatarConfig(
-      seed: 'bot',
-      style: 'bottts',
-    ),
-    'notionists': AvatarConfig(
-      seed: 'artist',
-      style: 'notionists',
-    ),
+    'bottts': AvatarConfig(seed: 'bot', style: 'bottts'),
+    'notionists': AvatarConfig(seed: 'artist', style: 'notionists'),
   };
 }

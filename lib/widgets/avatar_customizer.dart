@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_svg/flutter_svg.dart';
 import '../models/avatar_config.dart';
 import 'package:provider/provider.dart';
 import '../providers/theme_provider.dart';
@@ -40,8 +39,15 @@ class _AvatarCustomizerState extends State<AvatarCustomizer> {
     final themeProvider = Provider.of<ThemeProvider>(context);
     final lang = themeProvider.locale.languageCode;
     final isGenie = _config.style == 'genie';
-    final isHuman = ['man', 'woman', 'boy', 'girl', 'grandfather', 'grandmother'].contains(_config.style);
-    
+    final isHuman = [
+      'man',
+      'woman',
+      'boy',
+      'girl',
+      'grandfather',
+      'grandmother',
+    ].contains(_config.style);
+
     return Column(
       children: [
         // Avatar Preview
@@ -49,8 +55,13 @@ class _AvatarCustomizerState extends State<AvatarCustomizer> {
           width: 200,
           height: 200,
           decoration: BoxDecoration(
-            color: isGenie 
-                ? Color(int.parse('FF${_config.genieBackground ?? "fbbf24"}', radix: 16))
+            color: isGenie
+                ? Color(
+                    int.parse(
+                      'FF${_config.genieBackground ?? "fbbf24"}',
+                      radix: 16,
+                    ),
+                  )
                 : Colors.grey[100],
             shape: BoxShape.circle,
           ),
@@ -95,13 +106,14 @@ class _AvatarCustomizerState extends State<AvatarCustomizer> {
                   }
                 },
               ),
-              
+
               if (isGenie) ...[
                 _buildColorSection(
                   TranslationService.translate(context, 'avatar_bg_color'),
                   AvatarOptions.genieBackgrounds,
                   _config.genieBackground ?? 'fbbf24',
-                  (value) => _updateConfig(_config.copyWith(genieBackground: value)),
+                  (value) =>
+                      _updateConfig(_config.copyWith(genieBackground: value)),
                 ),
                 // Genie doesn't really have other customizable parts yet since it's a static image
                 // We could add "Expression" if we had multiple images
@@ -140,7 +152,8 @@ class _AvatarCustomizerState extends State<AvatarCustomizer> {
                   TranslationService.translate(context, 'avatar_accessories'),
                   AvatarOptions.getAccessoriesOptions(lang),
                   _config.accessories ?? 'none',
-                  (value) => _updateConfig(_config.copyWith(accessories: value)),
+                  (value) =>
+                      _updateConfig(_config.copyWith(accessories: value)),
                 ),
                 _buildSection(
                   TranslationService.translate(context, 'avatar_clothing'),
@@ -171,10 +184,7 @@ class _AvatarCustomizerState extends State<AvatarCustomizer> {
           children: [
             Text(
               title,
-              style: const TextStyle(
-                fontSize: 16,
-                fontWeight: FontWeight.bold,
-              ),
+              style: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
             ),
             const SizedBox(height: 12),
             Wrap(
@@ -212,10 +222,7 @@ class _AvatarCustomizerState extends State<AvatarCustomizer> {
           children: [
             Text(
               title,
-              style: const TextStyle(
-                fontSize: 16,
-                fontWeight: FontWeight.bold,
-              ),
+              style: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
             ),
             const SizedBox(height: 12),
             Wrap(

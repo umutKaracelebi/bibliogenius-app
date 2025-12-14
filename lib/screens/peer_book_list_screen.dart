@@ -10,8 +10,8 @@ class PeerBookListScreen extends StatefulWidget {
   final String peerUrl; // Add URL
 
   const PeerBookListScreen({
-    super.key, 
-    required this.peerId, 
+    super.key,
+    required this.peerId,
     required this.peerName,
     required this.peerUrl,
   });
@@ -63,7 +63,7 @@ class _PeerBookListScreenState extends State<PeerBookListScreen> {
     try {
       final res = await api.getPeerBooksByUrl(widget.peerUrl);
       final List<dynamic> data = res.data;
-      
+
       if (mounted) {
         setState(() {
           _books = data.map((json) => Book.fromJson(json)).toList();
@@ -84,21 +84,21 @@ class _PeerBookListScreenState extends State<PeerBookListScreen> {
   Future<void> _syncBooks() async {
     if (!mounted) return;
     setState(() => _isLoading = true);
-    
+
     final api = Provider.of<ApiService>(context, listen: false);
     try {
       await api.syncPeer(widget.peerUrl);
       // Re-fetch after sync
       final res = await api.getPeerBooksByUrl(widget.peerUrl);
       final List<dynamic> data = res.data;
-      
+
       if (mounted) {
         setState(() {
           _books = data.map((json) => Book.fromJson(json)).toList();
           _filteredBooks = _books;
           _isLoading = false;
         });
-        
+
         ScaffoldMessenger.of(context).showSnackBar(
           const SnackBar(content: Text('Library synced successfully')),
         );
@@ -106,9 +106,9 @@ class _PeerBookListScreenState extends State<PeerBookListScreen> {
     } catch (e) {
       if (mounted) {
         setState(() => _isLoading = false);
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('Sync failed: $e')),
-        );
+        ScaffoldMessenger.of(
+          context,
+        ).showSnackBar(SnackBar(content: Text('Sync failed: $e')));
       }
     }
   }
@@ -118,15 +118,15 @@ class _PeerBookListScreenState extends State<PeerBookListScreen> {
     try {
       await api.requestBookByUrl(widget.peerUrl, book.isbn ?? "", book.title);
       if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text("Request sent!")),
-        );
+        ScaffoldMessenger.of(
+          context,
+        ).showSnackBar(const SnackBar(content: Text("Request sent!")));
       }
     } catch (e) {
       if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text("Failed to send request: $e")),
-        );
+        ScaffoldMessenger.of(
+          context,
+        ).showSnackBar(SnackBar(content: Text("Failed to send request: $e")));
       }
     }
   }
@@ -177,85 +177,96 @@ class _PeerBookListScreenState extends State<PeerBookListScreen> {
       body: _isLoading
           ? const Center(child: CircularProgressIndicator())
           : _filteredBooks.isEmpty
-              ? Center(
-                  child: Column(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: [
-                      Icon(Icons.library_books_outlined, size: 64, color: Colors.grey[400]),
-                      const SizedBox(height: 16),
-                      Text(
-                        "No books found",
-                        style: TextStyle(fontSize: 18, color: Colors.grey[600]),
-                      ),
-                      const SizedBox(height: 24),
-                      ElevatedButton.icon(
-                        onPressed: _syncBooks,
-                        icon: const Icon(Icons.sync),
-                        label: const Text("Sync Library"),
-                      ),
-                    ],
+          ? Center(
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  Icon(
+                    Icons.library_books_outlined,
+                    size: 64,
+                    color: Colors.grey[400],
                   ),
-                )
-              : _isShelfView
-                  ? BookshelfView(
-                      books: _filteredBooks,
-                      onBookTap: (book) => _showBookDetails(book),
-                    )
-                  : ListView.separated(
-                      itemCount: _filteredBooks.length,
-                      separatorBuilder: (context, index) => const Divider(height: 1, indent: 16, endIndent: 16),
-                      itemBuilder: (context, index) {
-                        final book = _filteredBooks[index];
-                        return ListTile(
-                          contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-                          leading: Container(
-                            width: 40,
-                            height: 60,
-                            decoration: BoxDecoration(
-                              borderRadius: BorderRadius.circular(4),
-                              color: Colors.grey[200],
-                              image: book.coverUrl != null
-                                  ? DecorationImage(
-                                      image: NetworkImage(book.coverUrl!),
-                                      fit: BoxFit.cover,
-                                    )
-                                  : null,
-                            ),
-                            child: book.coverUrl == null
-                                ? const Icon(Icons.book, color: Colors.grey, size: 20)
-                                : null,
-                          ),
-                          title: Text(
-                            book.title,
-                            style: const TextStyle(
-                              fontSize: 16,
-                              fontWeight: FontWeight.w600,
-                            ),
-                            maxLines: 1,
-                            overflow: TextOverflow.ellipsis,
-                          ),
-                          subtitle: Text(
-                            book.author ?? 'Unknown Author',
-                            style: TextStyle(
-                              fontSize: 14,
-                              color: Theme.of(context).textTheme.bodySmall?.color,
-                            ),
-                            maxLines: 1,
-                            overflow: TextOverflow.ellipsis,
-                          ),
-                          trailing: ElevatedButton(
-                            onPressed: () => _requestBorrow(book),
-                            style: ElevatedButton.styleFrom(
-                              padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
-                              minimumSize: Size.zero,
-                              tapTargetSize: MaterialTapTargetSize.shrinkWrap,
-                            ),
-                            child: const Text("Borrow"),
-                          ),
-                          onTap: () => _showBookDetails(book),
-                        );
-                      },
+                  const SizedBox(height: 16),
+                  Text(
+                    "No books found",
+                    style: TextStyle(fontSize: 18, color: Colors.grey[600]),
+                  ),
+                  const SizedBox(height: 24),
+                  ElevatedButton.icon(
+                    onPressed: _syncBooks,
+                    icon: const Icon(Icons.sync),
+                    label: const Text("Sync Library"),
+                  ),
+                ],
+              ),
+            )
+          : _isShelfView
+          ? BookshelfView(
+              books: _filteredBooks,
+              onBookTap: (book) => _showBookDetails(book),
+            )
+          : ListView.separated(
+              itemCount: _filteredBooks.length,
+              separatorBuilder: (context, index) =>
+                  const Divider(height: 1, indent: 16, endIndent: 16),
+              itemBuilder: (context, index) {
+                final book = _filteredBooks[index];
+                return ListTile(
+                  contentPadding: const EdgeInsets.symmetric(
+                    horizontal: 16,
+                    vertical: 8,
+                  ),
+                  leading: Container(
+                    width: 40,
+                    height: 60,
+                    decoration: BoxDecoration(
+                      borderRadius: BorderRadius.circular(4),
+                      color: Colors.grey[200],
+                      image: book.coverUrl != null
+                          ? DecorationImage(
+                              image: NetworkImage(book.coverUrl!),
+                              fit: BoxFit.cover,
+                            )
+                          : null,
                     ),
+                    child: book.coverUrl == null
+                        ? const Icon(Icons.book, color: Colors.grey, size: 20)
+                        : null,
+                  ),
+                  title: Text(
+                    book.title,
+                    style: const TextStyle(
+                      fontSize: 16,
+                      fontWeight: FontWeight.w600,
+                    ),
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
+                  ),
+                  subtitle: Text(
+                    book.author ?? 'Unknown Author',
+                    style: TextStyle(
+                      fontSize: 14,
+                      color: Theme.of(context).textTheme.bodySmall?.color,
+                    ),
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
+                  ),
+                  trailing: ElevatedButton(
+                    onPressed: () => _requestBorrow(book),
+                    style: ElevatedButton.styleFrom(
+                      padding: const EdgeInsets.symmetric(
+                        horizontal: 12,
+                        vertical: 8,
+                      ),
+                      minimumSize: Size.zero,
+                      tapTargetSize: MaterialTapTargetSize.shrinkWrap,
+                    ),
+                    child: const Text("Borrow"),
+                  ),
+                  onTap: () => _showBookDetails(book),
+                );
+              },
+            ),
     );
   }
 
@@ -300,17 +311,17 @@ class _PeerBookListScreenState extends State<PeerBookListScreen> {
               Text(
                 book.title,
                 style: Theme.of(context).textTheme.headlineSmall?.copyWith(
-                      fontWeight: FontWeight.bold,
-                    ),
+                  fontWeight: FontWeight.bold,
+                ),
                 textAlign: TextAlign.center,
               ),
               const SizedBox(height: 8),
               Center(
                 child: Text(
                   book.author ?? 'Unknown Author',
-                  style: Theme.of(context).textTheme.titleMedium?.copyWith(
-                        color: Colors.grey[600],
-                      ),
+                  style: Theme.of(
+                    context,
+                  ).textTheme.titleMedium?.copyWith(color: Colors.grey[600]),
                 ),
               ),
               const SizedBox(height: 24),
@@ -318,8 +329,8 @@ class _PeerBookListScreenState extends State<PeerBookListScreen> {
                 Text(
                   "Summary",
                   style: Theme.of(context).textTheme.titleMedium?.copyWith(
-                        fontWeight: FontWeight.bold,
-                      ),
+                    fontWeight: FontWeight.bold,
+                  ),
                 ),
                 const SizedBox(height: 8),
                 Text(
@@ -339,7 +350,10 @@ class _PeerBookListScreenState extends State<PeerBookListScreen> {
                   label: const Text("Request to Borrow"),
                   style: ElevatedButton.styleFrom(
                     padding: const EdgeInsets.symmetric(vertical: 16),
-                    textStyle: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
+                    textStyle: const TextStyle(
+                      fontSize: 16,
+                      fontWeight: FontWeight.bold,
+                    ),
                   ),
                 ),
               ),

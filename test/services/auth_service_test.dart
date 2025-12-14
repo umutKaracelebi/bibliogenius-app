@@ -45,13 +45,13 @@ void main() {
     test('logout clears token and username', () async {
       await authService.saveToken('test_token');
       await authService.saveUsername('test_user');
-      
+
       await authService.logout();
-      
+
       final token = await authService.getToken();
       final username = await authService.getUsername();
       final loggedIn = await authService.isLoggedIn();
-      
+
       expect(token, null);
       expect(username, null);
       expect(loggedIn, false);

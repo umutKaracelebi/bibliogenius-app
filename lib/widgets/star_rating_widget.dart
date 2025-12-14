@@ -1,28 +1,28 @@
 import 'package:flutter/material.dart';
 
 /// A 5-star rating widget that can be interactive or display-only.
-/// 
+///
 /// Supports half-star precision when [allowHalf] is true.
 /// Stores rating internally on a 0-10 scale for precision.
 class StarRatingWidget extends StatelessWidget {
   /// Current rating on 0-10 scale (will display as 0-5 stars)
   final int? rating;
-  
+
   /// Callback when rating changes (provides 0-10 scale value)
   final ValueChanged<int?>? onRatingChanged;
-  
+
   /// Size of each star icon
   final double size;
-  
+
   /// Allow half-star ratings
   final bool allowHalf;
-  
+
   /// Color for filled stars
   final Color activeColor;
-  
+
   /// Color for empty stars
   final Color inactiveColor;
-  
+
   /// Show as compact (smaller, no padding)
   final bool compact;
 
@@ -47,11 +47,11 @@ class StarRatingWidget extends StatelessWidget {
       mainAxisSize: MainAxisSize.min,
       children: List.generate(starCount, (index) {
         final starValue = index + 1;
-        
+
         // Determine fill level for this star
         IconData icon;
         Color color;
-        
+
         if (displayRating >= starValue) {
           // Full star
           icon = Icons.star_rounded;
@@ -91,17 +91,20 @@ class StarRatingWidget extends StatelessWidget {
               onRatingChanged!(newRating);
             }
           },
-          onHorizontalDragUpdate: allowHalf ? (details) {
-            // Allow half-star precision via drag
-            final box = context.findRenderObject() as RenderBox?;
-            if (box != null) {
-              final localPos = box.globalToLocal(details.globalPosition);
-              final starWidth = (compact ? size * 0.7 : size) + (compact ? 2 : 4);
-              final rawRating = (localPos.dx / starWidth).clamp(0.0, 5.0);
-              final roundedRating = (rawRating * 2).round(); // 0-10 scale
-              onRatingChanged!(roundedRating);
-            }
-          } : null,
+          onHorizontalDragUpdate: allowHalf
+              ? (details) {
+                  // Allow half-star precision via drag
+                  final box = context.findRenderObject() as RenderBox?;
+                  if (box != null) {
+                    final localPos = box.globalToLocal(details.globalPosition);
+                    final starWidth =
+                        (compact ? size * 0.7 : size) + (compact ? 2 : 4);
+                    final rawRating = (localPos.dx / starWidth).clamp(0.0, 5.0);
+                    final roundedRating = (rawRating * 2).round(); // 0-10 scale
+                    onRatingChanged!(roundedRating);
+                  }
+                }
+              : null,
           child: Padding(
             padding: EdgeInsets.symmetric(horizontal: compact ? 1 : 2),
             child: star,
@@ -117,11 +120,7 @@ class CompactStarRating extends StatelessWidget {
   final int? rating;
   final double size;
 
-  const CompactStarRating({
-    super.key,
-    this.rating,
-    this.size = 14,
-  });
+  const CompactStarRating({super.key, this.rating, this.size = 14});
 
   @override
   Widget build(BuildContext context) {
@@ -130,15 +129,11 @@ class CompactStarRating extends StatelessWidget {
     }
 
     final starRating = rating! / 2.0;
-    
+
     return Row(
       mainAxisSize: MainAxisSize.min,
       children: [
-        Icon(
-          Icons.star_rounded,
-          size: size,
-          color: Colors.amber,
-        ),
+        Icon(Icons.star_rounded, size: size, color: Colors.amber),
         const SizedBox(width: 2),
         Text(
           starRating.toStringAsFixed(1),

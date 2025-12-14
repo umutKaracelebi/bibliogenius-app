@@ -15,8 +15,8 @@ class TranslationService {
       final String? cached = prefs.getString(_storageKey);
       if (cached != null) {
         final Map<String, dynamic> decoded = json.decode(cached);
-        _dynamicTranslations = decoded.map((key, value) => 
-          MapEntry(key, Map<String, String>.from(value as Map))
+        _dynamicTranslations = decoded.map(
+          (key, value) => MapEntry(key, Map<String, String>.from(value as Map)),
         );
       }
     } catch (e) {
@@ -33,8 +33,10 @@ class TranslationService {
       final response = await api.getTranslations(locale);
       if (response.statusCode == 200) {
         final Map<String, dynamic> data = response.data;
-        final Map<String, String> newTranslations = data.map((k, v) => MapEntry(k, v.toString()));
-        
+        final Map<String, String> newTranslations = data.map(
+          (k, v) => MapEntry(k, v.toString()),
+        );
+
         _dynamicTranslations[locale] = {
           ...(_dynamicTranslations[locale] ?? {}),
           ...newTranslations,
@@ -64,6 +66,7 @@ class TranslationService {
       'profile': 'My Profile',
       'librarian': 'Librarian',
       'individual': 'Individual',
+      'individual_reader': 'Individual Reader',
       'professional': 'Professional',
       'loans': 'Loans',
       'edits': 'Edits',
@@ -83,7 +86,8 @@ class TranslationService {
       'cancel': 'Cancel',
       'edit_settings': 'Edit Settings',
       'settings_dialog_title': 'Edit App Settings',
-      'settings_dialog_body': 'Do you want to modify your app settings? This will take you to the setup wizard to update your theme and library preferences.',
+      'settings_dialog_body':
+          'Do you want to modify your app settings? This will take you to the setup wizard to update your theme and library preferences.',
       'lang_title': 'Language',
       'theme_title': 'Theme',
       'library_name': 'Library Name',
@@ -92,7 +96,8 @@ class TranslationService {
       'error_updating_library': 'Error updating library name',
       'reset_app': 'Reset Application',
       'reset_app_title': 'Reset Application',
-      'reset_app_confirmation': 'Are you sure you want to reset the application? This will clear all local data and return you to the setup wizard.',
+      'reset_app_confirmation':
+          'Are you sure you want to reset the application? This will clear all local data and return you to the setup wizard.',
       'reset_confirm': 'Reset Everything',
       'import_success': 'Successfully imported books!',
       'import_fail': 'Import failed',
@@ -134,7 +139,8 @@ class TranslationService {
       'qr_error': 'Could not generate QR Code.',
       'retry': 'Retry',
       'scan_to_connect': 'Scan to connect',
-      'share_code_instruction': 'Show this code to another user to let them connect to your library.',
+      'share_code_instruction':
+          'Show this code to another user to let them connect to your library.',
       'scan_instruction': 'Align barcode within the frame',
       'connected_to': 'Connected to',
       'connection_failed': 'Failed to connect',
@@ -155,7 +161,8 @@ class TranslationService {
       'tooltip_remove_library': 'Remove Library',
       'library_not_accepted': 'This library has not accepted your request yet',
       'dialog_remove_library_title': 'Remove Library',
-      'dialog_remove_library_body': 'Are you sure you want to remove this library from your network?',
+      'dialog_remove_library_body':
+          'Are you sure you want to remove this library from your network?',
       'library_removed': 'Library removed successfully',
       'error_removing': 'Error removing library',
       'total_books': 'Total Books',
@@ -181,12 +188,15 @@ class TranslationService {
       'email_label': 'Email',
       'notes_label': 'Notes',
       'backup_reminder_title': 'New Version Detected',
-      'backup_reminder_message': 'A new version of BiblioGenius has been installed. We recommend exporting your data as a backup before continuing.',
-      'backup_reminder_tip': 'Go to Profile > Export to save your books and contacts.',
+      'backup_reminder_message':
+          'A new version of BiblioGenius has been installed. We recommend exporting your data as a backup before continuing.',
+      'backup_reminder_tip':
+          'Go to Profile > Export to save your books and contacts.',
       'backup_reminder_later': 'Later',
       'backup_reminder_export': 'Export Now',
       'welcome_title': 'Welcome to BiblioGenius!',
-      'welcome_subtitle': 'Your library is looking a bit empty. Start by adding your first book or searching online.',
+      'welcome_subtitle':
+          'Your library is looking a bit empty. Start by adding your first book or searching online.',
       'btn_add_manually': 'Add Manually',
       'btn_search_online': 'Search Online',
       'quick_actions': 'Quick Actions',
@@ -224,7 +234,8 @@ class TranslationService {
       'borrowed_label': 'Lent',
       'lend_book_label': 'Lend Book',
       'no_copies_title': 'No Copies Found',
-      'no_copies_confirm': 'This book has no copies. Create a new copy to lend?',
+      'no_copies_confirm':
+          'This book has no copies. Create a new copy to lend?',
       'create_lend_btn': 'Create & Lend',
       'failed_create_copy': 'Failed to create copy.',
       'all_copies_lent': 'All copies are currently lent out.',
@@ -259,6 +270,8 @@ class TranslationService {
       'save_book': 'Save Book',
       'saving': 'Saving...',
       'error_saving_book': 'Error saving book',
+      'book_not_found': 'Book not found in database',
+      'book_details_found': 'Book details found!',
       'copies_title': 'Copies of',
       'copy_number': 'Copy #',
       'no_copies': 'No copies found',
@@ -266,9 +279,9 @@ class TranslationService {
       'book_deleted': 'Book deleted',
       'mark_as_finished': 'Mark as Finished',
       'finished_on': 'Finished on',
-      'to_read_status': 'To Read', 
+      'to_read_status': 'To Read',
       'reading_status_wanting': 'Want to Read',
-      'reading_status_reading': 'Reading', 
+      'reading_status_reading': 'Reading',
       'reading_status_read': 'Read',
       'reading_status_to_read': 'To Read',
       'reading_status_abandoned': 'Abandoned',
@@ -285,11 +298,12 @@ class TranslationService {
       'role_borrower': 'Borrower',
       'role_library': 'Library',
       'no_books_found': 'No books found',
-      'my_books': 'My Books', 
+      'my_books': 'My Books',
       'tags': 'Tags',
       'shelves': 'Shelves',
       'no_shelves_title': 'No Shelves Yet',
-      'no_shelves_hint': 'Add tags to your books to organize them into shelves.',
+      'no_shelves_hint':
+          'Add tags to your books to organize them into shelves.',
       'go_to_library': 'Go to Library',
       'add_tag_hint': 'Add a tag...',
       'started_reading_label': 'Started Reading',
@@ -326,7 +340,8 @@ class TranslationService {
       'filter_contacts_only': 'Contacts Only',
       'tab_list': 'List',
       'no_network_members': 'No network members',
-      'add_contact_or_scan_help': 'Add a contact or scan a QR code to connect with friends.',
+      'add_contact_or_scan_help':
+          'Add a contact or scan a QR code to connect with friends.',
       'confirm_delete': 'Are you sure you want to delete',
       'add_contact': 'Add Contact',
       // Loan Dialog
@@ -414,9 +429,11 @@ class TranslationService {
       'status_on_order': 'On Order',
       // Profiles
       'profile_librarian': 'Librarian',
-      'profile_librarian_desc': 'Professional cataloging, lending management, and strict organization.',
+      'profile_librarian_desc':
+          'Professional cataloging, lending management, and strict organization.',
       'profile_individual': 'Individual Reader',
-      'profile_individual_desc': 'Track your reading, wishlists, and personal collection.',
+      'profile_individual_desc':
+          'Track your reading, wishlists, and personal collection.',
       'profile_kid_desc': 'Fun interface, simple tracking, and cool avatars!',
       // Avatars
       'avatar_junior_reader': 'Junior Reader',
@@ -493,18 +510,22 @@ class TranslationService {
       'wizard_add_title': 'Add Books',
       'wizard_add_desc': 'Scan a barcode or search online to add books.',
       'wizard_search_title': 'Search',
-      'wizard_search_desc': 'Find books in your library or your friends\' libraries.',
+      'wizard_search_desc':
+          'Find books in your library or your friends\' libraries.',
       'wizard_stats_title': 'Quick Stats',
       'wizard_stats_desc': 'See how many books you have and who borrowed them.',
-      'wizard_books_view_desc': 'Switch between grid view (bookshelf) and list view.',
-    
-    // Contacts Wizard
-    'wizard_contacts_add_title': 'Add Contact',
-    'wizard_contacts_add_desc': 'Add friends or borrowers to share books with.',
-    'wizard_contacts_filter_title': 'Filter Contacts',
-    'wizard_contacts_filter_desc': 'Filter by Borrowers (local) or Libraries (P2P).',
+      'wizard_books_view_desc':
+          'Switch between grid view (bookshelf) and list view.',
+
+      // Contacts Wizard
+      'wizard_contacts_add_title': 'Add Contact',
+      'wizard_contacts_add_desc':
+          'Add friends or borrowers to share books with.',
+      'wizard_contacts_filter_title': 'Filter Contacts',
+      'wizard_contacts_filter_desc':
+          'Filter by Borrowers (local) or Libraries (P2P).',
       'wizard_skip': 'Skip',
-      
+
       // Onboarding Tour
       'onboarding_skip': 'Skip',
       'onboarding_next': 'Continue',
@@ -512,25 +533,31 @@ class TranslationService {
       'onboarding_tap_continue': 'Tap anywhere to continue',
       'onboarding_swipe_hint': 'Swipe or use buttons to navigate',
       'menu_tutorial': 'Tutorial',
-      
+
       'onboarding_welcome_title': 'Welcome to BiblioGenius!',
-      'onboarding_welcome_desc': 'Your personal library management app. Organize, share, and discover books with a community of readers.',
-      
+      'onboarding_welcome_desc':
+          'Your personal library management app. Organize, share, and discover books with a community of readers.',
+
       'onboarding_books_title': 'Build Your Library',
-      'onboarding_books_desc': 'Add books instantly by scanning barcodes, searching online databases, or entering details manually.',
-      
+      'onboarding_books_desc':
+          'Add books instantly by scanning barcodes, searching online databases, or entering details manually.',
+
       'onboarding_network_title': 'Connect Your Network',
-      'onboarding_network_desc': 'Link with friends and family to share libraries, borrow books, and track who has what.',
-      
+      'onboarding_network_desc':
+          'Link with friends and family to share libraries, borrow books, and track who has what.',
+
       'onboarding_p2p_title': 'Connect & Share',
-      'onboarding_p2p_desc': 'Connect with other BiblioGenius users to share your libraries. See what your friends are reading and discover new books.',
-      
+      'onboarding_p2p_desc':
+          'Connect with other BiblioGenius users to share your libraries. See what your friends are reading and discover new books.',
+
       'onboarding_contacts_title': 'Track Borrowers',
-      'onboarding_contacts_desc': 'Manage your contacts and keep track of who borrowed what. Never lose track of your books again.',
-      
+      'onboarding_contacts_desc':
+          'Manage your contacts and keep track of who borrowed what. Never lose track of your books again.',
+
       'onboarding_stats_title': 'Insights & Stats',
-      'onboarding_stats_desc': 'Track your reading habits, set goals, and watch your collection grow with beautiful analytics.',
-      
+      'onboarding_stats_desc':
+          'Track your reading habits, set goals, and watch your collection grow with beautiful analytics.',
+
       // Feature chips
       'feature_organize': 'Organize',
       'feature_discover': 'Discover',
@@ -544,33 +571,43 @@ class TranslationService {
       'feature_stats': 'Statistics',
       'feature_goals': 'Reading Goals',
       'feature_history': 'History',
-      
+
       // Hero card
       'continue_reading': 'Continue Reading',
       'tap_to_view': 'Tap to view details',
-      
+
       'no_pub_year_data': 'No publication year data.',
       'nav_p2p_connect': 'Connect',
       'nav_help': 'Help',
       'help_title': 'Help & Support',
       'help_topic_add_book': 'How to add a book?',
-      'help_desc_add_book': 'Go to "My Library" and tap the "+" button. You can scan a barcode or search by title/ISBN.',
+      'help_desc_add_book':
+          'Go to "My Library" and tap the "+" button. You can scan a barcode or search by title/ISBN.',
       'help_topic_lend': 'How to lend a book?',
-      'help_desc_lend': 'Find the book in your library, tap "Manage Copies", then "Lend". Select a contact to lend to.',
+      'help_desc_lend':
+          'Find the book in your library, tap "Manage Copies", then "Lend". Select a contact to lend to.',
       'help_topic_connect': 'How to connect with friends?',
-      'help_desc_connect': 'Go to "Connect Library" to share your QR code or scan a friend\'s code.',
+      'help_desc_connect':
+          'Go to "Connect Library" to share your QR code or scan a friend\'s code.',
       'help_topic_contacts': 'How to manage contacts?',
-      'help_desc_contacts': 'Go to "Network" to add friends or libraries. You can add borrowers (who can borrow your books) or libraries (whose catalog you can browse).',
+      'help_desc_contacts':
+          'Go to "Network" to add friends or libraries. You can add borrowers (who can borrow your books) or libraries (whose catalog you can browse).',
       'help_topic_network': 'How to explore the network?',
-      'help_desc_network': 'The "Network" section lets you discover and browse catalogs of libraries you\'ve added. You can request to borrow books from there.',
-      'help_desc_network_p2p': 'Currently, you can connect with local libraries via QR code. In V4, we\'re building a true peer-to-peer network with NAT traversal, so you can connect with friends anywhere in the world without needing technical setup!',
+      'help_desc_network':
+          'The "Network" section lets you discover and browse catalogs of libraries you\'ve added. You can request to borrow books from there.',
+      'help_desc_network_p2p':
+          'Currently, you can connect with local libraries via QR code. In V4, we\'re building a true peer-to-peer network with NAT traversal, so you can connect with friends anywhere in the world without needing technical setup!',
       'help_topic_requests': 'How to manage requests?',
-      'help_desc_requests': 'In "Requests", you can see all incoming borrow requests (people wanting your books) and outgoing ones (your requests to others). Accept, decline, or mark as returned.',
-      'help_desc_requests_p2p': 'In "Requests", manage incoming borrow requests and your outgoing ones. Currently works on local network. With V4\'s P2P upgrade, you\'ll be able to lend and borrow with trusted friends globally!',
+      'help_desc_requests':
+          'In "Requests", you can see all incoming borrow requests (people wanting your books) and outgoing ones (your requests to others). Accept, decline, or mark as returned.',
+      'help_desc_requests_p2p':
+          'In "Requests", manage incoming borrow requests and your outgoing ones. Currently works on local network. With V4\'s P2P upgrade, you\'ll be able to lend and borrow with trusted friends globally!',
       'help_topic_organize_shelf': 'How to organize my shelves?',
-      'help_desc_organize_shelf': '1. Create thematic tags for your books (e.g., "SciFi", "Favorites").\n2. In your Library, tap a tag to filter.\n3. Tap the Sort icon (≡) to enter reorder mode.\n4. Drag books to your preferred order, or tap A→Z for auto-sort by author.\n5. Tap ✓ to save your custom arrangement!',
+      'help_desc_organize_shelf':
+          '1. Create thematic tags for your books (e.g., "SciFi", "Favorites").\n2. In your Library, tap a tag to filter.\n3. Tap the Sort icon (≡) to enter reorder mode.\n4. Drag books to your preferred order, or tap A→Z for auto-sort by author.\n5. Tap ✓ to save your custom arrangement!',
       'help_welcome_title': 'How can we help?',
-      'help_welcome_subtitle': 'Find answers to common questions about using BiblioGenius',
+      'help_welcome_subtitle':
+          'Find answers to common questions about using BiblioGenius',
       'help_faq_title': 'Frequently Asked Questions',
       'help_quick_actions': 'Quick Actions',
       'help_contact_us': 'Contact Us',
@@ -594,7 +631,8 @@ class TranslationService {
       'network_search_title': 'Borrow a Book',
       'network_search_hint': 'Search in your network...',
       'network_search_no_results': 'No books found in your network',
-      'network_search_prompt': 'Search for books available in your friends\' libraries',
+      'network_search_prompt':
+          'Search for books available in your friends\' libraries',
       'request_book_btn': 'Request',
       // Gamification V3
       'your_progress': 'Your Progress',
@@ -619,7 +657,8 @@ class TranslationService {
       // Feedback / Bug Report
       'nav_report_bug': 'Report a Bug',
       'feedback_title': 'Report Feedback',
-      'feedback_beta_notice': 'You are using a beta version. Your feedback helps us improve!',
+      'feedback_beta_notice':
+          'You are using a beta version. Your feedback helps us improve!',
       'feedback_type_bug': 'Bug',
       'feedback_type_feature': 'Feature',
       'feedback_title_label': 'Title',
@@ -657,6 +696,7 @@ class TranslationService {
       'profile': 'Mon Profil',
       'librarian': 'Bibliothécaire',
       'individual': 'Particulier',
+      'individual_reader': 'Lecteur individuel',
       'professional': 'Professionnel',
       'loans': 'Prêts',
       'edits': 'Modifications',
@@ -686,7 +726,8 @@ class TranslationService {
       'profile_settings': 'Paramètres du profil',
       'profile_type': 'Type de profil',
       'show_borrowed_books': 'Afficher les livres empruntés',
-      'show_borrowed_subtitle': 'Inclure les livres empruntés dans la vue bibliothèque',
+      'show_borrowed_subtitle':
+          'Inclure les livres empruntés dans la vue bibliothèque',
       'data_management': 'Gestion des données',
       'export_backup': 'Exporter une sauvegarde',
       'import_csv': 'Importer depuis Goodreads/Babelio',
@@ -697,7 +738,8 @@ class TranslationService {
       'cancel': 'Annuler',
       'edit_settings': 'Modifier les paramètres',
       'settings_dialog_title': 'Modifier les paramètres',
-      'settings_dialog_body': 'Voulez-vous modifier les paramètres de l\'application ? Cela vous ramènera à l\'assistant de configuration.',
+      'settings_dialog_body':
+          'Voulez-vous modifier les paramètres de l\'application ? Cela vous ramènera à l\'assistant de configuration.',
       'lang_title': 'Langue',
       'theme_title': 'Thème',
       'library_name': 'Nom de la bibliothèque',
@@ -706,7 +748,8 @@ class TranslationService {
       'error_updating_library': 'Erreur lors de la mise à jour',
       'reset_app': 'Réinitialiser l\'application',
       'reset_app_title': 'Réinitialiser l\'application',
-      'reset_app_confirmation': 'Êtes-vous sûr de vouloir réinitialiser l\'application ? Cela effacera toutes les données locales et vous ramènera à l\'assistant de configuration.',
+      'reset_app_confirmation':
+          'Êtes-vous sûr de vouloir réinitialiser l\'application ? Cela effacera toutes les données locales et vous ramènera à l\'assistant de configuration.',
       'reset_confirm': 'Tout réinitialiser',
       'import_success': 'Livres importés avec succès !',
       'import_fail': 'Échec de l\'importation',
@@ -748,7 +791,8 @@ class TranslationService {
       'qr_error': 'Impossible de générer le QR Code.',
       'retry': 'Réessayer',
       'scan_to_connect': 'Scanner pour se connecter',
-      'share_code_instruction': 'Montrez ce code à un autre utilisateur pour qu\'il se connecte à votre bibliothèque.',
+      'share_code_instruction':
+          'Montrez ce code à un autre utilisateur pour qu\'il se connecte à votre bibliothèque.',
       'scan_instruction': 'Alignez le code-barres dans le cadre',
       'connected_to': 'Connecté à',
       'connection_failed': 'Échec de la connexion',
@@ -767,9 +811,11 @@ class TranslationService {
       'sync_started': 'Synchronisation démarrée',
       'tooltip_add_contact': 'Ajouter aux contacts',
       'tooltip_remove_library': 'Supprimer la bibliothèque',
-      'library_not_accepted': 'Cette bibliothèque n\'a pas encore accepté votre demande',
+      'library_not_accepted':
+          'Cette bibliothèque n\'a pas encore accepté votre demande',
       'dialog_remove_library_title': 'Supprimer la bibliothèque',
-      'dialog_remove_library_body': 'Voulez-vous vraiment supprimer cette bibliothèque de votre réseau ?',
+      'dialog_remove_library_body':
+          'Voulez-vous vraiment supprimer cette bibliothèque de votre réseau ?',
       'library_removed': 'Bibliothèque supprimée avec succès',
       'error_removing': 'Erreur lors de la suppression de la bibliothèque',
       'total_books': 'Total Livres',
@@ -795,12 +841,15 @@ class TranslationService {
       'email_label': 'Email',
       'notes_label': 'Notes',
       'backup_reminder_title': 'Nouvelle version détectée',
-      'backup_reminder_message': 'Une nouvelle version de BiblioGenius a été installée. Nous vous recommandons d\'exporter vos données en sauvegarde avant de continuer.',
-      'backup_reminder_tip': 'Allez dans Profil > Export pour sauvegarder vos livres et contacts.',
+      'backup_reminder_message':
+          'Une nouvelle version de BiblioGenius a été installée. Nous vous recommandons d\'exporter vos données en sauvegarde avant de continuer.',
+      'backup_reminder_tip':
+          'Allez dans Profil > Export pour sauvegarder vos livres et contacts.',
       'backup_reminder_later': 'Plus tard',
       'backup_reminder_export': 'Exporter maintenant',
       'welcome_title': 'Bienvenue sur BiblioGenius !',
-      'welcome_subtitle': 'Votre bibliothèque semble un peu vide. Commencez par ajouter votre premier livre ou faites une recherche en ligne.',
+      'welcome_subtitle':
+          'Votre bibliothèque semble un peu vide. Commencez par ajouter votre premier livre ou faites une recherche en ligne.',
       'btn_add_manually': 'Ajouter manuellement',
       'btn_search_online': 'Rechercher en ligne',
       'quick_actions': 'Actions rapides',
@@ -842,7 +891,8 @@ class TranslationService {
       'status_wanted': 'Souhaité',
       'lend_book_label': 'Prêter le livre',
       'no_copies_title': 'Aucune copie trouvée',
-      'no_copies_confirm': 'Ce livre n\'a pas de copie. Créer une nouvelle copie pour le prêter ?',
+      'no_copies_confirm':
+          'Ce livre n\'a pas de copie. Créer une nouvelle copie pour le prêter ?',
       'create_lend_btn': 'Créer & Prêter',
       'failed_create_copy': 'Échec de la création de la copie.',
       'all_copies_lent': 'Toutes les copies sont actuellement prêtées.',
@@ -880,10 +930,13 @@ class TranslationService {
       'save_book': 'Enregistrer le livre',
       'saving': 'Enregistrement...',
       'error_saving_book': 'Erreur lors de l\'enregistrement du livre',
+      'book_not_found': 'Livre non trouvé dans la base de données',
+      'book_details_found': 'Détails du livre trouvés !',
       'tags': 'Tags',
       'shelves': 'Étagères',
       'no_shelves_title': 'Pas encore d\'étagères',
-      'no_shelves_hint': 'Ajoutez des tags à vos livres pour les organiser en étagères.',
+      'no_shelves_hint':
+          'Ajoutez des tags à vos livres pour les organiser en étagères.',
       'go_to_library': 'Aller à la bibliothèque',
       'add_tag_hint': 'Ajouter un tag...',
       'preparing_backup': 'Préparation de la sauvegarde...',
@@ -924,7 +977,8 @@ class TranslationService {
       'nav_statistics': 'Statistiques',
       // Contacts Screen
       'delete_contact_title': 'Supprimer le contact',
-      'delete_contact_confirm': 'Êtes-vous sûr de vouloir supprimer ce contact ?',
+      'delete_contact_confirm':
+          'Êtes-vous sûr de vouloir supprimer ce contact ?',
       'delete_contact_btn': 'Supprimer',
       'contact_deleted': 'Contact supprimé avec succès',
       'error_deleting_contact': 'Erreur lors de la suppression du contact',
@@ -935,12 +989,14 @@ class TranslationService {
       'filter_contacts_only': 'Contacts uniquement',
       'tab_list': 'Liste',
       'no_network_members': 'Aucun membre du réseau',
-      'add_contact_or_scan_help': 'Ajoutez un contact ou scannez un QR code pour vous connecter avec vos amis.',
+      'add_contact_or_scan_help':
+          'Ajoutez un contact ou scannez un QR code pour vous connecter avec vos amis.',
       'confirm_delete': 'Êtes-vous sûr de vouloir supprimer',
       'add_contact': 'Ajouter un contact',
       // Loan Dialog
       'lend_book_title': 'Prêter le livre',
-      'no_borrowers_found': 'Aucun emprunteur trouvé. Ajoutez d\'abord un contact.',
+      'no_borrowers_found':
+          'Aucun emprunteur trouvé. Ajoutez d\'abord un contact.',
       'select_contact_lend': 'Sélectionnez un contact à qui prêter ce livre :',
       'lend_btn': 'Prêter',
       'lend_book_btn': 'Prêter ce livre',
@@ -1007,11 +1063,14 @@ class TranslationService {
       'status_on_order': 'En commande',
       // Profiles
       'profile_librarian': 'Bibliothécaire',
-      'profile_librarian_desc': 'Catalogage professionnel, gestion des prêts et organisation stricte.',
+      'profile_librarian_desc':
+          'Catalogage professionnel, gestion des prêts et organisation stricte.',
       'profile_individual': 'Lecteur Individuel',
-      'profile_individual_desc': 'Suivez vos lectures, listes de souhaits et collection personnelle.',
+      'profile_individual_desc':
+          'Suivez vos lectures, listes de souhaits et collection personnelle.',
       'profile_kid': 'Jeune Lecteur',
-      'profile_kid_desc': 'Interface amusante, suivi simple et avatars sympas !',
+      'profile_kid_desc':
+          'Interface amusante, suivi simple et avatars sympas !',
       // Avatars
       'avatar_junior_reader': 'Jeune Lecteur',
       'avatar_bookworm': 'Rat de bibliothèque',
@@ -1083,15 +1142,19 @@ class TranslationService {
       'borrowed_books_list': 'Actuellement empruntés',
       'no_borrowed_books': 'Aucun livre emprunté',
       'wizard_menu_title': 'Menu Principal',
-      'wizard_menu_desc': 'Accédez à votre bibliothèque, vos contacts et vos paramètres ici.',
+      'wizard_menu_desc':
+          'Accédez à votre bibliothèque, vos contacts et vos paramètres ici.',
       'wizard_add_title': 'Ajouter des livres',
-      'wizard_add_desc': 'Scannez un code-barres ou cherchez en ligne pour ajouter des livres.',
+      'wizard_add_desc':
+          'Scannez un code-barres ou cherchez en ligne pour ajouter des livres.',
       'wizard_search_title': 'Rechercher',
-      'wizard_search_desc': 'Trouvez des livres dans votre bibliothèque ou celles de vos amis.',
+      'wizard_search_desc':
+          'Trouvez des livres dans votre bibliothèque ou celles de vos amis.',
       'wizard_stats_title': 'Statistiques rapides',
-      'wizard_stats_desc': 'Voyez combien de livres vous avez et qui les a empruntés.',
+      'wizard_stats_desc':
+          'Voyez combien de livres vous avez et qui les a empruntés.',
       'wizard_skip': 'Passer',
-      
+
       //  Onboarding Tour
       'onboarding_skip': 'Passer',
       'onboarding_next': 'Continuer',
@@ -1099,25 +1162,31 @@ class TranslationService {
       'onboarding_tap_continue': 'Appuyez n\'importe où pour continuer',
       'onboarding_swipe_hint': 'Glissez ou utilisez les boutons pour naviguer',
       'menu_tutorial': 'Tutoriel',
-      
+
       'onboarding_welcome_title': 'Bienvenue dans BiblioGenius !',
-      'onboarding_welcome_desc': 'Votre application de gestion de bibliothèque personnelle. Organisez, partagez et découvrez des livres avec une communauté de lecteurs.',
-      
+      'onboarding_welcome_desc':
+          'Votre application de gestion de bibliothèque personnelle. Organisez, partagez et découvrez des livres avec une communauté de lecteurs.',
+
       'onboarding_books_title': 'Construisez Votre Bibliothèque',
-      'onboarding_books_desc': 'Ajoutez des livres instantanément en scannant les codes-barres, en cherchant en ligne ou en saisissant les détails manuellement.',
-      
+      'onboarding_books_desc':
+          'Ajoutez des livres instantanément en scannant les codes-barres, en cherchant en ligne ou en saisissant les détails manuellement.',
+
       'onboarding_network_title': 'Connectez Votre Réseau',
-      'onboarding_network_desc': 'Reliez-vous avec vos amis et votre famille pour partager vos bibliothèques, emprunter des livres et suivre qui a quoi.',
-      
+      'onboarding_network_desc':
+          'Reliez-vous avec vos amis et votre famille pour partager vos bibliothèques, emprunter des livres et suivre qui a quoi.',
+
       'onboarding_p2p_title': 'Connectez & Partagez',
-      'onboarding_p2p_desc': 'Connectez-vous avec d\'autres utilisateurs BiblioGenius pour partager vos bibliothèques. Voyez ce que vos amis lisent et découvrez de nouveaux livres.',
-      
+      'onboarding_p2p_desc':
+          'Connectez-vous avec d\'autres utilisateurs BiblioGenius pour partager vos bibliothèques. Voyez ce que vos amis lisent et découvrez de nouveaux livres.',
+
       'onboarding_contacts_title': 'Suivez les Emprunteurs',
-      'onboarding_contacts_desc': 'Gérez vos contacts et gardez une trace de qui a emprunté quoi. Ne perdez plus jamais vos livres.',
-      
+      'onboarding_contacts_desc':
+          'Gérez vos contacts et gardez une trace de qui a emprunté quoi. Ne perdez plus jamais vos livres.',
+
       'onboarding_stats_title': 'Analyses & Statistiques',
-      'onboarding_stats_desc': 'Suivez vos habitudes de lecture, fixez des objectifs et regardez votre collection grandir avec de belles analyses.',
-      
+      'onboarding_stats_desc':
+          'Suivez vos habitudes de lecture, fixez des objectifs et regardez votre collection grandir avec de belles analyses.',
+
       // Feature chips
       'feature_organize': 'Organiser',
       'feature_discover': 'Découvrir',
@@ -1131,33 +1200,43 @@ class TranslationService {
       'feature_stats': 'Statistiques',
       'feature_goals': 'Objectifs lecture',
       'feature_history': 'Historique',
-      
+
       // Hero card
       'continue_reading': 'Continuer la lecture',
       'tap_to_view': 'Appuyer pour voir les détails',
-      
+
       'no_pub_year_data': 'Aucune donnée de publication.',
       'nav_p2p_connect': 'Connexion',
       'nav_help': 'Aide',
       'help_title': 'Aide & Support',
       'help_topic_add_book': 'Comment ajouter un livre ?',
-      'help_desc_add_book': 'Allez dans "Ma Bibliothèque" et appuyez sur "+". Vous pouvez scanner un code-barres ou chercher par titre/ISBN.',
+      'help_desc_add_book':
+          'Allez dans "Ma Bibliothèque" et appuyez sur "+". Vous pouvez scanner un code-barres ou chercher par titre/ISBN.',
       'help_topic_lend': 'Comment prêter un livre ?',
-      'help_desc_lend': 'Trouvez le livre, appuyez sur "Gérer les copies", puis "Prêter". Choisissez un contact.',
+      'help_desc_lend':
+          'Trouvez le livre, appuyez sur "Gérer les copies", puis "Prêter". Choisissez un contact.',
       'help_topic_connect': 'Comment se connecter avec des amis ?',
-      'help_desc_connect': 'Allez dans "Connecter une bibliothèque" pour partager votre QR code ou scanner celui d\'un ami.',
+      'help_desc_connect':
+          'Allez dans "Connecter une bibliothèque" pour partager votre QR code ou scanner celui d\'un ami.',
       'help_topic_contacts': 'Comment gérer mes contacts ?',
-      'help_desc_contacts': 'Allez dans "Réseau" pour ajouter des amis ou bibliothèques. Vous pouvez ajouter des emprunteurs ou des bibliothèques dont vous pouvez consulter le catalogue.',
+      'help_desc_contacts':
+          'Allez dans "Réseau" pour ajouter des amis ou bibliothèques. Vous pouvez ajouter des emprunteurs ou des bibliothèques dont vous pouvez consulter le catalogue.',
       'help_topic_network': 'Comment explorer le réseau ?',
-      'help_desc_network': 'La section "Réseau" vous permet de découvrir et consulter les catalogues de bibliothèques ajoutées. Vous pouvez y faire des demandes d\'emprunt.',
-      'help_desc_network_p2p': 'Actuellement, vous pouvez vous connecter aux bibliothèques locales via QR code. En V4, nous construisons un vrai réseau pair-à-pair avec traversée NAT, pour vous connecter avec des amis partout dans le monde sans configuration technique !',
+      'help_desc_network':
+          'La section "Réseau" vous permet de découvrir et consulter les catalogues de bibliothèques ajoutées. Vous pouvez y faire des demandes d\'emprunt.',
+      'help_desc_network_p2p':
+          'Actuellement, vous pouvez vous connecter aux bibliothèques locales via QR code. En V4, nous construisons un vrai réseau pair-à-pair avec traversée NAT, pour vous connecter avec des amis partout dans le monde sans configuration technique !',
       'help_topic_requests': 'Gérer les demandes ?',
-      'help_desc_requests': 'Dans "Demandes", visualisez les demandes reçues (personnes souhaitant emprunter vos livres) et envoyées (vos demandes auprès d\'autres). Acceptez, refusez ou marquez comme rendu.',
-      'help_desc_requests_p2p': 'Dans "Demandes", gérez les demandes d\'emprunt reçues et envoyées. Fonctionne actuellement en réseau local. Avec la V4 P2P, vous pourrez prêter et emprunter avec vos amis de confiance dans le monde entier !',
+      'help_desc_requests':
+          'Dans "Demandes", visualisez les demandes reçues (personnes souhaitant emprunter vos livres) et envoyées (vos demandes auprès d\'autres). Acceptez, refusez ou marquez comme rendu.',
+      'help_desc_requests_p2p':
+          'Dans "Demandes", gérez les demandes d\'emprunt reçues et envoyées. Fonctionne actuellement en réseau local. Avec la V4 P2P, vous pourrez prêter et emprunter avec vos amis de confiance dans le monde entier !',
       'help_topic_organize_shelf': 'Comment organiser mes étagères ?',
-      'help_desc_organize_shelf': '1. Créez des tags thématiques (ex: "SF", "Favoris").\n2. Dans Ma Bibliothèque, tapez sur un tag pour filtrer.\n3. Tapez l\'icône Trier (≡) pour entrer en mode réorganisation.\n4. Glissez-déposez les livres ou tapez A→Z pour tri automatique par auteur.\n5. Tapez ✓ pour enregistrer !',
+      'help_desc_organize_shelf':
+          '1. Créez des tags thématiques (ex: "SF", "Favoris").\n2. Dans Ma Bibliothèque, tapez sur un tag pour filtrer.\n3. Tapez l\'icône Trier (≡) pour entrer en mode réorganisation.\n4. Glissez-déposez les livres ou tapez A→Z pour tri automatique par auteur.\n5. Tapez ✓ pour enregistrer !',
       'help_welcome_title': 'Comment pouvons-nous aider ?',
-      'help_welcome_subtitle': 'Trouvez les réponses aux questions fréquentes sur BiblioGenius',
+      'help_welcome_subtitle':
+          'Trouvez les réponses aux questions fréquentes sur BiblioGenius',
       'help_faq_title': 'Questions Fréquentes',
       'help_quick_actions': 'Actions Rapides',
       'help_contact_us': 'Contactez-nous',
@@ -1181,12 +1260,14 @@ class TranslationService {
       'network_search_title': 'Emprunter un livre',
       'network_search_hint': 'Rechercher dans votre réseau...',
       'network_search_no_results': 'Aucun livre trouvé dans votre réseau',
-      'network_search_prompt': 'Recherchez des livres disponibles dans les bibliothèques de vos amis',
+      'network_search_prompt':
+          'Recherchez des livres disponibles dans les bibliothèques de vos amis',
       'request_book_btn': 'Demander',
       // Feedback / Bug Report
       'nav_report_bug': 'Signaler un bug',
       'feedback_title': 'Signaler un problème',
-      'feedback_beta_notice': 'Vous utilisez une version bêta. Votre feedback nous aide à nous améliorer !',
+      'feedback_beta_notice':
+          'Vous utilisez une version bêta. Votre feedback nous aide à nous améliorer !',
       'feedback_type_bug': 'Bug',
       'feedback_type_feature': 'Fonctionnalité',
       'feedback_title_label': 'Titre',
@@ -1256,7 +1337,8 @@ class TranslationService {
       'profile_settings': 'Configuración del perfil',
       'profile_type': 'Tipo de perfil',
       'show_borrowed_books': 'Mostrar libros prestados',
-      'show_borrowed_subtitle': 'Incluir libros prestados en la vista de biblioteca',
+      'show_borrowed_subtitle':
+          'Incluir libros prestados en la vista de biblioteca',
       'data_management': 'Gestión de datos',
       'export_backup': 'Exportar copia de seguridad',
       'import_csv': 'Importar de Goodreads/LibraryThing',
@@ -1267,8 +1349,10 @@ class TranslationService {
       'cancel': 'Cancelar',
       'edit_settings': 'Editar configuración',
       'settings_dialog_title': 'Editar configuración',
-      'settings_dialog_body': '¿Quieres modificar la configuración de la aplicación?',
-      'settings_dialog_body': '¿Quieres modificar la configuración de la aplicación?',
+      'settings_dialog_body':
+          '¿Quieres modificar la configuración de la aplicación?',
+      'settings_dialog_body':
+          '¿Quieres modificar la configuración de la aplicación?',
       'lang_title': 'Idioma',
       'theme_title': 'Tema',
       'library_name': 'Nombre de la biblioteca',
@@ -1277,7 +1361,8 @@ class TranslationService {
       'error_updating_library': 'Error al actualizar nombre',
       'reset_app': 'Reiniciar aplicación',
       'reset_app_title': 'Reiniciar aplicación',
-      'reset_app_confirmation': '¿Estás seguro de que quieres reiniciar la aplicación? Esto borrará todos los datos locales y te devolverá al asistente de configuración.',
+      'reset_app_confirmation':
+          '¿Estás seguro de que quieres reiniciar la aplicación? Esto borrará todos los datos locales y te devolverá al asistente de configuración.',
       'reset_confirm': 'Reiniciar todo',
       'import_success': '¡Libros importados con éxito!',
       'import_fail': 'Fallo en la importación',
@@ -1308,7 +1393,8 @@ class TranslationService {
       'btn_cancel_request': 'Cancelar solicitud',
       'btn_remove': 'Eliminar',
       'dialog_delete_title': 'Eliminar solicitud',
-      'dialog_delete_body': '¿Estás seguro de que quieres eliminar esta solicitud?',
+      'dialog_delete_body':
+          '¿Estás seguro de que quieres eliminar esta solicitud?',
       'dialog_delete_confirm': 'Eliminar',
       'snack_error_fetching': 'Error al obtener solicitudes',
       'snack_error_updating': 'Error al actualizar estado',
@@ -1319,7 +1405,8 @@ class TranslationService {
       'qr_error': 'No se pudo generar el código QR.',
       'retry': 'Reintentar',
       'scan_to_connect': 'Escanear para conectar',
-      'share_code_instruction': 'Muestra este código a otro usuario para que se conecte a tu biblioteca.',
+      'share_code_instruction':
+          'Muestra este código a otro usuario para que se conecte a tu biblioteca.',
       'scan_instruction': 'Alinea el código QR dentro del marco',
       'connected_to': 'Conectado a',
       'connection_failed': 'Error al conectar',
@@ -1340,13 +1427,15 @@ class TranslationService {
       'tooltip_remove_library': 'Eliminar biblioteca',
       'library_not_accepted': 'Esta biblioteca aún no ha aceptado tu solicitud',
       'dialog_remove_library_title': 'Eliminar biblioteca',
-      'dialog_remove_library_body': '¿Estás seguro de que quieres eliminar esta biblioteca de tu red?',
+      'dialog_remove_library_body':
+          '¿Estás seguro de que quieres eliminar esta biblioteca de tu red?',
       'library_removed': 'Biblioteca eliminada con éxito',
       'error_removing': 'Error al eliminar biblioteca',
       'total_books': 'Total Libros',
       'active_loans': 'Préstamos activos',
       'welcome_title': '¡Bienvenido a BiblioGenius!',
-      'welcome_subtitle': 'Tu biblioteca parece un poco vacía. Empieza añadiendo tu primer libro o buscando en línea.',
+      'welcome_subtitle':
+          'Tu biblioteca parece un poco vacía. Empieza añadiendo tu primer libro o buscando en línea.',
       'btn_add_manually': 'Añadir manualmente',
       'btn_search_online': 'Buscar en línea',
       'quick_actions': 'Acciones rápidas',
@@ -1371,7 +1460,8 @@ class TranslationService {
       'book_updated': 'Libro actualizado con éxito',
       'error_updating_book': 'Error al actualizar el libro',
       'delete_book_title': 'Eliminar libro',
-      'delete_book_confirm': '¿Estás seguro de que quieres eliminar este libro?',
+      'delete_book_confirm':
+          '¿Estás seguro de que quieres eliminar este libro?',
       'delete_book_btn': 'Eliminar libro',
       'cancel': 'Cancelar',
       'error_deleting_book': 'Error al eliminar el libro',
@@ -1380,7 +1470,8 @@ class TranslationService {
       'borrowed_label': 'Prestado',
       'lend_book_label': 'Prestar libro',
       'no_copies_title': 'No se encontraron copias',
-      'no_copies_confirm': 'Este libro no tiene copias. ¿Crear una nueva copia para prestar?',
+      'no_copies_confirm':
+          'Este libro no tiene copias. ¿Crear una nueva copia para prestar?',
       'create_lend_btn': 'Crear y Prestar',
       'failed_create_copy': 'Error al crear copia.',
       'all_copies_lent': 'Todas las copias están prestadas actualmente.',
@@ -1394,7 +1485,8 @@ class TranslationService {
       'tags': 'Etiquetas',
       'shelves': 'Estantes',
       'no_shelves_title': 'Sin estantes todavía',
-      'no_shelves_hint': 'Añade etiquetas a tus libros para organizarlos en estantes.',
+      'no_shelves_hint':
+          'Añade etiquetas a tus libros para organizarlos en estantes.',
       'go_to_library': 'Ir a la biblioteca',
       'add_tag_hint': 'Añadir etiqueta...',
       'edit_book_title': 'Editar libro',
@@ -1437,11 +1529,14 @@ class TranslationService {
       'nav_help': 'Ayuda',
       'help_title': 'Ayuda y Soporte',
       'help_topic_add_book': '¿Cómo añadir un libro?',
-      'help_desc_add_book': 'Ve a "Mi Biblioteca" y toca el botón "+". Puedes escanear un código de barras o buscar por título/ISBN.',
+      'help_desc_add_book':
+          'Ve a "Mi Biblioteca" y toca el botón "+". Puedes escanear un código de barras o buscar por título/ISBN.',
       'help_topic_lend': '¿Cómo prestar un libro?',
-      'help_desc_lend': 'Encuentra el libro, toca "Gestionar copias", luego "Prestar". Elige un contacto.',
+      'help_desc_lend':
+          'Encuentra el libro, toca "Gestionar copias", luego "Prestar". Elige un contacto.',
       'help_topic_connect': '¿Cómo conectar con amigos?',
-      'help_desc_connect': 'Ve a "Conectar biblioteca" para compartir tu código QR o escanear el de un amigo.',
+      'help_desc_connect':
+          'Ve a "Conectar biblioteca" para compartir tu código QR o escanear el de un amigo.',
       'add_contact_title': 'Añadir contacto',
       'contact_type_label': 'Tipo',
       'role_borrower': 'Prestatario',
@@ -1460,14 +1555,16 @@ class TranslationService {
       'network_search_title': 'Tomar prestado un libro',
       'network_search_hint': 'Buscar en tu red...',
       'network_search_no_results': 'No se encontraron libros en tu red',
-      'network_search_prompt': 'Busca libros disponibles en las bibliotecas de tus amigos',
+      'network_search_prompt':
+          'Busca libros disponibles en las bibliotecas de tus amigos',
       'request_book_btn': 'Solicitar',
       'nav_requests': 'Solicitudes de préstamo',
       'nav_profile': 'Mi Perfil',
       'nav_statistics': 'Estadísticas',
       // Contacts Screen
       'delete_contact_title': 'Eliminar contacto',
-      'delete_contact_confirm': '¿Estás seguro de que quieres eliminar este contacto?',
+      'delete_contact_confirm':
+          '¿Estás seguro de que quieres eliminar este contacto?',
       'delete_contact_btn': 'Eliminar',
       'contact_deleted': 'Contacto eliminado con éxito',
       'error_deleting_contact': 'Error al eliminar contacto',
@@ -1477,45 +1574,56 @@ class TranslationService {
       'filter_libraries': 'Bibliotecas',
       // Loan Dialog
       'lend_book_title': 'Prestar libro',
-      'no_borrowers_found': 'No se encontraron prestatarios. Añade un contacto primero.',
+      'no_borrowers_found':
+          'No se encontraron prestatarios. Añade un contacto primero.',
       'select_contact_lend': 'Selecciona un contacto para prestar este libro:',
       'lend_btn': 'Prestar',
       'wizard_menu_title': 'Menú Principal',
-      'wizard_menu_desc': 'Accede a tu biblioteca, contactos y configuración aquí.',
+      'wizard_menu_desc':
+          'Accede a tu biblioteca, contactos y configuración aquí.',
       'wizard_add_title': 'Añadir libros',
-      'wizard_add_desc': 'Escanea un código de barras o busca en línea para añadir libros.',
+      'wizard_add_desc':
+          'Escanea un código de barras o busca en línea para añadir libros.',
       'wizard_search_title': 'Buscar',
-      'wizard_search_desc': 'Encuentra libros en tu biblioteca o en las de tus amigos.',
+      'wizard_search_desc':
+          'Encuentra libros en tu biblioteca o en las de tus amigos.',
       'wizard_stats_title': 'Estadísticas rápidas',
-      'wizard_stats_desc': 'Mira cuántos libros tienes y quién los ha tomado prestados.',
+      'wizard_stats_desc':
+          'Mira cuántos libros tienes y quién los ha tomado prestados.',
       'wizard_skip': 'Saltar',
-      
+
       // Onboarding Tour
       'onboarding_skip': 'Saltar',
       'onboarding_next': 'Siguiente',
       'onboarding_finish': 'Comenzar',
       'onboarding_tap_continue': 'Toque en cualquier lugar para continuar',
       'menu_tutorial': 'Tutorial',
-      
+
       'onboarding_welcome_title': '¡Bienvenido a BiblioGenius!',
-      'onboarding_welcome_desc': 'Tu gestor de biblioteca personal. Organiza tus libros, conéctate con amigos y sigue tu trayectoria de lectura.',
-      
+      'onboarding_welcome_desc':
+          'Tu gestor de biblioteca personal. Organiza tus libros, conéctate con amigos y sigue tu trayectoria de lectura.',
+
       'onboarding_books_title': 'Gestiona Tu Biblioteca',
-      'onboarding_books_desc': 'Añade libros escaneando códigos de barras, buscando en bases de datos en línea, o introduciendo detalles manualmente.',
-      
+      'onboarding_books_desc':
+          'Añade libros escaneando códigos de barras, buscando en bases de datos en línea, o introduciendo detalles manualmente.',
+
       'onboarding_p2p_title': 'Conecta y Comparte',
-      'onboarding_p2p_desc': 'Conéctate con otros usuarios de BiblioGenius para compartir bibliotecas. Ve lo que leen tus amigos y descubre nuevos libros.',
-      
+      'onboarding_p2p_desc':
+          'Conéctate con otros usuarios de BiblioGenius para compartir bibliotecas. Ve lo que leen tus amigos y descubre nuevos libros.',
+
       'onboarding_contacts_title': 'Rastrea Prestatarios',
-      'onboarding_contacts_desc': 'Gestiona tus contactos y lleva un registro de quién tomó prestado qué. Nunca pierdas el rastro de tus libros.',
-      
+      'onboarding_contacts_desc':
+          'Gestiona tus contactos y lleva un registro de quién tomó prestado qué. Nunca pierdas el rastro de tus libros.',
+
       'onboarding_stats_title': 'Monitorea Tu Colección',
-      'onboarding_stats_desc': 'Ve estadísticas sobre tu biblioteca, sigue hábitos de lectura y observa crecer tu colección.',
+      'onboarding_stats_desc':
+          'Ve estadísticas sobre tu biblioteca, sigue hábitos de lectura y observa crecer tu colección.',
       // Scan Screen
       'scan_isbn_title': 'Escanear ISBN',
       // External Search
       'external_search_title': 'Búsqueda externa de libros',
-      'enter_search_term': 'Por favor, introduce al menos un término de búsqueda',
+      'enter_search_term':
+          'Por favor, introduce al menos un término de búsqueda',
       'failed_add_book': 'Error al añadir libro',
       'search_open_library': 'Buscar en línea',
       // Search Peer
@@ -1555,11 +1663,14 @@ class TranslationService {
       'status_on_order': 'Pedido',
       // Profiles
       'profile_librarian': 'Bibliotecario',
-      'profile_librarian_desc': 'Catalogación profesional, gestión de préstamos y organización estricta.',
+      'profile_librarian_desc':
+          'Catalogación profesional, gestión de préstamos y organización estricta.',
       'profile_individual': 'Lector Individual',
-      'profile_individual_desc': 'Sigue tus lecturas, listas de deseos y colección personal.',
+      'profile_individual_desc':
+          'Sigue tus lecturas, listas de deseos y colección personal.',
       'profile_kid': 'Lector Junior',
-      'profile_kid_desc': '¡Interfaz divertida, seguimiento simple y avatares geniales!',
+      'profile_kid_desc':
+          '¡Interfaz divertida, seguimiento simple y avatares geniales!',
       // Avatars
       'avatar_junior_reader': 'Lector Junior',
       'avatar_bookworm': 'Ratón de biblioteca',
@@ -1678,7 +1789,8 @@ class TranslationService {
       'qr_error': 'QR-Code konnte nicht generiert werden.',
       'retry': 'Wiederholen',
       'scan_to_connect': 'Scannen zum Verbinden',
-      'share_code_instruction': 'Zeigen Sie diesen Code einem anderen Benutzer, damit er sich mit Ihrer Bibliothek verbinden kann.',
+      'share_code_instruction':
+          'Zeigen Sie diesen Code einem anderen Benutzer, damit er sich mit Ihrer Bibliothek verbinden kann.',
       'scan_instruction': 'Richten Sie den QR-Code im Rahmen aus',
       'connected_to': 'Verbunden mit',
       'connection_failed': 'Verbindung fehlgeschlagen',
@@ -1697,15 +1809,18 @@ class TranslationService {
       'sync_started': 'Synchronisierung gestartet',
       'tooltip_add_contact': 'Zu Kontakten hinzufügen',
       'tooltip_remove_library': 'Bibliothek entfernen',
-      'library_not_accepted': 'Diese Bibliothek hat Ihre Anfrage noch nicht akzeptiert',
+      'library_not_accepted':
+          'Diese Bibliothek hat Ihre Anfrage noch nicht akzeptiert',
       'dialog_remove_library_title': 'Bibliothek entfernen',
-      'dialog_remove_library_body': 'Möchten Sie diese Bibliothek wirklich aus Ihrem Netzwerk entfernen?',
+      'dialog_remove_library_body':
+          'Möchten Sie diese Bibliothek wirklich aus Ihrem Netzwerk entfernen?',
       'library_removed': 'Bibliothek erfolgreich entfernt',
       'error_removing': 'Fehler beim Entfernen der Bibliothek',
       'total_books': 'Gesamt Bücher',
       'active_loans': 'Aktive Ausleihen',
       'welcome_title': 'Willkommen bei BiblioGenius!',
-      'welcome_subtitle': 'Ihre Bibliothek sieht etwas leer aus. Beginnen Sie mit dem Hinzufügen Ihres ersten Buches oder suchen Sie online.',
+      'welcome_subtitle':
+          'Ihre Bibliothek sieht etwas leer aus. Beginnen Sie mit dem Hinzufügen Ihres ersten Buches oder suchen Sie online.',
       'btn_add_manually': 'Manuell hinzufügen',
       'btn_search_online': 'Online suchen',
       'quick_actions': 'Schnellaktionen',
@@ -1727,11 +1842,14 @@ class TranslationService {
       'scan_isbn': 'ISBN scannen',
       // Profiles
       'profile_librarian': 'Bibliothekar',
-      'profile_librarian_desc': 'Professionelle Katalogisierung, Ausleihmanagement und strikte Organisation.',
+      'profile_librarian_desc':
+          'Professionelle Katalogisierung, Ausleihmanagement und strikte Organisation.',
       'profile_individual': 'Einzelner Leser',
-      'profile_individual_desc': 'Verfolgen Sie Ihre Lektüre, Wunschlisten und persönliche Sammlung.',
+      'profile_individual_desc':
+          'Verfolgen Sie Ihre Lektüre, Wunschlisten und persönliche Sammlung.',
       'profile_kid': 'Junger Leser',
-      'profile_kid_desc': 'Lustige Oberfläche, einfaches Tracking und coole Avatare!',
+      'profile_kid_desc':
+          'Lustige Oberfläche, einfaches Tracking und coole Avatare!',
       // Avatars
       'avatar_junior_reader': 'Junger Leser',
       'avatar_bookworm': 'Bücherwurm',
@@ -1782,7 +1900,8 @@ class TranslationService {
       'book_updated': 'Buch erfolgreich aktualisiert',
       'error_updating_book': 'Fehler beim Aktualisieren des Buches',
       'delete_book_title': 'Buch löschen',
-      'delete_book_confirm': 'Sind Sie sicher, dass Sie dieses Buch löschen möchten?',
+      'delete_book_confirm':
+          'Sind Sie sicher, dass Sie dieses Buch löschen möchten?',
       'delete_book_btn': 'Buch löschen',
       'cancel': 'Abbrechen',
       'error_deleting_book': 'Fehler beim Löschen des Buches',
@@ -1791,7 +1910,8 @@ class TranslationService {
       'borrowed_label': 'Ausgeliehen',
       'lend_book_label': 'Buch ausleihen',
       'no_copies_title': 'Keine Exemplare gefunden',
-      'no_copies_confirm': 'Dieses Buch hat keine Exemplare. Neues Exemplar erstellen zum Ausleihen?',
+      'no_copies_confirm':
+          'Dieses Buch hat keine Exemplare. Neues Exemplar erstellen zum Ausleihen?',
       'create_lend_btn': 'Erstellen & Ausleihen',
       'failed_create_copy': 'Fehler beim Erstellen des Exemplars.',
       'all_copies_lent': 'Alle Exemplare sind derzeit ausgeliehen.',
@@ -1805,7 +1925,8 @@ class TranslationService {
       'tags': 'Tags',
       'shelves': 'Regale',
       'no_shelves_title': 'Noch keine Regale',
-      'no_shelves_hint': 'Fügen Sie Tags zu Ihren Büchern hinzu, um sie in Regalen zu organisieren.',
+      'no_shelves_hint':
+          'Fügen Sie Tags zu Ihren Büchern hinzu, um sie in Regalen zu organisieren.',
       'go_to_library': 'Zur Bibliothek',
       'add_tag_hint': 'Tag hinzufügen...',
       'edit_book_title': 'Buch bearbeiten',
@@ -1847,7 +1968,8 @@ class TranslationService {
       'nav_statistics': 'Statistiken',
       // Contacts Screen
       'delete_contact_title': 'Kontakt löschen',
-      'delete_contact_confirm': 'Sind Sie sicher, dass Sie diesen Kontakt löschen möchten?',
+      'delete_contact_confirm':
+          'Sind Sie sicher, dass Sie diesen Kontakt löschen möchten?',
       'delete_contact_btn': 'Löschen',
       'contact_deleted': 'Kontakt erfolgreich gelöscht',
       'error_deleting_contact': 'Fehler beim Löschen des Kontakts',
@@ -1857,8 +1979,10 @@ class TranslationService {
       'filter_libraries': 'Bibliotheken',
       // Loan Dialog
       'lend_book_title': 'Buch ausleihen',
-      'no_borrowers_found': 'Keine Ausleiher gefunden. Fügen Sie zuerst einen Kontakt hinzu.',
-      'select_contact_lend': 'Wählen Sie einen Kontakt, um dieses Buch auszuleihen:',
+      'no_borrowers_found':
+          'Keine Ausleiher gefunden. Fügen Sie zuerst einen Kontakt hinzu.',
+      'select_contact_lend':
+          'Wählen Sie einen Kontakt, um dieses Buch auszuleihen:',
       'lend_btn': 'Ausleihen',
       // Scan Screen
       'scan_isbn_title': 'ISBN scannen',
@@ -1909,19 +2033,22 @@ class TranslationService {
     final themeProvider = Provider.of<ThemeProvider>(context, listen: false);
     final lang = themeProvider.locale.languageCode;
     // debugPrint('Translating $key for $lang');
-    
+
     // 1. Check dynamic translations for current lang
-    if (_dynamicTranslations.containsKey(lang) && _dynamicTranslations[lang]!.containsKey(key)) {
+    if (_dynamicTranslations.containsKey(lang) &&
+        _dynamicTranslations[lang]!.containsKey(key)) {
       return _dynamicTranslations[lang]![key]!;
     }
 
     // 2. Check static translations for current lang
-    if (_localizedValues.containsKey(lang) && _localizedValues[lang]!.containsKey(key)) {
+    if (_localizedValues.containsKey(lang) &&
+        _localizedValues[lang]!.containsKey(key)) {
       return _localizedValues[lang]![key]!;
     }
 
     // 3. Fallback to English dynamic
-    if (_dynamicTranslations.containsKey('en') && _dynamicTranslations['en']!.containsKey(key)) {
+    if (_dynamicTranslations.containsKey('en') &&
+        _dynamicTranslations['en']!.containsKey(key)) {
       return _dynamicTranslations['en']![key]!;
     }
 

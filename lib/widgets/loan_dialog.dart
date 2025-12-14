@@ -39,7 +39,11 @@ class _LoanDialogState extends State<LoanDialog> {
       if (mounted) {
         setState(() => _isLoading = false);
         ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('${TranslationService.translate(context, 'error_loading_contacts')}: $e')),
+          SnackBar(
+            content: Text(
+              '${TranslationService.translate(context, 'error_loading_contacts')}: $e',
+            ),
+          ),
         );
       }
     }
@@ -55,32 +59,37 @@ class _LoanDialogState extends State<LoanDialog> {
               child: Center(child: CircularProgressIndicator()),
             )
           : _contacts.isEmpty
-              ? Text(TranslationService.translate(context, 'no_borrowers_found'))
-              : Column(
-                  mainAxisSize: MainAxisSize.min,
-                  children: [
-                    Text(TranslationService.translate(context, 'select_contact_lend')),
-                    const SizedBox(height: 16),
-                    DropdownButtonFormField<Contact>(
-                      value: _selectedContact,
-                      decoration: InputDecoration(
-                        border: const OutlineInputBorder(),
-                        labelText: TranslationService.translate(context, 'filter_borrowers'),
-                      ),
-                      items: _contacts.map((contact) {
-                        return DropdownMenuItem(
-                          value: contact,
-                          child: Text(contact.name),
-                        );
-                      }).toList(),
-                      onChanged: (value) {
-                        setState(() {
-                          _selectedContact = value;
-                        });
-                      },
-                    ),
-                  ],
+          ? Text(TranslationService.translate(context, 'no_borrowers_found'))
+          : Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                Text(
+                  TranslationService.translate(context, 'select_contact_lend'),
                 ),
+                const SizedBox(height: 16),
+                DropdownButtonFormField<Contact>(
+                  initialValue: _selectedContact,
+                  decoration: InputDecoration(
+                    border: const OutlineInputBorder(),
+                    labelText: TranslationService.translate(
+                      context,
+                      'filter_borrowers',
+                    ),
+                  ),
+                  items: _contacts.map((contact) {
+                    return DropdownMenuItem(
+                      value: contact,
+                      child: Text(contact.name),
+                    );
+                  }).toList(),
+                  onChanged: (value) {
+                    setState(() {
+                      _selectedContact = value;
+                    });
+                  },
+                ),
+              ],
+            ),
       actions: [
         TextButton(
           onPressed: () => Navigator.pop(context),

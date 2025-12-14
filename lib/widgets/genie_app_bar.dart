@@ -24,7 +24,10 @@ class GenieAppBar extends StatelessWidget implements PreferredSizeWidget {
       flexibleSpace: Container(
         decoration: const BoxDecoration(
           gradient: LinearGradient(
-            colors: [Color(0xFF667eea), Color(0xFF764ba2)], // Blue to Purple (matches dashboard)
+            colors: [
+              Color(0xFF667eea),
+              Color(0xFF764ba2),
+            ], // Blue to Purple (matches dashboard)
             begin: Alignment.topLeft,
             end: Alignment.bottomRight,
           ),
@@ -72,7 +75,6 @@ class GenieAppBar extends StatelessWidget implements PreferredSizeWidget {
   }
 
   @override
-  Size get preferredSize => Size.fromHeight(
-        kToolbarHeight + (bottom?.preferredSize.height ?? 0.0),
-      );
+  Size get preferredSize =>
+      Size.fromHeight(kToolbarHeight + (bottom?.preferredSize.height ?? 0.0));
 }

@@ -36,17 +36,11 @@ class _SplashScreenState extends State<SplashScreen>
     );
 
     _logoScale = Tween<double>(begin: 0.0, end: 1.0).animate(
-      CurvedAnimation(
-        parent: _logoController,
-        curve: Curves.elasticOut,
-      ),
+      CurvedAnimation(parent: _logoController, curve: Curves.elasticOut),
     );
 
     _logoRotation = Tween<double>(begin: -0.5, end: 0.0).animate(
-      CurvedAnimation(
-        parent: _logoController,
-        curve: Curves.easeOutBack,
-      ),
+      CurvedAnimation(parent: _logoController, curve: Curves.easeOutBack),
     );
 
     // Text animation
@@ -55,22 +49,15 @@ class _SplashScreenState extends State<SplashScreen>
       vsync: this,
     );
 
-    _textOpacity = Tween<double>(begin: 0.0, end: 1.0).animate(
-      CurvedAnimation(
-        parent: _textController,
-        curve: Curves.easeIn,
-      ),
-    );
+    _textOpacity = Tween<double>(
+      begin: 0.0,
+      end: 1.0,
+    ).animate(CurvedAnimation(parent: _textController, curve: Curves.easeIn));
 
     _textSlide = Tween<Offset>(
       begin: const Offset(0, 0.3),
       end: Offset.zero,
-    ).animate(
-      CurvedAnimation(
-        parent: _textController,
-        curve: Curves.easeOut,
-      ),
-    );
+    ).animate(CurvedAnimation(parent: _textController, curve: Curves.easeOut));
   }
 
   void _startAnimationSequence() async {
@@ -121,9 +108,7 @@ class _SplashScreenState extends State<SplashScreen>
   Widget build(BuildContext context) {
     return Scaffold(
       body: Container(
-        decoration: const BoxDecoration(
-          gradient: AppDesign.primaryGradient,
-        ),
+        decoration: const BoxDecoration(gradient: AppDesign.primaryGradient),
         child: SafeArea(
           child: Center(
             child: Column(

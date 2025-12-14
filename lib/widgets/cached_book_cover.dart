@@ -2,7 +2,7 @@ import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 
 /// A widget that displays a book cover with automatic caching.
-/// 
+///
 /// Uses cached_network_image for:
 /// - Memory caching (fast re-display)
 /// - Disk caching (persistent across sessions)
@@ -46,10 +46,7 @@ class CachedBookCover extends StatelessWidget {
     );
 
     if (borderRadius != null) {
-      image = ClipRRect(
-        borderRadius: borderRadius!,
-        child: image,
-      );
+      image = ClipRRect(borderRadius: borderRadius!, child: image);
     }
 
     return image;
@@ -83,7 +80,7 @@ class CachedBookCover extends StatelessWidget {
       ),
       child: Icon(
         Icons.book,
-        size: (width != null && height != null) 
+        size: (width != null && height != null)
             ? (width! < height! ? width! * 0.4 : height! * 0.4)
             : 32,
         color: Colors.grey[500],
@@ -97,11 +94,7 @@ class CompactBookCover extends StatelessWidget {
   final String? imageUrl;
   final double size;
 
-  const CompactBookCover({
-    super.key,
-    required this.imageUrl,
-    this.size = 50,
-  });
+  const CompactBookCover({super.key, required this.imageUrl, this.size = 50});
 
   @override
   Widget build(BuildContext context) {

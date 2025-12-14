@@ -29,16 +29,72 @@ void main() {
     });
 
     test('levelName returns correct names', () {
-      expect(const TrackProgress(level: 0, progress: 0, current: 0, nextThreshold: 10).levelName, 'Novice');
-      expect(const TrackProgress(level: 1, progress: 0, current: 10, nextThreshold: 50).levelName, 'Bronze');
-      expect(const TrackProgress(level: 2, progress: 0, current: 50, nextThreshold: 200).levelName, 'Silver');
-      expect(const TrackProgress(level: 3, progress: 1, current: 200, nextThreshold: 200).levelName, 'Gold');
+      expect(
+        const TrackProgress(
+          level: 0,
+          progress: 0,
+          current: 0,
+          nextThreshold: 10,
+        ).levelName,
+        'Novice',
+      );
+      expect(
+        const TrackProgress(
+          level: 1,
+          progress: 0,
+          current: 10,
+          nextThreshold: 50,
+        ).levelName,
+        'Bronze',
+      );
+      expect(
+        const TrackProgress(
+          level: 2,
+          progress: 0,
+          current: 50,
+          nextThreshold: 200,
+        ).levelName,
+        'Silver',
+      );
+      expect(
+        const TrackProgress(
+          level: 3,
+          progress: 1,
+          current: 200,
+          nextThreshold: 200,
+        ).levelName,
+        'Gold',
+      );
     });
 
     test('isMaxLevel is true only at level 3', () {
-      expect(const TrackProgress(level: 0, progress: 0, current: 0, nextThreshold: 10).isMaxLevel, false);
-      expect(const TrackProgress(level: 2, progress: 0.5, current: 50, nextThreshold: 200).isMaxLevel, false);
-      expect(const TrackProgress(level: 3, progress: 1, current: 200, nextThreshold: 200).isMaxLevel, true);
+      expect(
+        const TrackProgress(
+          level: 0,
+          progress: 0,
+          current: 0,
+          nextThreshold: 10,
+        ).isMaxLevel,
+        false,
+      );
+      expect(
+        const TrackProgress(
+          level: 2,
+          progress: 0.5,
+          current: 50,
+          nextThreshold: 200,
+        ).isMaxLevel,
+        false,
+      );
+      expect(
+        const TrackProgress(
+          level: 3,
+          progress: 1,
+          current: 200,
+          nextThreshold: 200,
+        ).isMaxLevel,
+        true,
+      );
     });
   });
 
@@ -100,9 +156,24 @@ void main() {
     test('fromJson parses complete response', () {
       final json = {
         'tracks': {
-          'collector': {'level': 1, 'progress': 0.75, 'current': 38, 'next_threshold': 50},
-          'reader': {'level': 0, 'progress': 0.40, 'current': 8, 'next_threshold': 20},
-          'lender': {'level': 0, 'progress': 0.20, 'current': 1, 'next_threshold': 5},
+          'collector': {
+            'level': 1,
+            'progress': 0.75,
+            'current': 38,
+            'next_threshold': 50,
+          },
+          'reader': {
+            'level': 0,
+            'progress': 0.40,
+            'current': 8,
+            'next_threshold': 20,
+          },
+          'lender': {
+            'level': 0,
+            'progress': 0.20,
+            'current': 1,
+            'next_threshold': 5,
+          },
         },
         'streak': {'current': 5, 'longest': 12},
         'recent_achievements': ['collector_bronze', 'first_scan'],
@@ -163,13 +234,37 @@ void main() {
 
     test('maxTrackLevel returns highest level', () {
       final status = GamificationStatus(
-        collector: const TrackProgress(level: 2, progress: 0.5, current: 50, nextThreshold: 200),
-        reader: const TrackProgress(level: 1, progress: 0.3, current: 10, nextThreshold: 20),
-        lender: const TrackProgress(level: 0, progress: 0.1, current: 1, nextThreshold: 5),
-        cataloguer: const TrackProgress(level: 0, progress: 0.0, current: 0, nextThreshold: 10),
+        collector: const TrackProgress(
+          level: 2,
+          progress: 0.5,
+          current: 50,
+          nextThreshold: 200,
+        ),
+        reader: const TrackProgress(
+          level: 1,
+          progress: 0.3,
+          current: 10,
+          nextThreshold: 20,
+        ),
+        lender: const TrackProgress(
+          level: 0,
+          progress: 0.1,
+          current: 1,
+          nextThreshold: 5,
+        ),
+        cataloguer: const TrackProgress(
+          level: 0,
+          progress: 0.0,
+          current: 0,
+          nextThreshold: 10,
+        ),
         streak: const StreakInfo(current: 0, longest: 0),
         recentAchievements: const [],
-        config: const GamificationConfig(achievementsStyle: 'minimal', readingGoalYearly: 12, readingGoalProgress: 0),
+        config: const GamificationConfig(
+          achievementsStyle: 'minimal',
+          readingGoalYearly: 12,
+          readingGoalProgress: 0,
+        ),
         level: 'BiblioGenius',
         loansCount: 0,
         editsCount: 0,
@@ -182,7 +277,7 @@ void main() {
 
     test('hasAchievements is correct', () {
       expect(GamificationStatus.empty.hasAchievements, false);
-      
+
       final withAchievements = GamificationStatus.fromJson({
         'recent_achievements': ['first_book'],
       });

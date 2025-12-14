@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import '../services/translation_service.dart';
+
 class BookStatus {
   final String value;
   final String label;
@@ -97,16 +98,24 @@ const List<BookStatus> librarianStatuses = [
 // Get status options based on profile type
 List<BookStatus> getStatusOptions(BuildContext context, bool isLibrarian) {
   final options = isLibrarian ? librarianStatuses : individualStatuses;
-  return options.map((s) => BookStatus(
-    value: s.value,
-    label: TranslationService.translate(context, s.label),
-    icon: s.icon,
-    color: s.color,
-  )).toList();
+  return options
+      .map(
+        (s) => BookStatus(
+          value: s.value,
+          label: TranslationService.translate(context, s.label),
+          icon: s.icon,
+          color: s.color,
+        ),
+      )
+      .toList();
 }
 
 // Get BookStatus object from value
-BookStatus? getStatusFromValue(BuildContext context, String value, bool isLibrarian) {
+BookStatus? getStatusFromValue(
+  BuildContext context,
+  String value,
+  bool isLibrarian,
+) {
   final options = getStatusOptions(context, isLibrarian);
   try {
     return options.firstWhere((s) => s.value == value);

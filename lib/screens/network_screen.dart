@@ -129,9 +129,11 @@ class _NetworkScreenState extends State<NetworkScreen>
         return _members;
       case NetworkFilter.libraries:
         return _members
-            .where((m) =>
-                m.source == NetworkMemberSource.network ||
-                m.type == NetworkMemberType.library)
+            .where(
+              (m) =>
+                  m.source == NetworkMemberSource.network ||
+                  m.type == NetworkMemberType.library,
+            )
             .toList();
       case NetworkFilter.contacts:
         return _members
@@ -147,11 +149,17 @@ class _NetworkScreenState extends State<NetworkScreen>
     final confirm = await showDialog<bool>(
       context: context,
       builder: (context) => AlertDialog(
-        title: Text(member.source == NetworkMemberSource.network
-            ? TranslationService.translate(context, 'dialog_remove_library_title')
-            : TranslationService.translate(context, 'delete_contact_title')),
+        title: Text(
+          member.source == NetworkMemberSource.network
+              ? TranslationService.translate(
+                  context,
+                  'dialog_remove_library_title',
+                )
+              : TranslationService.translate(context, 'delete_contact_title'),
+        ),
         content: Text(
-            '${TranslationService.translate(context, 'confirm_delete')} ${member.name}?'),
+          '${TranslationService.translate(context, 'confirm_delete')} ${member.name}?',
+        ),
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(context, false),
@@ -160,7 +168,9 @@ class _NetworkScreenState extends State<NetworkScreen>
           TextButton(
             onPressed: () => Navigator.pop(context, true),
             style: TextButton.styleFrom(foregroundColor: Colors.red),
-            child: Text(TranslationService.translate(context, 'delete_contact_btn')),
+            child: Text(
+              TranslationService.translate(context, 'delete_contact_btn'),
+            ),
           ),
         ],
       ),
@@ -176,16 +186,18 @@ class _NetworkScreenState extends State<NetworkScreen>
         if (mounted) {
           ScaffoldMessenger.of(context).showSnackBar(
             SnackBar(
-                content: Text(
-                    TranslationService.translate(context, 'contact_deleted'))),
+              content: Text(
+                TranslationService.translate(context, 'contact_deleted'),
+              ),
+            ),
           );
           _loadAllMembers();
         }
       } catch (e) {
         if (mounted) {
-          ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(content: Text('Error: $e')),
-          );
+          ScaffoldMessenger.of(
+            context,
+          ).showSnackBar(SnackBar(content: Text('Error: $e')));
         }
       }
     }
@@ -201,15 +213,17 @@ class _NetworkScreenState extends State<NetworkScreen>
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
-              content: Text(
-                  TranslationService.translate(context, 'sync_started'))),
+            content: Text(
+              TranslationService.translate(context, 'sync_started'),
+            ),
+          ),
         );
       }
     } catch (e) {
       if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('Sync error: $e')),
-        );
+        ScaffoldMessenger.of(
+          context,
+        ).showSnackBar(SnackBar(content: Text('Sync error: $e')));
       }
     }
   }
@@ -237,8 +251,10 @@ class _NetworkScreenState extends State<NetworkScreen>
         debugPrint("Error getting config: $e");
       }
       if (!mounted) return;
-      _libraryName ??=
-          TranslationService.translate(context, 'my_library_title');
+      _libraryName ??= TranslationService.translate(
+        context,
+        'my_library_title',
+      );
 
       if (_localIp != null && _libraryName != null) {
         final data = {"name": _libraryName, "url": "http://$_localIp:8000"};
@@ -281,28 +297,34 @@ class _NetworkScreenState extends State<NetworkScreen>
 
       if (mounted) {
         Navigator.pop(context);
-        ScaffoldMessenger.of(context).showSnackBar(SnackBar(
-          content: Text(
-              "${TranslationService.translate(context, 'connected_to')} $name!"),
-          duration: const Duration(seconds: 2),
-        ));
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text(
+              "${TranslationService.translate(context, 'connected_to')} $name!",
+            ),
+            duration: const Duration(seconds: 2),
+          ),
+        );
         _tabController.animateTo(0);
         _loadAllMembers();
       }
     } catch (e) {
       if (mounted) {
         Navigator.pop(context);
-        ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
             content: Text(
-                "${TranslationService.translate(context, 'connection_failed')}: $e")));
+              "${TranslationService.translate(context, 'connection_failed')}: $e",
+            ),
+          ),
+        );
       }
     }
   }
 
   void _showManualConnectionDialog() {
     final nameController = TextEditingController();
-    final urlController =
-        TextEditingController(text: 'http://localhost:8001');
+    final urlController = TextEditingController(text: 'http://localhost:8001');
 
     showDialog(
       context: context,
@@ -321,8 +343,14 @@ class _NetworkScreenState extends State<NetworkScreen>
             // Capture context-dependent objects before async gap
             final messenger = ScaffoldMessenger.of(dialogContext);
             final navigator = Navigator.of(dialogContext);
-            final connectedToText = TranslationService.translate(dialogContext, 'connected_to');
-            final connectionFailedText = TranslationService.translate(dialogContext, 'connection_failed');
+            final connectedToText = TranslationService.translate(
+              dialogContext,
+              'connected_to',
+            );
+            final connectionFailedText = TranslationService.translate(
+              dialogContext,
+              'connection_failed',
+            );
             final apiService = Provider.of<ApiService>(context, listen: false);
             final libraryName = nameController.text;
 
@@ -331,24 +359,29 @@ class _NetworkScreenState extends State<NetworkScreen>
 
               if (!mounted) return;
               navigator.pop();
-              messenger.showSnackBar(SnackBar(
-                content: Text('$connectedToText $libraryName!'),
-                duration: const Duration(seconds: 2),
-              ));
+              messenger.showSnackBar(
+                SnackBar(
+                  content: Text('$connectedToText $libraryName!'),
+                  duration: const Duration(seconds: 2),
+                ),
+              );
               _loadAllMembers();
             } catch (e) {
               setState(() => isLoading = false);
               if (!mounted) return;
-              messenger.showSnackBar(SnackBar(
-                content: Text('$connectionFailedText: $e'),
-                duration: const Duration(seconds: 3),
-              ));
+              messenger.showSnackBar(
+                SnackBar(
+                  content: Text('$connectionFailedText: $e'),
+                  duration: const Duration(seconds: 3),
+                ),
+              );
             }
           }
 
           return AlertDialog(
-            title: Text(TranslationService.translate(
-                context, 'manual_connection_title')),
+            title: Text(
+              TranslationService.translate(context, 'manual_connection_title'),
+            ),
             content: isLoading
                 ? const SizedBox(
                     height: 100,
@@ -360,15 +393,21 @@ class _NetworkScreenState extends State<NetworkScreen>
                       TextField(
                         controller: nameController,
                         decoration: InputDecoration(
-                            labelText: TranslationService.translate(
-                                context, 'library_name')),
+                          labelText: TranslationService.translate(
+                            context,
+                            'library_name',
+                          ),
+                        ),
                         enabled: !isLoading,
                       ),
                       TextField(
                         controller: urlController,
                         decoration: InputDecoration(
-                            labelText: TranslationService.translate(
-                                context, 'library_url')),
+                          labelText: TranslationService.translate(
+                            context,
+                            'library_url',
+                          ),
+                        ),
                         enabled: !isLoading,
                       ),
                     ],
@@ -378,13 +417,15 @@ class _NetworkScreenState extends State<NetworkScreen>
                 : [
                     TextButton(
                       onPressed: () => Navigator.pop(dialogContext),
-                      child:
-                          Text(TranslationService.translate(context, 'cancel')),
+                      child: Text(
+                        TranslationService.translate(context, 'cancel'),
+                      ),
                     ),
                     TextButton(
                       onPressed: handleConnect,
                       child: Text(
-                          TranslationService.translate(context, 'connect')),
+                        TranslationService.translate(context, 'connect'),
+                      ),
                     ),
                   ],
           );
@@ -413,8 +454,10 @@ class _NetworkScreenState extends State<NetworkScreen>
         actions: [
           IconButton(
             icon: const Icon(Icons.search),
-            tooltip:
-                TranslationService.translate(context, 'network_search_title'),
+            tooltip: TranslationService.translate(
+              context,
+              'network_search_title',
+            ),
             onPressed: () => context.push('/network-search'),
           ),
           IconButton(
@@ -425,30 +468,28 @@ class _NetworkScreenState extends State<NetworkScreen>
         ],
         bottom: TabBar(
           controller: _tabController,
-          indicatorColor:
-              Theme.of(context).buttonTheme.colorScheme?.onPrimary,
+          indicatorColor: Theme.of(context).buttonTheme.colorScheme?.onPrimary,
           labelColor: Colors.white,
           unselectedLabelColor: Colors.white70,
           tabs: [
             Tab(
-                icon: const Icon(Icons.list),
-                text: TranslationService.translate(context, 'tab_list')),
+              icon: const Icon(Icons.list),
+              text: TranslationService.translate(context, 'tab_list'),
+            ),
             Tab(
-                icon: const Icon(Icons.qr_code_scanner),
-                text: TranslationService.translate(context, 'tab_scan_code')),
+              icon: const Icon(Icons.qr_code_scanner),
+              text: TranslationService.translate(context, 'tab_scan_code'),
+            ),
             Tab(
-                icon: const Icon(Icons.qr_code),
-                text: TranslationService.translate(context, 'tab_share_code')),
+              icon: const Icon(Icons.qr_code),
+              text: TranslationService.translate(context, 'tab_share_code'),
+            ),
           ],
         ),
       ),
       body: TabBarView(
         controller: _tabController,
-        children: [
-          _buildMemberList(),
-          _buildScanTab(),
-          _buildShareTab(),
-        ],
+        children: [_buildMemberList(), _buildScanTab(), _buildShareTab()],
       ),
       floatingActionButton: _tabController.index == 0
           ? FloatingActionButton(
@@ -470,7 +511,9 @@ class _NetworkScreenState extends State<NetworkScreen>
       child: Row(
         children: [
           FilterChip(
-            label: Text(TranslationService.translate(context, 'filter_all_contacts')),
+            label: Text(
+              TranslationService.translate(context, 'filter_all_contacts'),
+            ),
             selected: _filter == NetworkFilter.all,
             onSelected: (selected) {
               if (selected) setState(() => _filter = NetworkFilter.all);
@@ -478,7 +521,9 @@ class _NetworkScreenState extends State<NetworkScreen>
           ),
           const SizedBox(width: 8),
           FilterChip(
-            label: Text(TranslationService.translate(context, 'filter_libraries')),
+            label: Text(
+              TranslationService.translate(context, 'filter_libraries'),
+            ),
             selected: _filter == NetworkFilter.libraries,
             onSelected: (selected) {
               if (selected) setState(() => _filter = NetworkFilter.libraries);
@@ -486,7 +531,9 @@ class _NetworkScreenState extends State<NetworkScreen>
           ),
           const SizedBox(width: 8),
           FilterChip(
-            label: Text(TranslationService.translate(context, 'filter_contacts_only')),
+            label: Text(
+              TranslationService.translate(context, 'filter_contacts_only'),
+            ),
             selected: _filter == NetworkFilter.contacts,
             onSelected: (selected) {
               if (selected) setState(() => _filter = NetworkFilter.contacts);
@@ -519,23 +566,33 @@ class _NetworkScreenState extends State<NetworkScreen>
                     Icon(
                       Icons.people_outline,
                       size: 80,
-                      color: Theme.of(context).primaryColor.withValues(alpha: 0.3),
+                      color: Theme.of(
+                        context,
+                      ).primaryColor.withValues(alpha: 0.3),
                     ),
                     const SizedBox(height: 24),
                     Text(
-                      TranslationService.translate(context, 'no_network_members'),
+                      TranslationService.translate(
+                        context,
+                        'no_network_members',
+                      ),
                       style: Theme.of(context).textTheme.titleLarge?.copyWith(
-                            fontWeight: FontWeight.bold,
-                            color: Theme.of(context).primaryColor,
-                          ),
+                        fontWeight: FontWeight.bold,
+                        color: Theme.of(context).primaryColor,
+                      ),
                     ),
                     const SizedBox(height: 16),
                     Text(
                       TranslationService.translate(
-                          context, 'add_contact_or_scan_help'),
+                        context,
+                        'add_contact_or_scan_help',
+                      ),
                       textAlign: TextAlign.center,
-                      style:
-                          const TextStyle(fontSize: 16, height: 1.5, color: Colors.grey),
+                      style: const TextStyle(
+                        fontSize: 16,
+                        height: 1.5,
+                        color: Colors.grey,
+                      ),
                     ),
                   ],
                 ),
@@ -549,7 +606,8 @@ class _NetworkScreenState extends State<NetworkScreen>
               child: ListView.builder(
                 padding: const EdgeInsets.symmetric(vertical: 8),
                 itemCount: filtered.length,
-                itemBuilder: (context, index) => _buildMemberCard(filtered[index]),
+                itemBuilder: (context, index) =>
+                    _buildMemberCard(filtered[index]),
               ),
             ),
           ),
@@ -688,7 +746,10 @@ class _NetworkScreenState extends State<NetworkScreen>
       if (member.isPending) {
         return IconButton(
           icon: const Icon(Icons.cancel_outlined, color: Colors.orange),
-          tooltip: TranslationService.translate(context, 'tooltip_cancel_request'),
+          tooltip: TranslationService.translate(
+            context,
+            'tooltip_cancel_request',
+          ),
           onPressed: () => _deleteMember(member),
         );
       } else {
@@ -702,7 +763,10 @@ class _NetworkScreenState extends State<NetworkScreen>
             ),
             IconButton(
               icon: const Icon(Icons.delete_outline, color: Colors.red),
-              tooltip: TranslationService.translate(context, 'tooltip_remove_library'),
+              tooltip: TranslationService.translate(
+                context,
+                'tooltip_remove_library',
+              ),
               onPressed: () => _deleteMember(member),
             ),
           ],
@@ -723,16 +787,17 @@ class _NetworkScreenState extends State<NetworkScreen>
       if (member.isPending) {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
-              content: Text(TranslationService.translate(
-                  context, 'library_not_accepted'))),
+            content: Text(
+              TranslationService.translate(context, 'library_not_accepted'),
+            ),
+          ),
         );
       } else {
         // Navigate to peer's book list
-        context.push('/peers/${member.id}/books', extra: {
-          'id': member.id,
-          'name': member.name,
-          'url': member.url,
-        });
+        context.push(
+          '/peers/${member.id}/books',
+          extra: {'id': member.id, 'name': member.name, 'url': member.url},
+        );
       }
     } else {
       // Navigate to contact details
@@ -751,17 +816,24 @@ class _NetworkScreenState extends State<NetworkScreen>
           children: [
             const Icon(Icons.error_outline, size: 60, color: Colors.grey),
             const SizedBox(height: 16),
-            Text(TranslationService.translate(context, 'qr_error'),
-                style: const TextStyle(fontSize: 16)),
+            Text(
+              TranslationService.translate(context, 'qr_error'),
+              style: const TextStyle(fontSize: 16),
+            ),
             const SizedBox(height: 8),
-            Text("IP: ${_localIp ?? 'Unknown'}",
-                style: const TextStyle(color: Colors.grey)),
-            Text("Name: ${_libraryName ?? 'Unknown'}",
-                style: const TextStyle(color: Colors.grey)),
+            Text(
+              "IP: ${_localIp ?? 'Unknown'}",
+              style: const TextStyle(color: Colors.grey),
+            ),
+            Text(
+              "Name: ${_libraryName ?? 'Unknown'}",
+              style: const TextStyle(color: Colors.grey),
+            ),
             const SizedBox(height: 24),
             ElevatedButton(
-                onPressed: _initQRData,
-                child: Text(TranslationService.translate(context, 'retry'))),
+              onPressed: _initQRData,
+              child: Text(TranslationService.translate(context, 'retry')),
+            ),
           ],
         ),
       );
@@ -797,16 +869,18 @@ class _NetworkScreenState extends State<NetworkScreen>
                   Text(
                     _libraryName!,
                     style: Theme.of(context).textTheme.headlineSmall?.copyWith(
-                          fontWeight: FontWeight.bold,
-                          color: Colors.black87,
-                        ),
+                      fontWeight: FontWeight.bold,
+                      color: Colors.black87,
+                    ),
                     textAlign: TextAlign.center,
                   ),
                   const SizedBox(height: 8),
                   if (_qrData != null)
                     Text(
-                      (jsonDecode(_qrData!)['url'] as String)
-                          .replaceAll('http://', ''),
+                      (jsonDecode(_qrData!)['url'] as String).replaceAll(
+                        'http://',
+                        '',
+                      ),
                       style: TextStyle(
                         color: Colors.grey[600],
                         fontSize: 14,
@@ -831,10 +905,7 @@ class _NetworkScreenState extends State<NetworkScreen>
   Widget _buildScanTab() {
     return Stack(
       children: [
-        MobileScanner(
-          controller: cameraController,
-          onDetect: _onDetect,
-        ),
+        MobileScanner(controller: cameraController, onDetect: _onDetect),
         Container(
           decoration: ShapeDecoration(
             shape: QrScannerOverlayShape(
@@ -969,26 +1040,42 @@ class QrScannerOverlayShape extends ShapeBorder {
     final path = Path();
     path.moveTo(cutOutRect.left, cutOutRect.top + localBorderLength);
     path.lineTo(cutOutRect.left, cutOutRect.top + localBorderRadius);
-    path.quadraticBezierTo(cutOutRect.left, cutOutRect.top,
-        cutOutRect.left + localBorderRadius, cutOutRect.top);
+    path.quadraticBezierTo(
+      cutOutRect.left,
+      cutOutRect.top,
+      cutOutRect.left + localBorderRadius,
+      cutOutRect.top,
+    );
     path.lineTo(cutOutRect.left + localBorderLength, cutOutRect.top);
 
     path.moveTo(cutOutRect.right, cutOutRect.top + localBorderLength);
     path.lineTo(cutOutRect.right, cutOutRect.top + localBorderRadius);
-    path.quadraticBezierTo(cutOutRect.right, cutOutRect.top,
-        cutOutRect.right - localBorderRadius, cutOutRect.top);
+    path.quadraticBezierTo(
+      cutOutRect.right,
+      cutOutRect.top,
+      cutOutRect.right - localBorderRadius,
+      cutOutRect.top,
+    );
     path.lineTo(cutOutRect.right - localBorderLength, cutOutRect.top);
 
     path.moveTo(cutOutRect.right, cutOutRect.bottom - localBorderLength);
     path.lineTo(cutOutRect.right, cutOutRect.bottom - localBorderRadius);
-    path.quadraticBezierTo(cutOutRect.right, cutOutRect.bottom,
-        cutOutRect.right - localBorderRadius, cutOutRect.bottom);
+    path.quadraticBezierTo(
+      cutOutRect.right,
+      cutOutRect.bottom,
+      cutOutRect.right - localBorderRadius,
+      cutOutRect.bottom,
+    );
     path.lineTo(cutOutRect.right - localBorderLength, cutOutRect.bottom);
 
     path.moveTo(cutOutRect.left, cutOutRect.bottom - localBorderLength);
     path.lineTo(cutOutRect.left, cutOutRect.bottom - localBorderRadius);
-    path.quadraticBezierTo(cutOutRect.left, cutOutRect.bottom,
-        cutOutRect.left + localBorderRadius, cutOutRect.bottom);
+    path.quadraticBezierTo(
+      cutOutRect.left,
+      cutOutRect.bottom,
+      cutOutRect.left + localBorderRadius,
+      cutOutRect.bottom,
+    );
     path.lineTo(cutOutRect.left + localBorderLength, cutOutRect.bottom);
 
     canvas.drawPath(path, borderPaint);

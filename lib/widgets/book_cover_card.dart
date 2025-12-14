@@ -1,4 +1,3 @@
-import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import '../models/book.dart';
 import 'dart:math';
@@ -8,11 +7,7 @@ class BookCoverCard extends StatelessWidget {
   final Book book;
   final VoidCallback onTap;
 
-  const BookCoverCard({
-    super.key,
-    required this.book,
-    required this.onTap,
-  });
+  const BookCoverCard({super.key, required this.book, required this.onTap});
 
   Color _getColorFromId(int id) {
     final random = Random(id);
@@ -45,37 +40,44 @@ class BookCoverCard extends StatelessWidget {
           children: [
             // Background / Cover (Layered for robust fallback)
             _buildFallbackCover(),
-            
+
             if (book.coverUrl != null && book.coverUrl!.isNotEmpty)
               Image.network(
                 book.coverUrl!,
                 fit: BoxFit.cover,
                 loadingBuilder: (context, child, loadingProgress) {
-                   if (loadingProgress == null) return child; // Image loaded
-                   return const SizedBox.shrink(); // Show fallback while loading
+                  if (loadingProgress == null) return child; // Image loaded
+                  return const SizedBox.shrink(); // Show fallback while loading
                 },
-                errorBuilder: (context, error, stackTrace) => const SizedBox.shrink(), // Show fallback on error
+                errorBuilder: (context, error, stackTrace) =>
+                    const SizedBox.shrink(), // Show fallback on error
               ),
 
             // Gradient overlay for text readability (only if using fallback or if needed)
             if (book.coverUrl == null || book.coverUrl!.isEmpty)
               Container(
-                 // Fallback cover already has color, but we can add specific styling here if needed
+                // Fallback cover already has color, but we can add specific styling here if needed
               ),
-              
+
             // Reading Status Indicator
-             if (book.readingStatus != null)
+            if (book.readingStatus != null)
               Positioned(
                 top: 8,
                 right: 8,
                 child: Container(
-                  padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 6,
+                    vertical: 2,
+                  ),
                   decoration: BoxDecoration(
                     color: Colors.black.withValues(alpha: 0.7),
                     borderRadius: BorderRadius.circular(4),
                   ),
                   child: Text(
-                    TranslationService.translate(context, 'reading_status_${book.readingStatus}').toUpperCase(),
+                    TranslationService.translate(
+                      context,
+                      'reading_status_${book.readingStatus}',
+                    ).toUpperCase(),
                     style: const TextStyle(
                       color: Colors.white,
                       fontSize: 10,
@@ -98,10 +100,7 @@ class BookCoverCard extends StatelessWidget {
         gradient: LinearGradient(
           begin: Alignment.topLeft,
           end: Alignment.bottomRight,
-          colors: [
-            color.withValues(alpha: 0.8),
-            color,
-          ],
+          colors: [color.withValues(alpha: 0.8), color],
         ),
       ),
       padding: const EdgeInsets.all(12),
@@ -134,10 +133,7 @@ class BookCoverCard extends StatelessWidget {
               maxLines: 2,
               overflow: TextOverflow.ellipsis,
               textAlign: TextAlign.center,
-              style: const TextStyle(
-                color: Colors.white70,
-                fontSize: 12,
-              ),
+              style: const TextStyle(color: Colors.white70, fontSize: 12),
             ),
           ],
         ],

@@ -8,35 +8,35 @@ import 'translation_service.dart';
 class BackupReminderService {
   static const String _lastVersionKey = 'last_app_version';
   static const String _lastReminderKey = 'last_backup_reminder';
-  
+
   /// Check if we should show a backup reminder
   /// Returns true if a major/minor version change is detected
   static Future<bool> shouldShowReminder() async {
     try {
       final prefs = await SharedPreferences.getInstance();
       final packageInfo = await PackageInfo.fromPlatform();
-      
+
       final currentVersion = packageInfo.version;
       final lastVersion = prefs.getString(_lastVersionKey);
-      
+
       // First install - save version and don't show reminder
       if (lastVersion == null) {
         await prefs.setString(_lastVersionKey, currentVersion);
         return false;
       }
-      
+
       // Check if major or minor version changed
       if (_isSignificantUpdate(lastVersion, currentVersion)) {
         return true;
       }
-      
+
       return false;
     } catch (e) {
       debugPrint('BackupReminderService error: $e');
       return false;
     }
   }
-  
+
   /// Mark current version as acknowledged
   static Future<void> acknowledgeVersion() async {
     try {
@@ -48,32 +48,32 @@ class BackupReminderService {
       debugPrint('Failed to acknowledge version: $e');
     }
   }
-  
+
   /// Check if version change is significant (major or minor bump)
   static bool _isSignificantUpdate(String oldVersion, String newVersion) {
     try {
       final oldParts = oldVersion.split('.');
       final newParts = newVersion.split('.');
-      
+
       if (oldParts.length < 2 || newParts.length < 2) return false;
-      
+
       final oldMajor = int.tryParse(oldParts[0]) ?? 0;
       final oldMinor = int.tryParse(oldParts[1]) ?? 0;
       final newMajor = int.tryParse(newParts[0]) ?? 0;
       final newMinor = int.tryParse(newParts[1]) ?? 0;
-      
+
       // Major version change
       if (newMajor > oldMajor) return true;
-      
+
       // Minor version change
       if (newMajor == oldMajor && newMinor > oldMinor) return true;
-      
+
       return false;
     } catch (e) {
       return false;
     }
   }
-  
+
   /// Show the backup reminder dialog
   static Future<void> showReminderDialog(BuildContext context) async {
     return showDialog(
@@ -102,12 +102,22 @@ class BackupReminderService {
               ),
               child: Row(
                 children: [
-                  const Icon(Icons.info_outline, color: Colors.orange, size: 20),
+                  const Icon(
+                    Icons.info_outline,
+                    color: Colors.orange,
+                    size: 20,
+                  ),
                   const SizedBox(width: 8),
                   Expanded(
                     child: Text(
-                      TranslationService.translate(context, 'backup_reminder_tip'),
-                      style: const TextStyle(fontSize: 12, color: Colors.orange),
+                      TranslationService.translate(
+                        context,
+                        'backup_reminder_tip',
+                      ),
+                      style: const TextStyle(
+                        fontSize: 12,
+                        color: Colors.orange,
+                      ),
                     ),
                   ),
                 ],
@@ -121,7 +131,9 @@ class BackupReminderService {
               await acknowledgeVersion();
               if (context.mounted) Navigator.of(context).pop();
             },
-            child: Text(TranslationService.translate(context, 'backup_reminder_later')),
+            child: Text(
+              TranslationService.translate(context, 'backup_reminder_later'),
+            ),
           ),
           FilledButton.icon(
             onPressed: () async {
@@ -132,7 +144,9 @@ class BackupReminderService {
               }
             },
             icon: const Icon(Icons.download),
-            label: Text(TranslationService.translate(context, 'backup_reminder_export')),
+            label: Text(
+              TranslationService.translate(context, 'backup_reminder_export'),
+            ),
           ),
         ],
       ),

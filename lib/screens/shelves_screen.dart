@@ -46,9 +46,7 @@ class _ShelvesScreenState extends State<ShelvesScreen> {
         automaticallyImplyLeading: false,
       ),
       body: Container(
-        decoration: const BoxDecoration(
-          gradient: AppDesign.pageGradient,
-        ),
+        decoration: const BoxDecoration(gradient: AppDesign.pageGradient),
         child: FutureBuilder<List<Tag>>(
           future: _tagsFuture,
           builder: (context, snapshot) {
@@ -99,15 +97,12 @@ class _ShelvesScreenState extends State<ShelvesScreen> {
                 color: Colors.amber.withValues(alpha: 0.1),
                 shape: BoxShape.circle,
               ),
-              child: const Icon(
-                Icons.shelves,
-                size: 64,
-                color: Colors.amber,
-              ),
+              child: const Icon(Icons.shelves, size: 64, color: Colors.amber),
             ),
             const SizedBox(height: 24),
             Text(
-              TranslationService.translate(context, 'no_shelves_title') ?? 'No Shelves Yet',
+              TranslationService.translate(context, 'no_shelves_title') ??
+                  'No Shelves Yet',
               style: Theme.of(context).textTheme.headlineSmall?.copyWith(
                 fontWeight: FontWeight.bold,
                 color: Theme.of(context).colorScheme.primary,
@@ -128,9 +123,15 @@ class _ShelvesScreenState extends State<ShelvesScreen> {
             ElevatedButton.icon(
               onPressed: () => context.go('/books'),
               icon: const Icon(Icons.library_books),
-              label: Text(TranslationService.translate(context, 'go_to_library') ?? 'Go to Library'),
+              label: Text(
+                TranslationService.translate(context, 'go_to_library') ??
+                    'Go to Library',
+              ),
               style: ElevatedButton.styleFrom(
-                padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 12),
+                padding: const EdgeInsets.symmetric(
+                  horizontal: 24,
+                  vertical: 12,
+                ),
               ),
             ),
           ],
@@ -150,9 +151,9 @@ class _ShelvesScreenState extends State<ShelvesScreen> {
             const SizedBox(height: 16),
             Text(
               'Error loading shelves',
-              style: Theme.of(context).textTheme.titleLarge?.copyWith(
-                color: Colors.red,
-              ),
+              style: Theme.of(
+                context,
+              ).textTheme.titleLarge?.copyWith(color: Colors.red),
             ),
             const SizedBox(height: 8),
             Text(
@@ -184,7 +185,7 @@ class _ShelvesScreenState extends State<ShelvesScreen> {
       const Color(0xFFfee140), // Yellow
       const Color(0xFFf5576c), // Red
     ];
-    
+
     final color = colors[index % colors.length];
     final gradient = LinearGradient(
       colors: [color, color.withValues(alpha: 0.7)],
@@ -195,9 +196,7 @@ class _ShelvesScreenState extends State<ShelvesScreen> {
     return Card(
       elevation: 8,
       shadowColor: color.withValues(alpha: 0.4),
-      shape: RoundedRectangleBorder(
-        borderRadius: BorderRadius.circular(20),
-      ),
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
       child: InkWell(
         borderRadius: BorderRadius.circular(20),
         onTap: () {
@@ -244,7 +243,10 @@ class _ShelvesScreenState extends State<ShelvesScreen> {
                           ),
                         ),
                         Container(
-                          padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+                          padding: const EdgeInsets.symmetric(
+                            horizontal: 12,
+                            vertical: 6,
+                          ),
                           decoration: BoxDecoration(
                             color: Colors.white.withValues(alpha: 0.3),
                             borderRadius: BorderRadius.circular(20),

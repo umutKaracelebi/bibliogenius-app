@@ -22,8 +22,8 @@ class Quote {
       source: json['source'] ?? '',
       coverUrl: json['coverUrl'],
       locale: json['locale'],
-      cachedAt: json['cachedAt'] != null 
-          ? DateTime.tryParse(json['cachedAt']) 
+      cachedAt: json['cachedAt'] != null
+          ? DateTime.tryParse(json['cachedAt'])
           : null,
     );
   }

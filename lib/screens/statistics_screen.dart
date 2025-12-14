@@ -1,4 +1,3 @@
-
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:fl_chart/fl_chart.dart';
@@ -37,11 +36,10 @@ class _StatisticsScreenState extends State<StatisticsScreen>
       duration: const Duration(milliseconds: 800),
       vsync: this,
     );
-    _fadeAnim = Tween<double>(begin: 0.0, end: 1.0).animate(
-      CurvedAnimation(parent: _animController, curve: Curves.easeOut),
-    );
-
-
+    _fadeAnim = Tween<double>(
+      begin: 0.0,
+      end: 1.0,
+    ).animate(CurvedAnimation(parent: _animController, curve: Curves.easeOut));
 
     _fetchData();
   }
@@ -57,7 +55,7 @@ class _StatisticsScreenState extends State<StatisticsScreen>
     final api = Provider.of<ApiService>(context, listen: false);
     try {
       final books = await api.getBooks();
-      
+
       // Fetch loans
       List<dynamic> loans = [];
       try {
@@ -68,7 +66,7 @@ class _StatisticsScreenState extends State<StatisticsScreen>
       } catch (e) {
         debugPrint('Error fetching loans: $e');
       }
-      
+
       GamificationStatus? status;
       try {
         final statusRes = await api.getUserStatus();
@@ -114,74 +112,83 @@ class _StatisticsScreenState extends State<StatisticsScreen>
       body: _isLoading
           ? const Center(child: CircularProgressIndicator())
           : _books.isEmpty
-              ? _buildEmptyState()
-              : FadeTransition(
-                  opacity: _fadeAnim,
-                  child: SingleChildScrollView(
-                    padding: const EdgeInsets.all(16.0),
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        _buildSummaryCards(),
-                        const SizedBox(height: 32),
-                        if (_userStatus != null) ...[
-                          _buildSectionTitle(
-                            TranslationService.translate(context, 'your_progress'),
-                            Icons.emoji_events,
-                            AppDesign.primaryGradient,
-                          ),
-                          const SizedBox(height: 16),
-                          _buildGamificationSection(),
-                          const SizedBox(height: 32),
-                        ],
-                        _buildSectionTitle(
-                          TranslationService.translate(context, 'reading_habits'),
-                          Icons.pie_chart,
-                          AppDesign.primaryGradient,
-                        ),
-                        const SizedBox(height: 16),
-                        _buildStatusPieChart(),
-                        const SizedBox(height: 32),
-                        _buildSectionTitle(
-                          TranslationService.translate(context, 'top_authors'),
-                          Icons.person,
-                          AppDesign.successGradient,
-                        ),
-                        const SizedBox(height: 16),
-                        _buildTopAuthorsChart(),
-                        const SizedBox(height: 32),
-                        _buildSectionTitle(
-                          TranslationService.translate(context, 'publication_timeline'),
-                          Icons.timeline,
-                          AppDesign.oceanGradient,
-                        ),
-                        const SizedBox(height: 16),
-                        _buildPublicationYearChart(),
-                        const SizedBox(height: 32),
-                        // Loan Statistics Section
-                        _buildSectionTitle(
-                          TranslationService.translate(context, 'loan_statistics'),
-                          Icons.swap_horiz,
-                          AppDesign.accentGradient,
-                        ),
-                        const SizedBox(height: 16),
-                        _buildLoanStatisticsSection(),
-                        // Borrowed Statistics Section - hidden for librarians
-                        if (!Provider.of<ThemeProvider>(context, listen: false).isLibrarian) ...[
-                          const SizedBox(height: 32),
-                          _buildSectionTitle(
-                            TranslationService.translate(context, 'borrowed_statistics'),
-                            Icons.arrow_downward,
-                            AppDesign.oceanGradient,
-                          ),
-                          const SizedBox(height: 16),
-                          _buildBorrowedStatisticsSection(),
-                        ],
-                        const SizedBox(height: 40),
-                      ],
+          ? _buildEmptyState()
+          : FadeTransition(
+              opacity: _fadeAnim,
+              child: SingleChildScrollView(
+                padding: const EdgeInsets.all(16.0),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    _buildSummaryCards(),
+                    const SizedBox(height: 32),
+                    if (_userStatus != null) ...[
+                      _buildSectionTitle(
+                        TranslationService.translate(context, 'your_progress'),
+                        Icons.emoji_events,
+                        AppDesign.primaryGradient,
+                      ),
+                      const SizedBox(height: 16),
+                      _buildGamificationSection(),
+                      const SizedBox(height: 32),
+                    ],
+                    _buildSectionTitle(
+                      TranslationService.translate(context, 'reading_habits'),
+                      Icons.pie_chart,
+                      AppDesign.primaryGradient,
                     ),
-                  ),
+                    const SizedBox(height: 16),
+                    _buildStatusPieChart(),
+                    const SizedBox(height: 32),
+                    _buildSectionTitle(
+                      TranslationService.translate(context, 'top_authors'),
+                      Icons.person,
+                      AppDesign.successGradient,
+                    ),
+                    const SizedBox(height: 16),
+                    _buildTopAuthorsChart(),
+                    const SizedBox(height: 32),
+                    _buildSectionTitle(
+                      TranslationService.translate(
+                        context,
+                        'publication_timeline',
+                      ),
+                      Icons.timeline,
+                      AppDesign.oceanGradient,
+                    ),
+                    const SizedBox(height: 16),
+                    _buildPublicationYearChart(),
+                    const SizedBox(height: 32),
+                    // Loan Statistics Section
+                    _buildSectionTitle(
+                      TranslationService.translate(context, 'loan_statistics'),
+                      Icons.swap_horiz,
+                      AppDesign.accentGradient,
+                    ),
+                    const SizedBox(height: 16),
+                    _buildLoanStatisticsSection(),
+                    // Borrowed Statistics Section - hidden for librarians
+                    if (!Provider.of<ThemeProvider>(
+                      context,
+                      listen: false,
+                    ).isLibrarian) ...[
+                      const SizedBox(height: 32),
+                      _buildSectionTitle(
+                        TranslationService.translate(
+                          context,
+                          'borrowed_statistics',
+                        ),
+                        Icons.arrow_downward,
+                        AppDesign.oceanGradient,
+                      ),
+                      const SizedBox(height: 16),
+                      _buildBorrowedStatisticsSection(),
+                    ],
+                    const SizedBox(height: 40),
+                  ],
                 ),
+              ),
+            ),
     );
   }
 
@@ -205,10 +212,7 @@ class _StatisticsScreenState extends State<StatisticsScreen>
           const SizedBox(height: 24),
           Text(
             TranslationService.translate(context, 'no_books_analyze'),
-            style: const TextStyle(
-              fontSize: 18,
-              fontWeight: FontWeight.w500,
-            ),
+            style: const TextStyle(fontSize: 18, fontWeight: FontWeight.w500),
           ),
           const SizedBox(height: 8),
           Text(
@@ -234,9 +238,9 @@ class _StatisticsScreenState extends State<StatisticsScreen>
         const SizedBox(width: 12),
         Text(
           title,
-          style: Theme.of(context).textTheme.headlineSmall?.copyWith(
-            fontWeight: FontWeight.bold,
-          ),
+          style: Theme.of(
+            context,
+          ).textTheme.headlineSmall?.copyWith(fontWeight: FontWeight.bold),
         ),
       ],
     );
@@ -245,7 +249,9 @@ class _StatisticsScreenState extends State<StatisticsScreen>
   Widget _buildSummaryCards() {
     final totalBooks = _books.length;
     final readBooks = _books.where((b) => b.readingStatus == 'read').length;
-    final borrowedBooks = _books.where((b) => b.readingStatus == 'borrowed').length;
+    final borrowedBooks = _books
+        .where((b) => b.readingStatus == 'borrowed')
+        .length;
 
     final uniqueAuthors = _books
         .where((b) => b.author != null && b.author!.isNotEmpty)
@@ -262,7 +268,9 @@ class _StatisticsScreenState extends State<StatisticsScreen>
         .toList();
     final oldestYear = booksWithYears.isEmpty
         ? null
-        : booksWithYears.map((b) => b.publicationYear!).reduce((a, b) => a < b ? a : b);
+        : booksWithYears
+              .map((b) => b.publicationYear!)
+              .reduce((a, b) => a < b ? a : b);
 
     return Column(
       children: [
@@ -357,18 +365,12 @@ class _StatisticsScreenState extends State<StatisticsScreen>
           const SizedBox(height: 12),
           Text(
             value,
-            style: const TextStyle(
-              fontSize: 28,
-              fontWeight: FontWeight.bold,
-            ),
+            style: const TextStyle(fontSize: 28, fontWeight: FontWeight.bold),
           ),
           const SizedBox(height: 4),
           Text(
             label,
-            style: TextStyle(
-              fontSize: 11,
-              color: Colors.grey[600],
-            ),
+            style: TextStyle(fontSize: 11, color: Colors.grey[600]),
             textAlign: TextAlign.center,
             maxLines: 2,
             overflow: TextOverflow.ellipsis,
@@ -512,9 +514,7 @@ class _StatisticsScreenState extends State<StatisticsScreen>
           borderRadius: BorderRadius.circular(AppDesign.radiusLarge),
           boxShadow: AppDesign.cardShadow,
         ),
-        child: const Center(
-          child: Text('No author data available'),
-        ),
+        child: const Center(child: Text('No author data available')),
       );
     }
 
@@ -568,7 +568,9 @@ class _StatisticsScreenState extends State<StatisticsScreen>
                   return Padding(
                     padding: const EdgeInsets.only(top: 8.0),
                     child: Text(
-                      author.length > 10 ? '${author.substring(0, 8)}...' : author,
+                      author.length > 10
+                          ? '${author.substring(0, 8)}...'
+                          : author,
                       style: const TextStyle(fontSize: 10),
                     ),
                   );
@@ -576,9 +578,15 @@ class _StatisticsScreenState extends State<StatisticsScreen>
                 reservedSize: 40,
               ),
             ),
-            leftTitles: const AxisTitles(sideTitles: SideTitles(showTitles: false)),
-            topTitles: const AxisTitles(sideTitles: SideTitles(showTitles: false)),
-            rightTitles: const AxisTitles(sideTitles: SideTitles(showTitles: false)),
+            leftTitles: const AxisTitles(
+              sideTitles: SideTitles(showTitles: false),
+            ),
+            topTitles: const AxisTitles(
+              sideTitles: SideTitles(showTitles: false),
+            ),
+            rightTitles: const AxisTitles(
+              sideTitles: SideTitles(showTitles: false),
+            ),
           ),
           gridData: const FlGridData(show: false),
           borderData: FlBorderData(show: false),
@@ -591,7 +599,9 @@ class _StatisticsScreenState extends State<StatisticsScreen>
                   toY: e.value.value.toDouble(),
                   gradient: gradient,
                   width: 24,
-                  borderRadius: const BorderRadius.vertical(top: Radius.circular(6)),
+                  borderRadius: const BorderRadius.vertical(
+                    top: Radius.circular(6),
+                  ),
                 ),
               ],
             );
@@ -622,7 +632,9 @@ class _StatisticsScreenState extends State<StatisticsScreen>
           boxShadow: AppDesign.cardShadow,
         ),
         child: Center(
-          child: Text(TranslationService.translate(context, 'no_pub_year_data')),
+          child: Text(
+            TranslationService.translate(context, 'no_pub_year_data'),
+          ),
         ),
       );
     }
@@ -669,9 +681,15 @@ class _StatisticsScreenState extends State<StatisticsScreen>
                 reservedSize: 30,
               ),
             ),
-            leftTitles: const AxisTitles(sideTitles: SideTitles(showTitles: false)),
-            topTitles: const AxisTitles(sideTitles: SideTitles(showTitles: false)),
-            rightTitles: const AxisTitles(sideTitles: SideTitles(showTitles: false)),
+            leftTitles: const AxisTitles(
+              sideTitles: SideTitles(showTitles: false),
+            ),
+            topTitles: const AxisTitles(
+              sideTitles: SideTitles(showTitles: false),
+            ),
+            rightTitles: const AxisTitles(
+              sideTitles: SideTitles(showTitles: false),
+            ),
           ),
           borderData: FlBorderData(show: false),
           lineBarsData: [
@@ -758,23 +776,23 @@ class _StatisticsScreenState extends State<StatisticsScreen>
             padding: const EdgeInsets.symmetric(horizontal: 24.0),
             child: Row(
               children: [
-                 Expanded(
-                   child: _buildStreakCard(
-                     _userStatus!.streak.current,
-                     TranslationService.translate(context, 'current_streak'),
-                     Icons.local_fire_department,
-                     Colors.orange,
-                   ),
-                 ),
-                 const SizedBox(width: 16),
-                 Expanded(
-                   child: _buildStreakCard(
-                     _userStatus!.streak.longest,
-                     TranslationService.translate(context, 'best_streak'),
-                     Icons.emoji_events_outlined,
-                     Colors.amber,
-                   ),
-                 ),
+                Expanded(
+                  child: _buildStreakCard(
+                    _userStatus!.streak.current,
+                    TranslationService.translate(context, 'current_streak'),
+                    Icons.local_fire_department,
+                    Colors.orange,
+                  ),
+                ),
+                const SizedBox(width: 16),
+                Expanded(
+                  child: _buildStreakCard(
+                    _userStatus!.streak.longest,
+                    TranslationService.translate(context, 'best_streak'),
+                    Icons.emoji_events_outlined,
+                    Colors.amber,
+                  ),
+                ),
               ],
             ),
           ),
@@ -836,27 +854,33 @@ class _StatisticsScreenState extends State<StatisticsScreen>
         children: [
           Icon(icon, color: color, size: 32),
           const SizedBox(height: 8),
-           Text(
-             count.toString(),
-             style: TextStyle(
-               fontSize: 24,
-               fontWeight: FontWeight.bold,
-               color: color,
-             ),
-           ),
-           Text(
-             label,
-             style: TextStyle(
-               fontSize: 12,
-               color: Theme.of(context).textTheme.bodySmall?.color,
-             ),
-           ),
+          Text(
+            count.toString(),
+            style: TextStyle(
+              fontSize: 24,
+              fontWeight: FontWeight.bold,
+              color: color,
+            ),
+          ),
+          Text(
+            label,
+            style: TextStyle(
+              fontSize: 12,
+              color: Theme.of(context).textTheme.bodySmall?.color,
+            ),
+          ),
         ],
       ),
     );
   }
 
-  Widget _buildCircularTrack(BuildContext context, String title, TrackProgress track, IconData icon, Color color) {
+  Widget _buildCircularTrack(
+    BuildContext context,
+    String title,
+    TrackProgress track,
+    IconData icon,
+    Color color,
+  ) {
     return Expanded(
       child: Column(
         children: [
@@ -922,13 +946,10 @@ class _StatisticsScreenState extends State<StatisticsScreen>
             overflow: TextOverflow.ellipsis,
           ),
           const SizedBox(height: 2),
-           Text(
-             '${track.current}/${track.nextThreshold}',
-             style: TextStyle(
-               fontSize: 10,
-               color: Colors.grey[600],
-             ),
-           ),
+          Text(
+            '${track.current}/${track.nextThreshold}',
+            style: TextStyle(fontSize: 10, color: Colors.grey[600]),
+          ),
         ],
       ),
     );
@@ -939,13 +960,13 @@ class _StatisticsScreenState extends State<StatisticsScreen>
     final totalLoans = _loans.length;
     final activeLoans = _loans.where((l) => l['return_date'] == null).length;
     final returnedLoans = _loans.where((l) => l['return_date'] != null).length;
-    
+
     // Calculate average loan duration (for returned loans)
     double avgDuration = 0;
-    final returnedWithDates = _loans.where((l) => 
-      l['return_date'] != null && l['loan_date'] != null
-    ).toList();
-    
+    final returnedWithDates = _loans
+        .where((l) => l['return_date'] != null && l['loan_date'] != null)
+        .toList();
+
     if (returnedWithDates.isNotEmpty) {
       int totalDays = 0;
       for (var loan in returnedWithDates) {
@@ -961,7 +982,8 @@ class _StatisticsScreenState extends State<StatisticsScreen>
     // Top borrowers (contacts)
     final borrowerCounts = <String, int>{};
     for (var loan in _loans) {
-      final contactName = loan['contact_name'] ?? loan['contact']?['name'] ?? 'Unknown';
+      final contactName =
+          loan['contact_name'] ?? loan['contact']?['name'] ?? 'Unknown';
       borrowerCounts[contactName] = (borrowerCounts[contactName] ?? 0) + 1;
     }
     var topBorrowers = borrowerCounts.entries.toList()
@@ -971,7 +993,8 @@ class _StatisticsScreenState extends State<StatisticsScreen>
     // Most lent books
     final bookCounts = <String, int>{};
     for (var loan in _loans) {
-      final bookTitle = loan['book_title'] ?? loan['book']?['title'] ?? 'Unknown';
+      final bookTitle =
+          loan['book_title'] ?? loan['book']?['title'] ?? 'Unknown';
       bookCounts[bookTitle] = (bookCounts[bookTitle] ?? 0) + 1;
     }
     var mostLentBooks = bookCounts.entries.toList()
@@ -979,7 +1002,7 @@ class _StatisticsScreenState extends State<StatisticsScreen>
     if (mostLentBooks.length > 5) mostLentBooks = mostLentBooks.sublist(0, 5);
 
     // Return rate
-    final returnRate = totalLoans > 0 
+    final returnRate = totalLoans > 0
         ? (returnedLoans / totalLoans * 100).toStringAsFixed(0)
         : '0';
 
@@ -1033,7 +1056,7 @@ class _StatisticsScreenState extends State<StatisticsScreen>
               ),
             ],
           ),
-          
+
           if (topBorrowers.isNotEmpty) ...[
             const SizedBox(height: 24),
             Text(
@@ -1041,35 +1064,47 @@ class _StatisticsScreenState extends State<StatisticsScreen>
               style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 14),
             ),
             const SizedBox(height: 12),
-            ...topBorrowers.map((e) => Padding(
-              padding: const EdgeInsets.only(bottom: 8),
-              child: Row(
-                children: [
-                  const Icon(Icons.person_outline, size: 18, color: Colors.grey),
-                  const SizedBox(width: 8),
-                  Expanded(
-                    child: Text(
-                      e.key,
-                      style: const TextStyle(fontSize: 13),
-                      overflow: TextOverflow.ellipsis,
+            ...topBorrowers.map(
+              (e) => Padding(
+                padding: const EdgeInsets.only(bottom: 8),
+                child: Row(
+                  children: [
+                    const Icon(
+                      Icons.person_outline,
+                      size: 18,
+                      color: Colors.grey,
                     ),
-                  ),
-                  Container(
-                    padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
-                    decoration: BoxDecoration(
-                      color: Colors.purple.withValues(alpha: 0.1),
-                      borderRadius: BorderRadius.circular(12),
+                    const SizedBox(width: 8),
+                    Expanded(
+                      child: Text(
+                        e.key,
+                        style: const TextStyle(fontSize: 13),
+                        overflow: TextOverflow.ellipsis,
+                      ),
                     ),
-                    child: Text(
-                      '${e.value} ${TranslationService.translate(context, 'loans_label')}',
-                      style: const TextStyle(fontSize: 11, color: Colors.purple),
+                    Container(
+                      padding: const EdgeInsets.symmetric(
+                        horizontal: 8,
+                        vertical: 2,
+                      ),
+                      decoration: BoxDecoration(
+                        color: Colors.purple.withValues(alpha: 0.1),
+                        borderRadius: BorderRadius.circular(12),
+                      ),
+                      child: Text(
+                        '${e.value} ${TranslationService.translate(context, 'loans_label')}',
+                        style: const TextStyle(
+                          fontSize: 11,
+                          color: Colors.purple,
+                        ),
+                      ),
                     ),
-                  ),
-                ],
+                  ],
+                ),
               ),
-            )),
+            ),
           ],
-          
+
           if (mostLentBooks.isNotEmpty) ...[
             const SizedBox(height: 24),
             Text(
@@ -1077,40 +1112,53 @@ class _StatisticsScreenState extends State<StatisticsScreen>
               style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 14),
             ),
             const SizedBox(height: 12),
-            ...mostLentBooks.map((e) => Padding(
-              padding: const EdgeInsets.only(bottom: 8),
-              child: Row(
-                children: [
-                  const Icon(Icons.menu_book, size: 18, color: Colors.grey),
-                  const SizedBox(width: 8),
-                  Expanded(
-                    child: Text(
-                      e.key,
-                      style: const TextStyle(fontSize: 13),
-                      overflow: TextOverflow.ellipsis,
+            ...mostLentBooks.map(
+              (e) => Padding(
+                padding: const EdgeInsets.only(bottom: 8),
+                child: Row(
+                  children: [
+                    const Icon(Icons.menu_book, size: 18, color: Colors.grey),
+                    const SizedBox(width: 8),
+                    Expanded(
+                      child: Text(
+                        e.key,
+                        style: const TextStyle(fontSize: 13),
+                        overflow: TextOverflow.ellipsis,
+                      ),
                     ),
-                  ),
-                  Container(
-                    padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
-                    decoration: BoxDecoration(
-                      color: Colors.blue.withValues(alpha: 0.1),
-                      borderRadius: BorderRadius.circular(12),
+                    Container(
+                      padding: const EdgeInsets.symmetric(
+                        horizontal: 8,
+                        vertical: 2,
+                      ),
+                      decoration: BoxDecoration(
+                        color: Colors.blue.withValues(alpha: 0.1),
+                        borderRadius: BorderRadius.circular(12),
+                      ),
+                      child: Text(
+                        '${e.value}x',
+                        style: const TextStyle(
+                          fontSize: 11,
+                          color: Colors.blue,
+                        ),
+                      ),
                     ),
-                    child: Text(
-                      '${e.value}x',
-                      style: const TextStyle(fontSize: 11, color: Colors.blue),
-                    ),
-                  ),
-                ],
+                  ],
+                ),
               ),
-            )),
+            ),
           ],
         ],
       ),
     );
   }
 
-  Widget _buildMiniStat(String label, String value, IconData icon, Color color) {
+  Widget _buildMiniStat(
+    String label,
+    String value,
+    IconData icon,
+    Color color,
+  ) {
     return Column(
       children: [
         Container(
@@ -1133,10 +1181,7 @@ class _StatisticsScreenState extends State<StatisticsScreen>
         const SizedBox(height: 2),
         Text(
           label,
-          style: TextStyle(
-            fontSize: 10,
-            color: Colors.grey[600],
-          ),
+          style: TextStyle(fontSize: 10, color: Colors.grey[600]),
           textAlign: TextAlign.center,
           maxLines: 2,
           overflow: TextOverflow.ellipsis,
@@ -1147,7 +1192,9 @@ class _StatisticsScreenState extends State<StatisticsScreen>
 
   Widget _buildBorrowedStatisticsSection() {
     // Get borrowed books from library
-    final borrowedBooks = _books.where((b) => b.readingStatus == 'borrowed').toList();
+    final borrowedBooks = _books
+        .where((b) => b.readingStatus == 'borrowed')
+        .toList();
     final totalBorrowed = borrowedBooks.length;
 
     return Container(
@@ -1173,7 +1220,7 @@ class _StatisticsScreenState extends State<StatisticsScreen>
               ),
             ],
           ),
-          
+
           if (borrowedBooks.isNotEmpty) ...[
             const SizedBox(height: 24),
             Text(
@@ -1181,33 +1228,44 @@ class _StatisticsScreenState extends State<StatisticsScreen>
               style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 14),
             ),
             const SizedBox(height: 12),
-            ...borrowedBooks.take(5).map((book) => Padding(
-              padding: const EdgeInsets.only(bottom: 8),
-              child: Row(
-                children: [
-                  const Icon(Icons.menu_book, size: 18, color: Colors.grey),
-                  const SizedBox(width: 8),
-                  Expanded(
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
+            ...borrowedBooks
+                .take(5)
+                .map(
+                  (book) => Padding(
+                    padding: const EdgeInsets.only(bottom: 8),
+                    child: Row(
                       children: [
-                        Text(
-                          book.title,
-                          style: const TextStyle(fontSize: 13),
-                          overflow: TextOverflow.ellipsis,
+                        const Icon(
+                          Icons.menu_book,
+                          size: 18,
+                          color: Colors.grey,
                         ),
-                        if (book.author != null)
-                          Text(
-                            book.author!,
-                            style: TextStyle(fontSize: 11, color: Colors.grey[600]),
-                            overflow: TextOverflow.ellipsis,
+                        const SizedBox(width: 8),
+                        Expanded(
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Text(
+                                book.title,
+                                style: const TextStyle(fontSize: 13),
+                                overflow: TextOverflow.ellipsis,
+                              ),
+                              if (book.author != null)
+                                Text(
+                                  book.author!,
+                                  style: TextStyle(
+                                    fontSize: 11,
+                                    color: Colors.grey[600],
+                                  ),
+                                  overflow: TextOverflow.ellipsis,
+                                ),
+                            ],
                           ),
+                        ),
                       ],
                     ),
                   ),
-                ],
-              ),
-            )),
+                ),
           ] else ...[
             const SizedBox(height: 16),
             Center(

@@ -45,7 +45,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
       final apiService = Provider.of<ApiService>(context, listen: false);
       final statusRes = await apiService.getUserStatus();
       final configRes = await apiService.getLibraryConfig();
-      
+
       if (mounted) {
         setState(() {
           _userStatus = statusRes.data;
@@ -62,7 +62,6 @@ class _ProfileScreenState extends State<ProfileScreen> {
       }
     }
   }
-
 
   Future<void> _exportData() async {
     try {
@@ -83,17 +82,16 @@ class _ProfileScreenState extends State<ProfileScreen> {
         // Web export: trigger download directly
         final blob = html.Blob([response.data]);
         final url = html.Url.createObjectUrlFromBlob(blob);
-        final anchor =
-            html.AnchorElement(href: url)
-              ..setAttribute(
-                'download',
-                'bibliogenius_backup_${DateTime.now().toIso8601String().split('T')[0]}.json',
-              )
-              ..click();
+        final anchor = html.AnchorElement(href: url)
+          ..setAttribute(
+            'download',
+            'bibliogenius_backup_${DateTime.now().toIso8601String().split('T')[0]}.json',
+          )
+          ..click();
         html.Url.revokeObjectUrl(url);
-        
+
         if (mounted) {
-           ScaffoldMessenger.of(context).showSnackBar(
+          ScaffoldMessenger.of(context).showSnackBar(
             const SnackBar(content: Text('Backup downloaded successfully')),
           );
         }
@@ -141,13 +139,20 @@ class _ProfileScreenState extends State<ProfileScreen> {
       body: _isLoading
           ? const Center(child: CircularProgressIndicator())
           : _error != null
-          ? Center(child: Text('${TranslationService.translate(context, 'error')}: $_error'))
+          ? Center(
+              child: Text(
+                '${TranslationService.translate(context, 'error')}: $_error',
+              ),
+            )
           : _buildBody(),
     );
   }
 
   Widget _buildBody() {
-    if (_userStatus == null) return Center(child: Text(TranslationService.translate(context, 'no_data')));
+    if (_userStatus == null)
+      return Center(
+        child: Text(TranslationService.translate(context, 'no_data')),
+      );
 
     final level = _userStatus!['level'] as String;
     final loansCount = _userStatus!['loans_count'] as int;
@@ -167,7 +172,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                 (a) => a.id == themeProvider.currentAvatarId,
                 orElse: () => availableAvatars.first,
               );
-              
+
               return Stack(
                 children: [
                   Container(
@@ -177,19 +182,30 @@ class _ProfileScreenState extends State<ProfileScreen> {
                       shape: BoxShape.circle,
                       border: Border.all(color: avatar.themeColor, width: 4),
                       color: themeProvider.avatarConfig?.style == 'genie'
-                          ? Color(int.parse('FF${themeProvider.avatarConfig?.genieBackground ?? "fbbf24"}', radix: 16))
+                          ? Color(
+                              int.parse(
+                                'FF${themeProvider.avatarConfig?.genieBackground ?? "fbbf24"}',
+                                radix: 16,
+                              ),
+                            )
                           : Colors.grey[100],
                     ),
                     child: ClipOval(
                       child: (themeProvider.avatarConfig?.isGenie ?? false)
                           ? Image.asset(
-                              themeProvider.avatarConfig?.assetPath ?? 'assets/genie_mascot.jpg',
+                              themeProvider.avatarConfig?.assetPath ??
+                                  'assets/genie_mascot.jpg',
                               fit: BoxFit.cover,
                             )
                           : Image.network(
-                              themeProvider.avatarConfig?.toUrl(size: 120, format: 'png') ?? '',
+                              themeProvider.avatarConfig?.toUrl(
+                                    size: 120,
+                                    format: 'png',
+                                  ) ??
+                                  '',
                               fit: BoxFit.cover,
-                              errorBuilder: (context, error, stackTrace) => Image.asset(avatar.assetPath),
+                              errorBuilder: (context, error, stackTrace) =>
+                                  Image.asset(avatar.assetPath),
                             ),
                     ),
                   ),
@@ -205,7 +221,11 @@ class _ProfileScreenState extends State<ProfileScreen> {
                           shape: BoxShape.circle,
                           border: Border.all(color: Colors.white, width: 2),
                         ),
-                        child: const Icon(Icons.edit, color: Colors.white, size: 20),
+                        child: const Icon(
+                          Icons.edit,
+                          color: Colors.white,
+                          size: 20,
+                        ),
                       ),
                     ),
                   ),
@@ -215,7 +235,10 @@ class _ProfileScreenState extends State<ProfileScreen> {
           ),
           const SizedBox(height: 16),
           Text(
-            TranslationService.translate(context, _config?['profile_type'] ?? 'individual'),
+            TranslationService.translate(
+              context,
+              _config?['profile_type'] ?? 'individual',
+            ),
             style: Theme.of(context).textTheme.headlineMedium,
           ),
           const SizedBox(height: 8),
@@ -238,58 +261,95 @@ class _ProfileScreenState extends State<ProfileScreen> {
             child: Column(
               children: [
                 ListTile(
-                  title: Text(TranslationService.translate(context, 'library_name')),
-                  subtitle: Text(_config?['library_name'] ?? _config?['name'] ?? 'My Library'),
+                  title: Text(
+                    TranslationService.translate(context, 'library_name'),
+                  ),
+                  subtitle: Text(
+                    _config?['library_name'] ??
+                        _config?['name'] ??
+                        'My Library',
+                  ),
                   trailing: IconButton(
                     icon: const Icon(Icons.edit),
                     onPressed: () {
                       final controller = TextEditingController(
-                        text: _config?['library_name'] ?? _config?['name'] ?? '',
+                        text:
+                            _config?['library_name'] ?? _config?['name'] ?? '',
                       );
                       showDialog(
                         context: context,
                         builder: (context) => AlertDialog(
-                          title: Text(TranslationService.translate(context, 'edit_library_name')),
+                          title: Text(
+                            TranslationService.translate(
+                              context,
+                              'edit_library_name',
+                            ),
+                          ),
                           content: TextField(
                             controller: controller,
                             decoration: InputDecoration(
-                              labelText: TranslationService.translate(context, 'library_name'),
+                              labelText: TranslationService.translate(
+                                context,
+                                'library_name',
+                              ),
                             ),
                           ),
                           actions: [
                             TextButton(
                               onPressed: () => Navigator.pop(context),
-                              child: Text(TranslationService.translate(context, 'cancel')),
+                              child: Text(
+                                TranslationService.translate(context, 'cancel'),
+                              ),
                             ),
                             TextButton(
                               onPressed: () async {
                                 Navigator.pop(context);
                                 try {
-                                  final api = Provider.of<ApiService>(context, listen: false);
+                                  final api = Provider.of<ApiService>(
+                                    context,
+                                    listen: false,
+                                  );
                                   await api.updateLibraryConfig(
                                     name: controller.text,
                                     description: _config?['description'],
-                                    tags: _config?['tags'] != null ? List<String>.from(_config!['tags']) : [],
+                                    profileType: _config?['profile_type'],
+                                    tags: _config?['tags'] != null
+                                        ? List<String>.from(_config!['tags'])
+                                        : [],
                                     latitude: _config?['latitude'],
                                     longitude: _config?['longitude'],
-                                    showBorrowedBooks: _config?['show_borrowed_books'],
+                                    showBorrowedBooks:
+                                        _config?['show_borrowed_books'],
                                     shareLocation: _config?['share_location'],
                                   );
                                   _fetchStatus();
                                   if (mounted) {
                                     ScaffoldMessenger.of(context).showSnackBar(
-                                      SnackBar(content: Text(TranslationService.translate(context, 'library_updated'))),
+                                      SnackBar(
+                                        content: Text(
+                                          TranslationService.translate(
+                                            context,
+                                            'library_updated',
+                                          ),
+                                        ),
+                                      ),
                                     );
                                   }
                                 } catch (e) {
                                   if (mounted) {
                                     ScaffoldMessenger.of(context).showSnackBar(
-                                      SnackBar(content: Text('${TranslationService.translate(context, 'error_updating_library')}: $e')),
+                                      SnackBar(
+                                        content: Text(
+                                          '${TranslationService.translate(context, 'error_updating_library')}: $e',
+                                        ),
+                                      ),
                                     );
                                   }
                                 }
                               },
-                              child: Text(TranslationService.translate(context, 'save')),
+                              child: Text(
+                                TranslationService.translate(context, 'save'),
+                              ),
                             ),
                           ],
                         ),
@@ -299,33 +359,79 @@ class _ProfileScreenState extends State<ProfileScreen> {
                 ),
                 const Divider(),
                 ListTile(
-                  title: Text(TranslationService.translate(context, 'profile_type')),
-                  subtitle: Text(TranslationService.translate(context, _config?['profile_type'] ?? 'individual') ?? _config?['profile_type'] ?? 'Individual'),
+                  title: Text(
+                    TranslationService.translate(context, 'profile_type'),
+                  ),
+                  subtitle: Text(
+                    TranslationService.translate(
+                          context,
+                          _config?['profile_type'] ?? 'individual',
+                        ) ??
+                        _config?['profile_type'] ??
+                        'Individual',
+                  ),
                   trailing: DropdownButton<String>(
                     value: _config?['profile_type'],
                     underline: Container(),
                     items: [
-                      DropdownMenuItem(value: 'individual', child: Text(TranslationService.translate(context, 'individual'))),
-                      DropdownMenuItem(value: 'professional', child: Text(TranslationService.translate(context, 'professional'))),
-                      DropdownMenuItem(value: 'librarian', child: Text(TranslationService.translate(context, 'librarian'))),
-                      DropdownMenuItem(value: 'kid', child: Text(TranslationService.translate(context, 'profile_kid'))),
+                      DropdownMenuItem(
+                        value: 'individual',
+                        child: Text(
+                          TranslationService.translate(context, 'individual'),
+                        ),
+                      ),
+                      DropdownMenuItem(
+                        value: 'professional',
+                        child: Text(
+                          TranslationService.translate(context, 'professional'),
+                        ),
+                      ),
+                      DropdownMenuItem(
+                        value: 'librarian',
+                        child: Text(
+                          TranslationService.translate(context, 'librarian'),
+                        ),
+                      ),
+                      DropdownMenuItem(
+                        value: 'kid',
+                        child: Text(
+                          TranslationService.translate(context, 'profile_kid'),
+                        ),
+                      ),
                     ],
                     onChanged: (value) async {
                       if (value == null) return;
                       try {
-                        final api = Provider.of<ApiService>(context, listen: false);
+                        final api = Provider.of<ApiService>(
+                          context,
+                          listen: false,
+                        );
                         // Update provider immediately for UI sync
-                        await Provider.of<ThemeProvider>(context, listen: false).setProfileType(value, apiService: api);
+                        await Provider.of<ThemeProvider>(
+                          context,
+                          listen: false,
+                        ).setProfileType(value, apiService: api);
                         _fetchStatus(); // Refresh to get updated config (including side effects)
                         if (mounted) {
                           ScaffoldMessenger.of(context).showSnackBar(
-                            SnackBar(content: Text(TranslationService.translate(context, 'profile_updated'))),
+                            SnackBar(
+                              content: Text(
+                                TranslationService.translate(
+                                  context,
+                                  'profile_updated',
+                                ),
+                              ),
+                            ),
                           );
                         }
                       } catch (e) {
                         if (mounted) {
                           ScaffoldMessenger.of(context).showSnackBar(
-                            SnackBar(content: Text('${TranslationService.translate(context, 'error_updating_profile')}: $e')),
+                            SnackBar(
+                              content: Text(
+                                '${TranslationService.translate(context, 'error_updating_profile')}: $e',
+                              ),
+                            ),
                           );
                         }
                       }
@@ -395,7 +501,14 @@ class _ProfileScreenState extends State<ProfileScreen> {
                 if (result != null) {
                   if (context.mounted) {
                     ScaffoldMessenger.of(context).showSnackBar(
-                      SnackBar(content: Text(TranslationService.translate(context, 'importing_books'))),
+                      SnackBar(
+                        content: Text(
+                          TranslationService.translate(
+                            context,
+                            'importing_books',
+                          ),
+                        ),
+                      ),
                     );
                   }
 
@@ -403,17 +516,17 @@ class _ProfileScreenState extends State<ProfileScreen> {
                     context,
                     listen: false,
                   );
-                  
+
                   late final Response response;
                   if (kIsWeb) {
-                     // Web: Pass bytes
-                     response = await apiService.importBooks(
+                    // Web: Pass bytes
+                    response = await apiService.importBooks(
                       result.files.single.bytes!,
                       filename: result.files.single.name,
                     );
                   } else {
                     // Native: Pass path
-                     response = await apiService.importBooks(
+                    response = await apiService.importBooks(
                       result.files.single.path!,
                     );
                   }
@@ -445,7 +558,9 @@ class _ProfileScreenState extends State<ProfileScreen> {
                 if (context.mounted) {
                   ScaffoldMessenger.of(context).showSnackBar(
                     SnackBar(
-                      content: Text('${TranslationService.translate(context, 'error_picking_file')}: $e'),
+                      content: Text(
+                        '${TranslationService.translate(context, 'error_picking_file')}: $e',
+                      ),
                       backgroundColor: Colors.red,
                     ),
                   );
@@ -471,17 +586,23 @@ class _ProfileScreenState extends State<ProfileScreen> {
               children: [
                 ListTile(
                   leading: const Icon(Icons.download),
-                  title: const Text('Import Demo Data'), // TODO: Add translation
+                  title: const Text(
+                    'Import Demo Data',
+                  ), // TODO: Add translation
                   onTap: () async {
                     final confirm = await showDialog<bool>(
                       context: context,
                       builder: (context) => AlertDialog(
                         title: const Text('Import Demo Data?'),
-                        content: const Text('This will add sample books to your library.'),
+                        content: const Text(
+                          'This will add sample books to your library.',
+                        ),
                         actions: [
                           TextButton(
                             onPressed: () => Navigator.pop(context, false),
-                            child: Text(TranslationService.translate(context, 'cancel')),
+                            child: Text(
+                              TranslationService.translate(context, 'cancel'),
+                            ),
                           ),
                           TextButton(
                             onPressed: () => Navigator.pop(context, true),
@@ -504,7 +625,9 @@ class _ProfileScreenState extends State<ProfileScreen> {
                 const Divider(),
                 ListTile(
                   leading: const Icon(Icons.settings),
-                  title: Text(TranslationService.translate(context, 'edit_settings')),
+                  title: Text(
+                    TranslationService.translate(context, 'edit_settings'),
+                  ),
                   onTap: () {
                     _showSettingsDialog(context);
                   },
@@ -519,46 +642,61 @@ class _ProfileScreenState extends State<ProfileScreen> {
                   onTap: () async {
                     final confirmed = await showDialog<bool>(
                       context: context,
-                      builder:
-                          (context) => AlertDialog(
-                            title: Text(TranslationService.translate(context, 'reset_app_title')),
-                            content: Text(
-                              TranslationService.translate(context, 'reset_app_confirmation'),
-                            ),
-                            actions: [
-                              TextButton(
-                                onPressed: () => Navigator.pop(context, false),
-                                child: Text(TranslationService.translate(context, 'cancel')),
-                              ),
-                              TextButton(
-                                onPressed: () => Navigator.pop(context, true),
-                                child: Text(
-                                  TranslationService.translate(context, 'reset_confirm'),
-                                  style: const TextStyle(color: Colors.red),
-                                ),
-                              ),
-                            ],
+                      builder: (context) => AlertDialog(
+                        title: Text(
+                          TranslationService.translate(
+                            context,
+                            'reset_app_title',
                           ),
+                        ),
+                        content: Text(
+                          TranslationService.translate(
+                            context,
+                            'reset_app_confirmation',
+                          ),
+                        ),
+                        actions: [
+                          TextButton(
+                            onPressed: () => Navigator.pop(context, false),
+                            child: Text(
+                              TranslationService.translate(context, 'cancel'),
+                            ),
+                          ),
+                          TextButton(
+                            onPressed: () => Navigator.pop(context, true),
+                            child: Text(
+                              TranslationService.translate(
+                                context,
+                                'reset_confirm',
+                              ),
+                              style: const TextStyle(color: Colors.red),
+                            ),
+                          ),
+                        ],
+                      ),
                     );
 
                     if (confirmed == true && mounted) {
                       try {
                         // 1. Call backend to wipe data
-                        final api = Provider.of<ApiService>(context, listen: false);
+                        final api = Provider.of<ApiService>(
+                          context,
+                          listen: false,
+                        );
                         await api.resetApp();
-                        
+
                         // 2. Clear local state
                         final themeProvider = Provider.of<ThemeProvider>(
                           context,
                           listen: false,
                         );
                         await themeProvider.resetSetup();
-                        
+
                         if (mounted) {
                           context.go('/setup');
                         }
                       } catch (e) {
-                         if (mounted) {
+                        if (mounted) {
                           ScaffoldMessenger.of(context).showSnackBar(
                             SnackBar(content: Text('Reset failed: $e')),
                           );
@@ -571,11 +709,14 @@ class _ProfileScreenState extends State<ProfileScreen> {
             ),
           ),
           const SizedBox(height: 32),
-          
+
           // Logout Button
           OutlinedButton.icon(
             onPressed: () async {
-              final authService = Provider.of<AuthService>(context, listen: false);
+              final authService = Provider.of<AuthService>(
+                context,
+                listen: false,
+              );
               await authService.logout();
               if (mounted) {
                 context.go('/login');
@@ -594,11 +735,11 @@ class _ProfileScreenState extends State<ProfileScreen> {
 
   Widget _buildProfileTypeSummary() {
     final profileType = _config?['profile_type'] ?? 'individual';
-    
+
     // Define features and restrictions for each profile type
     Map<String, List<String>> advantages = {};
     Map<String, List<String>> restrictions = {};
-    
+
     switch (profileType) {
       case 'individual':
         advantages = {
@@ -635,7 +776,9 @@ class _ProfileScreenState extends State<ProfileScreen> {
     return Container(
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
-        color: Theme.of(context).colorScheme.surfaceContainerHighest.withValues(alpha: 0.3),
+        color: Theme.of(
+          context,
+        ).colorScheme.surfaceContainerHighest.withValues(alpha: 0.3),
         borderRadius: BorderRadius.circular(12),
         border: Border.all(
           color: Theme.of(context).colorScheme.outline.withValues(alpha: 0.2),
@@ -646,7 +789,11 @@ class _ProfileScreenState extends State<ProfileScreen> {
         children: [
           Row(
             children: [
-              Icon(Icons.info_outline, size: 18, color: Theme.of(context).colorScheme.primary),
+              Icon(
+                Icons.info_outline,
+                size: 18,
+                color: Theme.of(context).colorScheme.primary,
+              ),
               const SizedBox(width: 8),
               Text(
                 TranslationService.translate(context, 'profile_summary'),
@@ -668,51 +815,63 @@ class _ProfileScreenState extends State<ProfileScreen> {
           const SizedBox(height: 12),
           // Advantages
           if (advantages.isNotEmpty) ...[
-            ...advantages.keys.map((key) => Padding(
-              padding: const EdgeInsets.only(bottom: 4),
-              child: Row(
-                children: [
-                  const Icon(Icons.check_circle, size: 16, color: Colors.green),
-                  const SizedBox(width: 8),
-                  Expanded(
-                    child: Text(
-                      TranslationService.translate(context, key),
-                      style: const TextStyle(fontSize: 13),
+            ...advantages.keys.map(
+              (key) => Padding(
+                padding: const EdgeInsets.only(bottom: 4),
+                child: Row(
+                  children: [
+                    const Icon(
+                      Icons.check_circle,
+                      size: 16,
+                      color: Colors.green,
                     ),
-                  ),
-                ],
+                    const SizedBox(width: 8),
+                    Expanded(
+                      child: Text(
+                        TranslationService.translate(context, key),
+                        style: const TextStyle(fontSize: 13),
+                      ),
+                    ),
+                  ],
+                ),
               ),
-            )),
+            ),
           ],
           // Restrictions
           if (restrictions.isNotEmpty) ...[
             const SizedBox(height: 8),
-            ...restrictions.keys.map((key) => Padding(
-              padding: const EdgeInsets.only(bottom: 4),
-              child: Row(
-                children: [
-                  const Icon(Icons.remove_circle, size: 16, color: Colors.orange),
-                  const SizedBox(width: 8),
-                  Expanded(
-                    child: Text(
-                      TranslationService.translate(context, key),
-                      style: const TextStyle(fontSize: 13),
+            ...restrictions.keys.map(
+              (key) => Padding(
+                padding: const EdgeInsets.only(bottom: 4),
+                child: Row(
+                  children: [
+                    const Icon(
+                      Icons.remove_circle,
+                      size: 16,
+                      color: Colors.orange,
                     ),
-                  ),
-                ],
+                    const SizedBox(width: 8),
+                    Expanded(
+                      child: Text(
+                        TranslationService.translate(context, key),
+                        style: const TextStyle(fontSize: 13),
+                      ),
+                    ),
+                  ],
+                ),
               ),
-            )),
+            ),
           ],
         ],
       ),
     );
   }
 
-
   void _showAvatarPicker(BuildContext context, ThemeProvider themeProvider) {
     // Create a local copy of the config to avoid updating the provider immediately
     // This allows the user to cancel changes
-    AvatarConfig currentConfig = themeProvider.avatarConfig ?? AvatarConfig.defaultConfig;
+    AvatarConfig currentConfig =
+        themeProvider.avatarConfig ?? AvatarConfig.defaultConfig;
 
     showModalBottomSheet(
       context: context,
@@ -733,7 +892,10 @@ class _ProfileScreenState extends State<ProfileScreen> {
                       mainAxisAlignment: MainAxisAlignment.spaceBetween,
                       children: [
                         Text(
-                          TranslationService.translate(context, 'customize_avatar'),
+                          TranslationService.translate(
+                            context,
+                            'customize_avatar',
+                          ),
                           style: Theme.of(context).textTheme.titleLarge,
                         ),
                         IconButton(
@@ -762,24 +924,47 @@ class _ProfileScreenState extends State<ProfileScreen> {
                         onPressed: () async {
                           try {
                             // Show loading indicator if needed, or just close and update
-                            final api = Provider.of<ApiService>(context, listen: false);
-                            await themeProvider.setAvatarConfig(currentConfig, apiService: api);
-                            
+                            final api = Provider.of<ApiService>(
+                              context,
+                              listen: false,
+                            );
+                            await themeProvider.setAvatarConfig(
+                              currentConfig,
+                              apiService: api,
+                            );
+
                             if (context.mounted) {
                               Navigator.pop(context);
                               ScaffoldMessenger.of(context).showSnackBar(
-                                SnackBar(content: Text(TranslationService.translate(context, 'avatar_updated'))),
+                                SnackBar(
+                                  content: Text(
+                                    TranslationService.translate(
+                                      context,
+                                      'avatar_updated',
+                                    ),
+                                  ),
+                                ),
                               );
                             }
                           } catch (e) {
                             if (context.mounted) {
                               ScaffoldMessenger.of(context).showSnackBar(
-                                SnackBar(content: Text('${TranslationService.translate(context, 'error_saving_avatar')}: $e')),
+                                SnackBar(
+                                  content: Text(
+                                    '${TranslationService.translate(context, 'error_saving_avatar')}: $e',
+                                  ),
+                                ),
                               );
                             }
                           }
                         },
-                        child: Text(TranslationService.translate(context, 'save_changes'), style: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold)),
+                        child: Text(
+                          TranslationService.translate(context, 'save_changes'),
+                          style: const TextStyle(
+                            fontSize: 16,
+                            fontWeight: FontWeight.bold,
+                          ),
+                        ),
                       ),
                     ),
                   ),
@@ -803,7 +988,9 @@ class _ProfileScreenState extends State<ProfileScreen> {
         return Consumer<ThemeProvider>(
           builder: (context, themeProvider, _) {
             return AlertDialog(
-              title: Text(TranslationService.translate(context, 'edit_settings')),
+              title: Text(
+                TranslationService.translate(context, 'edit_settings'),
+              ),
               content: SingleChildScrollView(
                 child: Column(
                   mainAxisSize: MainAxisSize.min,
@@ -813,19 +1000,45 @@ class _ProfileScreenState extends State<ProfileScreen> {
                     TextField(
                       controller: libraryNameController,
                       decoration: InputDecoration(
-                        hintText: TranslationService.translate(context, 'enter_library_name'),
+                        hintText: TranslationService.translate(
+                          context,
+                          'enter_library_name',
+                        ),
                       ),
                     ),
                     const SizedBox(height: 16),
-                    Text(TranslationService.translate(context, 'lang_title') ?? 'Language'),
+                    Text(
+                      TranslationService.translate(context, 'lang_title') ??
+                          'Language',
+                    ),
                     DropdownButton<String>(
                       value: themeProvider.locale.languageCode,
                       isExpanded: true,
                       items: [
-                        DropdownMenuItem(value: 'en', child: Text(TranslationService.translate(context, 'lang_en'))),
-                        DropdownMenuItem(value: 'fr', child: Text(TranslationService.translate(context, 'lang_fr'))),
-                        DropdownMenuItem(value: 'es', child: Text(TranslationService.translate(context, 'lang_es'))),
-                        DropdownMenuItem(value: 'de', child: Text(TranslationService.translate(context, 'lang_de'))),
+                        DropdownMenuItem(
+                          value: 'en',
+                          child: Text(
+                            TranslationService.translate(context, 'lang_en'),
+                          ),
+                        ),
+                        DropdownMenuItem(
+                          value: 'fr',
+                          child: Text(
+                            TranslationService.translate(context, 'lang_fr'),
+                          ),
+                        ),
+                        DropdownMenuItem(
+                          value: 'es',
+                          child: Text(
+                            TranslationService.translate(context, 'lang_es'),
+                          ),
+                        ),
+                        DropdownMenuItem(
+                          value: 'de',
+                          child: Text(
+                            TranslationService.translate(context, 'lang_de'),
+                          ),
+                        ),
                       ],
                       onChanged: (String? newValue) {
                         if (newValue != null) {
@@ -834,19 +1047,38 @@ class _ProfileScreenState extends State<ProfileScreen> {
                       },
                     ),
                     const SizedBox(height: 16),
-                    Text(TranslationService.translate(context, 'theme_title') ?? 'Theme'),
+                    Text(
+                      TranslationService.translate(context, 'theme_title') ??
+                          'Theme',
+                    ),
                     DropdownButton<String>(
                       value: themeProvider.themeStyle,
                       isExpanded: true,
                       items: [
-                        DropdownMenuItem(value: 'default', child: Text(TranslationService.translate(context, 'theme_default'))),
-                        DropdownMenuItem(value: 'minimal', child: Text(TranslationService.translate(context, 'theme_minimal'))),
+                        DropdownMenuItem(
+                          value: 'default',
+                          child: Text(
+                            TranslationService.translate(
+                              context,
+                              'theme_default',
+                            ),
+                          ),
+                        ),
+                        DropdownMenuItem(
+                          value: 'minimal',
+                          child: Text(
+                            TranslationService.translate(
+                              context,
+                              'theme_minimal',
+                            ),
+                          ),
+                        ),
                       ],
                       onChanged: null, // Disabled for now as requested
-                        // if (newValue != null) {
-                        //   themeProvider.setThemeStyle(newValue);
-                        // }
 
+                      // if (newValue != null) {
+                      //   themeProvider.setThemeStyle(newValue);
+                      // }
                     ),
                   ],
                 ),
@@ -860,14 +1092,21 @@ class _ProfileScreenState extends State<ProfileScreen> {
                   onPressed: () async {
                     Navigator.pop(context);
                     // Save library name
-                    if (libraryNameController.text.isNotEmpty && 
-                        libraryNameController.text != (_config?['library_name'] ?? _config?['name'])) {
+                    if (libraryNameController.text.isNotEmpty &&
+                        libraryNameController.text !=
+                            (_config?['library_name'] ?? _config?['name'])) {
                       try {
-                        final api = Provider.of<ApiService>(context, listen: false);
+                        final api = Provider.of<ApiService>(
+                          context,
+                          listen: false,
+                        );
                         await api.updateLibraryConfig(
                           name: libraryNameController.text,
                           description: _config?['description'],
-                          tags: _config?['tags'] != null ? List<String>.from(_config!['tags']) : [],
+                          profileType: _config?['profile_type'],
+                          tags: _config?['tags'] != null
+                              ? List<String>.from(_config!['tags'])
+                              : [],
                           latitude: _config?['latitude'],
                           longitude: _config?['longitude'],
                           showBorrowedBooks: _config?['show_borrowed_books'],
@@ -877,13 +1116,24 @@ class _ProfileScreenState extends State<ProfileScreen> {
                         if (mounted) {
                           context.go('/profile');
                           ScaffoldMessenger.of(context).showSnackBar(
-                            SnackBar(content: Text(TranslationService.translate(context, 'library_updated'))),
+                            SnackBar(
+                              content: Text(
+                                TranslationService.translate(
+                                  context,
+                                  'library_updated',
+                                ),
+                              ),
+                            ),
                           );
                         }
                       } catch (e) {
                         if (mounted) {
                           ScaffoldMessenger.of(context).showSnackBar(
-                            SnackBar(content: Text('${TranslationService.translate(context, 'error_updating_library')}: $e')),
+                            SnackBar(
+                              content: Text(
+                                '${TranslationService.translate(context, 'error_updating_library')}: $e',
+                              ),
+                            ),
                           );
                         }
                       }

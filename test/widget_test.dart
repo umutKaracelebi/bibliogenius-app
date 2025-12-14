@@ -20,20 +20,21 @@ class TestHttpOverrides extends HttpOverrides {
   @override
   HttpClient createHttpClient(SecurityContext? context) {
     return super.createHttpClient(context)
-      ..badCertificateCallback = (X509Certificate cert, String host, int port) => true;
+      ..badCertificateCallback =
+          (X509Certificate cert, String host, int port) => true;
   }
 }
 
 class MockBackendService extends BackendService {
   @override
   Future<void> start() async {}
-  
+
   @override
   Future<void> stop() async {}
-  
+
   @override
   bool get isRunning => false;
-  
+
   @override
   int? get port => null;
 }
@@ -51,10 +52,13 @@ void main() {
   testWidgets('App smoke test', (WidgetTester tester) async {
     await mockNetworkImagesFor(() async {
       // Build our app and trigger a frame.
-      await tester.pumpWidget(MyApp(
-        themeProvider: ThemeProvider(),
-        backendService: MockBackendService(),
-      ));
+      await tester.pumpWidget(
+        MyApp(
+          themeProvider: ThemeProvider(),
+          backendService: MockBackendService(),
+          useFfi: false,
+        ),
+      );
       await tester.pumpAndSettle();
 
       // Verify that our app starts

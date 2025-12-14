@@ -63,9 +63,13 @@ class _BookCopiesScreenState extends State<BookCopiesScreen> {
         _fetchCopies(); // Refresh list
       } catch (e) {
         if (mounted) {
-          ScaffoldMessenger.of(
-            context,
-          ).showSnackBar(SnackBar(content: Text('${TranslationService.translate(context, 'error_adding_copy')}: $e')));
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(
+              content: Text(
+                '${TranslationService.translate(context, 'error_adding_copy')}: $e',
+              ),
+            ),
+          );
         }
       }
     }
@@ -76,7 +80,9 @@ class _BookCopiesScreenState extends State<BookCopiesScreen> {
       context: context,
       builder: (context) => AlertDialog(
         title: Text(TranslationService.translate(context, 'delete_copy_title')),
-        content: Text(TranslationService.translate(context, 'delete_copy_confirm')),
+        content: Text(
+          TranslationService.translate(context, 'delete_copy_confirm'),
+        ),
         actions: [
           TextButton(
             onPressed: () => Navigator.of(context).pop(false),
@@ -84,7 +90,9 @@ class _BookCopiesScreenState extends State<BookCopiesScreen> {
           ),
           TextButton(
             onPressed: () => Navigator.of(context).pop(true),
-            child: Text(TranslationService.translate(context, 'delete_copy_btn')),
+            child: Text(
+              TranslationService.translate(context, 'delete_copy_btn'),
+            ),
           ),
         ],
       ),
@@ -97,9 +105,13 @@ class _BookCopiesScreenState extends State<BookCopiesScreen> {
         _fetchCopies(); // Refresh list
       } catch (e) {
         if (mounted) {
-          ScaffoldMessenger.of(
-            context,
-          ).showSnackBar(SnackBar(content: Text('${TranslationService.translate(context, 'error_deleting_copy')}: $e')));
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(
+              content: Text(
+                '${TranslationService.translate(context, 'error_deleting_copy')}: $e',
+              ),
+            ),
+          );
         }
       }
     }
@@ -108,11 +120,17 @@ class _BookCopiesScreenState extends State<BookCopiesScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: Text('${TranslationService.translate(context, 'copies_title')} "${widget.bookTitle}"')),
+      appBar: AppBar(
+        title: Text(
+          '${TranslationService.translate(context, 'copies_title')} "${widget.bookTitle}"',
+        ),
+      ),
       body: _isLoading
           ? const Center(child: CircularProgressIndicator())
           : _copies.isEmpty
-          ? Center(child: Text(TranslationService.translate(context, 'no_copies')))
+          ? Center(
+              child: Text(TranslationService.translate(context, 'no_copies')),
+            )
           : ListView.builder(
               itemCount: _copies.length,
               itemBuilder: (context, index) {
@@ -124,7 +142,9 @@ class _BookCopiesScreenState extends State<BookCopiesScreen> {
                   ),
                   title: Row(
                     children: [
-                      Text('${TranslationService.translate(context, 'copy_number')} ${copy.id}'),
+                      Text(
+                        '${TranslationService.translate(context, 'copy_number')} ${copy.id}',
+                      ),
                       const SizedBox(width: 8),
                       _StatusBadge(status: copy.status),
                     ],
@@ -176,10 +196,30 @@ class _AddCopyDialogState extends State<_AddCopyDialog> {
               initialValue: _selectedStatus,
               decoration: const InputDecoration(labelText: 'Status'),
               items: [
-                DropdownMenuItem(value: 'available', child: Text(TranslationService.translate(context, 'status_available'))),
-                DropdownMenuItem(value: 'borrowed', child: Text(TranslationService.translate(context, 'status_borrowed'))),
-                DropdownMenuItem(value: 'lost', child: Text(TranslationService.translate(context, 'status_lost'))),
-                DropdownMenuItem(value: 'damaged', child: Text(TranslationService.translate(context, 'status_damaged'))),
+                DropdownMenuItem(
+                  value: 'available',
+                  child: Text(
+                    TranslationService.translate(context, 'status_available'),
+                  ),
+                ),
+                DropdownMenuItem(
+                  value: 'borrowed',
+                  child: Text(
+                    TranslationService.translate(context, 'status_borrowed'),
+                  ),
+                ),
+                DropdownMenuItem(
+                  value: 'lost',
+                  child: Text(
+                    TranslationService.translate(context, 'status_lost'),
+                  ),
+                ),
+                DropdownMenuItem(
+                  value: 'damaged',
+                  child: Text(
+                    TranslationService.translate(context, 'status_damaged'),
+                  ),
+                ),
               ],
               onChanged: (value) {
                 setState(() {
@@ -189,7 +229,9 @@ class _AddCopyDialogState extends State<_AddCopyDialog> {
             ),
             const SizedBox(height: 16),
             CheckboxListTile(
-              title: Text(TranslationService.translate(context, 'is_temporary_copy')),
+              title: Text(
+                TranslationService.translate(context, 'is_temporary_copy'),
+              ),
               value: _isTemporary,
               onChanged: (value) {
                 setState(() {

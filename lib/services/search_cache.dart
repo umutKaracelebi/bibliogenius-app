@@ -21,7 +21,7 @@ class SearchCache {
     if (!_isEnabled) return null;
 
     final normalizedQuery = query.toLowerCase().trim();
-    
+
     if (_cache.containsKey(normalizedQuery)) {
       final timestamp = _timestamps[normalizedQuery]!;
       if (DateTime.now().difference(timestamp) < _ttl) {

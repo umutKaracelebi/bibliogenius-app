@@ -3,7 +3,7 @@ import '../services/translation_service.dart';
 import '../models/gamification_status.dart';
 
 /// A premium gradient banner widget that can be displayed on any page.
-/// 
+///
 /// Shows a greeting with the library/user name, and optionally displays
 /// a streak badge if a GamificationStatus is provided.
 class WelcomeBanner extends StatelessWidget {
@@ -25,7 +25,7 @@ class WelcomeBanner extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final displayName = libraryName ?? userName ?? 'BiblioGenius';
-    
+
     return Container(
       width: double.infinity,
       padding: EdgeInsets.all(compact ? 16 : 20),
@@ -78,13 +78,18 @@ class WelcomeBanner extends StatelessWidget {
                   maxLines: 1,
                   overflow: TextOverflow.ellipsis,
                 ),
-                if (gamificationStatus != null && gamificationStatus!.streak.hasStreak)
+                if (gamificationStatus != null &&
+                    gamificationStatus!.streak.hasStreak)
                   Padding(
                     padding: const EdgeInsets.only(top: 6),
                     child: Row(
                       mainAxisSize: MainAxisSize.min,
                       children: [
-                        const Icon(Icons.local_fire_department, color: Colors.orange, size: 14),
+                        const Icon(
+                          Icons.local_fire_department,
+                          color: Colors.orange,
+                          size: 14,
+                        ),
                         const SizedBox(width: 4),
                         Text(
                           '${gamificationStatus!.streak.current} ${TranslationService.translate(context, 'days')}',
@@ -111,11 +116,7 @@ class CompactBanner extends StatelessWidget {
   final String libraryName;
   final String? pageTitle;
 
-  const CompactBanner({
-    super.key,
-    required this.libraryName,
-    this.pageTitle,
-  });
+  const CompactBanner({super.key, required this.libraryName, this.pageTitle});
 
   @override
   Widget build(BuildContext context) {

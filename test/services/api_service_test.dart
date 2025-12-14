@@ -21,7 +21,11 @@ void main() {
     dio = Dio(BaseOptions(baseUrl: 'http://localhost:8001'));
     dioAdapter = DioAdapter(dio: dio);
     mockAuthService = MockAuthService();
-    apiService = ApiService(mockAuthService, dio: dio, baseUrl: 'http://localhost:8001');
+    apiService = ApiService(
+      mockAuthService,
+      dio: dio,
+      baseUrl: 'http://localhost:8001',
+    );
   });
 
   group('ApiService', () {
@@ -29,14 +33,11 @@ void main() {
       const route = '/api/books';
       final mockResponse = {
         'books': [
-          {'id': 1, 'title': 'Test Book', 'author': 'Test Author'}
-        ]
+          {'id': 1, 'title': 'Test Book', 'author': 'Test Author'},
+        ],
       };
 
-      dioAdapter.onGet(
-        route,
-        (server) => server.reply(200, mockResponse),
-      );
+      dioAdapter.onGet(route, (server) => server.reply(200, mockResponse));
 
       final books = await apiService.getBooks();
 
@@ -78,15 +79,12 @@ void main() {
       expect(response.statusCode, 201);
       expect(response.data['title'], 'New Book');
     });
-    
+
     test('getLibraryConfig returns config', () async {
       const route = '/api/config';
       final mockResponse = {'name': 'My Library', 'profile_type': 'individual'};
 
-      dioAdapter.onGet(
-        route,
-        (server) => server.reply(200, mockResponse),
-      );
+      dioAdapter.onGet(route, (server) => server.reply(200, mockResponse));
 
       final response = await apiService.getLibraryConfig();
 

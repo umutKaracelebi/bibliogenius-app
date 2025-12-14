@@ -1,4 +1,3 @@
-
 import 'package:flutter_test/flutter_test.dart';
 import 'package:dio/dio.dart';
 import 'package:http_mock_adapter/http_mock_adapter.dart';
@@ -21,7 +20,11 @@ void main() {
     dio = Dio(BaseOptions(baseUrl: 'http://localhost:8001'));
     dioAdapter = DioAdapter(dio: dio);
     mockAuthService = MockAuthService();
-    apiService = ApiService(mockAuthService, dio: dio, baseUrl: 'http://localhost:8001');
+    apiService = ApiService(
+      mockAuthService,
+      dio: dio,
+      baseUrl: 'http://localhost:8001',
+    );
   });
 
   group('ApiService Search', () {
@@ -29,8 +32,18 @@ void main() {
       const route = '/api/integrations/search_unified';
       final query = 'test';
       final mockResponse = [
-        {'id': 1, 'title': 'Test Book', 'author': 'Test Author', 'isbn': '1234567890'},
-        {'id': 2, 'title': 'Another Book', 'author': 'Another Author', 'isbn': '0987654321'}
+        {
+          'id': 1,
+          'title': 'Test Book',
+          'author': 'Test Author',
+          'isbn': '1234567890',
+        },
+        {
+          'id': 2,
+          'title': 'Another Book',
+          'author': 'Another Author',
+          'isbn': '0987654321',
+        },
       ];
 
       dioAdapter.onGet(

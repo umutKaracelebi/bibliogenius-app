@@ -9,6 +9,7 @@ import '../models/book.dart';
 import '../widgets/genie_app_bar.dart';
 import '../theme/app_design.dart';
 import '../widgets/gamification_widgets.dart';
+import '../providers/theme_provider.dart';
 
 class StatisticsScreen extends StatefulWidget {
   const StatisticsScreen({super.key});
@@ -20,6 +21,7 @@ class StatisticsScreen extends StatefulWidget {
 class _StatisticsScreenState extends State<StatisticsScreen>
     with TickerProviderStateMixin {
   List<Book> _books = [];
+  List<dynamic> _loans = [];
   GamificationStatus? _userStatus;
   bool _isLoading = true;
   late AnimationController _animController;
@@ -56,6 +58,17 @@ class _StatisticsScreenState extends State<StatisticsScreen>
     try {
       final books = await api.getBooks();
       
+      // Fetch loans
+      List<dynamic> loans = [];
+      try {
+        final loansRes = await api.getLoans();
+        if (loansRes.statusCode == 200) {
+          loans = loansRes.data['loans'] ?? loansRes.data ?? [];
+        }
+      } catch (e) {
+        debugPrint('Error fetching loans: $e');
+      }
+      
       GamificationStatus? status;
       try {
         final statusRes = await api.getUserStatus();
@@ -69,6 +82,7 @@ class _StatisticsScreenState extends State<StatisticsScreen>
       if (mounted) {
         setState(() {
           _books = books;
+          _loans = loans;
           _userStatus = status;
           _isLoading = false;
         });
@@ -143,6 +157,26 @@ class _StatisticsScreenState extends State<StatisticsScreen>
                         ),
                         const SizedBox(height: 16),
                         _buildPublicationYearChart(),
+                        const SizedBox(height: 32),
+                        // Loan Statistics Section
+                        _buildSectionTitle(
+                          TranslationService.translate(context, 'loan_statistics'),
+                          Icons.swap_horiz,
+                          AppDesign.accentGradient,
+                        ),
+                        const SizedBox(height: 16),
+                        _buildLoanStatisticsSection(),
+                        // Borrowed Statistics Section - hidden for librarians
+                        if (!Provider.of<ThemeProvider>(context, listen: false).isLibrarian) ...[
+                          const SizedBox(height: 32),
+                          _buildSectionTitle(
+                            TranslationService.translate(context, 'borrowed_statistics'),
+                            Icons.arrow_downward,
+                            AppDesign.oceanGradient,
+                          ),
+                          const SizedBox(height: 16),
+                          _buildBorrowedStatisticsSection(),
+                        ],
                         const SizedBox(height: 40),
                       ],
                     ),
@@ -893,6 +927,294 @@ class _StatisticsScreenState extends State<StatisticsScreen>
                color: Colors.grey[600],
              ),
            ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildLoanStatisticsSection() {
+    // Calculate loan statistics
+    final totalLoans = _loans.length;
+    final activeLoans = _loans.where((l) => l['return_date'] == null).length;
+    final returnedLoans = _loans.where((l) => l['return_date'] != null).length;
+    
+    // Calculate average loan duration (for returned loans)
+    double avgDuration = 0;
+    final returnedWithDates = _loans.where((l) => 
+      l['return_date'] != null && l['loan_date'] != null
+    ).toList();
+    
+    if (returnedWithDates.isNotEmpty) {
+      int totalDays = 0;
+      for (var loan in returnedWithDates) {
+        try {
+          final loanDate = DateTime.parse(loan['loan_date']);
+          final returnDate = DateTime.parse(loan['return_date']);
+          totalDays += returnDate.difference(loanDate).inDays;
+        } catch (_) {}
+      }
+      avgDuration = totalDays / returnedWithDates.length;
+    }
+
+    // Top borrowers (contacts)
+    final borrowerCounts = <String, int>{};
+    for (var loan in _loans) {
+      final contactName = loan['contact_name'] ?? loan['contact']?['name'] ?? 'Unknown';
+      borrowerCounts[contactName] = (borrowerCounts[contactName] ?? 0) + 1;
+    }
+    var topBorrowers = borrowerCounts.entries.toList()
+      ..sort((a, b) => b.value.compareTo(a.value));
+    if (topBorrowers.length > 5) topBorrowers = topBorrowers.sublist(0, 5);
+
+    // Most lent books
+    final bookCounts = <String, int>{};
+    for (var loan in _loans) {
+      final bookTitle = loan['book_title'] ?? loan['book']?['title'] ?? 'Unknown';
+      bookCounts[bookTitle] = (bookCounts[bookTitle] ?? 0) + 1;
+    }
+    var mostLentBooks = bookCounts.entries.toList()
+      ..sort((a, b) => b.value.compareTo(a.value));
+    if (mostLentBooks.length > 5) mostLentBooks = mostLentBooks.sublist(0, 5);
+
+    // Return rate
+    final returnRate = totalLoans > 0 
+        ? (returnedLoans / totalLoans * 100).toStringAsFixed(0)
+        : '0';
+
+    return Container(
+      padding: const EdgeInsets.all(24),
+      decoration: BoxDecoration(
+        color: Theme.of(context).cardColor,
+        borderRadius: BorderRadius.circular(AppDesign.radiusLarge),
+        boxShadow: AppDesign.cardShadow,
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          // Summary stats row
+          Row(
+            children: [
+              Expanded(
+                child: _buildMiniStat(
+                  TranslationService.translate(context, 'total_loans'),
+                  totalLoans.toString(),
+                  Icons.swap_horiz,
+                  Colors.purple,
+                ),
+              ),
+              const SizedBox(width: 12),
+              Expanded(
+                child: _buildMiniStat(
+                  TranslationService.translate(context, 'active_loans'),
+                  activeLoans.toString(),
+                  Icons.arrow_upward,
+                  Colors.orange,
+                ),
+              ),
+              const SizedBox(width: 12),
+              Expanded(
+                child: _buildMiniStat(
+                  TranslationService.translate(context, 'return_rate'),
+                  '$returnRate%',
+                  Icons.check_circle,
+                  Colors.green,
+                ),
+              ),
+              const SizedBox(width: 12),
+              Expanded(
+                child: _buildMiniStat(
+                  TranslationService.translate(context, 'avg_duration'),
+                  '${avgDuration.toStringAsFixed(0)}j',
+                  Icons.timer,
+                  Colors.blue,
+                ),
+              ),
+            ],
+          ),
+          
+          if (topBorrowers.isNotEmpty) ...[
+            const SizedBox(height: 24),
+            Text(
+              TranslationService.translate(context, 'top_borrowers'),
+              style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 14),
+            ),
+            const SizedBox(height: 12),
+            ...topBorrowers.map((e) => Padding(
+              padding: const EdgeInsets.only(bottom: 8),
+              child: Row(
+                children: [
+                  const Icon(Icons.person_outline, size: 18, color: Colors.grey),
+                  const SizedBox(width: 8),
+                  Expanded(
+                    child: Text(
+                      e.key,
+                      style: const TextStyle(fontSize: 13),
+                      overflow: TextOverflow.ellipsis,
+                    ),
+                  ),
+                  Container(
+                    padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
+                    decoration: BoxDecoration(
+                      color: Colors.purple.withValues(alpha: 0.1),
+                      borderRadius: BorderRadius.circular(12),
+                    ),
+                    child: Text(
+                      '${e.value} ${TranslationService.translate(context, 'loans_label')}',
+                      style: const TextStyle(fontSize: 11, color: Colors.purple),
+                    ),
+                  ),
+                ],
+              ),
+            )),
+          ],
+          
+          if (mostLentBooks.isNotEmpty) ...[
+            const SizedBox(height: 24),
+            Text(
+              TranslationService.translate(context, 'most_lent_books'),
+              style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 14),
+            ),
+            const SizedBox(height: 12),
+            ...mostLentBooks.map((e) => Padding(
+              padding: const EdgeInsets.only(bottom: 8),
+              child: Row(
+                children: [
+                  const Icon(Icons.menu_book, size: 18, color: Colors.grey),
+                  const SizedBox(width: 8),
+                  Expanded(
+                    child: Text(
+                      e.key,
+                      style: const TextStyle(fontSize: 13),
+                      overflow: TextOverflow.ellipsis,
+                    ),
+                  ),
+                  Container(
+                    padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
+                    decoration: BoxDecoration(
+                      color: Colors.blue.withValues(alpha: 0.1),
+                      borderRadius: BorderRadius.circular(12),
+                    ),
+                    child: Text(
+                      '${e.value}x',
+                      style: const TextStyle(fontSize: 11, color: Colors.blue),
+                    ),
+                  ),
+                ],
+              ),
+            )),
+          ],
+        ],
+      ),
+    );
+  }
+
+  Widget _buildMiniStat(String label, String value, IconData icon, Color color) {
+    return Column(
+      children: [
+        Container(
+          padding: const EdgeInsets.all(8),
+          decoration: BoxDecoration(
+            color: color.withValues(alpha: 0.1),
+            borderRadius: BorderRadius.circular(8),
+          ),
+          child: Icon(icon, size: 18, color: color),
+        ),
+        const SizedBox(height: 8),
+        Text(
+          value,
+          style: TextStyle(
+            fontSize: 20,
+            fontWeight: FontWeight.bold,
+            color: color,
+          ),
+        ),
+        const SizedBox(height: 2),
+        Text(
+          label,
+          style: TextStyle(
+            fontSize: 10,
+            color: Colors.grey[600],
+          ),
+          textAlign: TextAlign.center,
+          maxLines: 2,
+          overflow: TextOverflow.ellipsis,
+        ),
+      ],
+    );
+  }
+
+  Widget _buildBorrowedStatisticsSection() {
+    // Get borrowed books from library
+    final borrowedBooks = _books.where((b) => b.readingStatus == 'borrowed').toList();
+    final totalBorrowed = borrowedBooks.length;
+
+    return Container(
+      padding: const EdgeInsets.all(24),
+      decoration: BoxDecoration(
+        color: Theme.of(context).cardColor,
+        borderRadius: BorderRadius.circular(AppDesign.radiusLarge),
+        boxShadow: AppDesign.cardShadow,
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          // Summary stat
+          Row(
+            children: [
+              Expanded(
+                child: _buildMiniStat(
+                  TranslationService.translate(context, 'books_borrowed'),
+                  totalBorrowed.toString(),
+                  Icons.arrow_downward,
+                  Colors.teal,
+                ),
+              ),
+            ],
+          ),
+          
+          if (borrowedBooks.isNotEmpty) ...[
+            const SizedBox(height: 24),
+            Text(
+              TranslationService.translate(context, 'borrowed_books_list'),
+              style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 14),
+            ),
+            const SizedBox(height: 12),
+            ...borrowedBooks.take(5).map((book) => Padding(
+              padding: const EdgeInsets.only(bottom: 8),
+              child: Row(
+                children: [
+                  const Icon(Icons.menu_book, size: 18, color: Colors.grey),
+                  const SizedBox(width: 8),
+                  Expanded(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(
+                          book.title,
+                          style: const TextStyle(fontSize: 13),
+                          overflow: TextOverflow.ellipsis,
+                        ),
+                        if (book.author != null)
+                          Text(
+                            book.author!,
+                            style: TextStyle(fontSize: 11, color: Colors.grey[600]),
+                            overflow: TextOverflow.ellipsis,
+                          ),
+                      ],
+                    ),
+                  ),
+                ],
+              ),
+            )),
+          ] else ...[
+            const SizedBox(height: 16),
+            Center(
+              child: Text(
+                TranslationService.translate(context, 'no_borrowed_books'),
+                style: TextStyle(color: Colors.grey[600], fontSize: 13),
+              ),
+            ),
+          ],
         ],
       ),
     );

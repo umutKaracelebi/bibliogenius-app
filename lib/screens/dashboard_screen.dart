@@ -13,6 +13,7 @@ import '../widgets/premium_book_card.dart';
 import '../services/quote_service.dart';
 import '../models/quote.dart';
 import '../theme/app_design.dart';
+import '../services/backup_reminder_service.dart';
 
 class DashboardScreen extends StatefulWidget {
   const DashboardScreen({super.key});
@@ -42,6 +43,17 @@ class _DashboardScreenState extends State<DashboardScreen> {
     super.initState();
     _fetchDashboardData();
     _checkWizard();
+    _checkBackupReminder();
+  }
+
+  void _checkBackupReminder() async {
+    if (await BackupReminderService.shouldShowReminder()) {
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        if (mounted) {
+          BackupReminderService.showReminderDialog(context);
+        }
+      });
+    }
   }
 
   void _checkWizard() async {

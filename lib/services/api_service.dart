@@ -259,6 +259,29 @@ class ApiService {
 
   // Loan methods
   Future<Response> createLoan(Map<String, dynamic> loanData) async {
+    if (useFfi) {
+      try {
+        final loanId = await RustLib.instance.api.crateApiFrbCreateLoan(
+          copyId: loanData['copy_id'] as int,
+          contactId: loanData['contact_id'] as int,
+          libraryId: loanData['library_id'] as int? ?? 1,
+          loanDate: loanData['loan_date'] as String,
+          dueDate: loanData['due_date'] as String,
+          notes: loanData['notes'] as String?,
+        );
+        return Response(
+          requestOptions: RequestOptions(path: '/api/loans'),
+          statusCode: 201,
+          data: {'loan': {'id': loanId}, 'message': 'Loan created successfully'},
+        );
+      } catch (e) {
+        return Response(
+          requestOptions: RequestOptions(path: '/api/loans'),
+          statusCode: 400,
+          data: {'error': e.toString()},
+        );
+      }
+    }
     return await _dio.post('/api/loans', data: loanData);
   }
 

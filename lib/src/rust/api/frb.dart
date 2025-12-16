@@ -101,6 +101,23 @@ Future<List<FrbLoan>> getAllLoans({
 Future<PlatformInt64> countActiveLoans() =>
     RustLib.instance.api.crateApiFrbCountActiveLoans();
 
+/// Create a new loan
+Future<int> createLoan({
+  required int copyId,
+  required int contactId,
+  required int libraryId,
+  required String loanDate,
+  required String dueDate,
+  String? notes,
+}) => RustLib.instance.api.crateApiFrbCreateLoan(
+  copyId: copyId,
+  contactId: contactId,
+  libraryId: libraryId,
+  loanDate: loanDate,
+  dueDate: dueDate,
+  notes: notes,
+);
+
 /// Return a loan
 Future<String> returnLoan({required int id}) =>
     RustLib.instance.api.crateApiFrbReturnLoan(id: id);

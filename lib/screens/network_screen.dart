@@ -32,7 +32,9 @@ class _NetworkScreenState extends State<NetworkScreen>
 
   // Unified list state
   List<NetworkMember> _members = [];
+  List<Map<String, dynamic>> _localPeers = []; // mDNS discovered peers
   bool _isLoading = true;
+  bool _mdnsActive = false;
   NetworkFilter _filter = NetworkFilter.all;
   Timer? _refreshTimer;
 
@@ -103,6 +105,20 @@ class _NetworkScreenState extends State<NetworkScreen>
           .map((p) => NetworkMember.fromPeer(p))
           .toList();
 
+      // Fetch mDNS discovered peers (local network)
+      List<Map<String, dynamic>> localPeers = [];
+      bool mdnsActive = false;
+      try {
+        final localRes = await api.getLocalPeers();
+        if (localRes.statusCode == 200) {
+          final List<dynamic> localJson = localRes.data['peers'] ?? [];
+          localPeers = localJson.cast<Map<String, dynamic>>();
+          mdnsActive = localRes.data['mdns_active'] ?? false;
+        }
+      } catch (e) {
+        debugPrint('Could not fetch local peers (mDNS): $e');
+      }
+
       // Merge and sort: network libraries first, then local contacts
       final allMembers = [...peers, ...contacts];
       allMembers.sort((a, b) {
@@ -117,6 +133,8 @@ class _NetworkScreenState extends State<NetworkScreen>
       if (mounted) {
         setState(() {
           _members = allMembers;
+          _localPeers = localPeers;
+          _mdnsActive = mdnsActive;
           _isLoading = false;
         });
       }
@@ -559,7 +577,9 @@ class _NetworkScreenState extends State<NetworkScreen>
     return Column(
       children: [
         _buildFilterChips(),
-        if (filtered.isEmpty)
+        // Local Network Discovery Section (mDNS)
+        if (_localPeers.isNotEmpty || _mdnsActive) _buildLocalNetworkSection(),
+        if (filtered.isEmpty && _localPeers.isEmpty)
           Expanded(
             child: Center(
               child: Padding(
@@ -618,6 +638,114 @@ class _NetworkScreenState extends State<NetworkScreen>
       ],
     );
   }
+
+  /// Build the Local Network Discovery section (mDNS)
+  Widget _buildLocalNetworkSection() {
+    return Container(
+      margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+      decoration: BoxDecoration(
+        gradient: LinearGradient(
+          colors: [Colors.teal.withValues(alpha: 0.1), Colors.cyan.withValues(alpha: 0.05)],
+          begin: Alignment.topLeft,
+          end: Alignment.bottomRight,
+        ),
+        borderRadius: BorderRadius.circular(16),
+        border: Border.all(color: Colors.teal.withValues(alpha: 0.3)),
+      ),
+      child: ExpansionTile(
+        leading: Icon(
+          Icons.wifi_tethering,
+          color: _mdnsActive ? Colors.teal : Colors.grey,
+        ),
+        title: Text(
+          TranslationService.translate(context, 'local_network_title'),
+          style: const TextStyle(fontWeight: FontWeight.bold),
+        ),
+        subtitle: Text(
+          _localPeers.isEmpty
+              ? TranslationService.translate(context, 'no_local_libraries_found')
+              : '${_localPeers.length} ${TranslationService.translate(context, 'libraries_found')}',
+          style: TextStyle(color: Colors.grey[600], fontSize: 12),
+        ),
+        initiallyExpanded: _localPeers.isNotEmpty,
+        children: _localPeers.isEmpty
+            ? [
+                Padding(
+                  padding: const EdgeInsets.all(16.0),
+                  child: Text(
+                    TranslationService.translate(context, 'local_discovery_help'),
+                    style: TextStyle(color: Colors.grey[600]),
+                    textAlign: TextAlign.center,
+                  ),
+                ),
+              ]
+            : _localPeers.map((peer) => _buildLocalPeerTile(peer)).toList(),
+      ),
+    );
+  }
+
+  /// Build a tile for a locally discovered peer
+  Widget _buildLocalPeerTile(Map<String, dynamic> peer) {
+    final name = peer['name'] ?? 'Unknown Library';
+    final addresses = (peer['addresses'] as List<dynamic>?)?.cast<String>() ?? [];
+    final port = peer['port'] ?? 8000;
+    final address = addresses.isNotEmpty ? addresses.first : '?';
+
+    return ListTile(
+      leading: CircleAvatar(
+        backgroundColor: Colors.teal.withValues(alpha: 0.2),
+        child: const Icon(Icons.library_books, color: Colors.teal, size: 20),
+      ),
+      title: Text(name, style: const TextStyle(fontWeight: FontWeight.w500)),
+      subtitle: Text('$address:$port', style: TextStyle(color: Colors.grey[600], fontSize: 12)),
+      trailing: ElevatedButton.icon(
+        onPressed: () => _connectToLocalPeer(name, 'http://$address:$port'),
+        icon: const Icon(Icons.add_link, size: 16),
+        label: Text(TranslationService.translate(context, 'connect')),
+        style: ElevatedButton.styleFrom(
+          backgroundColor: Colors.teal,
+          foregroundColor: Colors.white,
+          padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+        ),
+      ),
+    );
+  }
+
+  /// Connect to a locally discovered peer
+  Future<void> _connectToLocalPeer(String name, String url) async {
+    final api = Provider.of<ApiService>(context, listen: false);
+    
+    showDialog(
+      context: context,
+      barrierDismissible: false,
+      builder: (ctx) => const Center(child: CircularProgressIndicator()),
+    );
+
+    try {
+      await api.connectLocalPeer(name, url);
+      if (mounted) {
+        Navigator.pop(context);
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text('${TranslationService.translate(context, 'connected_to')} $name!'),
+            backgroundColor: Colors.green,
+          ),
+        );
+        _loadAllMembers();
+      }
+    } catch (e) {
+      if (mounted) {
+        Navigator.pop(context);
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text('${TranslationService.translate(context, 'connection_failed')}: $e'),
+            backgroundColor: Colors.red,
+          ),
+        );
+      }
+    }
+  }
+
 
   Widget _buildMemberCard(NetworkMember member) {
     final isNetwork = member.source == NetworkMemberSource.network;

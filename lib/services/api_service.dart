@@ -964,6 +964,49 @@ class ApiService {
     return await _dio.delete('$hubUrl/api/peers/$id');
   }
 
+  // ============================================
+  // mDNS Local Discovery
+  // ============================================
+
+  /// Get libraries discovered on the local network via mDNS
+  Future<Response> getLocalPeers() async {
+    if (useFfi) {
+      // mDNS requires the Rust backend to be running
+      return Response(
+        requestOptions: RequestOptions(path: '/api/discovery/local'),
+        statusCode: 200,
+        data: {'peers': [], 'count': 0, 'mdns_active': false},
+      );
+    }
+    return await _dio.get('/api/discovery/local');
+  }
+
+  /// Get mDNS service status (active/inactive)
+  Future<Response> getMdnsStatus() async {
+    if (useFfi) {
+      return Response(
+        requestOptions: RequestOptions(path: '/api/discovery/status'),
+        statusCode: 200,
+        data: {'active': false, 'service_type': '_bibliogenius._tcp.local.'},
+      );
+    }
+    return await _dio.get('/api/discovery/status');
+  }
+
+  /// Connect to a locally discovered peer by URL
+  Future<Response> connectLocalPeer(String name, String url) async {
+    if (useFfi) {
+      return Response(
+        requestOptions: RequestOptions(path: '/api/peers/connect'),
+        statusCode: 200,
+        data: {'message': 'Not available in offline mode'},
+      );
+    }
+    // Use the existing peer connect mechanism
+    return await _dio.post('/api/peers/connect', data: {'name': name, 'url': url});
+  }
+
+
   Future<Response> updateLibraryConfig({
     required String name,
     String? description,

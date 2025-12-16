@@ -649,6 +649,11 @@ class TranslationService {
       'network_search_prompt':
           'Search for books available in your friends\' libraries',
       'request_book_btn': 'Request',
+      // mDNS Local Network Discovery
+      'local_network_title': 'Local Network',
+      'no_local_libraries_found': 'No libraries found on your network',
+      'libraries_found': 'libraries found',
+      'local_discovery_help': 'Make sure other BiblioGenius users are connected to the same WiFi network.',
       // Gamification V3
       'your_progress': 'Your Progress',
       'track_collector': 'Collector',
@@ -1322,6 +1327,11 @@ class TranslationService {
       'network_search_prompt':
           'Recherchez des livres disponibles dans les bibliothèques de vos amis',
       'request_book_btn': 'Demander',
+      // mDNS Local Network Discovery
+      'local_network_title': 'Réseau local',
+      'no_local_libraries_found': 'Aucune bibliothèque trouvée sur votre réseau',
+      'libraries_found': 'bibliothèques trouvées',
+      'local_discovery_help': 'Assurez-vous que d\\'autres utilisateurs BiblioGenius sont connectés au même réseau WiFi.',
       // Feedback / Bug Report
       'nav_report_bug': 'Signaler un bug',
       'feedback_title': 'Signaler un problème',

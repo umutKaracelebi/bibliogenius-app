@@ -170,11 +170,11 @@ class _ContactDetailsScreenState extends State<ContactDetailsScreen> {
               TranslationService.translate(context, 'contact_phone_label'),
               _contact.phone!,
             ),
-          if (_contact.address != null)
+          if (_contact.formattedAddress.isNotEmpty)
             _buildInfoCard(
               context,
               TranslationService.translate(context, 'contact_address_label'),
-              _contact.address!,
+              _contact.formattedAddress,
             ),
           if (_contact.notes != null)
             _buildInfoCard(

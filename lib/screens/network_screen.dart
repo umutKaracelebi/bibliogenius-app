@@ -120,14 +120,32 @@ class _NetworkScreenState extends State<NetworkScreen>
         final localRes = await api.getLocalPeers();
         if (localRes.statusCode == 200) {
           final List<dynamic> localJson = localRes.data['peers'] ?? [];
-          // Filter out own library by name
+          
+          // Build a set of URLs from connected peers for fast lookup
+          final connectedPeerUrls = peersJson
+              .map((p) => p['url'] as String?)
+              .whereType<String>()
+              .toSet();
+          
+          // Filter out own library by name AND already-connected peers by URL
           localPeers = localJson
               .cast<Map<String, dynamic>>()
               .where((peer) {
                 final peerName = peer['name'] as String?;
+                // Filter out own library
                 if (peerName != null && myLibraryName != null && peerName == myLibraryName) {
                   debugPrint('🔇 Filtering out own library from mDNS: $peerName');
                   return false;
+                }
+                // Filter out peers already connected (in DB)
+                final addresses = (peer['addresses'] as List<dynamic>?)?.cast<String>() ?? [];
+                final port = peer['port'] ?? 8000;
+                for (final addr in addresses) {
+                  final peerUrl = 'http://$addr:$port';
+                  if (connectedPeerUrls.contains(peerUrl)) {
+                    debugPrint('🔇 Filtering out already-connected peer from mDNS: $peerName ($peerUrl)');
+                    return false;
+                  }
                 }
                 return true;
               })

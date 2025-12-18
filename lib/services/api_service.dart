@@ -944,9 +944,10 @@ class ApiService {
         // 1. Get my info
         final configRes = await getLibraryConfig();
         final myName = configRes.data['library_name'];
-        final myUrl = configRes.data['default_uri'];
+        // In FFI/P2P mode, we calculate our dynamic IP URL
+        final myUrl = await _getMyUrl();
 
-        if (myUrl == null) throw Exception("My library URL not set");
+        if (myUrl.isEmpty) throw Exception("My library URL could not be determined");
 
         // 2. Send request to peer
         // Use clean URL without trailing slash

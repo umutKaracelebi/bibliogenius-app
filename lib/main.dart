@@ -59,7 +59,7 @@ class AppScrollBehavior extends MaterialScrollBehavior {
       };
 }
 
-void main() async {
+void main([List<String>? args]) async {
   WidgetsFlutterBinding.ensureInitialized();
   
   // Custom error widget to display errors visibly for debugging

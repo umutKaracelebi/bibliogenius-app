@@ -190,6 +190,7 @@ class _SetupScreenState extends State<SetupScreen> {
                 child: Row(
                   children: [
                     ElevatedButton(
+                      key: const Key('setupNextButton'),
                       onPressed: details.onStepContinue,
                       child: Text(
                         currentStep == 5
@@ -238,6 +239,7 @@ class _SetupScreenState extends State<SetupScreen> {
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     TextField(
+                      key: const Key('setupLibraryNameField'),
                       controller: _libraryNameController,
                       decoration: InputDecoration(
                         labelText: strings['library_name_label'],
@@ -278,6 +280,7 @@ class _SetupScreenState extends State<SetupScreen> {
                       ),
                       Icons.person,
                       themeProvider,
+                      key: const Key('setupProfileIndividual'),
                     ),
                     _buildProfileOption(
                       'kid',
@@ -329,6 +332,7 @@ class _SetupScreenState extends State<SetupScreen> {
                           themeProvider.setSetupImportDemo(val!),
                     ),
                     RadioListTile<bool>(
+                      key: const Key('setupDemoNo'),
                       title: Text(strings['demo_option_no']!),
                       value: false,
                       groupValue: themeProvider.setupImportDemo,
@@ -524,10 +528,12 @@ class _SetupScreenState extends State<SetupScreen> {
     String title,
     String description,
     IconData icon,
-    ThemeProvider themeProvider,
-  ) {
+    ThemeProvider themeProvider, {
+    Key? key,
+  }) {
     final isSelected = themeProvider.setupProfileType == value;
     return GestureDetector(
+      key: key,
       onTap: () => themeProvider.setSetupProfileType(value),
       child: Container(
         margin: const EdgeInsets.only(bottom: 12),

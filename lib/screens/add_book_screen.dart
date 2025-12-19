@@ -57,7 +57,7 @@ class _AddBookScreenState extends State<AddBookScreen> {
     _publicationYearController.dispose();
     _isbnController.dispose();
     _summaryController.dispose();
-    _tagsController.dispose();
+    // _tagsController is managed by Autocomplete
     super.dispose();
   }
 
@@ -212,6 +212,7 @@ class _AddBookScreenState extends State<AddBookScreen> {
                   )
                 : TextButton(
                     onPressed: _saveBook,
+                    key: const Key('saveBookButton'),
                     child: Text(
                       TranslationService.translate(context, 'save_book') ?? 'Save',
                       style: const TextStyle(
@@ -317,6 +318,7 @@ class _AddBookScreenState extends State<AddBookScreen> {
                       ) {
                         return TextFormField(
                           controller: textEditingController,
+                          key: const Key('titleField'),
                           focusNode: focusNode,
                           decoration: _buildInputDecoration(
                             hint: TranslationService.translate(
@@ -403,6 +405,7 @@ class _AddBookScreenState extends State<AddBookScreen> {
             _buildLabel(TranslationService.translate(context, 'author_label')),
             TextFormField(
               controller: _authorController,
+              key: const Key('authorField'),
               decoration: _buildInputDecoration(
                 hint: TranslationService.translate(context, 'author_hint'),
               ),
@@ -489,6 +492,7 @@ class _AddBookScreenState extends State<AddBookScreen> {
 
             _buildLabel(TranslationService.translate(context, 'isbn_label')),
             TextFormField(
+              key: const Key('isbnField'),
               controller: _isbnController,
               decoration: _buildInputDecoration(
                 hint: TranslationService.translate(
@@ -550,6 +554,7 @@ class _AddBookScreenState extends State<AddBookScreen> {
                       ),
                       TextFormField(
                         controller: _publisherController,
+                        key: const Key('publisherField'),
                         decoration: _buildInputDecoration(
                           hint: TranslationService.translate(
                             context,
@@ -570,6 +575,7 @@ class _AddBookScreenState extends State<AddBookScreen> {
                       ),
                       TextFormField(
                         controller: _publicationYearController,
+                        key: const Key('yearField'),
                         decoration: _buildInputDecoration(
                           hint: TranslationService.translate(
                             context,
@@ -588,6 +594,7 @@ class _AddBookScreenState extends State<AddBookScreen> {
             // Summary
             _buildLabel(TranslationService.translate(context, 'summary_label')),
             TextFormField(
+              key: const Key('summaryField'),
               controller: _summaryController,
               decoration: _buildInputDecoration(
                 hint: TranslationService.translate(context, 'summary_hint'),

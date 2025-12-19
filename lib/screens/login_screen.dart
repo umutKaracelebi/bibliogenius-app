@@ -414,8 +414,8 @@ class _LoginScreenState extends State<LoginScreen>
                                 ),
                               ),
 
-                            // Username field
                             TextField(
+                              key: const Key('usernameField'),
                               controller: _usernameController,
                               focusNode: _usernameFocus,
                               textInputAction: TextInputAction.next,
@@ -445,6 +445,7 @@ class _LoginScreenState extends State<LoginScreen>
 
                             // Password field
                             TextField(
+                              key: const Key('passwordField'),
                               controller: _passwordController,
                               focusNode: _passwordFocus,
                               obscureText: _obscurePassword,
@@ -490,6 +491,7 @@ class _LoginScreenState extends State<LoginScreen>
                               width: double.infinity,
                               height: 56,
                               child: ElevatedButton(
+                                key: const Key('loginButton'),
                                 onPressed: _isLoading ? null : _login,
                                 style: ElevatedButton.styleFrom(
                                   backgroundColor: const Color(0xFF6366F1),

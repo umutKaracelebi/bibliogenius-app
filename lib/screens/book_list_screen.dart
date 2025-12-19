@@ -164,7 +164,7 @@ class _BookListScreenState extends State<BookListScreen> {
               ),
 
             IconButton(
-              key: _searchKey,
+              key: const Key('bookSearchButton'),
               icon: Icon(
                 _isSearching ? Icons.close : Icons.search,
                 color: Colors.white,
@@ -259,7 +259,7 @@ class _BookListScreenState extends State<BookListScreen> {
         ),
       ),
       floatingActionButton: FloatingActionButton(
-        key: _addKey,
+        key: const Key('addBookButton'),
         onPressed: () async {
           final result = await context.push('/books/add');
           if (result == true) {

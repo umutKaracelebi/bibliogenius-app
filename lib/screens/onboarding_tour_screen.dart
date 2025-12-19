@@ -184,6 +184,7 @@ class _OnboardingTourScreenState extends State<OnboardingTourScreen>
           ),
           // Skip button
           TextButton(
+            key: const Key('onboardingSkipButton'),
             onPressed: _finishTour,
             child: Text(
               TranslationService.translate(context, 'onboarding_skip'),
@@ -372,6 +373,7 @@ class _OnboardingTourScreenState extends State<OnboardingTourScreen>
             width: double.infinity,
             height: 56,
             child: ElevatedButton(
+              key: const Key('onboardingNextButton'),
               onPressed: _nextPage,
               style: ElevatedButton.styleFrom(
                 backgroundColor: Colors.white,

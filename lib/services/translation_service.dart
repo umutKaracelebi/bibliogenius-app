@@ -724,6 +724,7 @@ class TranslationService {
       'greeting_afternoon': 'Good afternoon',
       'greeting_evening': 'Good evening',
       'ask_genie': 'Ask Genie',
+      'quote_of_the_day': 'Quote of the Day',
       // Feedback / Bug Report
       'nav_report_bug': 'Report a Bug',
       'feedback_title': 'Report Feedback',
@@ -826,6 +827,7 @@ class TranslationService {
       'greeting_afternoon': 'Bon après-midi',
       'greeting_evening': 'Bonsoir',
       'ask_genie': 'Demander au Génie',
+      'quote_of_the_day': 'Citation du jour',
       'to_next_level': 'pour le niveau suivant',
       'badge_collection': 'Collection de Badges',
       'profile_settings': 'Paramètres du profil',

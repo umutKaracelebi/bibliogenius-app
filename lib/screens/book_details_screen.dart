@@ -5,6 +5,7 @@ import 'package:provider/provider.dart';
 import '../models/book.dart';
 import '../models/contact.dart';
 import '../services/api_service.dart';
+import 'package:dio/dio.dart';
 import '../services/translation_service.dart';
 // Assuming we might want to use common widgets, but for this specific design we want a SliverAppBar
 import '../widgets/star_rating_widget.dart';
@@ -79,39 +80,7 @@ class _BookDetailsScreenState extends State<BookDetailsScreen> {
 
   // ... existing build methods ...
 
-        // Lend book button - only visible when book is not lent/borrowed AND owned
-        if (_book.readingStatus != 'lent' &&
-            _book.readingStatus != 'borrowed' &&
-            _book.owned) ...[
-          const SizedBox(height: 12),
-          SizedBox(
-            width: double.infinity,
-            child: OutlinedButton.icon(
-              onPressed: _hasAvailableCopies ? () => _lendBook(context) : null,
-              icon: const Icon(Icons.handshake_outlined),
-              label: Text(
-                _hasAvailableCopies
-                    ? (TranslationService.translate(context, 'lend_book_btn') ??
-                        'Lend this book')
-                    : (TranslationService.translate(
-                          context,
-                          'no_copies_available',
-                        ) ??
-                        'No copies available'),
-              ),
-              style: OutlinedButton.styleFrom(
-                foregroundColor: Colors.purple,
-                side: BorderSide(
-                  color: _hasAvailableCopies ? Colors.purple : Colors.grey,
-                ),
-                padding: const EdgeInsets.symmetric(vertical: 12),
-                shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(12),
-                ),
-              ),
-            ),
-          ),
-        ],
+
 
   Future<void> _updateRating(int? newRating) async {
     final api = Provider.of<ApiService>(context, listen: false);
@@ -401,6 +370,7 @@ class _BookDetailsScreenState extends State<BookDetailsScreen> {
                       borderRadius: BorderRadius.circular(12),
                     ),
                   ),
+                  key: const Key('editBookButton'),
                 ),
               ),
             ),
@@ -434,6 +404,7 @@ class _BookDetailsScreenState extends State<BookDetailsScreen> {
                       borderRadius: BorderRadius.circular(12),
                     ),
                   ),
+                  key: const Key('manageCopiesButton'),
                 ),
               ),
             ),
@@ -455,6 +426,7 @@ class _BookDetailsScreenState extends State<BookDetailsScreen> {
                     borderRadius: BorderRadius.circular(12),
                   ),
                 ),
+                key: const Key('deleteBookButton'),
               ),
             ),
           ],
@@ -504,21 +476,31 @@ class _BookDetailsScreenState extends State<BookDetailsScreen> {
           ),
         ],
         // Lend book button - only visible when book is not lent/borrowed
+        // Lend book button - only visible when book is not lent/borrowed AND owned
         if (_book.readingStatus != 'lent' &&
-            _book.readingStatus != 'borrowed') ...[
+            _book.readingStatus != 'borrowed' &&
+            _book.owned) ...[
           const SizedBox(height: 12),
           SizedBox(
             width: double.infinity,
             child: OutlinedButton.icon(
-              onPressed: () => _lendBook(context),
+              onPressed: _hasAvailableCopies ? () => _lendBook(context) : null,
               icon: const Icon(Icons.handshake_outlined),
               label: Text(
-                TranslationService.translate(context, 'lend_book_btn') ??
-                    'Lend this book',
+                _hasAvailableCopies
+                    ? (TranslationService.translate(context, 'lend_book_btn') ??
+                        'Lend this book')
+                    : (TranslationService.translate(
+                          context,
+                          'no_copies_available',
+                        ) ??
+                        'No copies available'),
               ),
               style: OutlinedButton.styleFrom(
                 foregroundColor: Colors.purple,
-                side: const BorderSide(color: Colors.purple),
+                side: BorderSide(
+                  color: _hasAvailableCopies ? Colors.purple : Colors.grey,
+                ),
                 padding: const EdgeInsets.symmetric(vertical: 12),
                 shape: RoundedRectangleBorder(
                   borderRadius: BorderRadius.circular(12),

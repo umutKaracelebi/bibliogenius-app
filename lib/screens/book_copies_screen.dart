@@ -189,6 +189,7 @@ class _BookCopiesScreenState extends State<BookCopiesScreen> {
                     const SizedBox(height: 24),
                     ElevatedButton.icon(
                       onPressed: _addCopy,
+                      key: const Key('addCopyButtonEmpty'),
                       icon: const Icon(Icons.add),
                       label: Text(TranslationService.translate(context, 'add_copy_title')),
                     ),
@@ -223,6 +224,7 @@ class _BookCopiesScreenState extends State<BookCopiesScreen> {
               },
             ),
       floatingActionButton: FloatingActionButton(
+        key: const Key('addCopyFab'),
         onPressed: _addCopy,
         child: const Icon(Icons.add),
       ),
@@ -356,6 +358,7 @@ class _AddCopyDialogState extends State<_AddCopyDialog> {
               'is_temporary': _isTemporary,
             });
           },
+          key: const Key('saveCopyButton'),
           child: Text(TranslationService.translate(context, 'add_peer_btn')),
         ),
       ],

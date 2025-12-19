@@ -99,8 +99,13 @@ class _DashboardScreenState extends State<DashboardScreen> {
 
     try {
       try {
+        print('Dashboard: Fetching books...');
         var books = await api.getBooks();
+        print('Dashboard: Books fetched. Count: ${books.length}');
+        
+        print('Dashboard: Fetching config...');
         final configRes = await api.getLibraryConfig();
+        print('Dashboard: Config fetched. Status: ${configRes.statusCode}');
 
         if (configRes.statusCode == 200) {
           final config = configRes.data;
@@ -163,7 +168,9 @@ class _DashboardScreenState extends State<DashboardScreen> {
       }
 
       try {
+        print('Dashboard: Fetching contacts...');
         final contactsRes = await api.getContacts();
+        print('Dashboard: Contacts fetched.');
         if (contactsRes.statusCode == 200) {
           final List<dynamic> contactsData = contactsRes.data['contacts'];
           if (mounted) {
@@ -177,7 +184,9 @@ class _DashboardScreenState extends State<DashboardScreen> {
       }
 
       try {
+        print('Dashboard: Fetching user status...');
         final statusRes = await api.getUserStatus();
+        print('Dashboard: User status fetched.');
         if (statusRes.statusCode == 200) {
           final statusData = statusRes.data;
           if (mounted) {
@@ -193,9 +202,12 @@ class _DashboardScreenState extends State<DashboardScreen> {
       }
         
       // Fetch quote separate from main data to allow localized refresh
+      print('Dashboard: Fetching quote...');
       await _fetchQuote();
+      print('Dashboard: Quote fetched.');
 
       if (mounted) {
+        print('Dashboard: Loading complete. Setting _isLoading = false');
         setState(() {
            _isLoading = false;
         });
@@ -241,6 +253,10 @@ class _DashboardScreenState extends State<DashboardScreen> {
   Widget build(BuildContext context) {
     final themeProvider = Provider.of<ThemeProvider>(context);
     final isKid = themeProvider.isKid;
+    final isLibrarian = themeProvider.isLibrarian;
+
+    debugPrint('DashboardScreen: build called');
+    debugPrint('DashboardScreen: isKid=$isKid, isLibrarian=$isLibrarian, isLoading=$_isLoading');
     final width = MediaQuery.of(context).size.width;
     final isWide = width > 600;
 
@@ -419,6 +435,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
                                       Icons.search,
                                       Colors.blue,
                                       () => context.push('/books/add'),
+                                      key: const Key('addBookButton'),
                                     ),
                                   ),
                                 ],
@@ -472,6 +489,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
                                       () => context.push('/books/add'),
                                       isPrimary: true,
                                       key: _addKey,
+                                      testKey: const Key('addBookButton'),
                                     ),
                                     _buildActionButton(
                                       context,
@@ -671,13 +689,12 @@ class _DashboardScreenState extends State<DashboardScreen> {
                         ),
                         const SizedBox(width: 8),
                         Text(
-                          TranslationService.translate(context, 'quote_of_the_day') ?? 'Quote of the Day',
+                          (TranslationService.translate(context, 'quote_of_the_day') ?? 'Quote of the Day').toUpperCase(),
                           style: const TextStyle(
                             color: Colors.white70,
                             fontSize: 12,
                             fontWeight: FontWeight.w600,
                             letterSpacing: 1.0,
-                            uppercase: true,
                           ),
                         ),
                       ],
@@ -1030,8 +1047,9 @@ class _DashboardScreenState extends State<DashboardScreen> {
     VoidCallback onPressed, {
     bool isPrimary = false,
     Key? key,
+    Key? testKey,
   }) {
-    return ScaleOnTap(
+    Widget button = ScaleOnTap(
       child: ElevatedButton.icon(
         key: key,
         onPressed: onPressed,
@@ -1053,6 +1071,11 @@ class _DashboardScreenState extends State<DashboardScreen> {
         ),
       ),
     );
+    
+    if (testKey != null) {
+      return KeyedSubtree(key: testKey, child: button);
+    }
+    return button;
   }
 
   Widget _buildBookList(

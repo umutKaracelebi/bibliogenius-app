@@ -4,6 +4,7 @@ import 'dart:convert';
 import '../utils/avatars.dart';
 import '../models/avatar_config.dart';
 import '../services/api_service.dart';
+import '../themes/base/theme_registry.dart';
 
 class ThemeProvider with ChangeNotifier {
   Color _bannerColor = Colors.blue;
@@ -33,180 +34,12 @@ class ThemeProvider with ChangeNotifier {
       _profileType == 'individual' || _profileType == 'kid';
 
   ThemeData get themeData {
-    final brightness = ThemeData.estimateBrightnessForColor(_bannerColor);
-    final foregroundColor = brightness == Brightness.dark
-        ? Colors.white
-        : Colors.black;
-
-    if (_themeStyle == 'minimal') {
-      // POC Theme Colors
-      const bgBody = Color(0xFFFDFBF7); // Warm cream
-      const bgCard = Colors.white;
-      const textMain = Color(0xFF44403C); // Stone 700
-      const textMuted = Color(0xFF78716C); // Stone 500
-      const border = Color(0xFFE7E5E4); // Stone 200
-      final primary = _bannerColor; // Use user-selected color
-
-      return ThemeData(
-        primaryColor: primary,
-        useMaterial3: true,
-        scaffoldBackgroundColor: bgBody,
-        fontFamily: 'Inter', // Will fallback if not available
-        appBarTheme: const AppBarTheme(
-          backgroundColor: bgBody,
-          foregroundColor: textMain,
-          elevation: 0,
-          iconTheme: IconThemeData(color: textMain),
-          titleTextStyle: TextStyle(
-            color: textMain,
-            fontSize: 20,
-            fontWeight: FontWeight.w800,
-            letterSpacing: -0.5,
-          ),
-        ),
-        colorScheme: ColorScheme.fromSeed(
-          seedColor: primary,
-          primary: primary,
-          background: bgBody,
-          surface: bgCard,
-          onBackground: textMain,
-          onSurface: textMain,
-          outline: border,
-        ),
-        cardTheme: CardThemeData(
-          color: bgCard,
-          elevation: 0,
-          shape: RoundedRectangleBorder(
-            side: const BorderSide(color: border),
-            borderRadius: BorderRadius.circular(12),
-          ),
-          margin: const EdgeInsets.only(bottom: 16),
-        ),
-        textTheme: const TextTheme(
-          bodyLarge: TextStyle(color: textMain),
-          bodyMedium: TextStyle(color: textMain),
-          titleLarge: TextStyle(
-            color: textMain,
-            fontWeight: FontWeight.w800,
-            letterSpacing: -0.5,
-          ),
-          titleMedium: TextStyle(color: textMain, fontWeight: FontWeight.w700),
-        ),
-        elevatedButtonTheme: ElevatedButtonThemeData(
-          style: ElevatedButton.styleFrom(
-            backgroundColor: primary,
-            foregroundColor: Colors.white,
-            elevation: 0,
-            padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 12),
-            shape: RoundedRectangleBorder(
-              borderRadius: BorderRadius.circular(8),
-            ),
-          ),
-        ),
-        inputDecorationTheme: InputDecorationTheme(
-          filled: true,
-          fillColor: bgCard,
-          border: OutlineInputBorder(
-            borderRadius: BorderRadius.circular(8),
-            borderSide: const BorderSide(color: border),
-          ),
-          enabledBorder: OutlineInputBorder(
-            borderRadius: BorderRadius.circular(8),
-            borderSide: const BorderSide(color: border),
-          ),
-          focusedBorder: OutlineInputBorder(
-            borderRadius: BorderRadius.circular(8),
-            borderSide: BorderSide(color: primary, width: 2),
-          ),
-          contentPadding: const EdgeInsets.symmetric(
-            horizontal: 16,
-            vertical: 12,
-          ),
-        ),
-      );
-    }
-
-    // Default Theme (Colorful but with POC aesthetics)
-    // POC Theme Colors
-    const bgBody = Color(0xFFFDFBF7); // Warm cream
-    const bgCard = Colors.white;
-    const textMain = Color(0xFF44403C); // Stone 700
-    const border = Color(0xFFE7E5E4); // Stone 200
-
-    return ThemeData(
-      primaryColor: _bannerColor,
-      useMaterial3: true,
-      scaffoldBackgroundColor: bgBody,
-      fontFamily: 'Inter',
-      appBarTheme: AppBarTheme(
-        backgroundColor: _bannerColor,
-        foregroundColor: foregroundColor,
-        elevation: 0,
-        titleTextStyle: TextStyle(
-          color: foregroundColor,
-          fontSize: 20,
-          fontWeight: FontWeight.w800,
-          letterSpacing: -0.5,
-        ),
-      ),
-      colorScheme: ColorScheme.fromSeed(
-        seedColor: _bannerColor,
-        primary: _bannerColor,
-        background: bgBody,
-        surface: bgCard,
-        onBackground: textMain,
-        onSurface: textMain,
-        outline: border,
-      ),
-      cardTheme: CardThemeData(
-        color: bgCard,
-        elevation: 0,
-        shape: RoundedRectangleBorder(
-          side: const BorderSide(color: border),
-          borderRadius: BorderRadius.circular(12),
-        ),
-        margin: const EdgeInsets.only(bottom: 16),
-      ),
-      textTheme: const TextTheme(
-        bodyLarge: TextStyle(color: textMain),
-        bodyMedium: TextStyle(color: textMain),
-        titleLarge: TextStyle(
-          color: textMain,
-          fontWeight: FontWeight.w800,
-          letterSpacing: -0.5,
-        ),
-        titleMedium: TextStyle(color: textMain, fontWeight: FontWeight.w700),
-      ),
-      elevatedButtonTheme: ElevatedButtonThemeData(
-        style: ElevatedButton.styleFrom(
-          backgroundColor: _bannerColor,
-          foregroundColor: foregroundColor,
-          elevation: 0,
-          padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 12),
-          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
-        ),
-      ),
-      inputDecorationTheme: InputDecorationTheme(
-        filled: true,
-        fillColor: bgCard,
-        border: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(8),
-          borderSide: const BorderSide(color: border),
-        ),
-        enabledBorder: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(8),
-          borderSide: const BorderSide(color: border),
-        ),
-        focusedBorder: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(8),
-          borderSide: BorderSide(color: _bannerColor, width: 2),
-        ),
-        contentPadding: const EdgeInsets.symmetric(
-          horizontal: 16,
-          vertical: 12,
-        ),
-      ),
-    );
+    // Initialize registry if needed
+    ThemeRegistry.initialize();
+    
+    // Get theme from registry, fallback to default
+    final theme = ThemeRegistry.get(_themeStyle) ?? ThemeRegistry.defaultTheme;
+    return theme.buildTheme(accentColor: _bannerColor);
   }
 
   Future<void> loadSettings() async {

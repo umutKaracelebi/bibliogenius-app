@@ -7,6 +7,7 @@ import '../services/api_service.dart';
 import '../services/translation_service.dart';
 import '../services/demo_service.dart';
 import '../widgets/avatar_customizer.dart';
+import '../themes/base/theme_registry.dart';
 
 class SetupScreen extends StatefulWidget {
   const SetupScreen({super.key});
@@ -395,26 +396,32 @@ class _SetupScreenState extends State<SetupScreen> {
                     DropdownButton<String>(
                       value: themeProvider.themeStyle,
                       isExpanded: true,
-                      items: [
-                        DropdownMenuItem(
-                          value: 'default',
-                          child: Text(
-                            TranslationService.translate(
-                              context,
-                              'theme_default',
-                            ),
+                      items: ThemeRegistry.all.map((theme) {
+                        return DropdownMenuItem(
+                          value: theme.id,
+                          child: Row(
+                            children: [
+                              Container(
+                                width: 16,
+                                height: 16,
+                                margin: const EdgeInsets.only(right: 8),
+                                decoration: BoxDecoration(
+                                  color: theme.previewColor,
+                                  borderRadius: BorderRadius.circular(4),
+                                ),
+                              ),
+                              Expanded(
+                                child: Text(
+                                  TranslationService.translate(
+                                    context,
+                                    'theme_${theme.id}',
+                                  ) ?? theme.displayName,
+                                ),
+                              ),
+                            ],
                           ),
-                        ),
-                        DropdownMenuItem(
-                          value: 'minimal',
-                          child: Text(
-                            TranslationService.translate(
-                              context,
-                              'theme_minimal',
-                            ),
-                          ),
-                        ),
-                      ],
+                        );
+                      }).toList(),
                       onChanged: (String? newValue) {
                         if (newValue != null) {
                           themeProvider.setThemeStyle(newValue);

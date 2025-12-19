@@ -238,7 +238,7 @@ class _EditBookScreenState extends State<EditBookScreen> {
       
       // Also update copy status if changed
       if (_copyId != null) {
-        await apiService.updateCopy(_copyId!, status: _copyStatus);
+        await apiService.updateCopy(_copyId!, {'status': _copyStatus});
       }
       
       if (mounted) {
@@ -984,7 +984,7 @@ class _EditBookScreenState extends State<EditBookScreen> {
         borderSide: BorderSide(color: Theme.of(context).primaryColor, width: 2),
       ),
       filled: true,
-      fillColor: Colors.white,
+      fillColor: null, // Uses theme InputDecorationTheme
     );
   }
 }

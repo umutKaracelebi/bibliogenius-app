@@ -191,6 +191,12 @@ class _PeerBookListScreenState extends State<PeerBookListScreen> {
           ),
           if (!_isSearching)
             IconButton(
+              icon: const Icon(Icons.sync),
+              tooltip: 'Sync Library',
+              onPressed: _syncBooks,
+            ),
+          if (!_isSearching)
+            IconButton(
               icon: Icon(_isShelfView ? Icons.list : Icons.grid_view),
               onPressed: () {
                 setState(() {

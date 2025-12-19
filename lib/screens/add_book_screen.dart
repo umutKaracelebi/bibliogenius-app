@@ -192,9 +192,10 @@ class _AddBookScreenState extends State<AddBookScreen> {
         actions: [
           TextButton.icon(
             onPressed: () => context.push('/search/external'),
-            icon: Icon(Icons.search, color: Theme.of(context).colorScheme.onPrimary),
+            icon: Icon(Icons.search, color: Theme.of(context).appBarTheme.foregroundColor),
             label: Text(
               TranslationService.translate(context, 'btn_search_online'),
+              style: TextStyle(color: Theme.of(context).appBarTheme.foregroundColor),
             ),
           ),
           Padding(
@@ -206,7 +207,7 @@ class _AddBookScreenState extends State<AddBookScreen> {
                       height: 20,
                       child: CircularProgressIndicator(
                         strokeWidth: 2,
-                        color: Theme.of(context).colorScheme.onPrimary,
+                        color: Theme.of(context).appBarTheme.foregroundColor,
                       ),
                     ),
                   )
@@ -215,9 +216,10 @@ class _AddBookScreenState extends State<AddBookScreen> {
                     key: const Key('saveBookButton'),
                     child: Text(
                       TranslationService.translate(context, 'save_book') ?? 'Save',
-                      style: const TextStyle(
+                      style: TextStyle(
                         fontWeight: FontWeight.bold,
                         fontSize: 16,
+                        color: Theme.of(context).appBarTheme.foregroundColor,
                       ),
                     ),
                   ),
@@ -766,7 +768,7 @@ class _AddBookScreenState extends State<AddBookScreen> {
         borderSide: BorderSide(color: Theme.of(context).primaryColor, width: 2),
       ),
       filled: true,
-      fillColor: Colors.white,
+      fillColor: null, // Uses theme InputDecorationTheme
     );
   }
 }

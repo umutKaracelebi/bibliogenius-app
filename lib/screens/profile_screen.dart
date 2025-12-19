@@ -22,6 +22,7 @@ import 'package:universal_html/html.dart' as html;
 import 'dart:io' as io;
 import 'package:dio/dio.dart' show Response;
 import 'dart:convert'; // For base64Decode
+import '../themes/base/theme_registry.dart';
 
 class ProfileScreen extends StatefulWidget {
   const ProfileScreen({super.key});
@@ -1607,31 +1608,37 @@ class _ProfileScreenState extends State<ProfileScreen> {
                     DropdownButton<String>(
                       value: themeProvider.themeStyle,
                       isExpanded: true,
-                      items: [
-                        DropdownMenuItem(
-                          value: 'default',
-                          child: Text(
-                            TranslationService.translate(
-                              context,
-                              'theme_default',
-                            ),
+                      items: ThemeRegistry.all.map((theme) {
+                        return DropdownMenuItem(
+                          value: theme.id,
+                          child: Row(
+                            children: [
+                              Container(
+                                width: 16,
+                                height: 16,
+                                margin: const EdgeInsets.only(right: 8),
+                                decoration: BoxDecoration(
+                                  color: theme.previewColor,
+                                  borderRadius: BorderRadius.circular(4),
+                                ),
+                              ),
+                              Expanded(
+                                child: Text(
+                                  TranslationService.translate(
+                                    context,
+                                    'theme_${theme.id}',
+                                  ) ?? theme.displayName,
+                                ),
+                              ),
+                            ],
                           ),
-                        ),
-                        DropdownMenuItem(
-                          value: 'minimal',
-                          child: Text(
-                            TranslationService.translate(
-                              context,
-                              'theme_minimal',
-                            ),
-                          ),
-                        ),
-                      ],
-                      onChanged: null, // Disabled for now as requested
-
-                      // if (newValue != null) {
-                      //   themeProvider.setThemeStyle(newValue);
-                      // }
+                        );
+                      }).toList(),
+                      onChanged: (String? newValue) {
+                        if (newValue != null) {
+                          themeProvider.setThemeStyle(newValue);
+                        }
+                      },
                     ),
                     const SizedBox(height: 8),
                 Text(

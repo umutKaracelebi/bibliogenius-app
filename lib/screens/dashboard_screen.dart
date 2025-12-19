@@ -293,8 +293,10 @@ class _DashboardScreenState extends State<DashboardScreen> {
       //   child: const Icon(Icons.auto_awesome, color: Colors.white),
       // ),
       body: Container(
-        decoration: const BoxDecoration(
-          gradient: AppDesign.pageGradient, // Discrete light background
+        decoration: BoxDecoration(
+          gradient: AppDesign.pageGradientForTheme(
+            Provider.of<ThemeProvider>(context).themeStyle,
+          ),
         ),
         child: SafeArea(
           child: _isLoading
@@ -604,7 +606,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
                                         context,
                                         'view_insights',
                                       ),
-                                      style: const TextStyle(
+                                      style: TextStyle(
                                         color: Colors.black54,
                                       ),
                                     ),
@@ -643,93 +645,80 @@ class _DashboardScreenState extends State<DashboardScreen> {
   Widget _buildHeader(BuildContext context) {
     if (_dailyQuote == null) return const SizedBox.shrink();
 
+    final theme = Theme.of(context);
+    final isDark = theme.brightness == Brightness.dark;
+    
+    // Theme-aware colors - dark wood for Sorbonne, soft pastel for light themes
+    final bgColor = isDark ? const Color(0xFF2D1810) : const Color(0xFFF5F0E8);
+    final textColor = isDark ? const Color(0xFFC4A35A) : const Color(0xFF4A3728);
+
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        const SizedBox(height: 24),
+        const SizedBox(height: 16),
         Container(
           width: double.infinity,
           decoration: BoxDecoration(
-            gradient: AppDesign.primaryGradient,
+            color: bgColor,
             borderRadius: BorderRadius.circular(AppDesign.radiusLarge),
-            boxShadow: AppDesign.elevatedShadow,
+            border: isDark ? Border.all(color: const Color(0xFF5D3A1A), width: 1) : null,
+            boxShadow: [
+              BoxShadow(
+                color: Colors.black.withValues(alpha: isDark ? 0.3 : 0.06),
+                blurRadius: 10,
+                offset: const Offset(0, 3),
+              ),
+            ],
           ),
           child: Stack(
             clipBehavior: Clip.hardEdge,
             children: [
               // Decorative background icon
               Positioned(
-                right: -24,
-                top: -20,
+                right: -20,
+                top: -16,
                 child: Icon(
                   Icons.format_quote_rounded,
-                  size: 160,
-                  color: Colors.white.withValues(alpha: 0.1),
+                  size: 120,
+                  color: textColor.withValues(alpha: 0.08),
                 ),
               ),
               // Content
               Padding(
-                padding: const EdgeInsets.all(24.0),
+                padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 16),
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    Row(
-                      children: [
-                        Container(
-                          padding: const EdgeInsets.all(8),
-                          decoration: BoxDecoration(
-                            color: Colors.white.withValues(alpha: 0.2),
-                            shape: BoxShape.circle,
-                          ),
-                          child: const Icon(
-                            Icons.auto_awesome,
-                            color: Colors.white,
-                            size: 16,
-                          ),
-                        ),
-                        const SizedBox(width: 8),
-                        Text(
-                          (TranslationService.translate(context, 'quote_of_the_day') ?? 'Quote of the Day').toUpperCase(),
-                          style: const TextStyle(
-                            color: Colors.white70,
-                            fontSize: 12,
-                            fontWeight: FontWeight.w600,
-                            letterSpacing: 1.0,
-                          ),
-                        ),
-                      ],
-                    ),
-                    const SizedBox(height: 16),
                     Text(
                       _dailyQuote!.text,
-                      style: const TextStyle(
-                        fontSize: 18,
-                        height: 1.5,
+                      style: TextStyle(
+                        fontSize: 16,
+                        height: 1.4,
                         fontStyle: FontStyle.italic,
-                        fontFamily: 'Georgia', // Serif for quote elegance
-                        color: Colors.white,
+                        fontFamily: 'Georgia',
+                        color: textColor,
                         fontWeight: FontWeight.w500,
                       ),
                     ),
-                    const SizedBox(height: 16),
+                    const SizedBox(height: 12),
                     Align(
                       alignment: Alignment.centerRight,
                       child: Row(
                         mainAxisSize: MainAxisSize.min,
                         children: [
                           Container(
-                            width: 20,
+                            width: 16,
                             height: 1,
-                            color: Colors.white38,
+                            color: textColor.withValues(alpha: 0.3),
                           ),
                           const SizedBox(width: 8),
                           Text(
                             _dailyQuote!.author,
-                            style: const TextStyle(
-                              fontSize: 15,
+                            style: TextStyle(
+                              fontSize: 13,
                               fontWeight: FontWeight.w600,
-                              color: Colors.white,
-                              letterSpacing: 0.5,
+                              color: textColor,
+                              letterSpacing: 0.3,
                             ),
                           ),
                         ],
@@ -759,14 +748,22 @@ class _DashboardScreenState extends State<DashboardScreen> {
   Widget _buildGamificationMini(BuildContext context) {
     if (_gamificationStatus == null) return const SizedBox.shrink();
 
+    final themeProvider = Provider.of<ThemeProvider>(context, listen: false);
+    final isSorbonne = themeProvider.themeStyle == 'sorbonne';
+    final cardColor = isSorbonne ? const Color(0xFF2D1810) : Colors.white;
+    final accentColors = isSorbonne
+        ? [const Color(0xFF8B4513), const Color(0xFF5D3A1A)] // Bronze/leather
+        : [const Color(0xFF667eea), const Color(0xFF764ba2)]; // Blue-purple
+
     return GestureDetector(
       onTap: () => context.push('/profile'),
       child: Container(
         padding: const EdgeInsets.all(16),
         decoration: BoxDecoration(
-          color: Colors.white,
+          color: cardColor,
           borderRadius: BorderRadius.circular(16),
           boxShadow: AppDesign.subtleShadow,
+          border: isSorbonne ? Border.all(color: const Color(0xFF5D3A1A)) : null,
         ),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
@@ -777,23 +774,23 @@ class _DashboardScreenState extends State<DashboardScreen> {
                 Row(
                   children: [
                     Container(
-                      padding: const EdgeInsets.all(6),
-                      decoration: BoxDecoration(
-                        gradient: const LinearGradient(
-                          colors: [Color(0xFF667eea), Color(0xFF764ba2)],
-                        ),
-                        borderRadius: BorderRadius.circular(8),
-                      ),
-                      child: const Icon(
-                        Icons.emoji_events,
-                        color: Colors.white,
-                        size: 14,
-                      ),
+                  padding: const EdgeInsets.all(6),
+                  decoration: BoxDecoration(
+                    gradient: LinearGradient(
+                      colors: accentColors,
+                    ),
+                    borderRadius: BorderRadius.circular(8),
+                  ),
+                  child: Icon(
+                    Icons.emoji_events,
+                    color: isSorbonne ? const Color(0xFFC4A35A) : Colors.white,
+                    size: 14,
+                  ),
                     ),
                     const SizedBox(width: 8),
                     Text(
                       TranslationService.translate(context, 'your_progress'),
-                      style: const TextStyle(
+                      style: TextStyle(
                         fontWeight: FontWeight.bold,
                         fontSize: 14,
                       ),
@@ -889,7 +886,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
                   child: Center(
                     child: Text(
                       '${track.level}',
-                      style: const TextStyle(
+                      style: TextStyle(
                         color: Colors.white,
                         fontSize: 9,
                         fontWeight: FontWeight.bold,
@@ -935,16 +932,24 @@ class _DashboardScreenState extends State<DashboardScreen> {
     IconData icon, {
     bool isAccent = false,
   }) {
+    final isSorbonne = Provider.of<ThemeProvider>(context, listen: false).themeStyle == 'sorbonne';
+    final cardBg = isAccent ? Theme.of(context).primaryColor 
+        : (isSorbonne ? const Color(0xFF2D1810) : Colors.white);
+    final borderClr = isAccent ? Colors.transparent 
+        : (isSorbonne ? const Color(0xFF5D3A1A) : Colors.grey.withValues(alpha: 0.3));
+    final iconClr = isAccent ? Colors.white 
+        : (isSorbonne ? const Color(0xFFC4A35A) : Theme.of(context).primaryColor);
+    final valueClr = isAccent ? Colors.white 
+        : (isSorbonne ? const Color(0xFFD4A855) : Colors.black87);
+    final labelClr = isAccent ? Colors.white70 
+        : (isSorbonne ? const Color(0xFF8B7355) : Colors.black54);
+
     return Container(
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
-        color: isAccent ? Theme.of(context).primaryColor : Colors.white,
+        color: cardBg,
         borderRadius: BorderRadius.circular(20),
-        border: Border.all(
-          color: isAccent
-              ? Colors.transparent
-              : Colors.grey.withValues(alpha: 0.3),
-        ),
+        border: Border.all(color: borderClr),
         boxShadow: isAccent
             ? [
                 BoxShadow(
@@ -960,7 +965,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
         children: [
           Icon(
             icon,
-            color: isAccent ? Colors.white : Theme.of(context).primaryColor,
+            color: iconClr,
             size: 24,
           ),
           const SizedBox(height: 12),
@@ -969,7 +974,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
             style: TextStyle(
               fontSize: 24,
               fontWeight: FontWeight.bold,
-              color: isAccent ? Colors.white : Colors.black87,
+              color: valueClr,
             ),
           ),
           const SizedBox(height: 4),
@@ -978,7 +983,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
             style: TextStyle(
               fontSize: 12,
               fontWeight: FontWeight.w500,
-              color: isAccent ? Colors.white70 : Colors.black54,
+              color: labelClr,
             ),
             maxLines: 1,
             overflow: TextOverflow.ellipsis,
@@ -1000,6 +1005,12 @@ class _DashboardScreenState extends State<DashboardScreen> {
       icon = Icons.bolt;
     }
 
+    final isSorbonne = Provider.of<ThemeProvider>(context, listen: false).themeStyle == 'sorbonne';
+    final accentColors = isSorbonne
+        ? [const Color(0xFF8B4513), const Color(0xFF5D3A1A)]
+        : [const Color(0xFF667eea), const Color(0xFF764ba2)];
+    final iconColor = isSorbonne ? const Color(0xFFC4A35A) : const Color(0xFF667eea);
+
     return Container(
       margin: const EdgeInsets.only(top: 8),
       child: Row(
@@ -1008,10 +1019,10 @@ class _DashboardScreenState extends State<DashboardScreen> {
             width: 4,
             height: 28,
             decoration: BoxDecoration(
-              gradient: const LinearGradient(
+              gradient: LinearGradient(
                 begin: Alignment.topCenter,
                 end: Alignment.bottomCenter,
-                colors: [Color(0xFF667eea), Color(0xFF764ba2)],
+                colors: accentColors,
               ),
               borderRadius: BorderRadius.circular(2),
             ),
@@ -1020,18 +1031,18 @@ class _DashboardScreenState extends State<DashboardScreen> {
           Container(
             padding: const EdgeInsets.all(8),
             decoration: BoxDecoration(
-              color: const Color(0xFF667eea).withValues(alpha: 0.1),
+              color: iconColor.withValues(alpha: 0.1),
               borderRadius: BorderRadius.circular(10),
             ),
-            child: Icon(icon, size: 18, color: const Color(0xFF667eea)),
+            child: Icon(icon, size: 18, color: iconColor),
           ),
           const SizedBox(width: 10),
           Text(
             title,
-            style: const TextStyle(
+            style: TextStyle(
               fontSize: 18,
               fontWeight: FontWeight.bold,
-              color: Colors.black87,
+              color: isSorbonne ? const Color(0xFFD4A855) : Colors.black87,
               letterSpacing: 0.3,
             ),
           ),
@@ -1049,6 +1060,12 @@ class _DashboardScreenState extends State<DashboardScreen> {
     Key? key,
     Key? testKey,
   }) {
+    final isSorbonne = Provider.of<ThemeProvider>(context, listen: false).themeStyle == 'sorbonne';
+    final btnBg = isPrimary ? Theme.of(context).primaryColor 
+        : (isSorbonne ? const Color(0xFF2D1810) : Colors.white);
+    final btnFg = isPrimary ? Colors.white 
+        : (isSorbonne ? const Color(0xFFC4A35A) : Theme.of(context).primaryColor);
+
     Widget button = ScaleOnTap(
       child: ElevatedButton.icon(
         key: key,
@@ -1056,12 +1073,8 @@ class _DashboardScreenState extends State<DashboardScreen> {
         icon: Icon(icon, size: 18),
         label: Text(label),
         style: ElevatedButton.styleFrom(
-          backgroundColor: isPrimary
-              ? Theme.of(context).primaryColor
-              : Colors.white,
-          foregroundColor: isPrimary
-              ? Colors.white
-              : Theme.of(context).primaryColor,
+          backgroundColor: btnBg,
+          foregroundColor: btnFg,
           elevation: isPrimary ? 4 : 2,
           padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 14),
           shape: RoundedRectangleBorder(
@@ -1091,7 +1104,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
           child: Text(
             emptyMessage,
             textAlign: TextAlign.center,
-            style: const TextStyle(color: Colors.black54),
+            style: TextStyle(color: Colors.black54),
           ),
         ),
       );

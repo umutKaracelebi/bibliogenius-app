@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
+import '../providers/theme_provider.dart';
 import '../services/translation_service.dart';
 import '../models/gamification_status.dart';
 
@@ -25,6 +27,21 @@ class WelcomeBanner extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final displayName = libraryName ?? userName ?? 'BiblioGenius';
+    final themeProvider = Provider.of<ThemeProvider>(context);
+    final isSorbonne = themeProvider.themeStyle == 'sorbonne';
+    
+    // Theme-aware colors
+    final gradientColors = isSorbonne
+        ? [const Color(0xFF1A0F0A), const Color(0xFF2D1810)] // Dark wood
+        : [const Color(0xFF667eea), const Color(0xFF764ba2)]; // Blue-purple
+    final shadowColor = isSorbonne
+        ? const Color(0xFF000000).withValues(alpha: 0.5)
+        : const Color(0xFF667eea).withValues(alpha: 0.3);
+    final iconBgColor = isSorbonne
+        ? const Color(0xFFD4A855).withValues(alpha: 0.2)
+        : Colors.white.withValues(alpha: 0.2);
+    final iconColor = isSorbonne ? const Color(0xFFD4A855) : Colors.white;
+    final textColor = isSorbonne ? const Color(0xFFC4A35A) : Colors.white;
 
     return Container(
       width: double.infinity,
@@ -33,15 +50,16 @@ class WelcomeBanner extends StatelessWidget {
         vertical: compact ? 20 : 32,
       ),
       decoration: BoxDecoration(
-        gradient: const LinearGradient(
+        gradient: LinearGradient(
           begin: Alignment.topLeft,
           end: Alignment.bottomRight,
-          colors: [Color(0xFF667eea), Color(0xFF764ba2)],
+          colors: gradientColors,
         ),
         borderRadius: BorderRadius.circular(compact ? 16 : 20),
+        border: isSorbonne ? Border.all(color: const Color(0xFF5D3A1A)) : null,
         boxShadow: [
           BoxShadow(
-            color: const Color(0xFF667eea).withValues(alpha: 0.3),
+            color: shadowColor,
             blurRadius: 15,
             offset: const Offset(0, 8),
           ),

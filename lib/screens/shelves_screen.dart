@@ -6,6 +6,7 @@ import '../services/api_service.dart';
 import '../widgets/genie_app_bar.dart';
 import '../services/translation_service.dart';
 import '../theme/app_design.dart';
+import '../providers/theme_provider.dart';
 
 class ShelvesScreen extends StatefulWidget {
   const ShelvesScreen({super.key});
@@ -33,6 +34,7 @@ class _ShelvesScreenState extends State<ShelvesScreen> {
   Widget build(BuildContext context) {
     final width = MediaQuery.of(context).size.width;
     final bool isMobile = width <= 600;
+    final themeStyle = Provider.of<ThemeProvider>(context).themeStyle;
 
     return Scaffold(
       appBar: GenieAppBar(
@@ -46,7 +48,7 @@ class _ShelvesScreenState extends State<ShelvesScreen> {
         automaticallyImplyLeading: false,
       ),
       body: Container(
-        decoration: const BoxDecoration(gradient: AppDesign.pageGradient),
+        decoration: BoxDecoration(gradient: AppDesign.pageGradientForTheme(themeStyle)),
         child: FutureBuilder<List<Tag>>(
           future: _tagsFuture,
           builder: (context, snapshot) {
@@ -174,8 +176,20 @@ class _ShelvesScreenState extends State<ShelvesScreen> {
   }
 
   Widget _buildShelfCard(BuildContext context, Tag tag, int index) {
-    // Color palette for shelves
-    final colors = [
+    final themeStyle = Provider.of<ThemeProvider>(context, listen: false).themeStyle;
+    final isSorbonne = themeStyle == 'sorbonne';
+    
+    // Autumn palette for Sorbonne, colorful for others
+    final colors = isSorbonne ? [
+      const Color(0xFF8B4513), // Saddle brown
+      const Color(0xFFCD853F), // Peru/tan
+      const Color(0xFFD2691E), // Chocolate
+      const Color(0xFFA0522D), // Sienna
+      const Color(0xFF6B4423), // Dark brown
+      const Color(0xFFCC7722), // Ochre
+      const Color(0xFF8B6914), // Bronze
+      const Color(0xFF704214), // Sepia
+    ] : [
       const Color(0xFF667eea), // Indigo
       const Color(0xFF764ba2), // Purple
       const Color(0xFFf093fb), // Pink

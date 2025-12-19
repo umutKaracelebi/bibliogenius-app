@@ -235,8 +235,10 @@ class _BookListScreenState extends State<BookListScreen> {
         ],
       ),
       body: Container(
-        decoration: const BoxDecoration(
-          gradient: AppDesign.pageGradient, // Discrete light background
+        decoration: BoxDecoration(
+          gradient: AppDesign.pageGradientForTheme(
+            Provider.of<ThemeProvider>(context).themeStyle,
+          ),
         ),
         child: SafeArea(
           child: Column(

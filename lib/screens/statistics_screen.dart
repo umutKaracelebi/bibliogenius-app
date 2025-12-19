@@ -811,7 +811,7 @@ class _StatisticsScreenState extends State<StatisticsScreen>
                   TranslationService.translate(context, 'track_collector'),
                   _userStatus!.collector,
                   Icons.collections_bookmark,
-                  Colors.blue,
+                  const Color(0xFFD4A855), // Bronze instead of blue
                 ),
                 _buildCircularTrack(
                   context,
@@ -832,7 +832,7 @@ class _StatisticsScreenState extends State<StatisticsScreen>
                   TranslationService.translate(context, 'track_cataloguer'),
                   _userStatus!.cataloguer,
                   Icons.list_alt,
-                  Colors.purple,
+                  const Color(0xFF8B4513), // Bronze instead of purple
                 ),
               ],
             ),
@@ -1024,7 +1024,7 @@ class _StatisticsScreenState extends State<StatisticsScreen>
                   TranslationService.translate(context, 'total_loans'),
                   totalLoans.toString(),
                   Icons.swap_horiz,
-                  Colors.purple,
+                  const Color(0xFF8B4513), // Bronze instead of purple
                 ),
               ),
               const SizedBox(width: 12),
@@ -1051,7 +1051,7 @@ class _StatisticsScreenState extends State<StatisticsScreen>
                   TranslationService.translate(context, 'avg_duration'),
                   '${avgDuration.toStringAsFixed(0)}j',
                   Icons.timer,
-                  Colors.blue,
+                  const Color(0xFFD4A855), // Bronze instead of blue
                 ),
               ),
             ],
@@ -1088,14 +1088,14 @@ class _StatisticsScreenState extends State<StatisticsScreen>
                         vertical: 2,
                       ),
                       decoration: BoxDecoration(
-                        color: Colors.purple.withValues(alpha: 0.1),
+                        color: const Color(0xFF8B4513).withValues(alpha: 0.1),
                         borderRadius: BorderRadius.circular(12),
                       ),
                       child: Text(
                         '${e.value} ${TranslationService.translate(context, 'loans_label')}',
                         style: const TextStyle(
                           fontSize: 11,
-                          color: Colors.purple,
+                          color: Color(0xFF8B4513),
                         ),
                       ),
                     ),
@@ -1132,14 +1132,14 @@ class _StatisticsScreenState extends State<StatisticsScreen>
                         vertical: 2,
                       ),
                       decoration: BoxDecoration(
-                        color: Colors.blue.withValues(alpha: 0.1),
+                        color: const Color(0xFFD4A855).withValues(alpha: 0.1),
                         borderRadius: BorderRadius.circular(12),
                       ),
                       child: Text(
                         '${e.value}x',
                         style: const TextStyle(
                           fontSize: 11,
-                          color: Colors.blue,
+                          color: Color(0xFFD4A855),
                         ),
                       ),
                     ),

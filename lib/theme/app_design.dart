@@ -25,6 +25,25 @@ class AppDesign {
     stops: [0.0, 1.0],
   );
 
+  /// Theme-aware page gradient - use this for Sorbonne compatibility
+  static LinearGradient pageGradientForTheme(String themeStyle) {
+    if (themeStyle == 'sorbonne') {
+      return const LinearGradient(
+        begin: Alignment.topCenter,
+        end: Alignment.bottomCenter,
+        colors: [Color(0xFF0D0705), Color(0xFF1A0F0A), Color(0xFF2D1810)],
+      );
+    }
+    return pageGradient;
+  }
+
+  /// Sorbonne dark wood page gradient
+  static const sorbonnePageGradient = LinearGradient(
+    begin: Alignment.topCenter,
+    end: Alignment.bottomCenter,
+    colors: [Color(0xFF0D0705), Color(0xFF1A0F0A), Color(0xFF2D1810)],
+  );
+
   /// Success gradient - Green tones
   static const successGradient = LinearGradient(
     begin: Alignment.topLeft,

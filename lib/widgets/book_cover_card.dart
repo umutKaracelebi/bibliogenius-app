@@ -1,7 +1,9 @@
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
 import '../models/book.dart';
 import 'dart:math';
 import '../services/translation_service.dart';
+import '../providers/theme_provider.dart';
 
 class BookCoverCard extends StatelessWidget {
   final Book book;
@@ -9,7 +11,23 @@ class BookCoverCard extends StatelessWidget {
 
   const BookCoverCard({super.key, required this.book, required this.onTap});
 
-  Color _getColorFromId(int id) {
+  // Autumn/vintage palette for Sorbonne theme
+  static const List<Color> _autumnColors = [
+    Color(0xFF8B4513), // Saddle brown
+    Color(0xFFCD853F), // Peru/tan
+    Color(0xFFD2691E), // Chocolate
+    Color(0xFFA0522D), // Sienna
+    Color(0xFF6B4423), // Dark brown
+    Color(0xFFCC7722), // Ochre
+    Color(0xFF8B6914), // Bronze
+    Color(0xFF704214), // Sepia
+  ];
+
+  Color _getColorFromId(BuildContext context, int id) {
+    final isSorbonne = Provider.of<ThemeProvider>(context, listen: false).themeStyle == 'sorbonne';
+    if (isSorbonne) {
+      return _autumnColors[id % _autumnColors.length];
+    }
     final random = Random(id);
     return Color.fromARGB(
       255,
@@ -39,7 +57,7 @@ class BookCoverCard extends StatelessWidget {
           fit: StackFit.expand,
           children: [
             // Background / Cover (Layered for robust fallback)
-            _buildFallbackCover(),
+            _buildFallbackCover(context),
 
             if (book.coverUrl != null && book.coverUrl!.isNotEmpty)
               Image.network(
@@ -92,8 +110,8 @@ class BookCoverCard extends StatelessWidget {
     );
   }
 
-  Widget _buildFallbackCover() {
-    final color = _getColorFromId(book.id ?? 0);
+  Widget _buildFallbackCover(BuildContext context) {
+    final color = _getColorFromId(context, book.id ?? 0);
     return Container(
       decoration: BoxDecoration(
         color: color,

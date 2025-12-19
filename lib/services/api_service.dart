@@ -384,12 +384,9 @@ class ApiService {
     return await _dio.get('/api/books/$bookId/copies');
   }
 
-  /// Update a copy (mainly for status changes)
-  Future<Response> updateCopy(int copyId, {String? status, String? notes}) async {
-    debugPrint('📦 updateCopy: copyId=$copyId, status=$status');
-    final data = <String, dynamic>{};
-    if (status != null) data['status'] = status;
-    if (notes != null) data['notes'] = notes;
+  /// Update a copy
+  Future<Response> updateCopy(int copyId, Map<String, dynamic> data) async {
+    debugPrint('📦 updateCopy: copyId=$copyId, data=$data');
     
     if (useFfi) {
       try {

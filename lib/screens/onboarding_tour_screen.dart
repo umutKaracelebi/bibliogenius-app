@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
+import '../providers/theme_provider.dart';
 import '../services/translation_service.dart';
 import '../services/wizard_service.dart';
 import 'package:go_router/go_router.dart';
@@ -20,38 +22,60 @@ class _OnboardingTourScreenState extends State<OnboardingTourScreen>
   late Animation<double> _iconRotationAnimation;
 
   // Slide data for cleaner code
-  static const List<_SlideData> _slides = [
-    _SlideData(
-      icon: Icons.auto_stories,
-      gradient: [Color(0xFF6366F1), Color(0xFF8B5CF6)],
-      titleKey: 'onboarding_welcome_title',
-      descKey: 'onboarding_welcome_desc',
-      features: ['feature_organize', 'feature_discover', 'feature_share'],
-    ),
-    _SlideData(
-      icon: Icons.library_books,
-      gradient: [Color(0xFF10B981), Color(0xFF059669)],
-      titleKey: 'onboarding_books_title',
-      descKey: 'onboarding_books_desc',
-      features: ['feature_scan', 'feature_search', 'feature_manual'],
-    ),
-    _SlideData(
-      icon: Icons.cloud_sync,
-      gradient: [Color(0xFFF59E0B), Color(0xFFD97706)],
-      titleKey: 'onboarding_network_title',
-      descKey: 'onboarding_network_desc',
-      features: ['feature_connect', 'feature_borrow', 'feature_track'],
-    ),
-    _SlideData(
-      icon: Icons.insights,
-      gradient: [Color(0xFFEC4899), Color(0xFFDB2777)],
-      titleKey: 'onboarding_stats_title',
-      descKey: 'onboarding_stats_desc',
-      features: ['feature_stats', 'feature_goals', 'feature_history'],
-    ),
-  ];
+  // Slide data - theme-aware for Sorbonne
+  List<_SlideData> _getSlides(BuildContext context) {
+    final isSorbonne = Provider.of<ThemeProvider>(context, listen: false).themeStyle == 'sorbonne';
+    
+    // Autumn gradient palette for Sorbonne
+    final sorbonneGradients = [
+      [const Color(0xFF6B4423), const Color(0xFF8B4513)], // Brown
+      [const Color(0xFFCC7722), const Color(0xFFCD853F)], // Ochre/Tan
+      [const Color(0xFF704214), const Color(0xFFA0522D)], // Sepia/Sienna
+      [const Color(0xFF8B6914), const Color(0xFFD2691E)], // Bronze/Chocolate
+    ];
+    
+    final defaultGradients = [
+      [const Color(0xFF6366F1), const Color(0xFF8B5CF6)],
+      [const Color(0xFF10B981), const Color(0xFF059669)],
+      [const Color(0xFFF59E0B), const Color(0xFFD97706)],
+      [const Color(0xFFEC4899), const Color(0xFFDB2777)],
+    ];
+    
+    final gradients = isSorbonne ? sorbonneGradients : defaultGradients;
+    
+    return [
+      _SlideData(
+        icon: Icons.auto_stories,
+        gradient: gradients[0],
+        titleKey: 'onboarding_welcome_title',
+        descKey: 'onboarding_welcome_desc',
+        features: ['feature_organize', 'feature_discover', 'feature_share'],
+      ),
+      _SlideData(
+        icon: Icons.library_books,
+        gradient: gradients[1],
+        titleKey: 'onboarding_books_title',
+        descKey: 'onboarding_books_desc',
+        features: ['feature_scan', 'feature_search', 'feature_manual'],
+      ),
+      _SlideData(
+        icon: Icons.cloud_sync,
+        gradient: gradients[2],
+        titleKey: 'onboarding_network_title',
+        descKey: 'onboarding_network_desc',
+        features: ['feature_connect', 'feature_borrow', 'feature_track'],
+      ),
+      _SlideData(
+        icon: Icons.insights,
+        gradient: gradients[3],
+        titleKey: 'onboarding_stats_title',
+        descKey: 'onboarding_stats_desc',
+        features: ['feature_stats', 'feature_goals', 'feature_history'],
+      ),
+    ];
+  }
 
-  int get _totalPages => _slides.length;
+  int get _totalPages => _getSlides(context).length;
 
   @override
   void initState() {
@@ -119,7 +143,7 @@ class _OnboardingTourScreenState extends State<OnboardingTourScreen>
 
   @override
   Widget build(BuildContext context) {
-    final currentSlide = _slides[_currentPage];
+    final currentSlide = _getSlides(context)[_currentPage];
 
     return Scaffold(
       body: AnimatedContainer(
@@ -140,7 +164,7 @@ class _OnboardingTourScreenState extends State<OnboardingTourScreen>
                   controller: _pageController,
                   onPageChanged: _onPageChanged,
                   itemCount: _totalPages,
-                  itemBuilder: (context, index) => _buildSlide(_slides[index]),
+                  itemBuilder: (context, index) => _buildSlide(_getSlides(context)[index]),
                 ),
               ),
               _buildFooter(),
@@ -377,7 +401,7 @@ class _OnboardingTourScreenState extends State<OnboardingTourScreen>
               onPressed: _nextPage,
               style: ElevatedButton.styleFrom(
                 backgroundColor: Colors.white,
-                foregroundColor: _slides[_currentPage].gradient[0],
+                foregroundColor: _getSlides(context)[_currentPage].gradient[0],
                 elevation: 0,
                 shape: RoundedRectangleBorder(
                   borderRadius: BorderRadius.circular(16),

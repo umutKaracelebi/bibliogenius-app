@@ -136,6 +136,7 @@ class TranslationService {
       'snack_error_fetching': 'Error fetching requests',
       'snack_error_updating': 'Error updating status',
       'error_no_available_copies': 'No available copies for this book',
+      'no_copies_available': 'No copies available',
       'snack_connection_updated': 'Connection updated',
       'p2p_title': 'Connect Library',
       'tab_share_code': 'Share Code',
@@ -440,6 +441,7 @@ class TranslationService {
       'lang_de': 'German',
       'theme_default': 'Default (Colorful)',
       'theme_minimal': 'Minimal (Clean)',
+      'theme_sorbonne': 'Sorbonne (Vintage Library)',
       // Login Screen
       'login_title': 'Login',
       'login_btn': 'Login',
@@ -855,6 +857,7 @@ class TranslationService {
       'import_csv': 'Importer depuis Goodreads/Babelio',
       'app_settings': 'Paramètres de l\'application',
       'logout': 'Se déconnecter',
+      'no_copies_available': 'Aucun exemplaire disponible',
       'customize_avatar': 'Personnaliser l\'avatar',
       'save_changes': 'Enregistrer',
       'cancel': 'Annuler',
@@ -1191,6 +1194,7 @@ class TranslationService {
       'lang_de': 'Allemand',
       'theme_default': 'Défaut (Coloré)',
       'theme_minimal': 'Minimal (Épuré)',
+      'theme_sorbonne': 'Sorbonne (Bibliothèque Vintage)',
       // Login Screen
       'login_title': 'Connexion',
       'login_btn': 'Se connecter',
@@ -1538,6 +1542,7 @@ class TranslationService {
       'import_csv': 'Importar de Goodreads/LibraryThing',
       'app_settings': 'Configuración de la aplicación',
       'logout': 'Cerrar sesión',
+      'no_copies_available': 'No hay copias disponibles',
       'customize_avatar': 'Personalizar avatar',
       'save_changes': 'Guardar cambios',
       'cancel': 'Cancelar',
@@ -1884,6 +1889,7 @@ class TranslationService {
       'lang_de': 'Alemán',
       'theme_default': 'Por defecto (Colorido)',
       'theme_minimal': 'Minimalista (Limpio)',
+      'theme_sorbonne': 'Sorbonne (Biblioteca Vintage)',
       // Login Screen
       'login_title': 'Iniciar sesión',
       'login_btn': 'Iniciar sesión',
@@ -1983,6 +1989,7 @@ class TranslationService {
       'show_borrowed_subtitle': 'Geliehene Bücher in der Bibliothek anzeigen',
       'data_management': 'Datenverwaltung',
       'export_backup': 'Backup exportieren',
+      'no_copies_available': 'Keine Exemplare verfügbar',
       'import_csv': 'Von Goodreads/LibraryThing importieren',
       'app_settings': 'App-Einstellungen',
       'save_changes': 'Speichern',
@@ -2296,6 +2303,7 @@ class TranslationService {
       'lang_de': 'Deutsch',
       'theme_default': 'Standard (Bunt)',
       'theme_minimal': 'Minimal (Sauber)',
+      'theme_sorbonne': 'Sorbonne (Vintage Bibliothek)',
       // Login Screen
       'login_title': 'Anmelden',
       'login_btn': 'Anmelden',

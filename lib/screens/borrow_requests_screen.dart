@@ -374,13 +374,13 @@ class _BorrowRequestsScreenState extends State<BorrowRequestsScreen>
             padding: const EdgeInsets.all(12),
             decoration: BoxDecoration(
               color: isIncoming
-                  ? Colors.purple.withAlpha(26)
-                  : Colors.blueGrey.withAlpha(26),
+                  ? const Color(0xFF8B4513).withAlpha(26)
+                  : const Color(0xFF5D3A1A).withAlpha(26),
               borderRadius: BorderRadius.circular(12),
             ),
             child: Icon(
               isIncoming ? Icons.link : Icons.send_rounded,
-              color: isIncoming ? Colors.purple : Colors.blueGrey,
+              color: isIncoming ? const Color(0xFFD4A855) : const Color(0xFFA0724A),
               size: 24,
             ),
           ),
@@ -462,19 +462,19 @@ class _BorrowRequestsScreenState extends State<BorrowRequestsScreen>
             Container(
               padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
               decoration: BoxDecoration(
-                color: Colors.blue.withAlpha(26),
+                color: const Color(0xFF8B6914).withAlpha(26),
                 borderRadius: BorderRadius.circular(20),
-                border: Border.all(color: Colors.blue.withAlpha(51)),
+                border: Border.all(color: const Color(0xFF8B6914).withAlpha(51)),
               ),
               child: Row(
                 mainAxisSize: MainAxisSize.min,
                 children: [
-                  const Icon(Icons.check_circle_outline, size: 14, color: Colors.blue),
+                  const Icon(Icons.check_circle_outline, size: 14, color: Color(0xFFD4A855)),
                   const SizedBox(width: 6),
                   Text(
-                    TranslationService.translate(context, 'status_sent') ?? "Sent",
+                    TranslationService.translate(context, 'status_sent'),
                     style: const TextStyle(
-                      color: Colors.blue,
+                      color: Color(0xFFD4A855),
                       fontWeight: FontWeight.bold,
                       fontSize: 12,
                     ),
@@ -521,11 +521,11 @@ class _BorrowRequestsScreenState extends State<BorrowRequestsScreen>
           ),
           leading: CircleAvatar(
             backgroundColor: isIncoming
-                ? Colors.orange.withOpacity(0.1)
-                : Colors.blue.withOpacity(0.1),
+                ? Colors.orange.withValues(alpha: 0.1)
+                : const Color(0xFF8B6914).withValues(alpha: 0.1),
             child: Icon(
               isIncoming ? Icons.download : Icons.upload,
-              color: isIncoming ? Colors.orange : Colors.blue,
+              color: isIncoming ? Colors.orange : const Color(0xFFD4A855),
               size: 20,
             ),
           ),
@@ -567,7 +567,7 @@ class _BorrowRequestsScreenState extends State<BorrowRequestsScreen>
         color = Colors.red;
         break;
       case 'returned':
-        color = Colors.blue;
+        color = const Color(0xFFD4A855); // Bronze instead of blue
         break;
       default:
         color = Colors.grey;

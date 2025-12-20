@@ -99,6 +99,16 @@ class FfiService {
     }
   }
 
+  /// Reorder books by updating shelf positions
+  Future<void> reorderBooks(List<int> bookIds) async {
+    try {
+      await frb.reorderBooks(bookIds: bookIds);
+    } catch (e) {
+      debugPrint('FFI reorderBooks error: $e');
+      rethrow;
+    }
+  }
+
   // ============ Contacts ============
 
   /// Get all contacts with optional filters

@@ -606,6 +606,8 @@ class _NetworkScreenState extends State<NetworkScreen>
   }
 
   Widget _buildFilterChips() {
+    if (!_enableP2PFeatures) return const SizedBox.shrink();
+
     return SingleChildScrollView(
       scrollDirection: Axis.horizontal,
       padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),

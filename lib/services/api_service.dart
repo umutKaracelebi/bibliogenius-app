@@ -1538,6 +1538,15 @@ class ApiService {
   }
 
   Future<void> reorderBooks(List<int> bookIds) async {
+    if (useFfi) {
+      try {
+        await FfiService().reorderBooks(bookIds);
+        return;
+      } catch (e) {
+        debugPrint('FFI reorderBooks error: $e');
+        rethrow;
+      }
+    }
     try {
       await _dio.patch('/api/books/reorder', data: {'book_ids': bookIds});
     } catch (e) {

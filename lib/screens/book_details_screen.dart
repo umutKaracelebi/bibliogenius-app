@@ -1314,6 +1314,7 @@ class _BookDetailsScreenState extends State<BookDetailsScreen> {
         'book_id': _book!.id,
         'library_id': 1,
         'status': 'borrowed',
+        'is_temporary': false,
         'notes': 'Borrowed from ${selectedContact.displayName}',
       });
 

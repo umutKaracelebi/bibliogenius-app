@@ -343,6 +343,14 @@ class SorbonneTheme extends AppTheme {
           fontSize: 14,
           fontWeight: FontWeight.w500,
         ),
+        // Floating label style - ensures visibility above dark input background
+        floatingLabelStyle: const TextStyle(
+          color: SorbonneColors.goldLeaf,
+          fontSize: 16,
+          fontWeight: FontWeight.w600,
+          backgroundColor: SorbonneColors.darkWood, // Background to prevent clipping
+        ),
+        floatingLabelBehavior: FloatingLabelBehavior.auto,
       ),
 
       dividerTheme: DividerThemeData(

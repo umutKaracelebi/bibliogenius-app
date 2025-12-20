@@ -135,6 +135,13 @@ class MinimalTheme extends AppTheme {
         contentPadding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
         hintStyle: const TextStyle(color: textMuted, fontSize: 14),
         labelStyle: const TextStyle(color: textMuted, fontSize: 13, fontWeight: FontWeight.w500),
+        floatingLabelStyle: const TextStyle(
+          color: textMain,
+          fontSize: 14,
+          fontWeight: FontWeight.w500,
+          backgroundColor: bgBody,
+        ),
+        floatingLabelBehavior: FloatingLabelBehavior.auto,
       ),
       dividerTheme: const DividerThemeData(
         color: border,

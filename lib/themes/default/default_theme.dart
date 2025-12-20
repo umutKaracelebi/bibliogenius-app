@@ -101,6 +101,14 @@ class DefaultTheme extends AppTheme {
           horizontal: 16,
           vertical: 12,
         ),
+        labelStyle: const TextStyle(color: textMain, fontSize: 14),
+        floatingLabelStyle: TextStyle(
+          color: bannerColor,
+          fontSize: 16,
+          fontWeight: FontWeight.w500,
+          backgroundColor: bgBody,
+        ),
+        floatingLabelBehavior: FloatingLabelBehavior.auto,
       ),
     );
   }

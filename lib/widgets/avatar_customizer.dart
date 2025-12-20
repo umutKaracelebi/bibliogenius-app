@@ -112,17 +112,9 @@ class _AvatarCustomizerState extends State<AvatarCustomizer> {
                 },
               ),
 
-              if (isGenie) ...[
-                _buildColorSection(
-                  TranslationService.translate(context, 'avatar_bg_color'),
-                  AvatarOptions.genieBackgrounds,
-                  _config.genieBackground ?? 'fbbf24',
-                  (value) =>
-                      _updateConfig(_config.copyWith(genieBackground: value)),
-                ),
-                // Genie doesn't really have other customizable parts yet since it's a static image
-                // We could add "Expression" if we had multiple images
-              ] else if (isHuman) ...[
+
+              // Genie is a static mascot image - no customization options
+              if (isHuman) ...[
                 _buildSection(
                   TranslationService.translate(context, 'avatar_expression'),
                   AvatarOptions.getMouthOptions(lang),

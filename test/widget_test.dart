@@ -14,7 +14,6 @@ import 'package:app/providers/theme_provider.dart';
 
 import 'dart:io';
 import 'package:network_image_mock/network_image_mock.dart';
-import 'package:app/services/backend_service.dart';
 
 class TestHttpOverrides extends HttpOverrides {
   @override
@@ -23,20 +22,6 @@ class TestHttpOverrides extends HttpOverrides {
       ..badCertificateCallback =
           (X509Certificate cert, String host, int port) => true;
   }
-}
-
-class MockBackendService extends BackendService {
-  @override
-  Future<void> start() async {}
-
-  @override
-  Future<void> stop() async {}
-
-  @override
-  bool get isRunning => false;
-
-  @override
-  int? get port => null;
 }
 
 void main() {
@@ -55,7 +40,6 @@ void main() {
       await tester.pumpWidget(
         MyApp(
           themeProvider: ThemeProvider(),
-          backendService: MockBackendService(),
           useFfi: false,
         ),
       );

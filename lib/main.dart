@@ -160,7 +160,9 @@ void main([List<String>? args]) async {
       // Auto-initialize mDNS for local network discovery (Native Bonjour)
       // This makes the app discoverable on the local WiFi network
       try {
-        final libraryName = themeProvider.libraryName ?? 'BiblioGenius Library';
+        final libraryName = themeProvider.libraryName.isNotEmpty 
+            ? themeProvider.libraryName 
+            : 'BiblioGenius Library';
         await MdnsService.startAnnouncing(libraryName, httpPort);
         await MdnsService.startDiscovery();
       } catch (mdnsError) {

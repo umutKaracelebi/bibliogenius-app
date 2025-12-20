@@ -7,7 +7,8 @@ class AvatarConfig {
   final String? accessories;
   final String? clothing;
   final String? clothingColor;
-  final String? mouth; // New parameter for facial expression
+  final String? mouth; // Parameter for facial expression
+  final String? eyes; // Parameter for eye type (default = open eyes)
 
   // Genie-specific options
   final String? genieColor; // For genie avatar
@@ -29,6 +30,7 @@ class AvatarConfig {
     this.genieBackground,
     this.genieExpression,
     this.mouth,
+    this.eyes = 'default', // Default to open eyes
     required this.seed,
   });
 
@@ -94,6 +96,7 @@ class AvatarConfig {
     if (clothing != null) params['clothing'] = clothing!;
     if (clothingColor != null) params['clothingColor'] = clothingColor!;
     if (mouth != null) params['mouth'] = mouth!;
+    if (eyes != null) params['eyes'] = eyes!;
 
     final queryString = params.entries
         .map(
@@ -119,6 +122,7 @@ class AvatarConfig {
     'genieBackground': genieBackground,
     'genieExpression': genieExpression,
     'mouth': mouth,
+    'eyes': eyes,
     'seed': seed,
   };
 
@@ -136,6 +140,7 @@ class AvatarConfig {
     genieBackground: json['genieBackground'],
     genieExpression: json['genieExpression'],
     mouth: json['mouth'],
+    eyes: json['eyes'] ?? 'default',
     seed: json['seed'] ?? 'default',
   );
 
@@ -152,8 +157,8 @@ class AvatarConfig {
     String? genieColor,
     String? genieBackground,
     String? genieExpression,
-
     String? mouth,
+    String? eyes,
     String? seed,
   }) => AvatarConfig(
     style: style ?? this.style,
@@ -168,6 +173,7 @@ class AvatarConfig {
     genieBackground: genieBackground ?? this.genieBackground,
     genieExpression: genieExpression ?? this.genieExpression,
     mouth: mouth ?? this.mouth,
+    eyes: eyes ?? this.eyes,
     seed: seed ?? this.seed,
   );
 
@@ -189,11 +195,11 @@ class AvatarOptions {
         'grandfather': 'Grand-père',
         'grandmother': 'Grand-mère',
         'bottts': 'Robot',
-        'notionists': 'Artiste',
         'genie': 'Génie BiblioGenius',
       };
     } else if (lang == 'es') {
       return {
+        'initials': 'Iniciales (Neutro)',
         'man': 'Hombre',
         'woman': 'Mujer',
         'boy': 'Niño',
@@ -201,11 +207,11 @@ class AvatarOptions {
         'grandfather': 'Abuelo',
         'grandmother': 'Abuela',
         'bottts': 'Robot',
-        'notionists': 'Artista',
         'genie': 'Genio BiblioGenius',
       };
     } else if (lang == 'de') {
       return {
+        'initials': 'Initialen (Neutral)',
         'man': 'Mann',
         'woman': 'Frau',
         'boy': 'Junge',
@@ -213,7 +219,6 @@ class AvatarOptions {
         'grandfather': 'Großvater',
         'grandmother': 'Großmutter',
         'bottts': 'Roboter',
-        'notionists': 'Künstler',
         'genie': 'BiblioGenius Genie',
       };
     }
@@ -226,7 +231,6 @@ class AvatarOptions {
       'grandfather': 'Grandfather',
       'grandmother': 'Grandmother',
       'bottts': 'Robot',
-      'notionists': 'Artist',
       'genie': 'BiblioGenius Genie',
     };
   }
@@ -437,6 +441,5 @@ class AvatarOptions {
       skinColor: 'ffdbb4',
     ),
     'bottts': AvatarConfig(seed: 'bot', style: 'bottts'),
-    'notionists': AvatarConfig(seed: 'artist', style: 'notionists'),
   };
 }

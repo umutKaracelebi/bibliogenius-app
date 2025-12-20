@@ -203,9 +203,11 @@ class _SetupScreenState extends State<SetupScreen> {
                       key: const Key('setupNextButton'),
                       onPressed: details.onStepContinue,
                       style: ElevatedButton.styleFrom(
-                        // Ensure button is visible but not full width
-                        backgroundColor: Theme.of(context).colorScheme.primary,
-                        foregroundColor: Theme.of(context).colorScheme.onPrimary,
+                        // Use hardcoded high-contrast colors for visibility in all themes
+                        backgroundColor: Colors.blue.shade700,
+                        foregroundColor: Colors.white,
+                        elevation: 4,
+                        padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 12),
                       ),
                       child: Text(
                         isLastStep
@@ -219,8 +221,8 @@ class _SetupScreenState extends State<SetupScreen> {
                       TextButton(
                         onPressed: details.onStepCancel,
                         style: TextButton.styleFrom(
-                          // Ensure text is visible in all themes
-                          foregroundColor: Theme.of(context).colorScheme.primary,
+                          // Use high-contrast color for visibility
+                          foregroundColor: Colors.blue.shade700,
                         ),
                         child: Text(strings['btn_back']!),
                       ),
@@ -566,18 +568,14 @@ class _SetupScreenState extends State<SetupScreen> {
       }
 
       if (context.mounted) {
-        await themeProvider.setProfileType(
-          themeProvider.setupProfileType,
+        // Use batch method to apply all settings with single notification
+        await themeProvider.completeSetupWithSettings(
+          profileType: themeProvider.setupProfileType,
+          avatarConfig: themeProvider.setupAvatarConfig,
+          libraryName: themeProvider.setupLibraryName,
           apiService: apiService,
         );
-        await themeProvider.setAvatarConfig(
-          themeProvider.setupAvatarConfig,
-          apiService: apiService,
-        );
-        await themeProvider.setLibraryName(
-          themeProvider.setupLibraryName,
-          apiService: apiService,
-        );
+
         final authService = Provider.of<AuthService>(context, listen: false);
         await authService.saveUsername('admin');
 
@@ -588,12 +586,8 @@ class _SetupScreenState extends State<SetupScreen> {
 
         // Wait for dialog animation to finish and frame to settle
         await Future.delayed(const Duration(milliseconds: 300));
-
-        // Trigger completion - this will notify listeners
+        
         // GoRouter will detect isSetupComplete=true and redirect to /login automatically
-        if (context.mounted) {
-           await themeProvider.completeSetup();
-        }
       }
     } catch (e) {
       // Close loading dialog

@@ -41,18 +41,6 @@ const List<BookStatus> individualStatuses = [
     icon: Icons.favorite_border,
     color: Colors.red,
   ),
-  BookStatus(
-    value: 'borrowed',
-    label: 'borrowed_status',
-    icon: Icons.arrow_downward,
-    color: Colors.teal,
-  ),
-  BookStatus(
-    value: 'lent',
-    label: 'lent_status',
-    icon: Icons.arrow_upward,
-    color: Colors.purple,
-  ),
 ];
 
 // Status options for librarian/professional cataloging

@@ -66,6 +66,7 @@ class _EditBookScreenState extends State<EditBookScreen> {
       text: widget.book.publicationYear?.toString() ?? '',
     );
     _summaryController = TextEditingController(text: widget.book.summary ?? '');
+    _tagsController = TextEditingController(); // Initialize tags input controller
     _startedDateController = TextEditingController(
       text: widget.book.startedReadingAt?.toIso8601String().split('T')[0] ?? '',
     );
@@ -317,6 +318,7 @@ class _EditBookScreenState extends State<EditBookScreen> {
             startedReadingAt: startedAt,
             finishedReadingAt: finishedAt,
             subjects: _selectedTags,
+            owned: _owned,
           );
         });
 

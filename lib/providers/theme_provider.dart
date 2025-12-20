@@ -171,6 +171,42 @@ class ThemeProvider with ChangeNotifier {
     notifyListeners();
   }
 
+  /// Complete setup and apply all settings in one batch to avoid multiple rebuilds
+  Future<void> completeSetupWithSettings({
+    required String profileType,
+    required AvatarConfig avatarConfig,
+    required String libraryName,
+    ApiService? apiService,
+  }) async {
+    // Apply all settings without notifying listeners individually
+    _profileType = profileType;
+    _avatarConfig = avatarConfig;
+    _libraryName = libraryName;
+    _isSetupComplete = true;
+
+    // Save to SharedPreferences
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.setString('profileType', profileType);
+    await prefs.setString('avatarConfig', jsonEncode(avatarConfig.toJson()));
+    await prefs.setString('libraryName', libraryName);
+    await prefs.setBool('isSetupComplete', true);
+
+    // Sync with backend if ApiService provided
+    if (apiService != null) {
+      try {
+        await apiService.updateProfile(
+          profileType: profileType,
+          avatarConfig: avatarConfig.toJson(),
+        );
+      } catch (e) {
+        debugPrint('Error syncing profile during setup: $e');
+      }
+    }
+
+    // Single notification at the end
+    notifyListeners();
+  }
+
   Future<void> completeSetup() async {
     _isSetupComplete = true;
     final prefs = await SharedPreferences.getInstance();

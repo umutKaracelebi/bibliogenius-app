@@ -269,6 +269,7 @@ class TranslationService {
       'title_label': 'Title *',
       'enter_book_title': 'Enter book title',
       'enter_title_error': 'Please enter a title',
+      'enter_author': 'Enter author name',
       'isbn_label': 'ISBN',
       'enter_isbn': 'Enter ISBN',
       'publisher_label': 'Publisher',
@@ -466,6 +467,7 @@ class TranslationService {
       'status_damaged': 'Damaged/Repair',
       'status_on_order': 'On Order',
       'status_borrowed': 'Borrowed',
+      'status_lent': 'Lent',
       'status_lost': 'Lost',
       'status_wanted': 'Wanted',
       // Profiles
@@ -1084,6 +1086,7 @@ class TranslationService {
       'title_label': 'Titre *',
       'enter_book_title': 'Entrez le titre du livre',
       'enter_title_error': 'Veuillez entrer un titre',
+      'enter_author': 'Entrez le nom de l\'auteur',
       'isbn_label': 'ISBN',
       'enter_isbn': 'Entrez l\'ISBN',
       'publisher_hint': 'Nom de l\'éditeur',
@@ -1233,6 +1236,7 @@ class TranslationService {
       'status_damaged': 'Endommagé/Réparation',
       'status_on_order': 'En commande',
       'status_borrowed': 'Emprunté',
+      'status_lent': 'Prêté',
       'status_lost': 'Perdu',
       'status_wanted': 'Souhaité',
       // Profiles
@@ -1720,6 +1724,7 @@ class TranslationService {
       'title_label': 'Título *',
       'enter_book_title': 'Introducir título del libro',
       'enter_title_error': 'Por favor, introduce un título',
+      'enter_author': 'Introduce el nombre del autor',
       'isbn_label': 'ISBN',
       'enter_isbn': 'Introducir ISBN',
       'publisher_label': 'Editor',
@@ -1935,6 +1940,9 @@ class TranslationService {
       'status_missing': 'Faltante/Perdido',
       'status_damaged': 'Dañado/Reparación',
       'status_on_order': 'Pedido',
+      'status_borrowed': 'Prestado',
+      'status_lent': 'Prestado',
+      'status_lost': 'Perdido',
       // Profiles
       'profile_librarian': 'Bibliotecario',
       'profile_librarian_desc':
@@ -2002,6 +2010,7 @@ class TranslationService {
       'network': 'Netzwerk',
       'requests': 'Anfragen',
       'books': 'Bücher',
+      'enter_author': 'Autorname eingeben',
       'profile': 'Mein Profil',
       'librarian': 'Bibliothekar',
       'individual': 'Einzelperson',
@@ -2358,6 +2367,9 @@ class TranslationService {
       'status_missing': 'Fehlend/Verloren',
       'status_damaged': 'Beschädigt/Reparatur',
       'status_on_order': 'Bestellt',
+      'status_borrowed': 'Geliehen',
+      'status_lent': 'Verliehen',
+      'status_lost': 'Verloren',
     },
   };
 

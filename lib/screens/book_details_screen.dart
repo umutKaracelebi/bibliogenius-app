@@ -123,6 +123,16 @@ class _BookDetailsScreenState extends State<BookDetailsScreen> {
     return _copies.any((copy) => copy['status'] == 'available');
   }
 
+  bool get _hasLentCopies {
+    if (_copies.isEmpty) return false;
+    return _copies.any((copy) => copy['status'] == 'lent');
+  }
+
+  bool get _hasBorrowedCopies {
+    if (_copies.isEmpty) return false;
+    return _copies.any((copy) => copy['status'] == 'borrowed');
+  }
+
   // ... existing build methods ...
 
   Future<void> _updateRating(int? newRating) async {
@@ -532,31 +542,21 @@ class _BookDetailsScreenState extends State<BookDetailsScreen> {
             ),
           ),
         ],
-        // Lend book button - only visible when book is not lent/borrowed and owned
-        if (book.readingStatus != 'lent' &&
-            book.readingStatus != 'borrowed' &&
-            book.owned) ...[
+        // Lend book button - only visible when there are available copies and book is owned
+        if (_hasAvailableCopies && book.owned) ...[
           const SizedBox(height: 12),
           SizedBox(
             width: double.infinity,
             child: OutlinedButton.icon(
-              onPressed: _hasAvailableCopies ? () => _lendBook(context) : null,
+              onPressed: () => _lendBook(context),
               icon: const Icon(Icons.handshake_outlined),
               label: Text(
-                _hasAvailableCopies
-                    ? (TranslationService.translate(context, 'lend_book_btn') ??
-                          'Lend this book')
-                    : (TranslationService.translate(
-                            context,
-                            'no_copies_available',
-                          ) ??
-                          'No copies available'),
+                TranslationService.translate(context, 'lend_book_btn') ??
+                    'Lend this book',
               ),
               style: OutlinedButton.styleFrom(
                 foregroundColor: Colors.purple,
-                side: BorderSide(
-                  color: _hasAvailableCopies ? Colors.purple : Colors.grey,
-                ),
+                side: const BorderSide(color: Colors.purple),
                 padding: const EdgeInsets.symmetric(vertical: 12),
                 shape: RoundedRectangleBorder(
                   borderRadius: BorderRadius.circular(12),
@@ -565,8 +565,8 @@ class _BookDetailsScreenState extends State<BookDetailsScreen> {
             ),
           ),
         ],
-        // Return lent book button - only visible when book is lent
-        if (book.readingStatus == 'lent') ...[
+        // Return lent book button - only visible when there are lent copies
+        if (_hasLentCopies) ...[
           const SizedBox(height: 12),
           SizedBox(
             width: double.infinity,
@@ -588,17 +588,36 @@ class _BookDetailsScreenState extends State<BookDetailsScreen> {
             ),
           ),
         ],
-        // Return borrowed book button - only visible when book is borrowed (not for librarian)
-        if (book.readingStatus == 'borrowed' &&
-            !Provider.of<ThemeProvider>(
-              context,
-              listen: false,
-            ).isLibrarian) ...[
+        // Borrow from friend button - only visible when book is NOT owned and has no borrowed copies
+        if (!book.owned && !_hasBorrowedCopies) ...[
+          const SizedBox(height: 12),
+          SizedBox(
+            width: double.infinity,
+            child: OutlinedButton.icon(
+              onPressed: () => _borrowBook(context),
+              icon: const Icon(Icons.arrow_downward),
+              label: Text(
+                TranslationService.translate(context, 'borrow_from_contact_btn') ??
+                    'Borrow from a contact',
+              ),
+              style: OutlinedButton.styleFrom(
+                foregroundColor: Colors.teal,
+                side: const BorderSide(color: Colors.teal),
+                padding: const EdgeInsets.symmetric(vertical: 12),
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(12),
+                ),
+              ),
+            ),
+          ),
+        ],
+        // Give back borrowed book button - visible when there are borrowed copies
+        if (_hasBorrowedCopies) ...[
           const SizedBox(height: 12),
           SizedBox(
             width: double.infinity,
             child: FilledButton.icon(
-              onPressed: () => _returnBorrowedBook(context),
+              onPressed: () => _giveBackBook(context),
               icon: const Icon(Icons.keyboard_return_outlined),
               label: Text(
                 TranslationService.translate(context, 'give_back_book_btn') ??
@@ -1132,11 +1151,13 @@ class _BookDetailsScreenState extends State<BookDetailsScreen> {
         'due_date': dueDate.toIso8601String().split('T')[0],
       });
 
-      // 5. Update book reading status to 'lent'
-      await apiService.updateBook(_book!.id!, {
-        'title': _book!.title,
-        'reading_status': 'lent',
+      // 5. Update copy status to 'lent'
+      await apiService.updateCopy(copyId, {
+        'status': 'lent',
       });
+
+      // Note: We no longer update book reading_status to 'lent' 
+      // because lent/borrowed are copy availability statuses, not reading statuses
 
       if (context.mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
@@ -1167,7 +1188,7 @@ class _BookDetailsScreenState extends State<BookDetailsScreen> {
 
     try {
       if (_book == null) return;
-      // Find active loan for this book's copy
+      // Find copies for this book
       final copiesResponse = await apiService.getBookCopies(_book!.id!);
       List<dynamic> copies = copiesResponse.data['copies'] ?? [];
 
@@ -1175,31 +1196,32 @@ class _BookDetailsScreenState extends State<BookDetailsScreen> {
         throw Exception('No copy found for this book');
       }
 
-      // Get the borrowed copy
-      final borrowedCopy = copies.firstWhere(
-        (c) => c['status'] == 'lent' || c['status'] == 'borrowed',
-        orElse: () => copies.first,
-      );
+      // Get the lent copy - find one with 'lent' status first
+      final lentCopies = copies.where((c) => c['status'] == 'lent').toList();
+      if (lentCopies.isEmpty) {
+        throw Exception('No lent copy found for this book');
+      }
+      final lentCopy = lentCopies.first;
 
       // Find active loan for this copy
       final loansResponse = await apiService.getLoans(status: 'active');
       List<dynamic> loans = loansResponse.data['loans'] ?? [];
 
-      final activeLoan = loans.firstWhere(
-        (l) => l['copy_id'] == borrowedCopy['id'],
-        orElse: () => null,
-      );
-
-      if (activeLoan != null) {
+      // Find the loan matching this copy
+      final matchingLoans = loans.where((l) => l['copy_id'] == lentCopy['id']).toList();
+      
+      if (matchingLoans.isNotEmpty) {
         // Return the loan
-        await apiService.returnLoan(activeLoan['id']);
+        await apiService.returnLoan(matchingLoans.first['id']);
       }
 
-      // Update book reading status
-      await apiService.updateBook(_book!.id!, {
-        'title': _book!.title,
-        'reading_status': 'read', // or 'to_read' based on preference
+      // Update copy status back to 'available'
+      await apiService.updateCopy(lentCopy['id'], {
+        'status': 'available',
       });
+
+      // Note: We no longer update book reading_status
+      // because lent/borrowed are copy availability statuses, not reading statuses
 
       if (context.mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
@@ -1225,17 +1247,115 @@ class _BookDetailsScreenState extends State<BookDetailsScreen> {
     }
   }
 
-  /// Return a book that was borrowed FROM someone (mark as to_read or delete)
-  Future<void> _returnBorrowedBook(BuildContext context) async {
+  /// Borrow a book from a contact - creates a copy with 'borrowed' status
+  Future<void> _borrowBook(BuildContext context) async {
     final apiService = Provider.of<ApiService>(context, listen: false);
 
     try {
       if (_book == null) return;
-      // Update book reading status back to to_read (user gave it back)
-      await apiService.updateBook(_book!.id!, {
-        'title': _book!.title,
-        'reading_status': 'to_read',
+
+      // 1. Fetch contacts to let user pick who they're borrowing from
+      final contactsRes = await apiService.getContacts();
+      List<dynamic> contactsList = contactsRes.data is List 
+          ? contactsRes.data 
+          : (contactsRes.data['contacts'] ?? []);
+
+      if (contactsList.isEmpty) {
+        if (context.mounted) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(
+              content: Text(
+                TranslationService.translate(context, 'no_contacts_to_borrow') ??
+                    'Add contacts first to track who you borrowed from',
+              ),
+            ),
+          );
+        }
+        return;
+      }
+
+      // 2. Show contact picker dialog
+      final selectedContact = await showDialog<Contact>(
+        context: context,
+        builder: (context) => AlertDialog(
+          title: Text(
+            TranslationService.translate(context, 'select_lender') ??
+                'Who are you borrowing from?',
+          ),
+          content: SizedBox(
+            width: double.maxFinite,
+            child: ListView.builder(
+              shrinkWrap: true,
+              itemCount: contactsList.length,
+              itemBuilder: (context, index) {
+                final c = contactsList[index];
+                final contact = c is Contact ? c : Contact.fromJson(c);
+                return ListTile(
+                  leading: const Icon(Icons.person),
+                  title: Text(contact.displayName),
+                  onTap: () => Navigator.pop(context, contact),
+                );
+              },
+            ),
+          ),
+          actions: [
+            TextButton(
+              onPressed: () => Navigator.pop(context),
+              child: Text(TranslationService.translate(context, 'cancel') ?? 'Cancel'),
+            ),
+          ],
+        ),
+      );
+
+      if (selectedContact == null) return;
+
+      // 3. Create a copy with 'borrowed' status
+      await apiService.createCopy({
+        'book_id': _book!.id,
+        'library_id': 1,
+        'status': 'borrowed',
+        'notes': 'Borrowed from ${selectedContact.displayName}',
       });
+
+      if (context.mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text(
+              '${TranslationService.translate(context, 'book_borrowed_from') ?? 'Borrowed from'} ${selectedContact.displayName}',
+            ),
+          ),
+        );
+        _fetchBookDetails();
+      }
+    } catch (e) {
+      if (context.mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text(
+              '${TranslationService.translate(context, 'error_borrowing_book') ?? 'Error borrowing book'}: $e',
+            ),
+          ),
+        );
+      }
+    }
+  }
+
+  /// Give back a borrowed book - removes the borrowed copy
+  Future<void> _giveBackBook(BuildContext context) async {
+    final apiService = Provider.of<ApiService>(context, listen: false);
+
+    try {
+      if (_book == null) return;
+
+      // Find the borrowed copy
+      final borrowedCopies = _copies.where((c) => c['status'] == 'borrowed').toList();
+      if (borrowedCopies.isEmpty) {
+        throw Exception('No borrowed copy found');
+      }
+      final borrowedCopy = borrowedCopies.first;
+
+      // Delete the borrowed copy (book was given back, no longer in our possession)
+      await apiService.deleteCopy(borrowedCopy['id']);
 
       if (context.mounted) {
         ScaffoldMessenger.of(context).showSnackBar(

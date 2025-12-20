@@ -46,12 +46,13 @@ class ScaffoldWithNav extends StatelessWidget {
                   icon: Icon(Icons.cloud_sync),
                   label: Text(TranslationService.translate(context, 'network')),
                 ),
-                NavigationRailDestination(
-                  icon: Icon(Icons.swap_horiz),
-                  label: Text(
-                    TranslationService.translate(context, 'requests'),
-                  ),
-                ),
+                // Requests hidden for now
+                // NavigationRailDestination(
+                //   icon: Icon(Icons.swap_horiz),
+                //   label: Text(
+                //     TranslationService.translate(context, 'requests'),
+                //   ),
+                // ),
                 NavigationRailDestination(
                   icon: Icon(Icons.person),
                   label: Text(TranslationService.translate(context, 'profile')),
@@ -100,12 +101,12 @@ class ScaffoldWithNav extends StatelessWidget {
         location.startsWith('/peers')) {
       return 3;
     }
-    if (location.startsWith('/requests')) return 4;
-    if (location.startsWith('/profile')) return 5;
-    if (location.startsWith('/statistics')) return 6;
-    if (location.startsWith('/onboarding')) return 7;
-    if (location.startsWith('/help')) return 8;
-    if (location.startsWith('/feedback')) return 9;
+    // Requests hidden: if (location.startsWith('/requests')) return 4;
+    if (location.startsWith('/profile')) return 4;
+    if (location.startsWith('/statistics')) return 5;
+    if (location.startsWith('/onboarding')) return 6;
+    if (location.startsWith('/help')) return 7;
+    if (location.startsWith('/feedback')) return 8;
     return 0;
   }
 
@@ -123,22 +124,20 @@ class ScaffoldWithNav extends StatelessWidget {
       case 3:
         context.go('/network');
         break;
+      // case 4: context.go('/requests'); break; // Requests hidden
       case 4:
-        context.go('/requests');
-        break;
-      case 5:
         context.go('/profile');
         break;
-      case 6:
+      case 5:
         context.go('/statistics');
         break;
-      case 7:
+      case 6:
         context.push('/onboarding');
         break;
-      case 8:
+      case 7:
         context.go('/help');
         break;
-      case 9:
+      case 8:
         context.push('/feedback');
         break;
     }

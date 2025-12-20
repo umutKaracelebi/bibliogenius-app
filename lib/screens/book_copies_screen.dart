@@ -74,17 +74,11 @@ class _BookCopiesScreenState extends State<BookCopiesScreen>
   }
 
   Future<void> _addCopy() async {
-    final isVintageTheme =
-        Provider.of<ThemeProvider>(context, listen: false).themeStyle ==
-        'sorbonne';
-
     final result = await showModalBottomSheet<Map<String, dynamic>>(
       context: context,
       isScrollControlled: true,
       backgroundColor: Colors.transparent,
-      builder: (context) => isVintageTheme
-          ? const _VintageAddCopySheet()
-          : _StandardAddCopySheet(bookId: widget.bookId),
+      builder: (context) => _StandardAddCopySheet(bookId: widget.bookId),
     );
 
     if (result != null) {
@@ -108,14 +102,9 @@ class _BookCopiesScreenState extends State<BookCopiesScreen>
   }
 
   Future<void> _deleteCopy(int copyId) async {
-    final isVintageTheme =
-        Provider.of<ThemeProvider>(context, listen: false).themeStyle ==
-        'sorbonne';
-
     final confirmed = await showDialog<bool>(
       context: context,
-      builder: (context) =>
-          isVintageTheme ? _VintageDeleteDialog() : _StandardDeleteDialog(),
+      builder: (context) => _StandardDeleteDialog(),
     );
 
     if (confirmed == true) {
@@ -135,17 +124,11 @@ class _BookCopiesScreenState extends State<BookCopiesScreen>
   }
 
   void _editCopy(Copy copy) async {
-    final isVintageTheme =
-        Provider.of<ThemeProvider>(context, listen: false).themeStyle ==
-        'sorbonne';
-
     final result = await showModalBottomSheet<Map<String, dynamic>>(
       context: context,
       isScrollControlled: true,
       backgroundColor: Colors.transparent,
-      builder: (context) => isVintageTheme
-          ? _VintageAddCopySheet(existingCopy: copy)
-          : _StandardAddCopySheet(bookId: widget.bookId, existingCopy: copy),
+      builder: (context) => _StandardAddCopySheet(bookId: widget.bookId, existingCopy: copy),
     );
 
     if (result != null) {
@@ -169,60 +152,31 @@ class _BookCopiesScreenState extends State<BookCopiesScreen>
 
   @override
   Widget build(BuildContext context) {
-    final themeStyle = Provider.of<ThemeProvider>(context).themeStyle;
-    final isVintageTheme = themeStyle == 'sorbonne';
+    // Sorbonne theme colors are handled by the theme system, no special display needed
 
     return Scaffold(
-      backgroundColor: isVintageTheme
-          ? const Color(0xFF1A0F0A)
-          : Theme.of(context).scaffoldBackgroundColor,
       appBar: AppBar(
         title: Text(widget.bookTitle),
         elevation: 0,
-        backgroundColor: isVintageTheme
-            ? Colors.transparent
-            : Theme.of(context).primaryColor,
-        foregroundColor: isVintageTheme
-            ? const Color(0xFFFFD700)
-            : Colors.white,
         centerTitle: true,
         leading: IconButton(
           icon: const Icon(Icons.arrow_back),
           onPressed: () => Navigator.pop(context),
         ),
       ),
-      extendBodyBehindAppBar: isVintageTheme,
-      floatingActionButton: isVintageTheme
-          ? _buildVintageFab()
-          : FloatingActionButton(
-              onPressed: _addCopy,
-              child: const Icon(Icons.add),
-            ),
+      floatingActionButton: FloatingActionButton(
+        key: const Key('addCopyFab'),
+        onPressed: _addCopy,
+        child: const Icon(Icons.add),
+      ),
       body: Container(
-        decoration: isVintageTheme
-            ? const BoxDecoration(
-                // Deep rich library wall background
-                gradient: LinearGradient(
-                  begin: Alignment.topCenter,
-                  end: Alignment.bottomCenter,
-                  colors: [
-                    Color(0xFF1A0F0A), // Very dark wood shadow
-                    Color(0xFF2D1810), // Dark mahogany
-                    Color(0xFF3D2314), // Rich wood
-                  ],
-                ),
-              )
-            : null,
+        // Use theme background for all themes
         child: SafeArea(
           child: _isLoading
-              ? _buildLoadingState(isVintageTheme)
+              ? _buildLoadingState(false) // Always use standard loading
               : _copies.isEmpty
-              ? (isVintageTheme
-                    ? _buildVintageEmptyState()
-                    : _buildStandardEmptyState())
-              : (isVintageTheme
-                    ? _buildVintageBookshelf()
-                    : _buildStandardList()),
+              ? _buildStandardEmptyState() // Always use standard empty state
+              : _buildStandardList(), // Always use standard list
         ),
       ),
     );
@@ -308,7 +262,7 @@ class _BookCopiesScreenState extends State<BookCopiesScreen>
                   padding: const EdgeInsets.only(top: 4),
                   child: Chip(
                     label: Text(
-                      copy.status,
+                      TranslationService.translate(context, 'status_${copy.status}') ?? copy.status,
                       style: const TextStyle(fontSize: 10),
                     ),
                     materialTapTargetSize: MaterialTapTargetSize.shrinkWrap,
@@ -565,6 +519,8 @@ class _Book3DState extends State<_Book3D> {
         return Icons.check_circle;
       case 'borrowed':
         return Icons.swap_horiz;
+      case 'lent':
+        return Icons.output;
       case 'lost':
         return Icons.error;
       default:
@@ -578,6 +534,8 @@ class _Book3DState extends State<_Book3D> {
         return Colors.green;
       case 'borrowed':
         return Colors.orange;
+      case 'lent':
+        return Colors.purple;
       case 'lost':
         return Colors.red;
       default:
@@ -1460,6 +1418,13 @@ class _StandardAddCopySheetState extends State<_StandardAddCopySheet> {
                   ),
                 ),
                 DropdownMenuItem(
+                  value: 'lent',
+                  child: Text(
+                    TranslationService.translate(context, 'status_lent') ??
+                        'Lent',
+                  ),
+                ),
+                DropdownMenuItem(
                   value: 'lost',
                   child: Text(
                     TranslationService.translate(context, 'status_lost') ??
@@ -1617,6 +1582,12 @@ class _VintageStatusSelector extends StatelessWidget {
         Icons.swap_horiz,
         const Color(0xFFD4A855),
         TranslationService.translate(context, 'status_borrowed'),
+      ),
+      (
+        'lent',
+        Icons.output,
+        Colors.purple,
+        TranslationService.translate(context, 'status_lent'),
       ),
       (
         'lost',

@@ -289,7 +289,7 @@ class _BookListScreenState extends State<BookListScreen> {
       final configRes = await apiService.getLibraryConfig();
       String? libraryName;
       if (configRes.statusCode == 200) {
-        _showBorrowedConfig = configRes.data['show_borrowed_books'] == true;
+        _showBorrowedConfig = configRes.data['show_borrowed_books'] != false;
         libraryName = configRes.data['library_name'] as String?;
         if (libraryName != null) {
           Provider.of<ThemeProvider>(
@@ -658,15 +658,8 @@ class _BookListScreenState extends State<BookListScreen> {
             status: 'read',
             label: TranslationService.translate(context, 'reading_status_read'),
           ),
-          _buildFilterPill(
-            status: 'lent',
-            label: TranslationService.translate(context, 'lent_status'),
-          ),
-          if (!Provider.of<ThemeProvider>(context).isLibrarian)
-            _buildFilterPill(
-              status: 'borrowed',
-              label: TranslationService.translate(context, 'borrowed_status'),
-            ),
+          // Note: lent/borrowed filters removed - these are now copy-level concepts
+          // Users can view loan status via copy management
         ],
       ),
     );
@@ -703,6 +696,7 @@ class _BookListScreenState extends State<BookListScreen> {
     bool isClearAction = false,
   }) {
     final bool isSelected = _selectedStatus == status;
+    final isDarkTheme = Theme.of(context).brightness == Brightness.dark;
 
     return Padding(
       padding: const EdgeInsets.only(right: 8),
@@ -725,12 +719,19 @@ class _BookListScreenState extends State<BookListScreen> {
           decoration: BoxDecoration(
             color: isClearAction
                 ? Colors.redAccent.withOpacity(0.8)
-                : (isSelected ? Theme.of(context).primaryColor : Colors.white),
+                : (isSelected 
+                    ? Theme.of(context).primaryColor 
+                    : isDarkTheme 
+                        ? Theme.of(context).cardColor.withOpacity(0.8)
+                        : Colors.white),
             borderRadius: BorderRadius.circular(20),
             border: Border.all(
               color: isSelected
                   ? Colors.transparent
-                  : Colors.grey.withOpacity(0.3),
+                  : isDarkTheme 
+                      ? Theme.of(context).colorScheme.outline
+                      : Colors.grey.withOpacity(0.3),
+              width: isDarkTheme ? 1.5 : 1.0,
             ),
             boxShadow: isSelected && !isClearAction
                 ? [
@@ -754,7 +755,9 @@ class _BookListScreenState extends State<BookListScreen> {
                 style: TextStyle(
                   color: isClearAction
                       ? Colors.white
-                      : (isSelected ? Colors.white : Colors.black54),
+                      : (isSelected 
+                          ? Colors.white 
+                          : Theme.of(context).textTheme.bodyMedium?.color ?? Colors.black54),
                   fontWeight: isSelected ? FontWeight.bold : FontWeight.w500,
                   fontSize: 13,
                 ),

@@ -151,8 +151,15 @@ class _SetupScreenState extends State<SetupScreen> {
 
   @override
   Widget build(BuildContext context) {
+    // Ensure themes are initialized
+    ThemeRegistry.initialize();
+
     return Consumer<ThemeProvider>(
       builder: (context, themeProvider, child) {
+        // Safety check for dropdown value
+        final currentTheme = themeProvider.themeStyle;
+        final validTheme = ThemeRegistry.exists(currentTheme) ? currentTheme : 'default';
+
         final lang = themeProvider.locale.languageCode;
         final strings = _t[lang] ?? _t['en']!;
         final currentStep = themeProvider.setupStep;
@@ -163,6 +170,7 @@ class _SetupScreenState extends State<SetupScreen> {
             automaticallyImplyLeading: false, // Hide back button
           ),
           body: Stepper(
+            physics: const ClampingScrollPhysics(), // Ensure scrolling works well
             currentStep: currentStep,
             onStepContinue: () {
               if (currentStep < 5) {
@@ -394,7 +402,7 @@ class _SetupScreenState extends State<SetupScreen> {
                     Text(strings['theme_label']!),
                     const SizedBox(height: 10),
                     DropdownButton<String>(
-                      value: themeProvider.themeStyle,
+                      value: validTheme,
                       isExpanded: true,
                       items: ThemeRegistry.all.map((theme) {
                         return DropdownMenuItem(
@@ -503,20 +511,17 @@ class _SetupScreenState extends State<SetupScreen> {
           themeProvider.setupLibraryName,
           apiService: apiService,
         );
-        await themeProvider.completeSetup();
-
         final authService = Provider.of<AuthService>(context, listen: false);
         await authService.saveUsername('admin');
 
-        // Close loading dialog
-        Navigator.of(context).pop();
+        // Close loading dialog BEFORE triggering router redirection
+        if (context.mounted) {
+          Navigator.of(context).pop();
+        }
 
-        // Defer navigation to next frame to avoid Navigator locking
-        WidgetsBinding.instance.addPostFrameCallback((_) {
-          if (context.mounted) {
-            context.go('/login');
-          }
-        });
+        // Trigger completion - this will notify listeners
+        // GoRouter will detect isSetupComplete=true and redirect to /login automatically
+        await themeProvider.completeSetup();
       }
     } catch (e) {
       // Close loading dialog

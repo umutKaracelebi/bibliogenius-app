@@ -9,7 +9,14 @@ set(PROJECT_NAME "rust_lib_app")
 project(${PROJECT_NAME} LANGUAGES CXX)
 
 include("../cargokit/cmake/cargokit.cmake")
-apply_cargokit(${PROJECT_NAME} ../../../bibliogenius rust_lib_app "")
+
+if(EXISTS "${CMAKE_CURRENT_SOURCE_DIR}/../../../bibliogenius")
+    set(RUST_MANIFEST_PATH "../../../bibliogenius")
+else()
+    set(RUST_MANIFEST_PATH "../bibliogenius")
+endif()
+
+apply_cargokit(${PROJECT_NAME} ${RUST_MANIFEST_PATH} rust_lib_app "")
 
 # List of absolute paths to libraries that should be bundled with the plugin.
 # This list could contain prebuilt libraries, or libraries created by an

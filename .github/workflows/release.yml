@@ -195,23 +195,18 @@ jobs:
       - name: Clone Rust repository
         run: git clone https://github.com/bibliogenius/bibliogenius.git rust_builder/bibliogenius
       
-      - name: Patch Windows CMakeLists.txt to use Sidecar Path
-        shell: pwsh
-        run: |
-          $cmakePath = "rust_builder\windows\CMakeLists.txt"
-          $content = Get-Content $cmakePath
-          
-          # Replace paths with correct relative path "../bibliogenius"
-          # (One level up from windows/ dir to rust_builder/ dir)
-          $newContent = $content -replace "\.\./\.\./\.\./bibliogenius", "../bibliogenius"
-          $newContent = $newContent -replace "\.\./\.\./\.\./\.\./\.\./\.\./\.\./bibliogenius", "../bibliogenius"
-          
-          Set-Content $cmakePath $newContent
-          Write-Host "Patched CMakeLists.txt content:"
-          Get-Content $cmakePath | Select-String "apply_cargokit"
+
 
       - name: Install Rust toolchain
         uses: dtolnay/rust-toolchain@stable
+
+      - name: Explicit Rust Build (Debug)
+        shell: pwsh
+        run: |
+          cd rust_builder/bibliogenius
+          cargo build --release --lib
+          if ($LastExitCode -ne 0) { exit 1 }
+          Write-Host "Cargo build successful"
 
       - uses: subosito/flutter-action@v2
         with:
@@ -258,16 +253,7 @@ jobs:
       - name: Clone Rust repository
         run: git clone https://github.com/bibliogenius/bibliogenius.git rust_builder/bibliogenius
       
-      - name: Patch Linux CMakeLists.txt to use Sidecar Path
-        run: |
-          # Replace incorrect relative paths (../../../) with correct one (../)
-          # Original in repo is ../../../bibliogenius (3 levels)
-          # We need ../bibliogenius (1 level) since we cloned into rust_builder/bibliogenius
-          # and CMakeLists is in rust_builder/linux/CMakeLists.txt
-          sed -i "s|\.\./\.\./\.\./bibliogenius|../bibliogenius|g" rust_builder/linux/CMakeLists.txt
-          
-          echo "Patched CMakeLists.txt:"
-          grep "apply_cargokit" rust_builder/linux/CMakeLists.txt
+
 
       - name: Install Rust toolchain
         uses: dtolnay/rust-toolchain@stable
@@ -275,10 +261,12 @@ jobs:
       - name: Install Linux dependencies
         run: |
           sudo apt-get update
-          sudo apt-get install -y clang cmake ninja-build pkg-config libgtk-3-dev liblzma-dev libglu1-mesa-dev libstdc++-12-dev libsecret-1-dev
+          sudo apt-get install -y clang cmake ninja-build pkg-config libgtk-3-dev liblzma-dev libglu1-mesa-dev libstdc++-12-dev libsecret-1-dev libsqlite3-dev libssl-dev
           
-      - uses: subosito/flutter-action@v2
-        with:
+      - name: Explicit Rust Build (Debug)
+        run: |
+          cd rust_builder/bibliogenius
+          cargo build --release --lib
           flutter-version: ${{ env.FLUTTER_VERSION }}
           channel: 'stable'
           

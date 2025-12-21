@@ -276,6 +276,9 @@ jobs:
         run: |
           cd rust_builder/bibliogenius
           cargo build --release --lib
+
+      - uses: subosito/flutter-action@v2
+        with:
           flutter-version: ${{ env.FLUTTER_VERSION }}
           channel: 'stable'
           

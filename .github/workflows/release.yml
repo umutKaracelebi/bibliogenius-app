@@ -195,6 +195,18 @@ jobs:
       - name: Clone Rust repository
         run: git clone https://github.com/bibliogenius/bibliogenius.git ..\bibliogenius
       
+      - name: Debug - Verify directory structure
+        shell: pwsh
+        run: |
+          Write-Host "=== Current directory ==="
+          Get-Location
+          Write-Host "=== Parent directory contents ==="
+          Get-ChildItem ..\ | Format-Table Name, Mode
+          Write-Host "=== Rust repo Cargo.toml exists? ==="
+          if (Test-Path ..\bibliogenius\Cargo.toml) { Write-Host "FOUND: ..\bibliogenius\Cargo.toml" } else { Write-Host "NOT FOUND" }
+          Write-Host "=== Path from rust_builder/windows ==="
+          if (Test-Path rust_builder\windows\..\..\..\bibliogenius\Cargo.toml) { Write-Host "FOUND from rust_builder path" } else { Write-Host "NOT FOUND from rust_builder path" }
+
       - name: Install Rust toolchain
         uses: dtolnay/rust-toolchain@stable
 

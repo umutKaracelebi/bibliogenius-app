@@ -77,6 +77,16 @@ class AuthService {
     await storage.delete(key: _libraryIdKey);
   }
 
+  /// Clear ALL auth data including password (for complete reset)
+  /// Use this for "Reset Entirely" to emulate fresh install
+  Future<void> clearAll() async {
+    await storage.delete(key: _tokenKey);
+    await storage.delete(key: _usernameKey);
+    await storage.delete(key: _userIdKey);
+    await storage.delete(key: _libraryIdKey);
+    await storage.delete(key: _passwordKey);
+  }
+
   Future<bool> isLoggedIn() async {
     final token = await getToken();
     return token != null;

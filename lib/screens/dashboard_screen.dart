@@ -72,6 +72,11 @@ class _DashboardScreenState extends State<DashboardScreen> {
   }
 
   void _checkWizard() async {
+    // DISABLED: Dashboard spotlight wizard disabled for alpha release
+    // to avoid UI issues during theme transitions
+    return;
+    
+    /*
     if (!mounted) return;
     
     // Skip wizard completely for Kid profile
@@ -90,6 +95,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
         );
       }
     }
+    */
   }
 
   Future<void> _fetchDashboardData() async {

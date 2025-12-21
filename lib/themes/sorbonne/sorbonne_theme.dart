@@ -212,46 +212,55 @@ class SorbonneTheme extends AppTheme {
           color: SorbonneColors.parchment,
           fontSize: 20,
           fontWeight: FontWeight.w600,
+          fontFamily: 'Georgia',
         ),
         titleLarge: TextStyle(
           color: SorbonneColors.goldLeaf,
           fontSize: 18,
           fontWeight: FontWeight.w600,
+          fontFamily: 'Georgia',
         ),
         titleMedium: TextStyle(
           color: SorbonneColors.parchment,
           fontSize: 16,
           fontWeight: FontWeight.w600,
+          fontFamily: 'Georgia',
         ),
         titleSmall: TextStyle(
           color: SorbonneColors.warmAmber,
           fontSize: 14,
           fontWeight: FontWeight.w500,
+          fontFamily: 'Georgia',
         ),
         bodyLarge: TextStyle(
           color: SorbonneColors.parchment,
           fontSize: 16,
           height: 1.6,
+          fontFamily: 'Georgia',
         ),
         bodyMedium: TextStyle(
           color: SorbonneColors.parchment,
           fontSize: 14,
           height: 1.5,
+          fontFamily: 'Georgia',
         ),
         bodySmall: TextStyle(
           color: SorbonneColors.warmAmber,
           fontSize: 12,
           height: 1.4,
+          fontFamily: 'Georgia',
         ),
         labelLarge: TextStyle(
           color: SorbonneColors.softGold,
           fontSize: 14,
           fontWeight: FontWeight.w600,
+          fontFamily: 'Georgia',
         ),
         labelMedium: TextStyle(
           color: SorbonneColors.warmAmber,
           fontSize: 12,
           fontWeight: FontWeight.w500,
+          fontFamily: 'Georgia',
         ),
       ),
 
@@ -327,23 +336,16 @@ class SorbonneTheme extends AppTheme {
           horizontal: 16,
           vertical: 16,
         ),
+        // Use simpler TextStyle with inherit: true (default)
         hintStyle: TextStyle(
           color: SorbonneColors.parchment.withValues(alpha: 0.5),
-          fontSize: 14,
           fontStyle: FontStyle.italic,
         ),
         labelStyle: const TextStyle(
           color: SorbonneColors.warmAmber,
-          fontSize: 14,
-          fontWeight: FontWeight.w500,
         ),
-        // Floating label style - ensures visibility above dark input background
         floatingLabelStyle: const TextStyle(
           color: SorbonneColors.goldLeaf,
-          fontSize: 16,
-          fontWeight: FontWeight.w600,
-          backgroundColor:
-              SorbonneColors.darkWood, // Background to prevent clipping
         ),
         floatingLabelBehavior: FloatingLabelBehavior.auto,
       ),
@@ -363,6 +365,7 @@ class SorbonneTheme extends AppTheme {
           color: SorbonneColors.parchment,
           fontSize: 12,
           fontWeight: FontWeight.w500,
+          fontFamily: 'Georgia',
         ),
       ),
 
@@ -377,7 +380,10 @@ class SorbonneTheme extends AppTheme {
           fontWeight: FontWeight.w600,
           fontFamily: 'Georgia',
         ),
-        unselectedLabelStyle: const TextStyle(fontSize: 11),
+        unselectedLabelStyle: const TextStyle(
+          fontSize: 11,
+          fontFamily: 'Georgia',
+        ),
       ),
 
       floatingActionButtonTheme: FloatingActionButtonThemeData(
@@ -417,6 +423,7 @@ class SorbonneTheme extends AppTheme {
         contentTextStyle: TextStyle(
           color: SorbonneColors.parchment,
           fontSize: 16,
+          fontFamily: 'Georgia',
         ),
       ),
 

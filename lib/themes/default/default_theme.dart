@@ -107,7 +107,6 @@ class DefaultTheme extends AppTheme {
           color: bannerColor,
           fontSize: 16,
           fontWeight: FontWeight.w500,
-          backgroundColor: bgBody,
         ),
         floatingLabelBehavior: FloatingLabelBehavior.auto,
       ),

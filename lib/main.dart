@@ -496,9 +496,16 @@ class _AppRouterState extends State<AppRouter> {
     final themeProvider = Provider.of<ThemeProvider>(context);
 
     return MaterialApp.router(
+      // Force complete widget tree rebuild when theme changes to avoid
+      // TextStyle.lerp errors with AnimatedDefaultTextStyle during transitions
+      key: ValueKey(themeProvider.themeStyle),
       title: 'BiblioGenius',
       debugShowCheckedModeBanner: false,
       theme: themeProvider.themeData,
+      // Disable theme animation to prevent TextStyle.lerp errors when switching between
+      // themes with different inherit values (e.g., Sorbonne vs Default)
+      themeAnimationDuration: Duration.zero,
+      themeAnimationStyle: AnimationStyle.noAnimation,
       locale: themeProvider.locale,
       localizationsDelegates: const [
         GlobalMaterialLocalizations.delegate,

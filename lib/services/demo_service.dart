@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'api_service.dart';
+import '../models/book.dart';
 
 class DemoService {
   static Future<void> importDemoBooks(BuildContext context) async {
@@ -36,7 +37,7 @@ class DemoService {
         'publisher': 'Gallimard',
         'publication_year': 1943,
         'description':
-            'Le Petit Prince est une œuvre de langue française, la plus connue d\'Antoine de Saint-Exupéry.',
+            "Le Petit Prince est une oeuvre de langue francaise, la plus connue d'Antoine de Saint-Exupery.",
         'cover_url':
             'https://covers.openlibrary.org/b/isbn/9782070408504-L.jpg',
       },
@@ -53,9 +54,31 @@ class DemoService {
       },
     ];
 
-    for (final book in demoBooks) {
+    for (final bookData in demoBooks) {
       try {
-        await apiService.createBook(book);
+        // Create the book
+        final response = await apiService.createBook(bookData);
+        
+        // Extract book ID from response and create a copy
+        if (response.data != null) {
+          int? bookId;
+          if (response.data is Map) {
+            bookId = response.data['id'] as int?;
+          } else if (response.data is Book) {
+            bookId = (response.data as Book).id;
+          }
+          
+          if (bookId != null) {
+            // Create a default copy for this book
+            await apiService.createCopy({
+              'book_id': bookId,
+              'status': 'available',
+              'condition': 'good',
+              'notes': 'Demo copy',
+            });
+            debugPrint('Created copy for book ID: $bookId');
+          }
+        }
       } catch (e) {
         // Ignore errors for individual books (e.g. duplicates)
         debugPrint('Error importing demo book: $e');
@@ -63,3 +86,4 @@ class DemoService {
     }
   }
 }
+

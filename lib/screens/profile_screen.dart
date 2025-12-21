@@ -23,6 +23,7 @@ import 'dart:io' as io;
 import 'package:dio/dio.dart' show Response;
 import 'dart:convert'; // For base64Decode
 import '../themes/base/theme_registry.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 class ProfileScreen extends StatefulWidget {
   const ProfileScreen({super.key});
@@ -1087,9 +1088,10 @@ class _ProfileScreenState extends State<ProfileScreen> {
                     
                     if (!mounted) return;
                     
-                    // Password entry controller
+                    // Password entry controller and reset type selection
                     final passwordController = TextEditingController();
                     String? errorText;
+                    bool resetEntirely = false; // false = standard, true = full reset
                     
                     final confirmed = await showDialog<bool>(
                       context: context,
@@ -1098,27 +1100,102 @@ class _ProfileScreenState extends State<ProfileScreen> {
                           title: Text(
                             TranslationService.translate(context, 'reset_app_title'),
                           ),
-                          content: Column(
-                            mainAxisSize: MainAxisSize.min,
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              Text(
-                                TranslationService.translate(context, 'reset_app_confirmation'),
-                              ),
-                              if (hasPassword) ...[
-                                const SizedBox(height: 16),
-                                TextField(
-                                  controller: passwordController,
-                                  obscureText: true,
-                                  decoration: InputDecoration(
-                                    labelText: TranslationService.translate(context, 'enter_password_to_reset') ??
-                                        'Enter your password to confirm',
-                                    errorText: errorText,
-                                    border: const OutlineInputBorder(),
-                                  ),
+                          content: SingleChildScrollView(
+                            child: Column(
+                              mainAxisSize: MainAxisSize.min,
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                Text(
+                                  TranslationService.translate(context, 'reset_app_confirmation'),
                                 ),
+                                const SizedBox(height: 16),
+                                
+                                // Reset Type Selection
+                                Text(
+                                  TranslationService.translate(context, 'reset_type_label') ?? 
+                                      'Choose reset type:',
+                                  style: const TextStyle(fontWeight: FontWeight.bold),
+                                ),
+                                const SizedBox(height: 8),
+                                
+                                // Standard Reset Option
+                                RadioListTile<bool>(
+                                  value: false,
+                                  groupValue: resetEntirely,
+                                  title: Text(
+                                    TranslationService.translate(context, 'reset_type_standard') ?? 
+                                        'Standard Reset',
+                                  ),
+                                  subtitle: Text(
+                                    TranslationService.translate(context, 'reset_standard_desc') ?? 
+                                        'Clears library data but keeps your login',
+                                    style: TextStyle(fontSize: 12, color: Colors.grey[600]),
+                                  ),
+                                  onChanged: (val) => setState(() => resetEntirely = val!),
+                                  dense: true,
+                                  contentPadding: EdgeInsets.zero,
+                                ),
+                                
+                                // Reset Entirely Option
+                                RadioListTile<bool>(
+                                  value: true,
+                                  groupValue: resetEntirely,
+                                  title: Text(
+                                    TranslationService.translate(context, 'reset_type_full') ?? 
+                                        'Reset Entirely',
+                                    style: const TextStyle(color: Colors.red),
+                                  ),
+                                  subtitle: Text(
+                                    TranslationService.translate(context, 'reset_full_desc') ?? 
+                                        'Completely removes all data and credentials',
+                                    style: TextStyle(fontSize: 12, color: Colors.grey[600]),
+                                  ),
+                                  onChanged: (val) => setState(() => resetEntirely = val!),
+                                  dense: true,
+                                  contentPadding: EdgeInsets.zero,
+                                ),
+                                
+                                // Warning for full reset
+                                if (resetEntirely) ...[
+                                  const SizedBox(height: 8),
+                                  Container(
+                                    padding: const EdgeInsets.all(8),
+                                    decoration: BoxDecoration(
+                                      color: Colors.orange.withValues(alpha: 0.1),
+                                      borderRadius: BorderRadius.circular(8),
+                                      border: Border.all(color: Colors.orange),
+                                    ),
+                                    child: Row(
+                                      children: [
+                                        const Icon(Icons.warning, color: Colors.orange, size: 20),
+                                        const SizedBox(width: 8),
+                                        Expanded(
+                                          child: Text(
+                                            TranslationService.translate(context, 'reset_full_warning') ?? 
+                                                'You will need to set a new username and password',
+                                            style: const TextStyle(fontSize: 12, color: Colors.orange),
+                                          ),
+                                        ),
+                                      ],
+                                    ),
+                                  ),
+                                ],
+                                
+                                if (hasPassword) ...[
+                                  const SizedBox(height: 16),
+                                  TextField(
+                                    controller: passwordController,
+                                    obscureText: true,
+                                    decoration: InputDecoration(
+                                      labelText: TranslationService.translate(context, 'enter_password_to_reset') ??
+                                          'Enter your password to confirm',
+                                      errorText: errorText,
+                                      border: const OutlineInputBorder(),
+                                    ),
+                                  ),
+                                ],
                               ],
-                            ],
+                            ),
                           ),
                           actions: [
                             TextButton(
@@ -1164,6 +1241,14 @@ class _ProfileScreenState extends State<ProfileScreen> {
                           listen: false,
                         );
                         await themeProvider.resetSetup();
+                        
+                        // 3. If full reset, also clear credentials
+                        if (resetEntirely) {
+                          await authService.clearAll();
+                          // Also clear SharedPreferences completely for fresh start
+                          final prefs = await SharedPreferences.getInstance();
+                          await prefs.clear();
+                        }
 
                         if (mounted) {
                           context.go('/setup');

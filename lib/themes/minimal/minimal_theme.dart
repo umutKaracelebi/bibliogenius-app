@@ -191,7 +191,6 @@ class MinimalTheme extends AppTheme {
           color: textMain,
           fontSize: 14,
           fontWeight: FontWeight.w500,
-          backgroundColor: bgBody,
         ),
         floatingLabelBehavior: FloatingLabelBehavior.auto,
       ),

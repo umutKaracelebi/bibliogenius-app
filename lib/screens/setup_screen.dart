@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:go_router/go_router.dart';
 import 'package:provider/provider.dart';
 import '../providers/theme_provider.dart';
 import '../services/auth_service.dart';
@@ -17,6 +18,10 @@ class SetupScreen extends StatefulWidget {
 
 class _SetupScreenState extends State<SetupScreen> {
   final TextEditingController _libraryNameController = TextEditingController();
+  final TextEditingController _usernameController = TextEditingController(text: 'admin');
+  final TextEditingController _passwordController = TextEditingController();
+  final TextEditingController _confirmPasswordController = TextEditingController();
+  String? _passwordError;
 
   @override
   void initState() {
@@ -30,6 +35,9 @@ class _SetupScreenState extends State<SetupScreen> {
   @override
   void dispose() {
     _libraryNameController.dispose();
+    _usernameController.dispose();
+    _passwordController.dispose();
+    _confirmPasswordController.dispose();
     super.dispose();
   }
 
@@ -172,15 +180,27 @@ class _SetupScreenState extends State<SetupScreen> {
             physics: const ClampingScrollPhysics(), // Ensure scrolling works well
             currentStep: currentStep,
             onStepContinue: () {
-              if (currentStep < 5) {
+              debugPrint('Stepper onStepContinue called - currentStep: $currentStep');
+              if (currentStep < 6) {
                 if (currentStep == 1) {
                   // Save library name when leaving step 1
                   themeProvider.setSetupLibraryName(
                     _libraryNameController.text,
                   );
                 }
+                // Validate password on credentials step
+                if (currentStep == 5) {
+                  if (_passwordController.text.isNotEmpty &&
+                      _passwordController.text != _confirmPasswordController.text) {
+                    setState(() => _passwordError = TranslationService.translate(
+                      context, 'passwords_do_not_match') ?? 'Passwords do not match');
+                    return;
+                  }
+                  setState(() => _passwordError = null);
+                }
                 themeProvider.setSetupStep(currentStep + 1);
               } else {
+                debugPrint('Calling _finishSetup...');
                 _finishSetup(context, strings);
               }
             },
@@ -193,37 +213,56 @@ class _SetupScreenState extends State<SetupScreen> {
               }
             },
             controlsBuilder: (context, details) {
-              final isLastStep = currentStep == 5;
+              final isLastStep = currentStep == 6;
               return Padding(
                 padding: const EdgeInsets.only(top: 24.0, bottom: 12.0),
                 child: Row(
                   children: [
-                    ElevatedButton(
-                      key: const Key('setupNextButton'),
-                      onPressed: details.onStepContinue,
-                      style: ElevatedButton.styleFrom(
-                        // Use hardcoded high-contrast colors for visibility in all themes
-                        backgroundColor: Colors.blue.shade700,
-                        foregroundColor: Colors.white,
-                        elevation: 4,
-                        padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 12),
-                      ),
-                      child: Text(
-                        isLastStep
-                            ? strings['btn_finish']!
-                            : strings['btn_next']!,
-                        style: const TextStyle(fontWeight: FontWeight.bold),
+                    // Using Container + InkWell instead of ElevatedButton to avoid
+                    // AnimatedDefaultTextStyle animation issues during theme transitions
+                    Material(
+                      color: Colors.blue.shade700,
+                      elevation: 4,
+                      borderRadius: BorderRadius.circular(8),
+                      child: InkWell(
+                        key: const Key('setupNextButton'),
+                        onTap: () {
+                          debugPrint('SetupNextButton tapped - currentStep: $currentStep, isLastStep: $isLastStep');
+                          details.onStepContinue?.call();
+                        },
+                        borderRadius: BorderRadius.circular(8),
+                        child: Padding(
+                          padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 12),
+                          child: Text(
+                            isLastStep
+                                ? strings['btn_finish']!
+                                : strings['btn_next']!,
+                            style: const TextStyle(
+                              color: Colors.white,
+                              fontWeight: FontWeight.bold,
+                              fontSize: 14,
+                            ),
+                          ),
+                        ),
                       ),
                     ),
                     if (currentStep > 0) ...[
                       const SizedBox(width: 16),
-                      TextButton(
-                        onPressed: details.onStepCancel,
-                        style: TextButton.styleFrom(
-                          // Use high-contrast color for visibility
-                          foregroundColor: Colors.blue.shade700,
+                      // Using InkWell + Text instead of TextButton to avoid
+                      // AnimatedDefaultTextStyle animation issues during theme transitions
+                      InkWell(
+                        onTap: details.onStepCancel,
+                        borderRadius: BorderRadius.circular(8),
+                        child: Padding(
+                          padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+                          child: Text(
+                            strings['btn_back']!,
+                            style: TextStyle(
+                              color: Colors.blue.shade700,
+                              fontWeight: FontWeight.w600,
+                            ),
+                          ),
                         ),
-                        child: Text(strings['btn_back']!),
                       ),
                     ],
                   ],
@@ -462,13 +501,13 @@ class _SetupScreenState extends State<SetupScreen> {
                         );
 
                         if (selected != null && context.mounted) {
-                           // Use post-frame callback to ensure layout is stable before theme rebuild
-                           // This prevents "Cannot hit test a render box with no size" errors
-                           WidgetsBinding.instance.addPostFrameCallback((_) {
-                             if (context.mounted) {
-                               themeProvider.setThemeStyle(selected);
-                             }
-                           });
+                          // Defer theme change using microtask to avoid layout conflicts with Stepper
+                          // This lets the current frame complete fully before triggering theme rebuild
+                          Future.microtask(() async {
+                            if (context.mounted) {
+                              await themeProvider.setThemeStyle(selected);
+                            }
+                          });
                         }
                       },
                       child: Container(
@@ -513,7 +552,59 @@ class _SetupScreenState extends State<SetupScreen> {
                 isActive: currentStep >= 4,
                 state: currentStep > 4 ? StepState.complete : StepState.indexed,
               ),
-              // Step 5: Finish
+              // Step 5: Credentials
+              Step(
+                title: Text(
+                  TranslationService.translate(context, 'setup_credentials_title') ?? 'Credentials',
+                ),
+                content: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      TranslationService.translate(context, 'setup_password_optional') ??
+                          'Optional - Set a password to protect your library',
+                      style: TextStyle(color: Colors.grey[600], fontSize: 14),
+                    ),
+                    const SizedBox(height: 16),
+                    TextField(
+                      key: const Key('setupUsernameField'),
+                      controller: _usernameController,
+                      decoration: InputDecoration(
+                        labelText: TranslationService.translate(context, 'setup_username_label') ?? 'Username',
+                        border: const OutlineInputBorder(),
+                        prefixIcon: const Icon(Icons.person),
+                      ),
+                    ),
+                    const SizedBox(height: 16),
+                    TextField(
+                      key: const Key('setupPasswordField'),
+                      controller: _passwordController,
+                      obscureText: true,
+                      decoration: InputDecoration(
+                        labelText: TranslationService.translate(context, 'setup_password_label') ?? 'Password',
+                        border: const OutlineInputBorder(),
+                        prefixIcon: const Icon(Icons.lock),
+                        helperText: TranslationService.translate(context, 'leave_empty_no_password') ?? 'Leave empty for no password',
+                      ),
+                    ),
+                    const SizedBox(height: 16),
+                    TextField(
+                      key: const Key('setupConfirmPasswordField'),
+                      controller: _confirmPasswordController,
+                      obscureText: true,
+                      decoration: InputDecoration(
+                        labelText: TranslationService.translate(context, 'setup_confirm_password') ?? 'Confirm Password',
+                        border: const OutlineInputBorder(),
+                        prefixIcon: const Icon(Icons.lock_outline),
+                        errorText: _passwordError,
+                      ),
+                    ),
+                  ],
+                ),
+                isActive: currentStep >= 5,
+                state: currentStep > 5 ? StepState.complete : StepState.indexed,
+              ),
+              // Step 6: Finish
               Step(
                 title: Text(strings['finish_title']!),
                 content: Column(
@@ -530,8 +621,8 @@ class _SetupScreenState extends State<SetupScreen> {
                     Text(strings['finish_body']!),
                   ],
                 ),
-                isActive: currentStep >= 5,
-                state: currentStep == 5
+                isActive: currentStep >= 6,
+                state: currentStep == 6
                     ? StepState.complete
                     : StepState.indexed,
               ),
@@ -546,54 +637,87 @@ class _SetupScreenState extends State<SetupScreen> {
     BuildContext context,
     Map<String, String> strings,
   ) async {
+    debugPrint('_finishSetup: Starting...');
+    
     // Show loading indicator
     showDialog(
       context: context,
       barrierDismissible: false,
       builder: (ctx) => Center(child: CircularProgressIndicator()),
     );
+    debugPrint('_finishSetup: Dialog shown');
 
     try {
       final apiService = Provider.of<ApiService>(context, listen: false);
       final themeProvider = Provider.of<ThemeProvider>(context, listen: false);
+      debugPrint('_finishSetup: Got services');
 
       // 1. Setup Backend
+      debugPrint('_finishSetup: Calling apiService.setup...');
       await apiService.setup(
         libraryName: themeProvider.setupLibraryName,
         profileType: themeProvider.setupProfileType,
         theme: themeProvider.themeStyle,
       );
+      debugPrint('_finishSetup: apiService.setup completed');
 
       // 2. Import Demo Data if requested
       if (themeProvider.setupImportDemo) {
+        debugPrint('_finishSetup: Importing demo data...');
         await DemoService.importDemoBooks(context);
+        debugPrint('_finishSetup: Demo data imported');
       }
 
+      debugPrint('_finishSetup: Checking context.mounted (1): ${context.mounted}');
       if (context.mounted) {
         // Close loading dialog FIRST to avoid build scope conflicts
+        debugPrint('_finishSetup: Closing dialog...');
         Navigator.of(context).pop();
+        debugPrint('_finishSetup: Dialog closed');
         
         // Wait for dialog animation to finish and frame to settle
         await Future.delayed(const Duration(milliseconds: 350));
+        debugPrint('_finishSetup: Delay completed');
         
         // Only proceed if still mounted after delay
+        debugPrint('_finishSetup: Checking context.mounted (2): ${context.mounted}');
         if (!context.mounted) return;
         
         // Use batch method to apply all settings with single notification
         // This is done AFTER dialog is fully closed to prevent dirty widget errors
+        debugPrint('_finishSetup: Calling completeSetupWithSettings...');
         await themeProvider.completeSetupWithSettings(
           profileType: themeProvider.setupProfileType,
           avatarConfig: themeProvider.setupAvatarConfig,
           libraryName: themeProvider.setupLibraryName,
           apiService: apiService,
         );
+        debugPrint('_finishSetup: completeSetupWithSettings done');
 
         if (!context.mounted) return;
         
         final authService = Provider.of<AuthService>(context, listen: false);
-        await authService.saveUsername('admin');
         
-        // GoRouter will detect isSetupComplete=true and redirect to /login automatically
+        // Save username from setup (default 'admin' if empty)
+        final username = _usernameController.text.trim().isNotEmpty 
+            ? _usernameController.text.trim() 
+            : 'admin';
+        await authService.saveUsername(username);
+        debugPrint('_finishSetup: Username saved: $username');
+        
+        // Save password if provided
+        if (_passwordController.text.isNotEmpty) {
+          await authService.savePassword(_passwordController.text);
+          debugPrint('_finishSetup: Password saved');
+        }
+        
+        debugPrint('_finishSetup: COMPLETE - Navigating to login...');
+        // Explicitly navigate to login since GoRouter refresh may not trigger automatically
+        if (context.mounted) {
+          GoRouter.of(context).go('/login');
+        }
+      } else {
+        debugPrint('_finishSetup: ERROR - context not mounted after apiService.setup!');
       }
     } catch (e) {
       // Close loading dialog

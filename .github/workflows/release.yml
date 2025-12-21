@@ -285,7 +285,7 @@ jobs:
           mkdir -p build/linux/x64/release/bundle/backend
           cp backend/bibliogenius build/linux/x64/release/bundle/backend/
           chmod +x build/linux/x64/release/bundle/backend/bibliogenius
-        
+
       - name: Create tarball
         run: |
           cd build/linux/x64/release

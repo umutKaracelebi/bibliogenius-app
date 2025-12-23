@@ -376,7 +376,311 @@ void main() {
         ).pop(); // Go back to details
         await wait(tester);
 
-        print('Local massive test steps 1-7 (Book, Copy) completed.');
+        // --- 4. P2P EXCHANGE TEST ---
+        // Generate unique ID for this run
+        final uniqueId = DateTime.now().millisecondsSinceEpoch % 10000;
+        final mockPeerName = 'Mock Peer $uniqueId';
+
+        print('Step 8: Setup Mock Peer Server ($mockPeerName)');
+        // Start a mock server to act as a remote peer
+        // Use port 0 to get an ephemeral random port
+        final mockServer = await HttpServer.bind(
+          InternetAddress.loopbackIPv4,
+          0,
+        );
+        print('Mock Peer Server running on port ${mockServer.port}');
+
+        mockServer.listen((HttpRequest request) async {
+          print(
+            'Mock Server received request: ${request.method} ${request.uri}',
+          );
+
+          // Handle CORS if necessary (simplified)
+          request.response.headers.add('Access-Control-Allow-Origin', '*');
+          request.response.headers.add(
+            'Access-Control-Allow-Methods',
+            'GET, POST, OPTIONS',
+          );
+          request.response.headers.add('Access-Control-Allow-Headers', '*');
+
+          if (request.method == 'OPTIONS') {
+            request.response.close();
+            return;
+          }
+
+          if (request.uri.path == '/api/books') {
+            final books = [
+              {
+                'isbn':
+                    '9780140449136', // The Odyssey - valid OpenLibrary ISBN with cover
+                'title': 'Mock Remote Book',
+                'author': 'Homer',
+                'description': 'A book from the mock peer.',
+                'publisher': 'Penguin Classics',
+                'year': '1997',
+                'copies': [
+                  {'id': 1, 'status': 'available'},
+                ],
+              },
+            ];
+            request.response.headers.contentType = ContentType.json;
+            request.response.write(jsonEncode({'data': books}));
+          } else if (request.uri.path == '/api/peers/incoming' &&
+              request.method == 'POST') {
+            // Handle P2P Handshake
+            final content = await utf8.decoder.bind(request).join();
+            print('Mock Peer received handshake: $content');
+            request.response.statusCode = 200;
+            request.response.write(
+              jsonEncode({
+                'name': mockPeerName,
+                'url': 'http://localhost:${mockServer.port}',
+              }),
+            );
+          } else if (request.uri.path == '/api/peers/requests/incoming' &&
+              request.method == 'POST') {
+            // Handle book request from App
+            final content = await utf8.decoder.bind(request).join();
+            print('Mock Peer received book request: $content');
+            request.response.statusCode = 200; // Accept it
+            request.response.write(jsonEncode({'status': 'ok'}));
+          } else {
+            request.response.statusCode = 404;
+          }
+          await request.response.close();
+        });
+
+        try {
+          print('Step 9: Navigate to Network Screen');
+          // Open drawer
+          // Ensure menu is open if on mobile
+          if (find.byIcon(Icons.menu).evaluate().isNotEmpty) {
+            // We are likely on mobile or small screen
+            await tester.tap(find.byIcon(Icons.menu));
+            await tester.pumpAndSettle();
+          }
+
+          // Try finding the Network icon in the drawer/rail
+          final networkIcon = find.byIcon(
+            Icons.public,
+          ); // Standard for Network in this app
+          if (networkIcon.evaluate().isNotEmpty) {
+            await tester.tap(networkIcon.last); // Last one likely in drawer
+          } else {
+            // Fallback: try finding text "Network" or "Réseau"
+            if (find.text('Network').evaluate().isNotEmpty) {
+              await tester.tap(find.text('Network'));
+            } else if (find.text('Réseau').evaluate().isNotEmpty) {
+              await tester.tap(find.text('Réseau'));
+            } else {
+              print('WARNING: Could not find Network navigation item.');
+            }
+          }
+          await wait(tester);
+
+          print('Step 10: Manual Connect to Mock Peer');
+          final manualConnectBtn = find.byKey(const Key('manualConnectBtn'));
+          expect(
+            manualConnectBtn,
+            findsOneWidget,
+            reason: 'Manual Connect button not found',
+          );
+          await tester.tap(manualConnectBtn);
+          await wait(tester);
+
+          await tester.enterText(
+            find.byKey(const Key('manualConnectNameField')),
+            mockPeerName,
+          );
+          await tester.enterText(
+            find.byKey(const Key('manualConnectUrlField')),
+            'http://localhost:${mockServer.port}',
+          );
+          await tester.tap(find.byKey(const Key('manualConnectConfirmBtn')));
+          await wait(tester);
+
+          // Wait for connection snackbar/refresh
+          await tester.pumpAndSettle(const Duration(seconds: 2));
+
+          print('Step 11: Browse Mock Peer Books');
+          // Find the peer card
+          final peerCard = find.text(mockPeerName);
+
+          // Scroll to find it as list might be long due to repeated tests
+          try {
+            await tester.scrollUntilVisible(
+              peerCard,
+              500.0,
+              scrollable: find.descendant(
+                of: find.byKey(const Key('networkMemberList')),
+                matching: find.byType(Scrollable),
+              ),
+            );
+          } catch (e) {
+            print('Warning: Scroll failed or not needed: $e');
+          }
+
+          expect(
+            peerCard,
+            findsOneWidget,
+            reason: '$mockPeerName not found in list after connection',
+          );
+
+          // Find the ancestor Row (main card layout) and Browse button
+          final cardRow = find
+              .ancestor(of: find.text(mockPeerName), matching: find.byType(Row))
+              .first;
+          final browseBtn = find.descendant(
+            of: cardRow,
+            matching: find.text('Browse'),
+          );
+
+          await tester.ensureVisible(browseBtn);
+          expect(
+            browseBtn,
+            findsOneWidget,
+            reason: 'Browse button not found for Mock Peer',
+          );
+          await tester.tap(browseBtn);
+          await wait(tester);
+
+          // Verify we are on Peer Book List and see the mock book
+          print('Step 12: Request details from Peer');
+          await tester.pumpAndSettle(
+            const Duration(seconds: 2),
+          ); // Wait for load
+
+          // Switch to list view for reliable text finding
+          final viewToggle = find.byIcon(Icons.list);
+          if (viewToggle.evaluate().isNotEmpty) {
+            print('Switching to List View...');
+            await tester.tap(viewToggle);
+            await tester.pumpAndSettle();
+          }
+
+          final mockBookTitle = find.text('Mock Remote Book');
+          await tester.pumpAndSettle(const Duration(seconds: 2)); // Fetch time
+          expect(
+            mockBookTitle,
+            findsOneWidget,
+            reason: 'Mock book not displayed',
+          );
+
+          // Tap book to see details/request
+          await tester.tap(mockBookTitle);
+          await wait(tester);
+
+          // Click "Request" button
+          Finder requestAction = find.text('Demander');
+          if (requestAction.evaluate().isEmpty) {
+            requestAction = find.text('Request');
+          }
+
+          if (requestAction.evaluate().isNotEmpty) {
+            await tester.tap(requestAction);
+            await wait(tester);
+            // Confirm dialog?
+            final confirmBtn = find.text('Confirm'); // or 'Confirmer'
+            if (confirmBtn.evaluate().isNotEmpty) {
+              await tester.tap(confirmBtn);
+              await wait(tester);
+            }
+          } else {
+            print(
+              'WARNING: Request button not found. Skipping outgoing request verification.',
+            );
+          }
+
+          print('Step 13: Incoming Request Flow');
+          // Simulate incoming request
+          final client = HttpClient();
+          final req = await client.post(
+            'localhost',
+            ApiService.httpPort,
+            '/api/peers/requests/incoming',
+          );
+          req.headers.contentType = ContentType.json;
+          req.write(
+            jsonEncode({
+              'id': 'test-req-${DateTime.now().millisecondsSinceEpoch}',
+              'book_isbn': '978-3-16-148410-0',
+              'book_title': bookTitle,
+              'peer_id': 'mock-peer-id',
+              'from_name': mockPeerName,
+              'from_url': 'http://localhost:${mockServer.port}',
+              'status': 'pending',
+            }),
+          );
+          final response = await req.close();
+          print('Validation: Simulated Request Status: ${response.statusCode}');
+
+          // Navigate to Requests Screen
+          if (find.byIcon(Icons.menu).evaluate().isNotEmpty) {
+            await tester.tap(find.byIcon(Icons.menu));
+            await tester.pumpAndSettle();
+          }
+          final requestsNav = find.byIcon(
+            Icons.move_to_inbox,
+          ); // Icon for requests in app drawer
+          if (requestsNav.evaluate().isNotEmpty) {
+            await tester.tap(requestsNav.last);
+          } else {
+            // Try text
+            if (find.text('Demandes').evaluate().isNotEmpty) {
+              await tester.tap(find.text('Demandes'));
+            } else if (find.text('Requests').evaluate().isNotEmpty) {
+              await tester.tap(find.text('Requests'));
+            }
+          }
+          await wait(tester);
+
+          // Check Incoming Tab
+          await tester.tap(find.byKey(const Key('incomingTab')));
+          await wait(tester);
+          await tester.pumpAndSettle(
+            const Duration(seconds: 2),
+          ); // wait for refresh
+
+          // Scroll to find the book title - it may be at the bottom of the list
+          final bookTitleFinder = find.text(bookTitle);
+          try {
+            await tester.scrollUntilVisible(
+              bookTitleFinder,
+              300.0,
+              scrollable: find.descendant(
+                of: find.byKey(const Key('incomingRequestsList')),
+                matching: find.byType(Scrollable),
+              ),
+            );
+          } catch (e) {
+            print(
+              'Warning: Scroll in incoming requests failed or not needed: $e',
+            );
+          }
+
+          expect(
+            bookTitleFinder,
+            findsOneWidget,
+            reason: 'Incoming request not found',
+          );
+
+          // Accept the request
+          final acceptBtn = find.text('Accept'); // or 'Accepter'
+          if (acceptBtn.evaluate().isNotEmpty) {
+            await tester.tap(acceptBtn.first);
+            await wait(tester);
+          }
+
+          print('P2P massive test steps 8-13 completed successfully!');
+        } catch (e) {
+          print('P2P Test Error: $e');
+          rethrow;
+        } finally {
+          await mockServer.close();
+          print('Mock server closed.');
+        }
+
+        print('All massive test steps (1-13) completed.');
       } finally {
         // Restore ErrorWidget.builder to avoid teardown failures
         ErrorWidget.builder = originalErrorWidgetBuilder;

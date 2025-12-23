@@ -14,7 +14,7 @@ import 'package:mobile_scanner/mobile_scanner.dart';
 import '../utils/app_constants.dart';
 import 'package:qr_flutter/qr_flutter.dart';
 import 'package:network_info_plus/network_info_plus.dart';
-import 'peer_book_list_screen.dart';
+import '../services/mdns_service.dart';
 
 /// Filter options for the network list
 enum NetworkFilter { all, libraries, contacts }
@@ -40,6 +40,7 @@ class _NetworkScreenState extends State<NetworkScreen>
   List<Map<String, dynamic>> _localPeers = []; // mDNS discovered peers
   bool _isLoading = true;
   bool _mdnsActive = false;
+  bool _isWifiConnected = true; // Default to true to avoid flashing warning
   NetworkFilter _filter = NetworkFilter.all;
   Timer? _refreshTimer;
 
@@ -63,6 +64,7 @@ class _NetworkScreenState extends State<NetworkScreen>
       if (mounted && _tabController.index == 0) _loadAllMembers(silent: true);
     });
     if (AppConstants.enableP2PFeatures) _initQRData();
+    _checkWifiStatus();
   }
 
   @override
@@ -71,6 +73,20 @@ class _NetworkScreenState extends State<NetworkScreen>
     _tabController.dispose();
     cameraController.dispose();
     super.dispose();
+  }
+
+  Future<void> _checkWifiStatus() async {
+    try {
+      final info = NetworkInfo();
+      final wifiIp = await info.getWifiIP();
+      if (mounted) {
+        setState(() {
+          _isWifiConnected = wifiIp != null;
+        });
+      }
+    } catch (e) {
+      debugPrint('Error checking WiFi status: $e');
+    }
   }
 
   /// Load both contacts and peers, merge into unified list
@@ -764,35 +780,130 @@ class _NetworkScreenState extends State<NetworkScreen>
           Icons.wifi_tethering,
           color: _mdnsActive ? Colors.teal : Colors.grey,
         ),
-        title: Text(
-          TranslationService.translate(context, 'local_network_title'),
-          style: const TextStyle(fontWeight: FontWeight.bold),
+        title: Row(
+          children: [
+            Expanded(
+              child: Text(
+                TranslationService.translate(context, 'local_network_title'),
+                style: const TextStyle(fontWeight: FontWeight.bold),
+              ),
+            ),
+            // Rescan button
+            IconButton(
+              icon: const Icon(Icons.refresh, size: 20),
+              tooltip: 'Rescan',
+              onPressed: () async {
+                debugPrint('🔄 Manual mDNS rescan triggered');
+                await MdnsService.stopDiscovery();
+                await MdnsService.startDiscovery();
+                await Future.delayed(const Duration(seconds: 2));
+                _loadAllMembers();
+                ScaffoldMessenger.of(context).showSnackBar(
+                  SnackBar(
+                    content: Text(
+                      'Rescanning... ${MdnsService.peers.length} peers found',
+                    ),
+                    duration: const Duration(seconds: 2),
+                  ),
+                );
+              },
+            ),
+          ],
         ),
         subtitle: Text(
-          _localPeers.isEmpty
-              ? TranslationService.translate(
-                  context,
-                  'no_local_libraries_found',
-                )
-              : '${_localPeers.length} ${TranslationService.translate(context, 'libraries_found')}',
+          _mdnsActive
+              ? (_localPeers.isEmpty
+                    ? TranslationService.translate(
+                        context,
+                        'no_local_libraries_found',
+                      )
+                    : '${_localPeers.length} ${TranslationService.translate(context, 'libraries_found')}')
+              : 'mDNS inactive',
           style: TextStyle(color: Colors.grey[600], fontSize: 12),
         ),
-        initiallyExpanded: _localPeers.isNotEmpty,
-        children: _localPeers.isEmpty
-            ? [
-                Padding(
-                  padding: const EdgeInsets.all(16.0),
-                  child: Text(
-                    TranslationService.translate(
-                      context,
-                      'local_discovery_help',
+        initiallyExpanded: true, // Always expanded for debugging
+        children: [
+          // Debug info
+          Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 4),
+            child: Text(
+              'mDNS: ${_mdnsActive ? "Active" : "Inactive"} | Raw peers: ${MdnsService.peers.length} | Filtered: ${_localPeers.length}',
+              style: TextStyle(
+                fontSize: 10,
+                color: Colors.grey[500],
+                fontFamily: 'monospace',
+              ),
+            ),
+          ),
+
+          // WiFi Warning
+          if (!_isWifiConnected)
+            Container(
+              margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+              padding: const EdgeInsets.all(12),
+              decoration: BoxDecoration(
+                color: Colors.amber.withValues(alpha: 0.1),
+                borderRadius: BorderRadius.circular(8),
+                border: Border.all(color: Colors.amber.withValues(alpha: 0.5)),
+              ),
+              child: Row(
+                children: [
+                  const Icon(Icons.wifi_off, color: Colors.amber),
+                  const SizedBox(width: 12),
+                  Expanded(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(
+                          TranslationService.translate(
+                                    context,
+                                    'wifi_required_title',
+                                  ) ==
+                                  'wifi_required_title'
+                              ? 'WiFi connection recommended'
+                              : TranslationService.translate(
+                                  context,
+                                  'wifi_required_title',
+                                ),
+                          style: const TextStyle(
+                            fontWeight: FontWeight.bold,
+                            color: Colors.amber,
+                          ),
+                        ),
+                        Text(
+                          TranslationService.translate(
+                                    context,
+                                    'wifi_required_message',
+                                  ) ==
+                                  'wifi_required_message'
+                              ? 'Please connect to the same WiFi network to discover other libraries.'
+                              : TranslationService.translate(
+                                  context,
+                                  'wifi_required_message',
+                                ),
+                          style: TextStyle(
+                            fontSize: 12,
+                            color: Colors.amber[800],
+                          ),
+                        ),
+                      ],
                     ),
-                    style: TextStyle(color: Colors.grey[600]),
-                    textAlign: TextAlign.center,
                   ),
-                ),
-              ]
-            : _localPeers.map((peer) => _buildLocalPeerTile(peer)).toList(),
+                ],
+              ),
+            ),
+          if (_localPeers.isEmpty)
+            Padding(
+              padding: const EdgeInsets.all(16.0),
+              child: Text(
+                TranslationService.translate(context, 'local_discovery_help'),
+                style: TextStyle(color: Colors.grey[600]),
+                textAlign: TextAlign.center,
+              ),
+            )
+          else
+            ..._localPeers.map((peer) => _buildLocalPeerTile(peer)).toList(),
+        ],
       ),
     );
   }

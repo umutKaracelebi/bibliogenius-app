@@ -49,6 +49,7 @@ class MdnsService {
   static StreamSubscription? _discoverySubscription;
   static bool _isRunning = false;
   static String? _ownServiceName;
+  static String? _ownIp; // Our own IP for filtering
 
   /// Check if mDNS service is active
   static bool get isActive => _isRunning;
@@ -70,12 +71,37 @@ class MdnsService {
         type: InternetAddressType.IPv4,
         includeLinkLocal: false,
       );
+
+      // Priority 1: WiFi interfaces (en0, wlan0)
       for (final interface in interfaces) {
+        final name = interface.name.toLowerCase();
+        if (name.startsWith('en') || name.startsWith('wlan')) {
+          for (final address in interface.addresses) {
+            final ip = address.address;
+            if (!address.isLoopback && !_isLinkLocalAddress(ip)) {
+              debugPrint(
+                '🔍 mDNS: Found WiFi IP $ip on ${interface.name} (Priority)',
+              );
+              return ip;
+            }
+          }
+        }
+      }
+
+      // Priority 2: Other valid interfaces (fallback), excluding known cellular
+      for (final interface in interfaces) {
+        final name = interface.name.toLowerCase();
+        // Skip cellular interfaces commonly found on mobile
+        if (name.startsWith('pdp_ip') ||
+            name.startsWith('rmnet') ||
+            name.startsWith('ccmni')) {
+          continue;
+        }
+
         for (final address in interface.addresses) {
           final ip = address.address;
-          // Skip loopback and link-local
           if (!address.isLoopback && !_isLinkLocalAddress(ip)) {
-            debugPrint('🔍 mDNS: Found valid IP $ip on ${interface.name}');
+            debugPrint('🔍 mDNS: Found fallback IP $ip on ${interface.name}');
             return ip;
           }
         }
@@ -127,7 +153,10 @@ class MdnsService {
 
       final attributes = <String, String>{};
       if (libraryId != null) attributes['library_id'] = libraryId;
-      if (localIp != null) attributes['ip'] = localIp;
+      if (localIp != null) {
+        attributes['ip'] = localIp;
+        _ownIp = localIp; // Store our IP for filtering
+      }
 
       final service = BonsoirService(
         name: safeName,
@@ -163,124 +192,151 @@ class MdnsService {
 
       _discovery = BonsoirDiscovery(type: kServiceType);
       await _discovery!.initialize();
+      debugPrint('🔍 mDNS: Discovery initialized for type: $kServiceType');
+      debugPrint('🔍 mDNS: Own service name to filter: $_ownServiceName');
 
-      _discoverySubscription = _discovery!.eventStream?.listen((event) {
-        // Handle service found - add immediately as workaround for macOS sandbox
-        // (ServiceResolvedEvent doesn't fire reliably in Flutter sandbox)
-        if (event is BonsoirDiscoveryServiceFoundEvent) {
-          final service = event.service;
+      _discoverySubscription = _discovery!.eventStream?.listen(
+        (event) {
+          debugPrint('📡 mDNS: Received event: ${event.runtimeType}');
+          // Handle service found - add immediately as workaround for macOS sandbox
+          // (ServiceResolvedEvent doesn\'t fire reliably in Flutter sandbox)
+          if (event is BonsoirDiscoveryServiceFoundEvent) {
+            final service = event.service;
 
-          // Skip our own service (also handle Bonjour auto-suffix like "(2)")
-          final cleanServiceName = service.name.replaceAll(
-            RegExp(r'\s*\(\d+\)$'),
-            '',
-          );
-          if (_ownServiceName != null && cleanServiceName == _ownServiceName) {
-            debugPrint('🔇 mDNS: Skipping own service: ${service.name}');
-            return;
-          }
+            // Get peer IP from attributes
+            final peerIp = service.attributes['ip'];
 
-          // Prefer IP from attributes (reliable), fallback to hostname guess
-          final ipFromAttrs = service.attributes['ip'];
-          String host;
-          if (ipFromAttrs != null &&
-              ipFromAttrs.isNotEmpty &&
-              !_isLinkLocalAddress(ipFromAttrs)) {
-            host = ipFromAttrs;
-            debugPrint('📚 mDNS: Using IP from attributes: $host');
-          } else {
-            if (ipFromAttrs != null && _isLinkLocalAddress(ipFromAttrs)) {
+            // Skip our own service by IP (more reliable than name)
+            if (_ownIp != null && peerIp == _ownIp) {
               debugPrint(
-                '⚠️ mDNS: Peer advertised link-local IP ($ipFromAttrs), trying hostname fallback',
+                '🔇 mDNS: Skipping own service by IP: ${service.name} ($peerIp)',
+              );
+              return;
+            }
+
+            // Also skip by name as fallback (handle Bonjour auto-suffix like "(2)")
+            final cleanServiceName = service.name.replaceAll(
+              RegExp(r'\s*\(\d+\)$'),
+              '',
+            );
+            if (_ownServiceName != null &&
+                cleanServiceName == _ownServiceName &&
+                peerIp == null) {
+              debugPrint(
+                '🔇 mDNS: Skipping own service by name (no IP): ${service.name}',
+              );
+              return;
+            }
+
+            // Prefer IP from attributes (reliable), fallback to hostname guess
+            final ipFromAttrs = service.attributes['ip'];
+            String host;
+            if (ipFromAttrs != null &&
+                ipFromAttrs.isNotEmpty &&
+                !_isLinkLocalAddress(ipFromAttrs)) {
+              host = ipFromAttrs;
+              debugPrint('📚 mDNS: Using IP from attributes: $host');
+            } else {
+              if (ipFromAttrs != null && _isLinkLocalAddress(ipFromAttrs)) {
+                debugPrint(
+                  '⚠️ mDNS: Peer advertised link-local IP ($ipFromAttrs), trying hostname fallback',
+                );
+              }
+              // Fallback: Generate hostname from service name (less reliable)
+              final hostGuess = service.name
+                  .toLowerCase()
+                  .replaceAll(RegExp(r'[^a-z0-9]'), '-')
+                  .replaceAll(RegExp(r'-+'), '-')
+                  .replaceAll(RegExp(r'-$'), ''); // Remove trailing dash
+              host = '$hostGuess.local';
+              debugPrint(
+                '⚠️ mDNS: No valid IP in attributes, guessing hostname: $host',
               );
             }
-            // Fallback: Generate hostname from service name (less reliable)
-            final hostGuess = service.name
-                .toLowerCase()
-                .replaceAll(RegExp(r'[^a-z0-9]'), '-')
-                .replaceAll(RegExp(r'-+'), '-')
-                .replaceAll(RegExp(r'-$'), ''); // Remove trailing dash
-            host = '$hostGuess.local';
-            debugPrint(
-              '⚠️ mDNS: No valid IP in attributes, guessing hostname: $host',
+
+            // Use actual port from service (default to 8000 if not available)
+            final actualPort = service.port > 0 ? service.port : 8000;
+
+            // Strip Bonjour auto-suffix like "(2)", "(3)" from conflicting names
+            final cleanName = service.name.replaceAll(
+              RegExp(r'\s*\(\d+\)$'),
+              '',
             );
-          }
 
-          // Use actual port from service (default to 8000 if not available)
-          final actualPort = service.port > 0 ? service.port : 8000;
+            // Use host:port as key to deduplicate same library announced multiple times
+            final peerKey = '$host:$actualPort';
 
-          // Strip Bonjour auto-suffix like "(2)", "(3)" from conflicting names
-          final cleanName = service.name.replaceAll(RegExp(r'\s*\(\d+\)$'), '');
-
-          // Use host:port as key to deduplicate same library announced multiple times
-          final peerKey = '$host:$actualPort';
-
-          final peer = DiscoveredPeer(
-            name: cleanName,
-            host: host,
-            port: actualPort,
-            addresses: [host],
-            libraryId: service.attributes['library_id'],
-            discoveredAt: DateTime.now(),
-          );
-
-          _peers[peerKey] = peer;
-          debugPrint('📚 mDNS: Discovered "$cleanName" at $peerKey');
-        }
-        // Handle service resolved (preferred if it fires)
-        else if (event is BonsoirDiscoveryServiceResolvedEvent) {
-          final service = event.service;
-
-          // Skip our own service (also handle Bonjour auto-suffix)
-          // Strip Bonjour auto-suffix first
-          final cleanName = service.name.replaceAll(RegExp(r'\s*\(\d+\)$'), '');
-          if (_ownServiceName != null && cleanName == _ownServiceName) {
-            debugPrint(
-              '🔇 mDNS: Skipping own resolved service: ${service.name}',
+            final peer = DiscoveredPeer(
+              name: cleanName,
+              host: host,
+              port: actualPort,
+              addresses: [host],
+              libraryId: service.attributes['library_id'],
+              discoveredAt: DateTime.now(),
             );
-            return;
+
+            _peers[peerKey] = peer;
+            debugPrint('📚 mDNS: Discovered "$cleanName" at $peerKey');
           }
+          // Handle service resolved (preferred if it fires)
+          else if (event is BonsoirDiscoveryServiceResolvedEvent) {
+            final service = event.service;
 
-          final resolvedHost = service.host ?? 'unknown';
-          final peerKey = '$resolvedHost:${service.port}';
+            // Skip our own service (also handle Bonjour auto-suffix)
+            // Strip Bonjour auto-suffix first
+            final cleanName = service.name.replaceAll(
+              RegExp(r'\s*\(\d+\)$'),
+              '',
+            );
+            if (_ownServiceName != null && cleanName == _ownServiceName) {
+              debugPrint(
+                '🔇 mDNS: Skipping own resolved service: ${service.name}',
+              );
+              return;
+            }
 
-          // Update/add with resolved info (more accurate)
-          final peer = DiscoveredPeer(
-            name: cleanName,
-            host: resolvedHost,
-            port: service.port,
-            addresses: service.host != null ? [service.host!] : [],
-            libraryId: service.attributes['library_id'],
-            discoveredAt: DateTime.now(),
-          );
+            final resolvedHost = service.host ?? 'unknown';
+            final peerKey = '$resolvedHost:${service.port}';
 
-          _peers[peerKey] = peer;
-          debugPrint('📚 mDNS: Resolved "$cleanName" at $peerKey');
-        }
-        // Handle service lost
-        else if (event is BonsoirDiscoveryServiceLostEvent) {
-          final service = event.service;
-          // Try to find and remove by matching name (since we don't have the key)
-          final keysToRemove = _peers.entries
-              .where(
-                (e) =>
-                    e.value.name ==
-                    service.name.replaceAll(RegExp(r'\s*\(\d+\)$'), ''),
-              )
-              .map((e) => e.key)
-              .toList();
-          for (final key in keysToRemove) {
-            _peers.remove(key);
-            debugPrint('👋 mDNS: Lost "${service.name}" (key: $key)');
+            // Update/add with resolved info (more accurate)
+            final peer = DiscoveredPeer(
+              name: cleanName,
+              host: resolvedHost,
+              port: service.port,
+              addresses: service.host != null ? [service.host!] : [],
+              libraryId: service.attributes['library_id'],
+              discoveredAt: DateTime.now(),
+            );
+
+            _peers[peerKey] = peer;
+            debugPrint('📚 mDNS: Resolved "$cleanName" at $peerKey');
           }
-        }
-      }, onError: (error) {
-        debugPrint('❌ mDNS: Error in discovery stream - $error');
-        // Handle stream errors (like defunct connection) gracefully
-        // We don't want to crash the app, just log and maybe cleanup
-        // If needed, we could implement a retry mechanism here
-        stopDiscovery();
-      });
+          // Handle service lost
+          else if (event is BonsoirDiscoveryServiceLostEvent) {
+            final service = event.service;
+            // Try to find and remove by matching name (since we don't have the key)
+            final keysToRemove = _peers.entries
+                .where(
+                  (e) =>
+                      e.value.name ==
+                      service.name.replaceAll(RegExp(r'\s*\(\d+\)$'), ''),
+                )
+                .map((e) => e.key)
+                .toList();
+            for (final key in keysToRemove) {
+              _peers.remove(key);
+              debugPrint('👋 mDNS: Lost "${service.name}" (key: $key)');
+            }
+          }
+        },
+        onError: (error) {
+          debugPrint('❌ mDNS: Error in discovery stream - $error');
+          // Handle stream errors (like defunct connection) gracefully
+          // We don't want to crash the app, just log and maybe cleanup
+          // If needed, we could implement a retry mechanism here
+          stopDiscovery();
+        },
+      );
 
       await _discovery!.start();
       debugPrint('🔍 mDNS: Discovery started');

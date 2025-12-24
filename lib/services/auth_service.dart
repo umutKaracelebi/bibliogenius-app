@@ -1,4 +1,5 @@
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
+import 'package:uuid/uuid.dart';
 
 abstract class SecureStorageInterface {
   Future<void> write({required String key, required String? value});
@@ -70,6 +71,20 @@ class AuthService {
     return str != null ? int.tryParse(str) : null;
   }
 
+  // ============ Library UUID (for P2P deduplication) ============
+  static const _libraryUuidKey = 'library_uuid';
+
+  /// Get or create a stable UUID for this library instance.
+  /// This UUID persists across app restarts and is used for P2P peer deduplication.
+  Future<String> getOrCreateLibraryUuid() async {
+    var uuid = await storage.read(key: _libraryUuidKey);
+    if (uuid == null) {
+      uuid = const Uuid().v4();
+      await storage.write(key: _libraryUuidKey, value: uuid);
+    }
+    return uuid;
+  }
+
   Future<void> logout() async {
     await storage.delete(key: _tokenKey);
     await storage.delete(key: _usernameKey);
@@ -84,6 +99,7 @@ class AuthService {
     await storage.delete(key: _usernameKey);
     await storage.delete(key: _userIdKey);
     await storage.delete(key: _libraryIdKey);
+    await storage.delete(key: _libraryUuidKey); // Regenerate UUID on full reset
     await storage.delete(key: _passwordKey);
   }
 

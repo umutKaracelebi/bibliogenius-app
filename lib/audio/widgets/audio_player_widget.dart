@@ -573,7 +573,7 @@ class _AudioPlayerWidgetState extends State<AudioPlayerWidget> {
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   Text(
-                    'Audiobook Available',
+                    'Livre audio disponible',
                     style: TextStyle(
                       fontSize: 14,
                       fontWeight: FontWeight.w600,
@@ -582,7 +582,7 @@ class _AudioPlayerWidgetState extends State<AudioPlayerWidget> {
                   ),
                   const SizedBox(height: 2),
                   Text(
-                    'Listen on ${widget.audioResource.source.displayName}',
+                    'Écouter sur ${widget.audioResource.source.displayName}',
                     style: TextStyle(
                       fontSize: 12,
                       color: colorScheme.onSurfaceVariant,
@@ -595,7 +595,7 @@ class _AudioPlayerWidgetState extends State<AudioPlayerWidget> {
               FilledButton.icon(
                 onPressed: widget.onOpenInBrowser,
                 icon: const Icon(Icons.open_in_new, size: 16),
-                label: const Text('Listen'),
+                label: const Text('Écouter'),
                 style: FilledButton.styleFrom(
                   padding: const EdgeInsets.symmetric(
                     horizontal: 16,

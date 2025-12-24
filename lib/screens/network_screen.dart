@@ -864,7 +864,7 @@ class _NetworkScreenState extends State<NetworkScreen>
           Padding(
             padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 4),
             child: Text(
-              'mDNS: ${_mdnsActive ? "Active" : "Inactive"} | Raw peers: ${MdnsService.peers.length} | Filtered: ${_localPeers.length}',
+              'mDNS: ${_mdnsActive ? "Actif" : "Inactif"} | Peers bruts: ${MdnsService.peers.length} | Filtrés: ${_localPeers.length}',
               style: TextStyle(
                 fontSize: 10,
                 color: Colors.grey[500],

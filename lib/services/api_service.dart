@@ -1392,6 +1392,9 @@ class ApiService {
         final myName = configRes.data['library_name'];
         // In FFI/P2P mode, we calculate our dynamic IP URL
         final myUrl = await _getMyUrl();
+        // Get stable UUID for peer deduplication
+        final authService = AuthService();
+        final libraryUuid = await authService.getOrCreateLibraryUuid();
 
         if (myUrl.isEmpty)
           throw Exception("My library URL could not be determined");
@@ -1417,13 +1420,17 @@ class ApiService {
           data: {
             'from_name': myName,
             'from_url': myUrl,
+            'library_uuid': libraryUuid,
             'book_isbn': isbn,
             'book_title': title,
           },
         );
 
         if (remoteRes.statusCode == 200) {
-          // 3. Log outgoing request locally
+          // 3. Log outgoing request locally with same ID for sync
+          final requestId = remoteRes.data['request_id'];
+          debugPrint('📝 Got request_id from peer: $requestId');
+
           final localDio = Dio(
             BaseOptions(baseUrl: 'http://localhost:$httpPort'),
           );
@@ -1433,6 +1440,7 @@ class ApiService {
               'to_peer_url': cleanPeerUrl,
               'book_isbn': isbn,
               'book_title': title,
+              'request_id': requestId, // Use same ID for sync
             },
           );
           return remoteRes;

@@ -10,9 +10,11 @@ import '../models/book.dart';
 import '../widgets/bookshelf_view.dart';
 import '../widgets/book_cover_grid.dart';
 import '../widgets/premium_book_card.dart';
+import '../widgets/tag_tree_view.dart';
 import '../theme/app_design.dart';
 import '../providers/theme_provider.dart';
 import '../utils/avatars.dart';
+import '../utils/app_constants.dart';
 
 enum ViewMode {
   coverGrid, // Netflix style
@@ -383,44 +385,116 @@ class _BookListScreenState extends State<BookListScreen> {
 
       showModalBottomSheet(
         context: context,
+        isScrollControlled: true,
         shape: const RoundedRectangleBorder(
           borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
         ),
         builder: (context) {
-          return Container(
-            padding: const EdgeInsets.all(20),
-            child: Column(
-              mainAxisSize: MainAxisSize.min,
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(
-                  TranslationService.translate(context, 'filter_by_tag'),
-                  style: const TextStyle(
-                    fontSize: 18,
-                    fontWeight: FontWeight.bold,
-                  ),
+          return DraggableScrollableSheet(
+            initialChildSize: 0.5,
+            minChildSize: 0.3,
+            maxChildSize: 0.8,
+            expand: false,
+            builder: (context, scrollController) {
+              return Container(
+                padding: const EdgeInsets.all(20),
+                child: Column(
+                  mainAxisSize: MainAxisSize.min,
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: [
+                        Text(
+                          TranslationService.translate(
+                            context,
+                            'filter_by_tag',
+                          ),
+                          style: const TextStyle(
+                            fontSize: 18,
+                            fontWeight: FontWeight.bold,
+                          ),
+                        ),
+                        if (_tagFilter != null)
+                          TextButton.icon(
+                            onPressed: () {
+                              Navigator.pop(context);
+                              setState(() {
+                                _tagFilter = null;
+                                _filterBooks();
+                              });
+                            },
+                            icon: const Icon(Icons.clear, size: 18),
+                            label: Text(
+                              TranslationService.translate(context, 'clear') ??
+                                  'Clear',
+                            ),
+                          ),
+                      ],
+                    ),
+                    const SizedBox(height: 16),
+                    Expanded(
+                      child: AppConstants.enableHierarchicalTags
+                          ? TagTreeView(
+                              tags: tags,
+                              selectedTagIds: _tagFilter != null
+                                  ? {
+                                      tags
+                                          .firstWhere(
+                                            (t) => t.name == _tagFilter,
+                                            orElse: () => tags.first,
+                                          )
+                                          .id,
+                                    }
+                                  : {},
+                              onTagSelected: (tag) {
+                                Navigator.pop(context);
+                                setState(() {
+                                  _tagFilter = tag.name;
+                                  _filterBooks();
+                                });
+                              },
+                              multiSelect: false,
+                            )
+                          : SingleChildScrollView(
+                              controller: scrollController,
+                              child: Wrap(
+                                spacing: 8,
+                                runSpacing: 8,
+                                children: tags.map((tag) {
+                                  final isSelected = _tagFilter == tag.name;
+                                  return ActionChip(
+                                    label: Text('${tag.name} (${tag.count})'),
+                                    avatar: Icon(
+                                      Icons.label,
+                                      size: 16,
+                                      color: isSelected
+                                          ? Theme.of(
+                                              context,
+                                            ).colorScheme.primary
+                                          : null,
+                                    ),
+                                    backgroundColor: isSelected
+                                        ? Theme.of(
+                                            context,
+                                          ).colorScheme.primaryContainer
+                                        : null,
+                                    onPressed: () {
+                                      Navigator.pop(context);
+                                      setState(() {
+                                        _tagFilter = tag.name;
+                                        _filterBooks();
+                                      });
+                                    },
+                                  );
+                                }).toList(),
+                              ),
+                            ),
+                    ),
+                  ],
                 ),
-                const SizedBox(height: 16),
-                Wrap(
-                  spacing: 8,
-                  runSpacing: 8,
-                  children: tags.map((tag) {
-                    return ActionChip(
-                      label: Text('${tag.name} (${tag.count})'),
-                      avatar: const Icon(Icons.label, size: 16),
-                      onPressed: () {
-                        Navigator.pop(context);
-                        setState(() {
-                          _tagFilter = tag.name;
-                          _filterBooks();
-                        });
-                      },
-                    );
-                  }).toList(),
-                ),
-                const SizedBox(height: 20),
-              ],
-            ),
+              );
+            },
           );
         },
       );
@@ -685,9 +759,11 @@ class _BookListScreenState extends State<BookListScreen> {
         ),
         child: Icon(
           icon,
-          color: isSelected 
-              ? Colors.white 
-              : isDarkTheme ? Colors.white70 : Colors.black54,
+          color: isSelected
+              ? Colors.white
+              : isDarkTheme
+              ? Colors.white70
+              : Colors.black54,
           size: 20,
         ),
       ),
@@ -723,18 +799,18 @@ class _BookListScreenState extends State<BookListScreen> {
           decoration: BoxDecoration(
             color: isClearAction
                 ? Colors.redAccent.withOpacity(0.8)
-                : (isSelected 
-                    ? Theme.of(context).primaryColor 
-                    : isDarkTheme 
-                        ? Theme.of(context).cardColor.withOpacity(0.8)
-                        : Colors.white),
+                : (isSelected
+                      ? Theme.of(context).primaryColor
+                      : isDarkTheme
+                      ? Theme.of(context).cardColor.withOpacity(0.8)
+                      : Colors.white),
             borderRadius: BorderRadius.circular(20),
             border: Border.all(
               color: isSelected
                   ? Colors.transparent
-                  : isDarkTheme 
-                      ? Theme.of(context).colorScheme.outline
-                      : Colors.grey.withOpacity(0.3),
+                  : isDarkTheme
+                  ? Theme.of(context).colorScheme.outline
+                  : Colors.grey.withOpacity(0.3),
               width: isDarkTheme ? 1.5 : 1.0,
             ),
             boxShadow: isSelected && !isClearAction
@@ -759,9 +835,10 @@ class _BookListScreenState extends State<BookListScreen> {
                 style: TextStyle(
                   color: isClearAction
                       ? Colors.white
-                      : (isSelected 
-                          ? Colors.white 
-                          : Theme.of(context).textTheme.bodyMedium?.color ?? Colors.black54),
+                      : (isSelected
+                            ? Colors.white
+                            : Theme.of(context).textTheme.bodyMedium?.color ??
+                                  Colors.black54),
                   fontWeight: isSelected ? FontWeight.bold : FontWeight.w500,
                   fontSize: 13,
                 ),

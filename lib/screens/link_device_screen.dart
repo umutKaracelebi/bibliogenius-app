@@ -35,6 +35,7 @@ class _LinkDeviceScreenState extends State<LinkDeviceScreen>
 
   Future<void> _loadMyIp() async {
     final apiService = Provider.of<ApiService>(context, listen: false);
+    // Get IP from config
     try {
       final res = await apiService.getLibraryConfig();
       if (res.statusCode == 200) {
@@ -115,12 +116,15 @@ class _LinkDeviceScreenState extends State<LinkDeviceScreen>
     super.dispose();
   }
 
+  // --- Source Logic ---
+
   Future<void> _generateCode() async {
     setState(() => _isLoadingSource = true);
     try {
       final apiService = Provider.of<ApiService>(context, listen: false);
       final authService = Provider.of<AuthService>(context, listen: false);
 
+    try {
       final uuid = await authService.getOrCreateLibraryUuid();
       final ip = _myIp ?? 'localhost:${ApiService.httpPort}';
 
@@ -152,6 +156,8 @@ class _LinkDeviceScreenState extends State<LinkDeviceScreen>
     }
   }
 
+  // --- Target Logic ---
+
   Future<void> _linkDevice() async {
     final code = _codeController.text.trim();
     final host = _ipController.text.trim();
@@ -173,6 +179,11 @@ class _LinkDeviceScreenState extends State<LinkDeviceScreen>
       final apiService = Provider.of<ApiService>(context, listen: false);
       final authService = Provider.of<AuthService>(context, listen: false);
 
+    try {
+      final host = _ipController.text.trim();
+      final code = _codeController.text.trim();
+
+      // Verify code with remote
       final res = await apiService.verifyRemotePairingCode(
         host: host,
         code: code,
@@ -215,6 +226,7 @@ class _LinkDeviceScreenState extends State<LinkDeviceScreen>
               backgroundColor: Colors.red,
             ),
           );
+          context.pop(); // Go back
         }
       }
     } catch (e) {
@@ -238,6 +250,7 @@ class _LinkDeviceScreenState extends State<LinkDeviceScreen>
 
   @override
   Widget build(BuildContext context) {
+    // Determine dark mode from current theme brightness
     final isDark = Theme.of(context).brightness == Brightness.dark;
 
     return Scaffold(

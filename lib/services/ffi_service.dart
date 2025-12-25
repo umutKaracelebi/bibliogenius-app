@@ -92,7 +92,18 @@ class FfiService {
   Future<List<Tag>> getTags() async {
     try {
       final tags = await frb.getAllTags();
-      return tags.map((t) => Tag(name: t.$1, count: t.$2.toInt())).toList();
+      // FFI returns (name, count) tuples - we use negative index as id for legacy tags
+      return tags
+          .asMap()
+          .entries
+          .map(
+            (e) => Tag(
+              id: -(e.key + 1), // Negative IDs for FFI-sourced legacy tags
+              name: e.value.$1,
+              count: e.value.$2.toInt(),
+            ),
+          )
+          .toList();
     } catch (e) {
       debugPrint('FFI getTags error: $e');
       return [];

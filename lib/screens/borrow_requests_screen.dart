@@ -1,76 +1,82 @@
 import 'package:flutter/material.dart';
-import 'package:go_router/go_router.dart';
 import '../widgets/genie_app_bar.dart';
 import 'package:provider/provider.dart';
 import 'package:dio/dio.dart';
 import 'dart:async';
 import '../services/api_service.dart';
 import '../services/translation_service.dart';
+import '../providers/theme_provider.dart';
 
-class BorrowRequestsScreen extends StatefulWidget {
-  const BorrowRequestsScreen({super.key});
+/// Screen for managing loans, borrows, and P2P requests
+/// Structure:
+/// - Demandes (Requests): Incoming/Outgoing/Connections
+/// - Prêtés (Lent): Books you lent to others
+/// - Empruntés (Borrowed): Books you borrowed from others (hidden if canBorrowBooks=false)
+class LoansScreen extends StatefulWidget {
+  const LoansScreen({super.key});
 
   @override
-  State<BorrowRequestsScreen> createState() => _BorrowRequestsScreenState();
+  State<LoansScreen> createState() => _LoansScreenState();
 }
 
-class _BorrowRequestsScreenState extends State<BorrowRequestsScreen>
-    with SingleTickerProviderStateMixin {
+class _LoansScreenState extends State<LoansScreen>
+    with TickerProviderStateMixin {
   Timer? _refreshTimer;
-  late TabController _tabController;
+  late TabController _mainTabController;
+  late TabController _requestsTabController;
   bool _isLoading = false;
+
+  // Requests data
   List<dynamic> _incomingRequests = [];
   List<dynamic> _outgoingRequests = [];
   List<dynamic> _connectionRequests = [];
 
+  // Loans data
+  List<dynamic> _activeLoans = []; // Books I lent to others
+  List<dynamic> _borrowedBooks = []; // Books I borrowed from others
+
   @override
   void initState() {
     super.initState();
-    _tabController = TabController(length: 3, vsync: this);
-    _fetchRequests();
-    // Auto-refresh every 30 seconds
+    final themeProvider = Provider.of<ThemeProvider>(context, listen: false);
+    final tabCount = themeProvider.canBorrowBooks ? 3 : 2;
+    _mainTabController = TabController(length: tabCount, vsync: this);
+    _requestsTabController = TabController(length: 3, vsync: this);
+    _fetchAllData();
     _refreshTimer = Timer.periodic(const Duration(seconds: 30), (_) {
-      if (mounted) _fetchRequests(silent: true);
+      if (mounted) _fetchAllData(silent: true);
     });
   }
 
   @override
   void dispose() {
     _refreshTimer?.cancel();
-    _tabController.dispose();
+    _mainTabController.dispose();
+    _requestsTabController.dispose();
     super.dispose();
   }
 
-  Future<void> _fetchRequests({bool silent = false}) async {
+  Future<void> _fetchAllData({bool silent = false}) async {
     if (!silent) setState(() => _isLoading = true);
     final api = Provider.of<ApiService>(context, listen: false);
     try {
+      // Fetch requests
       final inRes = await api.getIncomingRequests();
       final outRes = await api.getOutgoingRequests();
       final connRes = await api.getPendingPeers();
-      debugPrint('📥 getIncomingRequests response: ${inRes.data}');
+
+      // Fetch active loans (books I lent)
+      final loansRes = await api.getLoans(status: 'active');
+
       if (mounted) {
         setState(() {
           _incomingRequests = inRes.data;
           _outgoingRequests = outRes.data;
           _connectionRequests = connRes.data['requests'] ?? [];
+          _activeLoans = loansRes.data['loans'] ?? [];
+          // TODO: Fetch borrowed books when API is available
+          _borrowedBooks = [];
         });
-        debugPrint(
-          '📋 _fetchRequests: ${_connectionRequests.length} connection requests',
-        );
-        debugPrint(
-          '📋 _fetchRequests: ${_incomingRequests.length} incoming requests',
-        );
-        for (var r in _incomingRequests) {
-          debugPrint(
-            '  📖 Incoming Request: ${r['book_title']} from ${r['peer_name']} status=${r['status']}',
-          );
-        }
-        for (var r in _connectionRequests) {
-          debugPrint(
-            '  📚 Connection: id=${r['id']}, name="${r['name']}", url=${r['url']}',
-          );
-        }
       }
     } catch (e) {
       if (mounted && !silent) {
@@ -89,130 +95,48 @@ class _BorrowRequestsScreenState extends State<BorrowRequestsScreen>
     }
   }
 
-  Future<void> _updateStatus(String id, String status) async {
+  Future<void> _updateRequestStatus(String id, String status) async {
     final api = Provider.of<ApiService>(context, listen: false);
     try {
       await api.updateRequestStatus(id, status);
-      _fetchRequests(); // Refresh
+      _fetchAllData();
     } on DioException catch (e) {
       if (mounted) {
         String errorMessage;
-        // Handle 409 Conflict specifically (no available copies)
         if (e.response?.statusCode == 409) {
-          final errorData = e.response?.data;
-          if (errorData is Map &&
-              errorData['error']?.toString().contains('copies') == true) {
-            errorMessage = TranslationService.translate(
-              context,
-              'error_no_available_copies',
-            );
-          } else {
-            errorMessage =
-                errorData?['error']?.toString() ??
-                'Conflict: resource unavailable';
-          }
-        } else {
-          errorMessage =
-              e.response?.data?['error']?.toString() ??
-              e.message ??
-              'Unknown error';
-        }
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text(errorMessage), backgroundColor: Colors.red),
-        );
-      }
-    } catch (e) {
-      if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: Text(
-              "${TranslationService.translate(context, 'snack_error_updating')}: $e",
-            ),
-          ),
-        );
-      }
-    }
-  }
-
-  Future<void> _updatePeerStatus(
-    Map<String, dynamic> peer,
-    String status,
-  ) async {
-    final api = Provider.of<ApiService>(context, listen: false);
-    try {
-      await api.updatePeerStatus(peer['id'], status);
-      _fetchRequests();
-      if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: Text(
-              "${TranslationService.translate(context, 'snack_connection_updated')}: $status",
-            ),
-          ),
-        );
-
-        // Navigate to peer's library after accepting
-        if (status == 'active') {
-          context.push(
-            '/peers/${peer['id']}/books',
-            extra: {
-              'id': peer['id'],
-              'name': peer['name'] ?? 'Unknown',
-              'url': peer['url'] ?? '',
-            },
+          errorMessage = TranslationService.translate(
+            context,
+            'snack_no_copies',
           );
+        } else {
+          errorMessage = e.response?.data?['error']?.toString() ?? e.toString();
         }
-      }
-    } catch (e) {
-      if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text("Error updating peer status: $e")),
-        );
+        ScaffoldMessenger.of(
+          context,
+        ).showSnackBar(SnackBar(content: Text(errorMessage)));
       }
     }
   }
 
-  Future<void> _deleteRequest(String id, {bool isOutgoing = false}) async {
-    final confirm = await showDialog<bool>(
-      context: context,
-      builder: (context) => AlertDialog(
-        title: Text(
-          TranslationService.translate(context, 'dialog_delete_title'),
-        ),
-        content: Text(
-          TranslationService.translate(context, 'dialog_delete_body'),
-        ),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.pop(context, false),
-            child: Text(TranslationService.translate(context, 'cancel')),
-          ),
-          TextButton(
-            onPressed: () => Navigator.pop(context, true),
-            child: Text(
-              TranslationService.translate(context, 'dialog_delete_confirm'),
-              style: const TextStyle(color: Colors.red),
-            ),
-          ),
-        ],
-      ),
-    );
-
-    if (confirm != true) return;
-
+  Future<void> _returnLoan(int loanId) async {
     final api = Provider.of<ApiService>(context, listen: false);
     try {
-      if (isOutgoing) {
-        await api.deleteOutgoingRequest(id);
-      } else {
-        await api.deleteRequest(id);
+      await api.returnLoan(loanId);
+      _fetchAllData();
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text(
+              TranslationService.translate(context, 'snack_loan_returned'),
+            ),
+          ),
+        );
       }
-      _fetchRequests(); // Refresh
     } catch (e) {
       if (mounted) {
         ScaffoldMessenger.of(
           context,
-        ).showSnackBar(SnackBar(content: Text("Error deleting request: $e")));
+        ).showSnackBar(SnackBar(content: Text('Error: $e')));
       }
     }
   }
@@ -221,10 +145,12 @@ class _BorrowRequestsScreenState extends State<BorrowRequestsScreen>
   Widget build(BuildContext context) {
     final width = MediaQuery.of(context).size.width;
     final bool isMobile = width <= 600;
+    final themeProvider = Provider.of<ThemeProvider>(context);
+    final canBorrow = themeProvider.canBorrowBooks;
 
     return Scaffold(
       appBar: GenieAppBar(
-        title: TranslationService.translate(context, 'borrow_requests_title'),
+        title: TranslationService.translate(context, 'loans_menu'),
         leading: isMobile
             ? IconButton(
                 icon: const Icon(Icons.menu, color: Colors.white),
@@ -233,69 +159,222 @@ class _BorrowRequestsScreenState extends State<BorrowRequestsScreen>
             : null,
         automaticallyImplyLeading: false,
         bottom: TabBar(
-          controller: _tabController,
+          controller: _mainTabController,
           labelColor: Colors.white,
           unselectedLabelColor: Colors.white70,
           indicatorColor: Colors.white,
           tabs: [
             Tab(
-              key: Key('incomingTab'),
-              icon: const Icon(Icons.move_to_inbox),
-              text: TranslationService.translate(context, 'tab_incoming'),
+              key: const Key('requestsTab'),
+              icon: const Icon(Icons.mail_outline),
+              text: TranslationService.translate(context, 'tab_requests'),
             ),
             Tab(
-              key: Key('outgoingTab'),
-              icon: const Icon(Icons.outbox),
-              text: TranslationService.translate(context, 'tab_outgoing'),
+              key: const Key('lentTab'),
+              icon: const Icon(Icons.arrow_upward),
+              text: TranslationService.translate(context, 'tab_lent'),
             ),
-            Tab(
-              key: Key('connectionsTab'),
-              icon: const Icon(Icons.link),
-              text: TranslationService.translate(context, 'tab_connections'),
-            ),
+            if (canBorrow)
+              Tab(
+                key: const Key('borrowedTab'),
+                icon: const Icon(Icons.arrow_downward),
+                text: TranslationService.translate(context, 'tab_borrowed'),
+              ),
           ],
         ),
         actions: [
           IconButton(
             icon: const Icon(Icons.refresh, color: Colors.white),
-            onPressed: _fetchRequests,
+            onPressed: _fetchAllData,
           ),
         ],
       ),
       body: _isLoading
           ? const Center(child: CircularProgressIndicator())
           : TabBarView(
-              controller: _tabController,
+              controller: _mainTabController,
               children: [
-                RefreshIndicator(
-                  onRefresh: _fetchRequests,
-                  child: _buildIncomingList(),
-                ),
-                RefreshIndicator(
-                  onRefresh: _fetchRequests,
-                  child: _buildOutgoingList(),
-                ),
-                RefreshIndicator(
-                  onRefresh: _fetchRequests,
-                  child: _buildConnectionList(),
-                ),
+                _buildRequestsTab(),
+                _buildLentTab(),
+                if (canBorrow) _buildBorrowedTab(),
               ],
             ),
     );
   }
 
+  /// Requests tab with nested tabs (Incoming/Outgoing/Connections)
+  Widget _buildRequestsTab() {
+    return Column(
+      children: [
+        Material(
+          color: Theme.of(context).primaryColor.withOpacity(0.1),
+          child: TabBar(
+            controller: _requestsTabController,
+            labelColor: Theme.of(context).primaryColor,
+            unselectedLabelColor: Colors.grey,
+            indicatorColor: Theme.of(context).primaryColor,
+            tabs: [
+              Tab(
+                text:
+                    '${TranslationService.translate(context, 'tab_received')} (${_incomingRequests.length})',
+              ),
+              Tab(
+                text:
+                    '${TranslationService.translate(context, 'tab_sent')} (${_outgoingRequests.length})',
+              ),
+              Tab(
+                text:
+                    '${TranslationService.translate(context, 'tab_connections')} (${_connectionRequests.length})',
+              ),
+            ],
+          ),
+        ),
+        Expanded(
+          child: TabBarView(
+            controller: _requestsTabController,
+            children: [
+              RefreshIndicator(
+                onRefresh: _fetchAllData,
+                child: _buildIncomingList(),
+              ),
+              RefreshIndicator(
+                onRefresh: _fetchAllData,
+                child: _buildOutgoingList(),
+              ),
+              RefreshIndicator(
+                onRefresh: _fetchAllData,
+                child: _buildConnectionList(),
+              ),
+            ],
+          ),
+        ),
+      ],
+    );
+  }
+
+  /// Lent tab - books I lent to others
+  Widget _buildLentTab() {
+    if (_activeLoans.isEmpty) {
+      return _buildEmptyState(
+        TranslationService.translate(context, 'empty_no_loans'),
+      );
+    }
+    return RefreshIndicator(
+      onRefresh: _fetchAllData,
+      child: ListView.builder(
+        itemCount: _activeLoans.length,
+        itemBuilder: (context, index) {
+          final loan = _activeLoans[index];
+          return _buildLoanTile(loan);
+        },
+      ),
+    );
+  }
+
+  Widget _buildLoanTile(Map<String, dynamic> loan) {
+    final bookTitle = loan['book_title'] ?? 'Unknown';
+    final contactName = loan['contact_name'] ?? 'Unknown';
+    final loanDate = loan['loan_date'] ?? '';
+    final dueDate = loan['due_date'] ?? '';
+    final loanId = loan['id'] as int;
+
+    final isOverdue =
+        dueDate.isNotEmpty &&
+        DateTime.tryParse(dueDate)?.isBefore(DateTime.now()) == true;
+
+    return Card(
+      margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+      child: ListTile(
+        leading: CircleAvatar(
+          backgroundColor: isOverdue ? Colors.red : Colors.green,
+          child: Icon(
+            isOverdue ? Icons.warning : Icons.book,
+            color: Colors.white,
+          ),
+        ),
+        title: Text(
+          bookTitle,
+          style: const TextStyle(fontWeight: FontWeight.bold),
+        ),
+        subtitle: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Text(
+              '${TranslationService.translate(context, 'lent_to')}: $contactName',
+            ),
+            if (loanDate.isNotEmpty)
+              Text(
+                '${TranslationService.translate(context, 'loan_date')}: ${_formatDate(loanDate)}',
+                style: TextStyle(color: Colors.grey[600], fontSize: 12),
+              ),
+            if (dueDate.isNotEmpty)
+              Text(
+                '${TranslationService.translate(context, 'due_date')}: ${_formatDate(dueDate)}',
+                style: TextStyle(
+                  color: isOverdue ? Colors.red : Colors.grey[600],
+                  fontSize: 12,
+                  fontWeight: isOverdue ? FontWeight.bold : FontWeight.normal,
+                ),
+              ),
+          ],
+        ),
+        trailing: FilledButton.icon(
+          onPressed: () => _returnLoan(loanId),
+          icon: const Icon(Icons.check, size: 18),
+          label: Text(TranslationService.translate(context, 'mark_returned')),
+          style: FilledButton.styleFrom(
+            backgroundColor: Colors.green,
+            padding: const EdgeInsets.symmetric(horizontal: 12),
+          ),
+        ),
+        isThreeLine: true,
+      ),
+    );
+  }
+
+  String _formatDate(String dateStr) {
+    try {
+      final date = DateTime.parse(dateStr);
+      return '${date.day}/${date.month}/${date.year}';
+    } catch (e) {
+      return dateStr;
+    }
+  }
+
+  /// Borrowed tab - books I borrowed from others
+  Widget _buildBorrowedTab() {
+    if (_borrowedBooks.isEmpty) {
+      return _buildEmptyState(
+        TranslationService.translate(context, 'empty_no_borrowed'),
+      );
+    }
+    return RefreshIndicator(
+      onRefresh: _fetchAllData,
+      child: ListView.builder(
+        itemCount: _borrowedBooks.length,
+        itemBuilder: (context, index) {
+          final book = _borrowedBooks[index];
+          return ListTile(
+            title: Text(book['title'] ?? 'Unknown'),
+            subtitle: Text(book['from_library'] ?? ''),
+          );
+        },
+      ),
+    );
+  }
+
+  // === Request list builders (from original) ===
+
   Widget _buildIncomingList() {
     if (_incomingRequests.isEmpty) {
       return _buildEmptyState(
-        TranslationService.translate(context, 'no_incoming_requests'),
+        TranslationService.translate(context, 'empty_no_incoming'),
       );
     }
     return ListView.builder(
-      key: const Key('incomingRequestsList'),
       itemCount: _incomingRequests.length,
       itemBuilder: (context, index) {
-        final req = _incomingRequests[index];
-        return _buildRequestTile(req, isIncoming: true);
+        return _buildRequestTile(_incomingRequests[index], isIncoming: true);
       },
     );
   }
@@ -303,216 +382,28 @@ class _BorrowRequestsScreenState extends State<BorrowRequestsScreen>
   Widget _buildOutgoingList() {
     if (_outgoingRequests.isEmpty) {
       return _buildEmptyState(
-        TranslationService.translate(context, 'no_outgoing_requests'),
+        TranslationService.translate(context, 'empty_no_outgoing'),
       );
     }
     return ListView.builder(
       itemCount: _outgoingRequests.length,
       itemBuilder: (context, index) {
-        final req = _outgoingRequests[index];
-        return _buildRequestTile(req, isIncoming: false);
+        return _buildRequestTile(_outgoingRequests[index], isIncoming: false);
       },
     );
   }
 
   Widget _buildConnectionList() {
-    final incoming = _connectionRequests
-        .where((r) => r['direction'] == 'incoming' || r['direction'] == null)
-        .toList();
-    final outgoing = _connectionRequests
-        .where((r) => r['direction'] == 'outgoing')
-        .toList();
-
     if (_connectionRequests.isEmpty) {
       return _buildEmptyState(
-        TranslationService.translate(context, 'no_pending_connections'),
+        TranslationService.translate(context, 'empty_no_connections'),
       );
     }
-
-    return ListView(
-      children: [
-        if (incoming.isNotEmpty) ...[
-          Padding(
-            padding: const EdgeInsets.all(16.0),
-            child: Text(
-              TranslationService.translate(context, 'incoming_connections'),
-              style: Theme.of(context).textTheme.titleMedium?.copyWith(
-                fontWeight: FontWeight.bold,
-                color: Colors.white,
-              ),
-            ),
-          ),
-          ...incoming.map((req) => _buildConnectionTile(req, isIncoming: true)),
-        ],
-        if (outgoing.isNotEmpty) ...[
-          Padding(
-            padding: const EdgeInsets.all(16.0),
-            child: Text(
-              TranslationService.translate(context, 'outgoing_connections'),
-              style: Theme.of(context).textTheme.titleMedium?.copyWith(
-                fontWeight: FontWeight.bold,
-                color: Colors.white,
-              ),
-            ),
-          ),
-          ...outgoing.map(
-            (req) => _buildConnectionTile(req, isIncoming: false),
-          ),
-        ],
-      ],
-    );
-  }
-
-  Widget _buildConnectionTile(
-    Map<String, dynamic> req, {
-    required bool isIncoming,
-  }) {
-    final theme = Theme.of(context);
-    final bool isDark = theme.brightness == Brightness.dark;
-    final textColor = isDark ? Colors.white : Colors.black87;
-    final subColor = (isDark ? Colors.white70 : Colors.black54);
-
-    return Container(
-      margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-      padding: const EdgeInsets.all(16),
-      decoration: BoxDecoration(
-        color: isDark ? Colors.white.withAlpha(13) : Colors.grey.withAlpha(13),
-        borderRadius: BorderRadius.circular(16),
-        border: Border.all(
-          color: isDark
-              ? Colors.white.withAlpha(26)
-              : Colors.grey.withAlpha(26),
-          width: 1,
-        ),
-      ),
-      child: Row(
-        children: [
-          // Icon
-          Container(
-            padding: const EdgeInsets.all(12),
-            decoration: BoxDecoration(
-              color: isIncoming
-                  ? const Color(0xFF8B4513).withAlpha(26)
-                  : const Color(0xFF5D3A1A).withAlpha(26),
-              borderRadius: BorderRadius.circular(12),
-            ),
-            child: Icon(
-              isIncoming ? Icons.link : Icons.send_rounded,
-              color: isIncoming
-                  ? const Color(0xFFD4A855)
-                  : const Color(0xFFA0724A),
-              size: 24,
-            ),
-          ),
-          const SizedBox(width: 16),
-
-          // Library Info (Between Icon and Buttons)
-          Expanded(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                Text(
-                  req['name'] ??
-                      TranslationService.translate(context, 'unknown_library'),
-                  style: TextStyle(
-                    fontWeight: FontWeight.bold,
-                    fontSize: 16,
-                    color: textColor,
-                  ),
-                  maxLines: 1,
-                  overflow: TextOverflow.ellipsis,
-                ),
-                const SizedBox(height: 4),
-                Text(
-                  req['url'] ?? '',
-                  style: TextStyle(fontSize: 12, color: subColor),
-                  maxLines: 1,
-                  overflow: TextOverflow.ellipsis,
-                ),
-              ],
-            ),
-          ),
-
-          const SizedBox(width: 12),
-
-          // Actions
-          if (isIncoming)
-            Row(
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                ElevatedButton(
-                  style: ElevatedButton.styleFrom(
-                    backgroundColor: Colors.green,
-                    foregroundColor: Colors.white,
-                    elevation: 0,
-                    padding: const EdgeInsets.symmetric(
-                      horizontal: 16,
-                      vertical: 10,
-                    ),
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(10),
-                    ),
-                  ),
-                  onPressed: () => _updatePeerStatus(req, 'active'),
-                  child: Text(
-                    TranslationService.translate(context, 'btn_accept'),
-                    style: const TextStyle(fontWeight: FontWeight.bold),
-                  ),
-                ),
-                const SizedBox(width: 8),
-                OutlinedButton(
-                  style: OutlinedButton.styleFrom(
-                    foregroundColor: Colors.red,
-                    side: const BorderSide(color: Colors.red, width: 1.5),
-                    padding: const EdgeInsets.symmetric(
-                      horizontal: 16,
-                      vertical: 10,
-                    ),
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(10),
-                    ),
-                  ),
-                  onPressed: () => _updatePeerStatus(req, 'rejected'),
-                  child: Text(
-                    TranslationService.translate(context, 'btn_reject'),
-                    style: const TextStyle(fontWeight: FontWeight.bold),
-                  ),
-                ),
-              ],
-            )
-          else
-            Container(
-              padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
-              decoration: BoxDecoration(
-                color: const Color(0xFF8B6914).withAlpha(26),
-                borderRadius: BorderRadius.circular(20),
-                border: Border.all(
-                  color: const Color(0xFF8B6914).withAlpha(51),
-                ),
-              ),
-              child: Row(
-                mainAxisSize: MainAxisSize.min,
-                children: [
-                  const Icon(
-                    Icons.check_circle_outline,
-                    size: 14,
-                    color: Color(0xFFD4A855),
-                  ),
-                  const SizedBox(width: 6),
-                  Text(
-                    TranslationService.translate(context, 'status_sent'),
-                    style: const TextStyle(
-                      color: Color(0xFFD4A855),
-                      fontWeight: FontWeight.bold,
-                      fontSize: 12,
-                    ),
-                  ),
-                ],
-              ),
-            ),
-        ],
-      ),
+    return ListView.builder(
+      itemCount: _connectionRequests.length,
+      itemBuilder: (context, index) {
+        return _buildConnectionTile(_connectionRequests[index]);
+      },
     );
   }
 
@@ -521,11 +412,11 @@ class _BorrowRequestsScreenState extends State<BorrowRequestsScreen>
       child: Column(
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
-          const Icon(Icons.inbox, size: 64, color: Colors.white70),
+          Icon(Icons.inbox, size: 64, color: Colors.grey[400]),
           const SizedBox(height: 16),
           Text(
             message,
-            style: const TextStyle(fontSize: 18, color: Colors.white),
+            style: TextStyle(color: Colors.grey[600], fontSize: 16),
           ),
         ],
       ),
@@ -536,149 +427,178 @@ class _BorrowRequestsScreenState extends State<BorrowRequestsScreen>
     Map<String, dynamic> req, {
     required bool isIncoming,
   }) {
-    final theme = Theme.of(context);
-    final bool isDark = theme.brightness == Brightness.dark;
-    final textColor = isDark ? Colors.white : Colors.black87;
-    final subColor = isDark ? Colors.white70 : Colors.black54;
+    final title = req['book_title'] ?? 'Unknown';
+    final peerName = req['peer_name'] ?? 'Unknown';
+    final status = req['status'] ?? 'pending';
 
-    return Column(
-      children: [
-        ListTile(
-          contentPadding: const EdgeInsets.symmetric(
-            horizontal: 16,
-            vertical: 8,
-          ),
-          leading: CircleAvatar(
-            backgroundColor: isIncoming
-                ? Colors.orange.withValues(alpha: 0.1)
-                : const Color(0xFF8B6914).withValues(alpha: 0.1),
-            child: Icon(
-              isIncoming ? Icons.download : Icons.upload,
-              color: isIncoming ? Colors.orange : const Color(0xFFD4A855),
-              size: 20,
-            ),
-          ),
-          title: Text(
-            req['book_title'] ??
-                TranslationService.translate(context, 'unknown_book'),
-            style: TextStyle(fontWeight: FontWeight.w600, color: textColor),
-          ),
-          subtitle: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Text(
-                isIncoming
-                    ? "${TranslationService.translate(context, 'from')}: ${req['peer_name']}"
-                    : "${TranslationService.translate(context, 'to')}: ${req['peer_name']}",
-                style: TextStyle(color: subColor),
-              ),
-              const SizedBox(height: 4),
-              _buildStatusText(req['status']),
-            ],
-          ),
-          trailing: _buildActionButtons(req, isIncoming: isIncoming),
+    return Card(
+      margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+      child: ListTile(
+        leading: CircleAvatar(
+          backgroundColor: _getStatusColor(status),
+          child: const Icon(Icons.book, color: Colors.white),
         ),
-        const Divider(height: 1, indent: 72),
-      ],
+        title: Text(title),
+        subtitle: Text(
+          isIncoming
+              ? '${TranslationService.translate(context, 'request_from')}: $peerName'
+              : '${TranslationService.translate(context, 'request_to')}: $peerName',
+        ),
+        trailing: _buildStatusChip(status),
+        onTap: () => _showRequestActions(req, isIncoming: isIncoming),
+      ),
     );
   }
 
-  Widget _buildStatusText(String status) {
-    Color color;
-    String label;
+  Widget _buildConnectionTile(Map<String, dynamic> peer) {
+    final name = peer['name'] ?? 'Unknown';
+    final url = peer['url'] ?? '';
+
+    return Card(
+      margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+      child: ListTile(
+        leading: const CircleAvatar(child: Icon(Icons.person_add)),
+        title: Text(name),
+        subtitle: Text(url),
+        trailing: Row(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            IconButton(
+              icon: const Icon(Icons.check, color: Colors.green),
+              onPressed: () => _acceptConnection(peer),
+            ),
+            IconButton(
+              icon: const Icon(Icons.close, color: Colors.red),
+              onPressed: () => _rejectConnection(peer),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Color _getStatusColor(String status) {
     switch (status) {
-      case 'pending':
-        color = Colors.orange;
-        label = 'EN ATTENTE';
-        break;
-      case 'accepted':
-        color = Colors.green;
-        label = 'ACCEPTÉ';
-        break;
+      case 'approved':
+        return Colors.green;
       case 'rejected':
-        color = Colors.red;
-        label = 'REFUSÉ';
-        break;
-      case 'returned':
-        color = const Color(0xFFD4A855); // Bronze instead of blue
-        label = 'RETOURNÉ';
-        break;
+        return Colors.red;
+      case 'pending':
       default:
-        color = Colors.grey;
-        label = status.toUpperCase();
+        return Colors.orange;
     }
-    return Text(
-      label,
-      style: TextStyle(color: color, fontWeight: FontWeight.bold, fontSize: 12),
+  }
+
+  Widget _buildStatusChip(String status) {
+    return Chip(
+      label: Text(
+        TranslationService.translate(context, 'status_$status'),
+        style: const TextStyle(fontSize: 12, color: Colors.white),
+      ),
+      backgroundColor: _getStatusColor(status),
+      padding: EdgeInsets.zero,
+      materialTapTargetSize: MaterialTapTargetSize.shrinkWrap,
     );
   }
 
-  Widget _buildActionButtons(
+  void _showRequestActions(
     Map<String, dynamic> req, {
     required bool isIncoming,
   }) {
-    final status = req['status'];
-    final id = req['id'];
+    final id = req['id']?.toString() ?? '';
+    final status = req['status'] ?? 'pending';
 
-    if (isIncoming) {
-      if (status == 'pending') {
-        return Row(
+    if (status != 'pending') return;
+
+    showModalBottomSheet(
+      context: context,
+      builder: (ctx) => SafeArea(
+        child: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
-            ElevatedButton.icon(
-              icon: const Icon(Icons.check, size: 16),
-              label: Text(TranslationService.translate(context, 'btn_accept')),
-              style: ElevatedButton.styleFrom(
-                backgroundColor: Colors.green,
-                foregroundColor: Colors.white,
+            if (isIncoming) ...[
+              ListTile(
+                leading: const Icon(Icons.check, color: Colors.green),
+                title: Text(
+                  TranslationService.translate(context, 'action_approve'),
+                ),
+                onTap: () {
+                  Navigator.pop(ctx);
+                  _updateRequestStatus(id, 'approved');
+                },
               ),
-              onPressed: () => _updateStatus(id, 'accepted'),
-            ),
-            const SizedBox(width: 8),
-            OutlinedButton.icon(
-              icon: const Icon(Icons.close, size: 16),
-              label: Text(TranslationService.translate(context, 'btn_reject')),
-              style: OutlinedButton.styleFrom(
-                foregroundColor: Colors.red,
-                side: const BorderSide(color: Colors.red),
+              ListTile(
+                leading: const Icon(Icons.close, color: Colors.red),
+                title: Text(
+                  TranslationService.translate(context, 'action_reject'),
+                ),
+                onTap: () {
+                  Navigator.pop(ctx);
+                  _updateRequestStatus(id, 'rejected');
+                },
               ),
-              onPressed: () => _updateStatus(id, 'rejected'),
-            ),
+            ] else ...[
+              ListTile(
+                leading: const Icon(Icons.delete, color: Colors.red),
+                title: Text(
+                  TranslationService.translate(context, 'action_cancel'),
+                ),
+                onTap: () {
+                  Navigator.pop(ctx);
+                  _deleteRequest(id);
+                },
+              ),
+            ],
           ],
-        );
-      } else if (status == 'accepted') {
-        return ElevatedButton.icon(
-          icon: const Icon(Icons.assignment_return, size: 16),
-          label: Text(
-            TranslationService.translate(context, 'btn_mark_returned'),
-          ),
-          onPressed: () => _updateStatus(id, 'returned'),
-        );
-      }
-    } else {
-      // Outgoing
-      if (status == 'pending') {
-        return OutlinedButton.icon(
-          icon: const Icon(Icons.cancel, size: 16),
-          label: Text(
-            TranslationService.translate(context, 'btn_cancel_request'),
-          ),
-          style: OutlinedButton.styleFrom(foregroundColor: Colors.red),
-          onPressed: () => _deleteRequest(id, isOutgoing: true),
-        );
-      }
-    }
-
-    // Allow deleting finished/rejected requests to clean up list
-    if (['rejected', 'returned', 'cancelled'].contains(status)) {
-      return TextButton.icon(
-        icon: const Icon(Icons.delete_outline, size: 16),
-        label: Text(TranslationService.translate(context, 'btn_remove')),
-        style: TextButton.styleFrom(foregroundColor: Colors.grey),
-        onPressed: () => _deleteRequest(id, isOutgoing: !isIncoming),
-      );
-    }
-
-    return const SizedBox.shrink();
+        ),
+      ),
+    );
   }
+
+  Future<void> _deleteRequest(String id) async {
+    final api = Provider.of<ApiService>(context, listen: false);
+    try {
+      await api.deleteRequest(id);
+      _fetchAllData();
+    } catch (e) {
+      if (mounted) {
+        ScaffoldMessenger.of(
+          context,
+        ).showSnackBar(SnackBar(content: Text('Error: $e')));
+      }
+    }
+  }
+
+  Future<void> _acceptConnection(Map<String, dynamic> peer) async {
+    final api = Provider.of<ApiService>(context, listen: false);
+    try {
+      await api.updatePeerStatus(peer['id'], 'active');
+      _fetchAllData();
+    } catch (e) {
+      if (mounted) {
+        ScaffoldMessenger.of(
+          context,
+        ).showSnackBar(SnackBar(content: Text('Error: $e')));
+      }
+    }
+  }
+
+  Future<void> _rejectConnection(Map<String, dynamic> peer) async {
+    final api = Provider.of<ApiService>(context, listen: false);
+    try {
+      await api.updatePeerStatus(peer['id'], 'rejected');
+      _fetchAllData();
+    } catch (e) {
+      if (mounted) {
+        ScaffoldMessenger.of(
+          context,
+        ).showSnackBar(SnackBar(content: Text('Error: $e')));
+      }
+    }
+  }
+}
+
+// Keep old class name for backward compatibility with routing
+class BorrowRequestsScreen extends LoansScreen {
+  const BorrowRequestsScreen({super.key});
 }

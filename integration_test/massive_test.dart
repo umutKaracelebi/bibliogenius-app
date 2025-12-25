@@ -614,29 +614,43 @@ void main() {
           final response = await req.close();
           print('Validation: Simulated Request Status: ${response.statusCode}');
 
-          // Navigate to Requests Screen
+          // Navigate to Loans & Borrows Screen
           if (find.byIcon(Icons.menu).evaluate().isNotEmpty) {
             await tester.tap(find.byIcon(Icons.menu));
             await tester.pumpAndSettle();
           }
-          final requestsNav = find.byIcon(
-            Icons.move_to_inbox,
-          ); // Icon for requests in app drawer
-          if (requestsNav.evaluate().isNotEmpty) {
-            await tester.tap(requestsNav.last);
-          } else {
-            // Try text
-            if (find.text('Demandes').evaluate().isNotEmpty) {
-              await tester.tap(find.text('Demandes'));
-            } else if (find.text('Requests').evaluate().isNotEmpty) {
-              await tester.tap(find.text('Requests'));
+          // Look for the new menu name "Prêts & Emprunts" or "Loans & Borrows"
+          Finder loansNav = find.text('Prêts & Emprunts');
+          if (loansNav.evaluate().isEmpty) {
+            loansNav = find.text('Loans & Borrows');
+          }
+          if (loansNav.evaluate().isEmpty) {
+            // Fallback to icon
+            final swapIcon = find.byIcon(Icons.swap_horiz);
+            if (swapIcon.evaluate().isNotEmpty) {
+              await tester.tap(swapIcon.last);
             }
+          } else {
+            await tester.tap(loansNav);
           }
           await wait(tester);
 
-          // Check Incoming Tab
-          await tester.tap(find.byKey(const Key('incomingTab')));
-          await wait(tester);
+          // First select "Demandes" main tab (first tab), then "Reçues" sub-tab
+          final requestsTab = find.byKey(const Key('requestsTab'));
+          if (requestsTab.evaluate().isNotEmpty) {
+            await tester.tap(requestsTab);
+            await wait(tester);
+          }
+
+          // Now find and tap "Reçues" (Received) in the nested tabs
+          Finder receivedTab = find.text('Reçues');
+          if (receivedTab.evaluate().isEmpty) {
+            receivedTab = find.textContaining('Received');
+          }
+          if (receivedTab.evaluate().isNotEmpty) {
+            await tester.tap(receivedTab.first);
+            await wait(tester);
+          }
           await tester.pumpAndSettle(
             const Duration(seconds: 2),
           ); // wait for refresh

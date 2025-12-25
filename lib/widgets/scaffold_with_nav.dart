@@ -36,10 +36,7 @@ class ScaffoldWithNav extends StatelessWidget {
                 ),
                 NavigationRailDestination(
                   icon: Icon(Icons.shelves),
-                  label: Text(
-                    TranslationService.translate(context, 'shelves') ??
-                        'Shelves',
-                  ),
+                  label: Text(TranslationService.translate(context, 'shelves')),
                 ),
                 // Unified Network (contacts + peers merged)
                 NavigationRailDestination(

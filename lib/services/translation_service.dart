@@ -466,7 +466,8 @@ class TranslationService {
       'setup_username_label': 'Username',
       'setup_password_label': 'Password',
       'setup_confirm_password': 'Confirm Password',
-      'setup_password_optional': 'Optional - Set a password to protect your library',
+      'setup_password_optional':
+          'Optional - Set a password to protect your library',
       'leave_empty_no_password': 'Leave empty for no password',
       'passwords_do_not_match': 'Passwords do not match',
       'lang_en': 'English',
@@ -809,7 +810,8 @@ class TranslationService {
       'mfa_setup_success': 'Two-factor authentication enabled',
       'mfa_setup_error': 'Failed to set up two-factor authentication',
       'mfa_code_required': 'Please enter the verification code',
-      'mfa_requires_server': 'Two-factor authentication is only available when connected to a remote BiblioGenius server. In local mode, your data is already secured on your device.',
+      'mfa_requires_server':
+          'Two-factor authentication is only available when connected to a remote BiblioGenius server. In local mode, your data is already secured on your device.',
       // Password Management
       'change_password': 'Change Password',
       'current_password': 'Current Password',
@@ -886,7 +888,8 @@ class TranslationService {
       'mfa_setup_success': 'Authentification à deux facteurs activée',
       'mfa_setup_error': 'Échec de la configuration de l\'authentification',
       'mfa_code_required': 'Veuillez entrer le code de vérification',
-      'mfa_requires_server': 'L\'authentification à deux facteurs n\'est disponible que lorsque vous êtes connecté à un serveur BiblioGenius distant. En mode local, vos données sont déjà sécurisées sur votre appareil.',
+      'mfa_requires_server':
+          'L\'authentification à deux facteurs n\'est disponible que lorsque vous êtes connecté à un serveur BiblioGenius distant. En mode local, vos données sont déjà sécurisées sur votre appareil.',
       // Password Management
       'change_password': 'Changer le mot de passe',
       'current_password': 'Mot de passe actuel',
@@ -896,11 +899,14 @@ class TranslationService {
       'password_incorrect': 'Mot de passe incorrect',
       'passwords_dont_match': 'Les mots de passe ne correspondent pas',
       'password_changed_success': 'Mot de passe modifié avec succès',
-      'password_too_short': 'Le mot de passe doit contenir au moins 4 caractères',
-      'enter_password_to_reset': 'Entrez votre mot de passe pour confirmer la réinitialisation',
+      'password_too_short':
+          'Le mot de passe doit contenir au moins 4 caractères',
+      'enter_password_to_reset':
+          'Entrez votre mot de passe pour confirmer la réinitialisation',
       'set_password': 'Définir un mot de passe',
       'no_password_set': 'Aucun mot de passe défini',
-      'first_time_password': 'Définissez un mot de passe pour protéger vos données',
+      'first_time_password':
+          'Définissez un mot de passe pour protéger vos données',
       // Intégrations / MCP
       'integrations': 'Intégrations',
       'mcp_integration': 'Assistants IA (MCP)',
@@ -977,7 +983,8 @@ class TranslationService {
       'reset_type_full': 'Réinitialisation complète',
       'reset_standard_desc': 'Efface les données mais garde vos identifiants',
       'reset_full_desc': 'Supprime toutes les données et identifiants',
-      'reset_full_warning': 'Vous devrez définir un nouveau nom d\'utilisateur et mot de passe',
+      'reset_full_warning':
+          'Vous devrez définir un nouveau nom d\'utilisateur et mot de passe',
       'import_success': 'Livres importés avec succès !',
       'import_fail': 'Échec de l\'importation',
       'import_success': 'Importation réussie :',
@@ -986,7 +993,8 @@ class TranslationService {
       'import': 'Importer',
       'import_demo_data': 'Importer des données de démo',
       'import_demo_data_title': 'Importer des données de démo ?',
-      'import_demo_data_desc': 'Cela ajoutera des livres exemples à votre bibliothèque.',
+      'import_demo_data_desc':
+          'Cela ajoutera des livres exemples à votre bibliothèque.',
       'demo_data_imported': 'Données de démo importées !',
       'error': 'Erreur',
       'no_data': 'Aucune donnée',
@@ -1158,7 +1166,8 @@ class TranslationService {
       'add_copy_title': 'Ajouter un exemplaire',
       'edit_copy_title': 'Modifier l\'exemplaire',
       'delete_copy_title': 'Supprimer l\'exemplaire',
-      'delete_copy_confirm': 'Êtes-vous sûr de vouloir supprimer cet exemplaire ?',
+      'delete_copy_confirm':
+          'Êtes-vous sûr de vouloir supprimer cet exemplaire ?',
       'delete_copy_btn': 'Supprimer',
       'is_temporary_copy': 'Exemplaire temporaire',
       'copy_status': 'Statut',
@@ -1315,8 +1324,10 @@ class TranslationService {
       'setup_username_label': 'Nom d\'utilisateur',
       'setup_password_label': 'Mot de passe',
       'setup_confirm_password': 'Confirmer le mot de passe',
-      'setup_password_optional': 'Facultatif - Définissez un mot de passe pour protéger votre bibliothèque',
-      'leave_empty_no_password': 'Laissez vide pour ne pas avoir de mot de passe',
+      'setup_password_optional':
+          'Facultatif - Définissez un mot de passe pour protéger votre bibliothèque',
+      'leave_empty_no_password':
+          'Laissez vide pour ne pas avoir de mot de passe',
       'passwords_do_not_match': 'Les mots de passe ne correspondent pas',
       'lang_en': 'Anglais',
       'lang_fr': 'Français',
@@ -1363,7 +1374,7 @@ class TranslationService {
       'avatar_young_reader': 'Jeune Lectrice',
       'avatar_grandmother': 'Grand-mère',
       'avatar_head_librarian': 'Bibliothécaire en Chef',
-      'avatar_head_librarian': 'Bibliothécaire en Chef',
+
       'avatar_professional_librarian': 'Bibliothécaire Pro',
       'avatar_robot': 'Robot',
       // Badges
@@ -1626,24 +1637,12 @@ class TranslationService {
       'reading_status_abandoned': 'Abandonné',
       'reading_status_lent': 'Prêté',
       'reading_status_borrowed': 'Emprunté',
-      'contact_name_label': 'Nom',
-      'contact_name_required': 'Le nom est requis',
-      'contact_first_name_label': 'Prénom',
-      'contact_first_name_hint': 'Optionnel',
-      'contact_email_label': 'Email',
-      'contact_email_invalid': 'Email invalide',
-      'contact_phone_label': 'Téléphone',
-      'contact_address_label': 'Adresse',
+
       'street_address_label': 'Adresse',
       'postal_code_label': 'Code postal',
       'city_label': 'Ville',
       'country_label': 'Pays',
-      'role_borrower': 'Emprunteur',
-      'role_library': 'Bibliothèque',
-      'lent_status': 'Prêté',
-      'borrowed_status': 'Emprunté',
-      'contact_type_label': 'Type',
-      'contact_notes_label': 'Notes',
+
       'status_label': 'Statut',
       'status_active': 'Actif',
       'status_inactive': 'Inactif',
@@ -1658,11 +1657,14 @@ class TranslationService {
       'password_incorrect': 'Mot de passe incorrect',
       'passwords_dont_match': 'Les mots de passe ne correspondent pas',
       'password_changed_success': 'Mot de passe changé avec succès',
-      'password_too_short': 'Le mot de passe doit contenir au moins 4 caractères',
-      'enter_password_to_reset': 'Entrez votre mot de passe pour confirmer la réinitialisation',
+      'password_too_short':
+          'Le mot de passe doit contenir au moins 4 caractères',
+      'enter_password_to_reset':
+          'Entrez votre mot de passe pour confirmer la réinitialisation',
       'set_password': 'Définir un mot de passe',
       'no_password_set': 'Aucun mot de passe défini',
-      'first_time_password': 'Définissez un mot de passe pour protéger vos données',
+      'first_time_password':
+          'Définissez un mot de passe pour protéger vos données',
       'manage_login_credentials': 'Gérer vos informations de connexion',
       'username': 'Nom d\'utilisateur',
       'password': 'Mot de passe',
@@ -1720,8 +1722,7 @@ class TranslationService {
       'settings_dialog_title': 'Editar configuración',
       'settings_dialog_body':
           '¿Quieres modificar la configuración de la aplicación?',
-      'settings_dialog_body':
-          '¿Quieres modificar la configuración de la aplicación?',
+
       'lang_title': 'Idioma',
       'theme_title': 'Tema',
       'library_name': 'Nombre de la biblioteca',
@@ -1738,16 +1739,18 @@ class TranslationService {
       'reset_type_full': 'Reinicio completo',
       'reset_standard_desc': 'Borra los datos pero mantiene tu sesión',
       'reset_full_desc': 'Elimina todos los datos y credenciales',
-      'reset_full_warning': 'Tendrás que establecer un nuevo nombre de usuario y contraseña',
+      'reset_full_warning':
+          'Tendrás que establecer un nuevo nombre de usuario y contraseña',
       'import_success': '¡Libros importados con éxito!',
       'import_fail': 'Fallo en la importación',
-      'import_success': 'Importación exitosa:',
+
       'export_success': 'Copia de seguridad lista',
       'export_fail': 'Fallo en la exportación',
       'import': 'Importar',
       'import_demo_data': 'Importar datos de demo',
       'import_demo_data_title': '¿Importar datos de demo?',
-      'import_demo_data_desc': 'Esto añadirá libros de ejemplo a tu biblioteca.',
+      'import_demo_data_desc':
+          'Esto añadirá libros de ejemplo a tu biblioteca.',
       'demo_data_imported': '¡Datos de demo importados!',
       'error': 'Error',
       'no_data': 'Sin datos',
@@ -1908,7 +1911,8 @@ class TranslationService {
       'add_copy_title': 'Añadir copia',
       'edit_copy_title': 'Editar copia',
       'delete_copy_title': 'Eliminar copia',
-      'delete_copy_confirm': '¿Estás seguro de que quieres eliminar esta copia?',
+      'delete_copy_confirm':
+          '¿Estás seguro de que quieres eliminar esta copia?',
       'delete_copy_btn': 'Eliminar',
       'is_temporary_copy': 'Copia temporal',
       'copy_status': 'Estado',
@@ -2075,7 +2079,8 @@ class TranslationService {
       'setup_username_label': 'Nombre de usuario',
       'setup_password_label': 'Contraseña',
       'setup_confirm_password': 'Confirmar contraseña',
-      'setup_password_optional': 'Opcional - Establece una contraseña para proteger tu biblioteca',
+      'setup_password_optional':
+          'Opcional - Establece una contraseña para proteger tu biblioteca',
       'leave_empty_no_password': 'Deja vacío para no tener contraseña',
       'passwords_do_not_match': 'Las contraseñas no coinciden',
       'lang_en': 'Inglés',
@@ -2209,7 +2214,8 @@ class TranslationService {
       'import': 'Importieren',
       'import_demo_data': 'Demodaten importieren',
       'import_demo_data_title': 'Demodaten importieren?',
-      'import_demo_data_desc': 'Dies fügt Beispielbücher zu Ihrer Bibliothek hinzu.',
+      'import_demo_data_desc':
+          'Dies fügt Beispielbücher zu Ihrer Bibliothek hinzu.',
       'demo_data_imported': 'Demodaten importiert!',
       'error': 'Fehler',
       'no_data': 'Keine Daten',
@@ -2515,7 +2521,8 @@ class TranslationService {
       'setup_username_label': 'Benutzername',
       'setup_password_label': 'Passwort',
       'setup_confirm_password': 'Passwort bestätigen',
-      'setup_password_optional': 'Optional - Passwort zum Schutz Ihrer Bibliothek festlegen',
+      'setup_password_optional':
+          'Optional - Passwort zum Schutz Ihrer Bibliothek festlegen',
       'leave_empty_no_password': 'Leer lassen für kein Passwort',
       'passwords_do_not_match': 'Passwörter stimmen nicht überein',
       'lang_en': 'Englisch',

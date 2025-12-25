@@ -134,7 +134,7 @@ class GenieAppBar extends StatelessWidget implements PreferredSizeWidget {
                     : Image.network(
                         avatarConfig?.toUrl(size: 32, format: 'png') ?? '',
                         fit: BoxFit.cover,
-                        errorBuilder: (_, __, ___) =>
+                        errorBuilder: (context, error, stackTrace) =>
                             Image.asset(avatar.assetPath, fit: BoxFit.cover),
                       ),
               ),

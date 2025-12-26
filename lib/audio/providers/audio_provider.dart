@@ -104,10 +104,13 @@ class AudioProvider extends ChangeNotifier {
   /// - Returns immediately if disabled or already cached
   /// - Searches in background if not cached
   /// - Updates cache and notifies listeners when complete
+  ///
+  /// [preferredLanguage] filters results to prioritize the user's language.
   Future<AudioResource?> searchAudiobook({
     required int bookId,
     required String title,
     String? author,
+    String? preferredLanguage,
     bool forceRefresh = false,
   }) async {
     // Don't search if disabled
@@ -131,6 +134,7 @@ class AudioProvider extends ChangeNotifier {
         bookId: bookId,
         title: title,
         author: author,
+        preferredLanguage: preferredLanguage,
       );
 
       _audioCache[bookId] = result;

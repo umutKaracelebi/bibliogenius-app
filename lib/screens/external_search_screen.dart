@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import '../widgets/genie_app_bar.dart';
+import '../widgets/cached_book_cover.dart';
 import '../widgets/plus_one_animation.dart';
 import 'package:provider/provider.dart';
 import '../services/api_service.dart';
@@ -138,6 +139,11 @@ class _ExternalSearchScreenState extends State<ExternalSearchScreen> {
       child: Scaffold(
         appBar: GenieAppBar(
           title: TranslationService.translate(context, 'external_search_title'),
+          leading: IconButton(
+            icon: const Icon(Icons.arrow_back, color: Colors.white),
+            onPressed: () => context.pop(_booksAdded),
+          ),
+          automaticallyImplyLeading: false,
         ),
         body: Column(
           children: [
@@ -219,18 +225,13 @@ class _ExternalSearchScreenState extends State<ExternalSearchScreen> {
                 itemCount: _searchResults.length,
                 itemBuilder: (context, index) {
                   final book = _searchResults[index];
-                  final hasCover = book['cover_url'] != null;
+                  // final hasCover = book['cover_url'] != null; // Refactored to use CompactBookCover which handles nulls
 
                   return ListTile(
-                    leading: hasCover
-                        ? Image.network(
-                            book['cover_url'],
-                            width: 50,
-                            fit: BoxFit.cover,
-                            errorBuilder: (context, error, stackTrace) =>
-                                const Icon(Icons.book),
-                          )
-                        : const Icon(Icons.book),
+                    leading: CompactBookCover(
+                      imageUrl: book['cover_url'],
+                      size: 50,
+                    ),
                     title: Text(
                       book['title'] ??
                           TranslationService.translate(

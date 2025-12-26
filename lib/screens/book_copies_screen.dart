@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:cached_network_image/cached_network_image.dart';
 import 'package:provider/provider.dart';
 import 'dart:math' as math;
 import '../services/api_service.dart';
@@ -128,7 +129,8 @@ class _BookCopiesScreenState extends State<BookCopiesScreen>
       context: context,
       isScrollControlled: true,
       backgroundColor: Colors.transparent,
-      builder: (context) => _StandardAddCopySheet(bookId: widget.bookId, existingCopy: copy),
+      builder: (context) =>
+          _StandardAddCopySheet(bookId: widget.bookId, existingCopy: copy),
     );
 
     if (result != null) {
@@ -262,7 +264,11 @@ class _BookCopiesScreenState extends State<BookCopiesScreen>
                   padding: const EdgeInsets.only(top: 4),
                   child: Chip(
                     label: Text(
-                      TranslationService.translate(context, 'status_${copy.status}') ?? copy.status,
+                      TranslationService.translate(
+                            context,
+                            'status_${copy.status}',
+                          ) ??
+                          copy.status,
                       style: const TextStyle(fontSize: 10),
                     ),
                     materialTapTargetSize: MaterialTapTargetSize.shrinkWrap,
@@ -295,7 +301,9 @@ class _BookCopiesScreenState extends State<BookCopiesScreen>
                     children: [
                       const Icon(Icons.edit, size: 20),
                       const SizedBox(width: 8),
-                      Text(TranslationService.translate(context, 'edit') ?? 'Edit'),
+                      Text(
+                        TranslationService.translate(context, 'edit') ?? 'Edit',
+                      ),
                     ],
                   ),
                 ),
@@ -306,7 +314,8 @@ class _BookCopiesScreenState extends State<BookCopiesScreen>
                       const Icon(Icons.delete, color: Colors.red, size: 20),
                       const SizedBox(width: 8),
                       Text(
-                        TranslationService.translate(context, 'delete') ?? 'Delete',
+                        TranslationService.translate(context, 'delete') ??
+                            'Delete',
                         style: const TextStyle(color: Colors.red),
                       ),
                     ],
@@ -331,14 +340,16 @@ class _BookCopiesScreenState extends State<BookCopiesScreen>
         ),
         const SizedBox(height: 16),
         Text(
-          TranslationService.translate(context, 'no_copies_found') ?? 'No copies found',
+          TranslationService.translate(context, 'no_copies_found') ??
+              'No copies found',
           style: Theme.of(
             context,
           ).textTheme.titleLarge?.copyWith(color: Colors.grey),
         ),
         const SizedBox(height: 8),
         Text(
-          TranslationService.translate(context, 'add_copy_hint') ?? 'Add a copy to start tracking this book',
+          TranslationService.translate(context, 'add_copy_hint') ??
+              'Add a copy to start tracking this book',
           style: Theme.of(
             context,
           ).textTheme.bodyMedium?.copyWith(color: Colors.grey),
@@ -356,10 +367,12 @@ class _BookCopiesScreenState extends State<BookCopiesScreen>
           Positioned.fill(
             child: Opacity(
               opacity: 0.1,
-              child: Image.network(
-                'https://www.transparenttextures.com/patterns/wood-pattern.png',
-                repeat: ImageRepeat.repeat,
-                errorBuilder: (c, e, s) => const SizedBox(),
+              child: CachedNetworkImage(
+                imageUrl:
+                    'https://www.transparenttextures.com/patterns/wood-pattern.png',
+                imageBuilder: (context, imageProvider) =>
+                    Image(image: imageProvider, repeat: ImageRepeat.repeat),
+                errorWidget: (c, e, s) => const SizedBox(),
               ),
             ),
           ),
@@ -1350,20 +1363,28 @@ class _StandardAddCopySheetState extends State<_StandardAddCopySheet> {
                   child: Text(
                     TranslationService.translate(context, 'cancel') ?? 'Cancel',
                     style: TextStyle(
-                      color: Theme.of(context).colorScheme.primary, // Ensure visibility
+                      color: Theme.of(
+                        context,
+                      ).colorScheme.primary, // Ensure visibility
                       fontSize: 16,
                     ),
                   ),
                 ),
                 Text(
                   widget.existingCopy == null
-                      ? TranslationService.translate(context, 'add_copy_title') ??
-                          'Add Copy'
-                      : TranslationService.translate(context, 'edit_copy_title') ??
-                          'Edit Copy',
-                  style: Theme.of(context).textTheme.titleLarge?.copyWith(
-                    fontWeight: FontWeight.bold,
-                  ),
+                      ? TranslationService.translate(
+                              context,
+                              'add_copy_title',
+                            ) ??
+                            'Add Copy'
+                      : TranslationService.translate(
+                              context,
+                              'edit_copy_title',
+                            ) ??
+                            'Edit Copy',
+                  style: Theme.of(
+                    context,
+                  ).textTheme.titleLarge?.copyWith(fontWeight: FontWeight.bold),
                 ),
                 TextButton(
                   onPressed: () {
@@ -1382,13 +1403,15 @@ class _StandardAddCopySheetState extends State<_StandardAddCopySheet> {
                   child: Text(
                     widget.existingCopy == null
                         ? TranslationService.translate(context, 'save') ??
-                            'Save'
+                              'Save'
                         : TranslationService.translate(context, 'save') ??
-                            'Save',
+                              'Save',
                     style: TextStyle(
                       fontWeight: FontWeight.bold,
                       fontSize: 16,
-                      color: Theme.of(context).colorScheme.primary, // Check if primary is visible on scaffold background
+                      color: Theme.of(context)
+                          .colorScheme
+                          .primary, // Check if primary is visible on scaffold background
                     ),
                   ),
                 ),

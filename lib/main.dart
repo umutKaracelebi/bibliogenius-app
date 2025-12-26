@@ -321,10 +321,6 @@ class _AppRouterState extends State<AppRouter> {
           builder: (context, state) => const OnboardingTourScreen(),
         ),
         GoRoute(
-          path: '/search/external',
-          builder: (context, state) => const ExternalSearchScreen(),
-        ),
-        GoRoute(
           path: '/login',
           builder: (context, state) => const LoginScreen(),
         ),
@@ -410,6 +406,11 @@ class _AppRouterState extends State<AppRouter> {
                   },
                 ),
               ],
+            ),
+            // External search - inside ShellRoute for hamburger menu access
+            GoRoute(
+              path: '/search/external',
+              builder: (context, state) => const ExternalSearchScreen(),
             ),
             GoRoute(
               path: '/network',

@@ -58,141 +58,132 @@ class BadgeCollectionWidget extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    // Responsive sizing - larger fonts for desktop
+    final isDesktop = MediaQuery.of(context).size.width > 600;
+    final titleFontSize = isDesktop ? 16.0 : 12.0;
+    final badgeLabelFontSize = isDesktop ? 16.0 : 12.0;
+
     return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
+      crossAxisAlignment: CrossAxisAlignment.center,
       children: [
-        Padding(
-          padding: const EdgeInsets.only(
-            left: 24.0,
-            right: 24.0,
-            top: 8.0,
-            bottom: 12.0,
-          ),
-          child: Text(
-            TranslationService.translate(
-              context,
-              'badge_collection',
-            ).toUpperCase(),
-            style: TextStyle(
-              fontSize: 12,
-              fontWeight: FontWeight.bold,
-              letterSpacing: 1.0,
-              color: Theme.of(context).textTheme.bodySmall?.color,
+        Center(
+          child: Padding(
+            padding: const EdgeInsets.only(
+              left: 16.0,
+              right: 16.0,
+              top: 8.0,
+              bottom: 12.0,
+            ),
+            child: Text(
+              TranslationService.translate(
+                context,
+                'badge_collection',
+              ).toUpperCase(),
+              style: TextStyle(
+                fontSize: titleFontSize,
+                fontWeight: FontWeight.bold,
+                letterSpacing: 1.0,
+                color: Theme.of(context).textTheme.bodySmall?.color,
+              ),
             ),
           ),
         ),
         Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 24.0),
+          padding: const EdgeInsets.symmetric(horizontal: 16.0),
           child: Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            mainAxisAlignment: MainAxisAlignment.spaceAround,
             children: List.generate(4, (index) {
               final badgeInfo = getBadgeInfo(index);
               final isUnlocked = maxTrackLevel >= index;
+              // Flexible sizing based on available space
+              final badgeIconSize = isDesktop ? 72.0 : 50.0;
 
-              return Expanded(
-                child: Column(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: [
-                    SizedBox(
-                      width: 80,
-                      height: 80,
-                      child: Stack(
-                        alignment: Alignment.center,
-                        children: [
-                          // Background circle (like track background)
-                          Container(
-                            width: 70,
-                            height: 70,
-                            decoration: BoxDecoration(
-                              shape: BoxShape.circle,
-                              color: isUnlocked
-                                  ? badgeInfo.color.withValues(alpha: 0.1)
-                                  : Colors.grey.withValues(alpha: 0.05),
-                              border: Border.all(
-                                color: isUnlocked
-                                    ? badgeInfo.color.withValues(alpha: 0.3)
-                                    : Colors.grey.withValues(alpha: 0.2),
-                                width: 3,
-                              ),
-                            ),
+              return Column(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  // Simplified: just the badge icon without heavy outer circle
+                  SizedBox(
+                    width: badgeIconSize + 20,
+                    height: badgeIconSize + 20,
+                    child: Stack(
+                      alignment: Alignment.center,
+                      children: [
+                        // Badge icon (simplified - no outer circle)
+                        Opacity(
+                          opacity: isUnlocked ? 1.0 : 0.4,
+                          child: SvgPicture.asset(
+                            badgeInfo.assetPath,
+                            width: badgeIconSize,
+                            height: badgeIconSize,
+                            fit: BoxFit.contain,
+                            colorFilter: isUnlocked
+                                ? null
+                                : const ColorFilter.matrix(<double>[
+                                    0.2126,
+                                    0.7152,
+                                    0.0722,
+                                    0,
+                                    0,
+                                    0.2126,
+                                    0.7152,
+                                    0.0722,
+                                    0,
+                                    0,
+                                    0.2126,
+                                    0.7152,
+                                    0.0722,
+                                    0,
+                                    0,
+                                    0,
+                                    0,
+                                    0,
+                                    1,
+                                    0,
+                                  ]),
                           ),
-                          // Badge icon
-                          Opacity(
-                            opacity: isUnlocked ? 1.0 : 0.5,
-                            child: SvgPicture.asset(
-                              badgeInfo.assetPath,
-                              width: 48,
-                              height: 48,
-                              fit: BoxFit.contain,
-                              colorFilter: isUnlocked
-                                  ? null
-                                  : const ColorFilter.matrix(<double>[
-                                      0.2126,
-                                      0.7152,
-                                      0.0722,
-                                      0,
-                                      0,
-                                      0.2126,
-                                      0.7152,
-                                      0.0722,
-                                      0,
-                                      0,
-                                      0.2126,
-                                      0.7152,
-                                      0.0722,
-                                      0,
-                                      0,
-                                      0,
-                                      0,
-                                      0,
-                                      1,
-                                      0,
-                                    ]),
-                            ),
-                          ),
-                          // Lock icon for locked badges
-                          if (!isUnlocked)
-                            Positioned(
-                              bottom: 0,
-                              right: 4,
-                              child: Container(
-                                padding: const EdgeInsets.all(3),
-                                decoration: BoxDecoration(
-                                  color: Colors.grey[300],
-                                  shape: BoxShape.circle,
-                                ),
-                                child: Icon(
-                                  Icons.lock,
-                                  size: 10,
-                                  color: Colors.grey[600],
-                                ),
-                              ),
-                            ),
-                        ],
-                      ),
-                    ),
-                    const SizedBox(height: 8),
-                    Padding(
-                      padding: const EdgeInsets.symmetric(horizontal: 2.0),
-                      child: Text(
-                        TranslationService.translate(
-                          context,
-                          badgeInfo.translationKey,
-                        ).split(' ').last,
-                        textAlign: TextAlign.center,
-                        style: TextStyle(
-                          fontSize: 11,
-                          fontWeight: isUnlocked
-                              ? FontWeight.bold
-                              : FontWeight.normal,
-                          color: isUnlocked ? badgeInfo.color : Colors.grey,
                         ),
-                        maxLines: 1,
-                        overflow: TextOverflow.ellipsis,
-                      ),
+                        // Lock icon for locked badges
+                        if (!isUnlocked)
+                          Positioned(
+                            bottom: 0,
+                            right: 4,
+                            child: Container(
+                              padding: const EdgeInsets.all(4),
+                              decoration: BoxDecoration(
+                                color: Colors.grey[300],
+                                shape: BoxShape.circle,
+                              ),
+                              child: Icon(
+                                Icons.lock,
+                                size: 12,
+                                color: Colors.grey[600],
+                              ),
+                            ),
+                          ),
+                      ],
                     ),
-                  ],
-                ),
+                  ),
+                  const SizedBox(height: 10),
+                  Padding(
+                    padding: const EdgeInsets.symmetric(horizontal: 4.0),
+                    child: Text(
+                      TranslationService.translate(
+                        context,
+                        badgeInfo.translationKey,
+                      ).split(' ').last,
+                      textAlign: TextAlign.center,
+                      style: TextStyle(
+                        fontSize: badgeLabelFontSize,
+                        fontWeight: isUnlocked
+                            ? FontWeight.bold
+                            : FontWeight.normal,
+                        color: isUnlocked ? badgeInfo.color : Colors.grey,
+                      ),
+                      maxLines: 1,
+                      overflow: TextOverflow.ellipsis,
+                    ),
+                  ),
+                ],
               );
             }),
           ),
@@ -415,6 +406,20 @@ class TrackProgressWidget extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    // Responsive sizing - larger fonts for desktop
+    final isDesktop = MediaQuery.of(context).size.width > 600;
+    final labelStyle = isDesktop
+        ? Theme.of(
+            context,
+          ).textTheme.bodyMedium?.copyWith(fontWeight: FontWeight.w500)
+        : Theme.of(
+            context,
+          ).textTheme.bodySmall?.copyWith(fontWeight: FontWeight.w500);
+    final progressStyle = isDesktop
+        ? Theme.of(context).textTheme.bodyMedium?.copyWith(color: Colors.grey)
+        : Theme.of(context).textTheme.bodySmall?.copyWith(color: Colors.grey);
+    final levelFontSize = isDesktop ? 12.0 : 10.0;
+
     return Column(
       mainAxisSize: MainAxisSize.min,
       children: [
@@ -472,10 +477,10 @@ class TrackProgressWidget extends StatelessWidget {
                     ),
                     child: Text(
                       track.level.toString(),
-                      style: const TextStyle(
+                      style: TextStyle(
                         color: Colors.white,
                         fontWeight: FontWeight.bold,
-                        fontSize: 10,
+                        fontSize: levelFontSize,
                       ),
                     ),
                   ),
@@ -484,18 +489,8 @@ class TrackProgressWidget extends StatelessWidget {
           ),
         ),
         const SizedBox(height: 8),
-        Text(
-          trackName,
-          style: Theme.of(
-            context,
-          ).textTheme.bodySmall?.copyWith(fontWeight: FontWeight.w500),
-        ),
-        Text(
-          '${track.current}/${track.nextThreshold}',
-          style: Theme.of(
-            context,
-          ).textTheme.bodySmall?.copyWith(color: Colors.grey),
-        ),
+        Text(trackName, style: labelStyle),
+        Text('${track.current}/${track.nextThreshold}', style: progressStyle),
       ],
     );
   }
@@ -715,7 +710,7 @@ class GamificationSummaryCard extends StatelessWidget {
             onTap: onTap,
             borderRadius: BorderRadius.circular(20),
             child: Padding(
-              padding: const EdgeInsets.all(20.0),
+              padding: const EdgeInsets.all(16.0),
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
@@ -753,12 +748,12 @@ class GamificationSummaryCard extends StatelessWidget {
                       StreakWidget(streak: status.streak),
                     ],
                   ),
-                  const SizedBox(height: 24),
+                  const SizedBox(height: 16),
 
                   // Badge Collection
                   BadgeCollectionWidget(maxTrackLevel: status.maxTrackLevel),
 
-                  const SizedBox(height: 24),
+                  const SizedBox(height: 16),
                   const Divider(height: 1, indent: 24, endIndent: 24),
                   const SizedBox(height: 24),
 

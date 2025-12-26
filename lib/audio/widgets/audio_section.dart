@@ -28,11 +28,16 @@ class AudioSection extends StatefulWidget {
   final String bookTitle;
   final String? bookAuthor;
 
+  /// Language of the book (e.g., 'fr', 'en', 'French', 'English').
+  /// Used to filter audiobook results to match the book's language.
+  final String? bookLanguage;
+
   const AudioSection({
     super.key,
     required this.bookId,
     required this.bookTitle,
     this.bookAuthor,
+    this.bookLanguage,
   });
 
   @override
@@ -58,6 +63,7 @@ class _AudioSectionState extends State<AudioSection> {
         bookId: widget.bookId,
         title: widget.bookTitle,
         author: widget.bookAuthor,
+        preferredLanguage: widget.bookLanguage,
       );
     });
   }
@@ -72,6 +78,7 @@ class _AudioSectionState extends State<AudioSection> {
         bookId: widget.bookId,
         title: widget.bookTitle,
         author: widget.bookAuthor,
+        preferredLanguage: widget.bookLanguage,
         forceRefresh: true,
       );
     });

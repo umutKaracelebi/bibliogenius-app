@@ -3,6 +3,8 @@ import '../models/avatar_config.dart';
 import 'package:provider/provider.dart';
 import '../providers/theme_provider.dart';
 import '../services/translation_service.dart';
+import '../services/translation_service.dart';
+import 'package:cached_network_image/cached_network_image.dart';
 
 class AvatarCustomizer extends StatefulWidget {
   final AvatarConfig initialConfig;
@@ -73,15 +75,12 @@ class _AvatarCustomizerState extends State<AvatarCustomizer> {
                     height: 200,
                     fit: BoxFit.cover,
                   )
-                : Image.network(
-                    _config.toUrl(size: 200, format: 'png'),
-                    loadingBuilder: (context, child, loadingProgress) {
-                      if (loadingProgress == null) return child;
-                      return const Center(child: CircularProgressIndicator());
-                    },
-                    errorBuilder: (context, error, stackTrace) {
-                      return const Center(child: Icon(Icons.error));
-                    },
+                : CachedNetworkImage(
+                    imageUrl: _config.toUrl(size: 200, format: 'png'),
+                    placeholder: (context, url) =>
+                        const Center(child: CircularProgressIndicator()),
+                    errorWidget: (context, url, error) =>
+                        const Center(child: Icon(Icons.error)),
                   ),
           ),
         ),

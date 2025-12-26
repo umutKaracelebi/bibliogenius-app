@@ -920,6 +920,11 @@ class TranslationService {
       'audiobooks_discover': 'Discover free audiobooks from LibriVox & others',
       'wifi_streaming_available': 'WiFi connected — streaming available',
       'wifi_connect_to_stream': 'Connect to WiFi to stream audiobooks',
+      // Taxonomy / Hierarchical Tags
+      'enable_taxonomy': 'Hierarchical Tags',
+      'enable_taxonomy_subtitle':
+          'Use "Parent > Child" naming to create sub-tags',
+      'restart_required_for_changes': 'Restart app for changes to take effect',
       // Borrowing Module
       'enable_borrowing_module': 'Enable Borrowing',
       'borrowing_module_desc': 'Lend and borrow books with friends',
@@ -946,6 +951,7 @@ class TranslationService {
       'action_approve': 'Approve',
       'action_reject': 'Reject',
       'action_cancel': 'Cancel request',
+      'view': 'View',
     },
     'fr': {
       'app_title': 'BiblioGenius',
@@ -1873,6 +1879,12 @@ class TranslationService {
       'wifi_streaming_available': 'WiFi connecté — streaming disponible',
       'wifi_connect_to_stream':
           'Connectez-vous au WiFi pour écouter les livres audio',
+      // Taxonomy / Hierarchical Tags
+      'enable_taxonomy': 'Étagères hiérarchiques',
+      'enable_taxonomy_subtitle':
+          'Utilisez "Parent > Enfant" pour créer des sous-étagères',
+      'restart_required_for_changes':
+          'Redémarrez l\'app pour appliquer les changements',
       // Borrowing Module
       'enable_borrowing_module': 'Activer les emprunts',
       'borrowing_module_desc': 'Prêter et emprunter des livres entre amis',
@@ -1899,6 +1911,7 @@ class TranslationService {
       'action_approve': 'Accepter',
       'action_reject': 'Refuser',
       'action_cancel': 'Annuler la demande',
+      'view': 'Voir',
     },
     'es': {
       'app_title': 'BiblioGenius',
@@ -2433,6 +2446,12 @@ class TranslationService {
           'Descubrir audiolibros gratuitos de LibriVox y otros',
       'wifi_streaming_available': 'WiFi conectado — streaming disponible',
       'wifi_connect_to_stream': 'Conéctese a WiFi para escuchar audiolibros',
+      // Taxonomy / Hierarchical Tags
+      'enable_taxonomy': 'Etiquetas jerárquicas',
+      'enable_taxonomy_subtitle': 'Use "Padre > Hijo" para crear sub-etiquetas',
+      'restart_required_for_changes':
+          'Reinicie la app para aplicar los cambios',
+      'view': 'Ver',
     },
     'de': {
       'app_title': 'BiblioGenius',
@@ -2870,6 +2889,13 @@ class TranslationService {
           'Kostenlose Hörbücher von LibriVox und anderen entdecken',
       'wifi_streaming_available': 'WLAN verbunden — Streaming verfügbar',
       'wifi_connect_to_stream': 'Mit WLAN verbinden um Hörbücher zu streamen',
+      // Taxonomy / Hierarchical Tags
+      'enable_taxonomy': 'Hierarchische Tags',
+      'enable_taxonomy_subtitle':
+          'Verwenden Sie "Eltern > Kind" um Unter-Tags zu erstellen',
+      'restart_required_for_changes':
+          'Starten Sie die App neu um Änderungen anzuwenden',
+      'view': 'Ansehen',
     },
   };
 

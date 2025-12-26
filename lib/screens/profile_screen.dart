@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart'; // For Clipboard
+import 'package:cached_network_image/cached_network_image.dart';
 import '../widgets/genie_app_bar.dart';
 import 'package:provider/provider.dart';
 import 'package:path_provider/path_provider.dart';
@@ -510,1030 +511,1111 @@ class _ProfileScreenState extends State<ProfileScreen> {
     final progress = (_userStatus!['next_level_progress'] as num).toDouble();
 
     return SingleChildScrollView(
-      padding: const EdgeInsets.all(16.0),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.center,
-        children: [
-          const SizedBox(height: 20),
-          const SizedBox(height: 20),
-          Consumer<ThemeProvider>(
-            builder: (context, themeProvider, _) {
-              final avatar = availableAvatars.firstWhere(
-                (a) => a.id == themeProvider.currentAvatarId,
-                orElse: () => availableAvatars.first,
-              );
+      padding: EdgeInsets.symmetric(
+        horizontal: MediaQuery.of(context).size.width > 600 ? 32.0 : 16.0,
+        vertical: 16.0,
+      ),
+      child: Center(
+        child: ConstrainedBox(
+          constraints: BoxConstraints(
+            maxWidth: MediaQuery.of(context).size.width > 600
+                ? 900
+                : double.infinity,
+          ),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.center,
+            children: [
+              const SizedBox(height: 20),
+              const SizedBox(height: 20),
+              Consumer<ThemeProvider>(
+                builder: (context, themeProvider, _) {
+                  final avatar = availableAvatars.firstWhere(
+                    (a) => a.id == themeProvider.currentAvatarId,
+                    orElse: () => availableAvatars.first,
+                  );
 
-              return Stack(
-                children: [
-                  Container(
-                    width: 140,
-                    height: 140,
-                    decoration: BoxDecoration(
-                      shape: BoxShape.circle,
-                      border: Border.all(color: avatar.themeColor, width: 4),
-                      color: themeProvider.avatarConfig?.style == 'genie'
-                          ? Color(
-                              int.parse(
-                                'FF${themeProvider.avatarConfig?.genieBackground ?? "fbbf24"}',
-                                radix: 16,
-                              ),
-                            )
-                          : Colors.grey[100],
-                    ),
-                    child: ClipOval(
-                      child: (themeProvider.avatarConfig?.isGenie ?? false)
-                          ? Image.asset(
-                              themeProvider.avatarConfig?.assetPath ??
-                                  'assets/genie_mascot.jpg',
-                              fit: BoxFit.cover,
-                            )
-                          : Image.network(
-                              themeProvider.avatarConfig?.toUrl(
-                                    size: 140,
-                                    format: 'png',
-                                  ) ??
-                                  '',
-                              fit: BoxFit.cover,
-                              errorBuilder: (context, error, stackTrace) =>
-                                  Image.asset(avatar.assetPath),
-                            ),
-                    ),
-                  ),
-                  Positioned(
-                    bottom: 0,
-                    right: 0,
-                    child: GestureDetector(
-                      onTap: () => _showAvatarPicker(context, themeProvider),
-                      child: Container(
-                        padding: const EdgeInsets.all(8),
+                  return Stack(
+                    children: [
+                      Container(
+                        width: 140,
+                        height: 140,
                         decoration: BoxDecoration(
-                          color: Theme.of(context).primaryColor,
                           shape: BoxShape.circle,
-                          border: Border.all(color: Colors.white, width: 2),
+                          border: Border.all(
+                            color: avatar.themeColor,
+                            width: 4,
+                          ),
+                          color: themeProvider.avatarConfig?.style == 'genie'
+                              ? Color(
+                                  int.parse(
+                                    'FF${themeProvider.avatarConfig?.genieBackground ?? "fbbf24"}',
+                                    radix: 16,
+                                  ),
+                                )
+                              : Colors.grey[100],
                         ),
-                        child: const Icon(
-                          Icons.edit,
-                          color: Colors.white,
-                          size: 20,
+                        child: ClipOval(
+                          child: (themeProvider.avatarConfig?.isGenie ?? false)
+                              ? Image.asset(
+                                  themeProvider.avatarConfig?.assetPath ??
+                                      'assets/genie_mascot.jpg',
+                                  fit: BoxFit.cover,
+                                )
+                              : CachedNetworkImage(
+                                  imageUrl:
+                                      themeProvider.avatarConfig?.toUrl(
+                                        size: 140,
+                                        format: 'png',
+                                      ) ??
+                                      '',
+                                  fit: BoxFit.cover,
+                                  errorWidget: (context, url, error) =>
+                                      Image.asset(avatar.assetPath),
+                                ),
                         ),
                       ),
+                      Positioned(
+                        bottom: 0,
+                        right: 0,
+                        child: GestureDetector(
+                          onTap: () =>
+                              _showAvatarPicker(context, themeProvider),
+                          child: Container(
+                            padding: const EdgeInsets.all(8),
+                            decoration: BoxDecoration(
+                              color: Theme.of(context).primaryColor,
+                              shape: BoxShape.circle,
+                              border: Border.all(color: Colors.white, width: 2),
+                            ),
+                            child: const Icon(
+                              Icons.edit,
+                              color: Colors.white,
+                              size: 20,
+                            ),
+                          ),
+                        ),
+                      ),
+                    ],
+                  );
+                },
+              ),
+              const SizedBox(height: 16),
+              Consumer<ThemeProvider>(
+                builder: (context, themeProvider, _) {
+                  return Text(
+                    TranslationService.translate(
+                      context,
+                      themeProvider.profileType,
                     ),
-                  ),
-                ],
-              );
-            },
-          ),
-          const SizedBox(height: 16),
-          Consumer<ThemeProvider>(
-            builder: (context, themeProvider, _) {
-              return Text(
-                TranslationService.translate(
-                  context,
-                  themeProvider.profileType,
-                ),
-                style: Theme.of(context).textTheme.headlineMedium,
-              );
-            },
-          ),
-          const SizedBox(height: 8),
-          StatusBadge(level: level, size: 32),
-          const SizedBox(height: 32),
+                    style: Theme.of(context).textTheme.headlineMedium,
+                  );
+                },
+              ),
+              const SizedBox(height: 8),
+              StatusBadge(level: level, size: 32),
+              const SizedBox(height: 32),
 
-          // Gamification V3 - Track Progress Card
-          GamificationSummaryCard(
-            status: GamificationStatus.fromJson(_userStatus!),
-          ),
-          const SizedBox(height: 32),
+              // Gamification V3 - Track Progress Card
+              GamificationSummaryCard(
+                status: GamificationStatus.fromJson(_userStatus!),
+              ),
+              const SizedBox(height: 32),
 
-          // Reading Goals Settings
-          _buildReadingGoalsSection(),
-          const SizedBox(height: 32),
-          // Profile Settings
-          Text(
-            TranslationService.translate(context, 'profile_settings'),
-            style: Theme.of(context).textTheme.titleMedium,
-          ),
-          const SizedBox(height: 16),
-          Card(
-            child: Column(
-              children: [
-                ListTile(
-                  title: Text(
-                    TranslationService.translate(context, 'library_name'),
-                  ),
-                  subtitle: Text(
-                    _config?['library_name'] ??
-                        _config?['name'] ??
-                        'My Library',
-                  ),
-                  trailing: IconButton(
-                    icon: const Icon(Icons.edit),
-                    onPressed: () {
-                      final controller = TextEditingController(
-                        text:
-                            _config?['library_name'] ?? _config?['name'] ?? '',
-                      );
-                      showDialog(
-                        context: context,
-                        builder: (context) => AlertDialog(
-                          title: Text(
-                            TranslationService.translate(
-                              context,
-                              'edit_library_name',
-                            ),
-                          ),
-                          content: TextField(
-                            controller: controller,
-                            decoration: InputDecoration(
-                              labelText: TranslationService.translate(
-                                context,
-                                'library_name',
+              // Reading Goals Settings
+              _buildReadingGoalsSection(),
+              const SizedBox(height: 32),
+              // Profile Settings
+              Text(
+                TranslationService.translate(context, 'profile_settings'),
+                style: Theme.of(context).textTheme.titleMedium,
+              ),
+              const SizedBox(height: 16),
+              Card(
+                child: Column(
+                  children: [
+                    ListTile(
+                      title: Text(
+                        TranslationService.translate(context, 'library_name'),
+                      ),
+                      subtitle: Text(
+                        _config?['library_name'] ??
+                            _config?['name'] ??
+                            'My Library',
+                      ),
+                      trailing: IconButton(
+                        icon: const Icon(Icons.edit),
+                        onPressed: () {
+                          final controller = TextEditingController(
+                            text:
+                                _config?['library_name'] ??
+                                _config?['name'] ??
+                                '',
+                          );
+                          showDialog(
+                            context: context,
+                            builder: (context) => AlertDialog(
+                              title: Text(
+                                TranslationService.translate(
+                                  context,
+                                  'edit_library_name',
+                                ),
                               ),
-                            ),
-                          ),
-                          actions: [
-                            TextButton(
-                              onPressed: () => Navigator.pop(context),
-                              child: Text(
-                                TranslationService.translate(context, 'cancel'),
-                              ),
-                            ),
-                            TextButton(
-                              onPressed: () async {
-                                Navigator.pop(context);
-                                try {
-                                  final api = Provider.of<ApiService>(
+                              content: TextField(
+                                controller: controller,
+                                decoration: InputDecoration(
+                                  labelText: TranslationService.translate(
                                     context,
-                                    listen: false,
-                                  );
-                                  await api.updateLibraryConfig(
-                                    name: controller.text,
-                                    description: _config?['description'],
-                                    profileType: _config?['profile_type'],
-                                    tags: _config?['tags'] != null
-                                        ? List<String>.from(_config!['tags'])
-                                        : [],
-                                    latitude: _config?['latitude'],
-                                    longitude: _config?['longitude'],
-                                    showBorrowedBooks:
-                                        _config?['show_borrowed_books'],
-                                    shareLocation: _config?['share_location'],
-                                  );
-                                  _fetchStatus();
-                                  if (mounted) {
-                                    ScaffoldMessenger.of(context).showSnackBar(
-                                      SnackBar(
-                                        content: Text(
-                                          TranslationService.translate(
-                                            context,
-                                            'library_updated',
+                                    'library_name',
+                                  ),
+                                ),
+                              ),
+                              actions: [
+                                TextButton(
+                                  onPressed: () => Navigator.pop(context),
+                                  child: Text(
+                                    TranslationService.translate(
+                                      context,
+                                      'cancel',
+                                    ),
+                                  ),
+                                ),
+                                TextButton(
+                                  onPressed: () async {
+                                    Navigator.pop(context);
+                                    try {
+                                      final api = Provider.of<ApiService>(
+                                        context,
+                                        listen: false,
+                                      );
+                                      await api.updateLibraryConfig(
+                                        name: controller.text,
+                                        description: _config?['description'],
+                                        profileType: _config?['profile_type'],
+                                        tags: _config?['tags'] != null
+                                            ? List<String>.from(
+                                                _config!['tags'],
+                                              )
+                                            : [],
+                                        latitude: _config?['latitude'],
+                                        longitude: _config?['longitude'],
+                                        showBorrowedBooks:
+                                            _config?['show_borrowed_books'],
+                                        shareLocation:
+                                            _config?['share_location'],
+                                      );
+                                      _fetchStatus();
+                                      if (mounted) {
+                                        ScaffoldMessenger.of(
+                                          context,
+                                        ).showSnackBar(
+                                          SnackBar(
+                                            content: Text(
+                                              TranslationService.translate(
+                                                context,
+                                                'library_updated',
+                                              ),
+                                            ),
+                                          ),
+                                        );
+                                      }
+                                    } catch (e) {
+                                      if (mounted) {
+                                        ScaffoldMessenger.of(
+                                          context,
+                                        ).showSnackBar(
+                                          SnackBar(
+                                            content: Text(
+                                              '${TranslationService.translate(context, 'error_updating_library')}: $e',
+                                            ),
+                                          ),
+                                        );
+                                      }
+                                    }
+                                  },
+                                  child: Text(
+                                    TranslationService.translate(
+                                      context,
+                                      'save',
+                                    ),
+                                  ),
+                                ),
+                              ],
+                            ),
+                          );
+                        },
+                      ),
+                    ),
+                    const Divider(),
+                    ListTile(
+                      title: Text(
+                        TranslationService.translate(context, 'profile_type'),
+                      ),
+                      subtitle: Consumer<ThemeProvider>(
+                        builder: (context, themeProvider, _) {
+                          return Text(
+                            TranslationService.translate(
+                                  context,
+                                  themeProvider.profileType,
+                                ) ??
+                                themeProvider.profileType,
+                          );
+                        },
+                      ),
+                      trailing: Consumer<ThemeProvider>(
+                        builder: (context, themeProvider, _) {
+                          // Normalize profile type to match dropdown items
+                          String normalizedType = themeProvider.profileType;
+                          if (normalizedType == 'individual_reader') {
+                            normalizedType = 'individual';
+                          } else if (normalizedType == 'professional') {
+                            normalizedType = 'librarian';
+                          }
+                          // Ensure value is one of the valid options
+                          if (![
+                            'individual',
+                            'librarian',
+                            'kid',
+                          ].contains(normalizedType)) {
+                            normalizedType = 'individual';
+                          }
+
+                          return SizedBox(
+                            width: 130,
+                            child: DropdownButtonHideUnderline(
+                              child: DropdownButton<String>(
+                                value: normalizedType,
+                                isExpanded: true,
+                                items: [
+                                  DropdownMenuItem(
+                                    value: 'individual',
+                                    child: Text(
+                                      TranslationService.translate(
+                                        context,
+                                        'profile_individual',
+                                      ),
+                                    ),
+                                  ),
+                                  DropdownMenuItem(
+                                    value: 'librarian',
+                                    child: Text(
+                                      TranslationService.translate(
+                                        context,
+                                        'profile_librarian',
+                                      ),
+                                    ),
+                                  ),
+                                  DropdownMenuItem(
+                                    value: 'kid',
+                                    child: Text(
+                                      TranslationService.translate(
+                                        context,
+                                        'profile_kid',
+                                      ),
+                                    ),
+                                  ),
+                                ],
+                                onChanged: (value) async {
+                                  if (value == null) return;
+                                  try {
+                                    final api = Provider.of<ApiService>(
+                                      context,
+                                      listen: false,
+                                    );
+
+                                    // 1. Update Provider (local state + persistence)
+                                    await Provider.of<ThemeProvider>(
+                                      context,
+                                      listen: false,
+                                    ).setProfileType(value, apiService: api);
+
+                                    // 2. Update Library Config on Backend (so it persists remotely)
+                                    if (_config != null) {
+                                      await api.updateLibraryConfig(
+                                        name:
+                                            _config!['library_name'] ??
+                                            _config!['name'] ??
+                                            'My Library',
+                                        description: _config?['description'],
+                                        profileType: value,
+                                        tags: _config?['tags'] != null
+                                            ? List<String>.from(
+                                                _config!['tags'],
+                                              )
+                                            : [],
+                                        latitude: _config?['latitude'],
+                                        longitude: _config?['longitude'],
+                                        showBorrowedBooks:
+                                            _config?['show_borrowed_books'],
+                                        shareLocation:
+                                            _config?['share_location'],
+                                      );
+                                    }
+
+                                    _fetchStatus(); // Refresh to get updated config
+
+                                    if (mounted) {
+                                      ScaffoldMessenger.of(
+                                        context,
+                                      ).showSnackBar(
+                                        SnackBar(
+                                          content: Text(
+                                            TranslationService.translate(
+                                              context,
+                                              'profile_updated',
+                                            ),
                                           ),
                                         ),
-                                      ),
-                                    );
-                                  }
-                                } catch (e) {
-                                  if (mounted) {
-                                    ScaffoldMessenger.of(context).showSnackBar(
-                                      SnackBar(
-                                        content: Text(
-                                          '${TranslationService.translate(context, 'error_updating_library')}: $e',
+                                      );
+                                    }
+                                  } catch (e) {
+                                    if (mounted) {
+                                      ScaffoldMessenger.of(
+                                        context,
+                                      ).showSnackBar(
+                                        SnackBar(
+                                          content: Text(
+                                            '${TranslationService.translate(context, 'error_updating_profile')}: $e',
+                                          ),
                                         ),
-                                      ),
-                                    );
+                                      );
+                                    }
                                   }
-                                }
-                              },
-                              child: Text(
-                                TranslationService.translate(context, 'save'),
+                                },
                               ),
                             ),
-                          ],
-                        ),
-                      );
-                    },
-                  ),
-                ),
-                const Divider(),
-                ListTile(
-                  title: Text(
-                    TranslationService.translate(context, 'profile_type'),
-                  ),
-                  subtitle: Consumer<ThemeProvider>(
-                    builder: (context, themeProvider, _) {
-                      return Text(
+                          );
+                        },
+                      ),
+                    ),
+                    const Divider(),
+                    // Hierarchical Tags Toggle
+                    SwitchListTile(
+                      title: Text(
                         TranslationService.translate(
                               context,
-                              themeProvider.profileType,
+                              'enable_taxonomy',
                             ) ??
-                            themeProvider.profileType,
-                      );
-                    },
-                  ),
-                  trailing: Consumer<ThemeProvider>(
-                    builder: (context, themeProvider, _) {
-                      // Normalize profile type to match dropdown items
-                      String normalizedType = themeProvider.profileType;
-                      if (normalizedType == 'individual_reader') {
-                        normalizedType = 'individual';
-                      } else if (normalizedType == 'professional') {
-                        normalizedType = 'librarian';
-                      }
-                      // Ensure value is one of the valid options
-                      if (![
-                        'individual',
-                        'librarian',
-                        'kid',
-                      ].contains(normalizedType)) {
-                        normalizedType = 'individual';
-                      }
-
-                      return SizedBox(
-                        width: 130,
-                        child: DropdownButtonHideUnderline(
-                          child: DropdownButton<String>(
-                            value: normalizedType,
-                            isExpanded: true,
-                            items: [
-                              DropdownMenuItem(
-                                value: 'individual',
-                                child: Text(
-                                  TranslationService.translate(
-                                    context,
-                                    'profile_individual',
-                                  ),
-                                ),
+                            'Hierarchical Tags',
+                      ),
+                      subtitle: Text(
+                        TranslationService.translate(
+                              context,
+                              'enable_taxonomy_subtitle',
+                            ) ??
+                            'Use "Parent > Child" naming to create sub-tags',
+                      ),
+                      value: AppConstants.enableHierarchicalTags,
+                      onChanged: (bool value) async {
+                        setState(() {
+                          AppConstants.enableHierarchicalTags = value;
+                        });
+                        final prefs = await SharedPreferences.getInstance();
+                        await prefs.setBool('enableHierarchicalTags', value);
+                        if (mounted) {
+                          ScaffoldMessenger.of(context).showSnackBar(
+                            SnackBar(
+                              content: Text(
+                                TranslationService.translate(
+                                      context,
+                                      'restart_required_for_changes',
+                                    ) ??
+                                    'Please restart the app for changes to take full effect',
                               ),
-                              DropdownMenuItem(
-                                value: 'librarian',
-                                child: Text(
-                                  TranslationService.translate(
-                                    context,
-                                    'profile_librarian',
-                                  ),
-                                ),
-                              ),
-                              DropdownMenuItem(
-                                value: 'kid',
-                                child: Text(
-                                  TranslationService.translate(
-                                    context,
-                                    'profile_kid',
-                                  ),
-                                ),
-                              ),
-                            ],
-                            onChanged: (value) async {
-                              if (value == null) return;
-                              try {
-                                final api = Provider.of<ApiService>(
-                                  context,
-                                  listen: false,
-                                );
-
-                                // 1. Update Provider (local state + persistence)
-                                await Provider.of<ThemeProvider>(
-                                  context,
-                                  listen: false,
-                                ).setProfileType(value, apiService: api);
-
-                                // 2. Update Library Config on Backend (so it persists remotely)
-                                if (_config != null) {
-                                  await api.updateLibraryConfig(
-                                    name:
-                                        _config!['library_name'] ??
-                                        _config!['name'] ??
-                                        'My Library',
-                                    description: _config?['description'],
-                                    profileType: value,
-                                    tags: _config?['tags'] != null
-                                        ? List<String>.from(_config!['tags'])
-                                        : [],
-                                    latitude: _config?['latitude'],
-                                    longitude: _config?['longitude'],
-                                    showBorrowedBooks:
-                                        _config?['show_borrowed_books'],
-                                    shareLocation: _config?['share_location'],
-                                  );
-                                }
-
-                                _fetchStatus(); // Refresh to get updated config
-
-                                if (mounted) {
-                                  ScaffoldMessenger.of(context).showSnackBar(
-                                    SnackBar(
-                                      content: Text(
-                                        TranslationService.translate(
-                                          context,
-                                          'profile_updated',
-                                        ),
-                                      ),
-                                    ),
-                                  );
-                                }
-                              } catch (e) {
-                                if (mounted) {
-                                  ScaffoldMessenger.of(context).showSnackBar(
-                                    SnackBar(
-                                      content: Text(
-                                        '${TranslationService.translate(context, 'error_updating_profile')}: $e',
-                                      ),
-                                    ),
-                                  );
-                                }
-                              }
-                            },
-                          ),
-                        ),
-                      );
-                    },
-                  ),
-                ),
-                const Divider(),
-                // Hierarchical Tags Toggle
-                SwitchListTile(
-                  title: Text(
-                    TranslationService.translate(context, 'enable_taxonomy') ??
-                        'Hierarchical Tags',
-                  ),
-                  subtitle: Text(
-                    TranslationService.translate(
+                            ),
+                          );
+                        }
+                      },
+                    ),
+                    const Divider(),
+                    ListTile(
+                      leading: const Icon(Icons.phonelink_setup),
+                      title: Text(
+                        TranslationService.translate(
                           context,
-                          'enable_taxonomy_subtitle',
-                        ) ??
-                        'Use "Parent > Child" naming to create sub-tags',
-                  ),
-                  value: AppConstants.enableHierarchicalTags,
-                  onChanged: (bool value) async {
-                    setState(() {
-                      AppConstants.enableHierarchicalTags = value;
-                    });
-                    final prefs = await SharedPreferences.getInstance();
-                    await prefs.setBool('enableHierarchicalTags', value);
-                    if (mounted) {
-                      ScaffoldMessenger.of(context).showSnackBar(
-                        SnackBar(
-                          content: Text(
-                            TranslationService.translate(
-                                  context,
-                                  'restart_required_for_changes',
-                                ) ??
-                                'Please restart the app for changes to take full effect',
-                          ),
-                        ),
-                      );
-                    }
-                  },
-                ),
-                const Divider(),
-                ListTile(
-                  leading: const Icon(Icons.phonelink_setup),
-                  title: Text(
-                    TranslationService.translate(
-                      context,
-                      'link_device_menu_title',
-                    ),
-                  ),
-                  subtitle: Text(
-                    TranslationService.translate(
-                      context,
-                      'link_device_menu_subtitle',
-                    ),
-                  ),
-                  trailing: const Icon(Icons.chevron_right),
-                  onTap: () {
-                    context.go('/profile/link-device');
-                  },
-                ),
-                const Divider(),
-                // Borrowing Module Toggle
-                Consumer<ThemeProvider>(
-                  builder: (context, themeProvider, _) => SwitchListTile(
-                    secondary: const Icon(Icons.swap_horiz),
-                    title: Text(
-                      TranslationService.translate(
-                        context,
-                        'enable_borrowing_module',
-                      ),
-                    ),
-                    subtitle: Text(
-                      TranslationService.translate(
-                        context,
-                        'borrowing_module_desc',
-                      ),
-                    ),
-                    value: themeProvider.canBorrowBooks,
-                    onChanged: (value) =>
-                        themeProvider.setCanBorrowBooks(value),
-                  ),
-                ),
-                // TODO: Re-enable when borrowed books list is needed (currently using filters instead)
-                // if (_config?['profile_type'] == 'individual')
-                //   SwitchListTile(
-                //     title: Text(TranslationService.translate(context, 'show_borrowed_books')),
-                //     subtitle: Text(TranslationService.translate(context, 'show_borrowed_subtitle')),
-                //     value: _config?['show_borrowed_books'] ?? false,
-                //     onChanged: (value) async {
-                //       try {
-                //         final api = Provider.of<ApiService>(context, listen: false);
-                //         await api.updateLibraryConfig(
-                //           name: _config!['library_name'] ?? _config!['name'] ?? 'My Library',
-                //           description: _config!['description'],
-                //           tags: _config?['tags'] != null ? List<String>.from(_config!['tags']) : [],
-                //           latitude: _config?['latitude'],
-                //           longitude: _config?['longitude'],
-                //           showBorrowedBooks: value,
-                //           shareLocation: _config!['share_location'],
-                //         );
-                //         _fetchStatus();
-                //       } catch (e) {
-                //         if (mounted) {
-                //           ScaffoldMessenger.of(context).showSnackBar(
-                //             SnackBar(content: Text('${TranslationService.translate(context, 'error_updating_setting')}: $e')),
-                //           );
-                //         }
-                //       }
-                //     },
-                //   ),
-              ],
-            ),
-          ),
-          const SizedBox(height: 16),
-          // Profile Type Summary Card
-          _buildProfileTypeSummary(),
-          const SizedBox(height: 32),
-
-          // Security Settings (MFA)
-          Text(
-            TranslationService.translate(context, 'security_settings') ??
-                'Security Settings',
-            style: Theme.of(context).textTheme.titleMedium,
-          ),
-          const SizedBox(height: 16),
-          Card(
-            child: Column(
-              children: [
-                ListTile(
-                  leading: const Icon(Icons.security),
-                  title: Text(
-                    TranslationService.translate(context, 'two_factor_auth') ??
-                        'Two-Factor Authentication',
-                  ),
-                  subtitle: Text(
-                    (_userInfo?['mfa_enabled'] == true)
-                        ? (TranslationService.translate(
-                                context,
-                                'mfa_enabled',
-                              ) ??
-                              'Enabled')
-                        : (TranslationService.translate(
-                                context,
-                                'mfa_disabled',
-                              ) ??
-                              'Disabled'),
-                    style: TextStyle(
-                      color: (_userInfo?['mfa_enabled'] == true)
-                          ? Colors.green
-                          : Colors.grey,
-                      fontWeight: FontWeight.bold,
-                    ),
-                  ),
-                  trailing: (_userInfo?['mfa_enabled'] == true)
-                      ? null // TODO: Add disable button
-                      : ElevatedButton(
-                          onPressed: _setupMfa,
-                          child: Text(
-                            TranslationService.translate(context, 'enable') ??
-                                'Enable',
-                          ),
-                        ),
-                ),
-                const Divider(),
-                ListTile(
-                  leading: const Icon(Icons.password),
-                  title: Text(
-                    TranslationService.translate(context, 'change_password') ??
-                        'Change Password',
-                  ),
-                  trailing: ElevatedButton(
-                    onPressed: _showChangePasswordDialog,
-                    child: Text(
-                      TranslationService.translate(
-                            context,
-                            'change_password',
-                          ) ??
-                          'Change',
-                    ),
-                  ),
-                ),
-              ],
-            ),
-          ),
-          const SizedBox(height: 32),
-
-          // Audio Module Settings (decoupled - can be removed without breaking the app)
-          const AudioSettingsCard(),
-          const SizedBox(height: 32),
-
-          // Integrations (MCP for Claude Desktop)
-          if (!kIsWeb) _buildMcpIntegrationSection(),
-
-          // Data Management
-          Text(
-            TranslationService.translate(context, 'data_management'),
-            style: Theme.of(context).textTheme.titleMedium,
-          ),
-          const SizedBox(height: 16),
-          ElevatedButton.icon(
-            onPressed: _exportData,
-            icon: const Icon(Icons.download),
-            label: Text(TranslationService.translate(context, 'export_backup')),
-            style: ElevatedButton.styleFrom(
-              minimumSize: const Size(double.infinity, 50),
-            ),
-          ),
-          const SizedBox(height: 16),
-
-          // Shelf Management (back-office)
-          ElevatedButton.icon(
-            onPressed: () => context.push('/shelves-management'),
-            icon: const Icon(Icons.folder_special),
-            label: Text(
-              TranslationService.translate(context, 'manage_shelves') ??
-                  'Manage Shelves',
-            ),
-            style: ElevatedButton.styleFrom(
-              minimumSize: const Size(double.infinity, 50),
-            ),
-          ),
-          const SizedBox(height: 16),
-          ElevatedButton.icon(
-            onPressed: () async {
-              try {
-                final result = await FilePicker.platform.pickFiles(
-                  type: FileType.custom,
-                  allowedExtensions: ['csv', 'txt'],
-                  withData: kIsWeb, // Important: Request data on web
-                );
-
-                if (result != null) {
-                  if (context.mounted) {
-                    ScaffoldMessenger.of(context).showSnackBar(
-                      SnackBar(
-                        content: Text(
-                          TranslationService.translate(
-                            context,
-                            'importing_books',
-                          ),
+                          'link_device_menu_title',
                         ),
                       ),
-                    );
-                  }
-
-                  final apiService = Provider.of<ApiService>(
-                    context,
-                    listen: false,
-                  );
-
-                  late final Response response;
-                  if (kIsWeb) {
-                    // Web: Pass bytes
-                    response = await apiService.importBooks(
-                      result.files.single.bytes!,
-                      filename: result.files.single.name,
-                    );
-                  } else {
-                    // Native: Pass path
-                    response = await apiService.importBooks(
-                      result.files.single.path!,
-                    );
-                  }
-
-                  if (context.mounted) {
-                    if (response.statusCode == 200) {
-                      final imported = response.data['imported'];
-                      ScaffoldMessenger.of(context).showSnackBar(
-                        SnackBar(
-                          content: Text(
-                            '${TranslationService.translate(context, 'import_success')} $imported ${TranslationService.translate(context, 'books')}',
-                          ),
-                          backgroundColor: Colors.green,
+                      subtitle: Text(
+                        TranslationService.translate(
+                          context,
+                          'link_device_menu_subtitle',
                         ),
-                      );
-                    } else {
-                      ScaffoldMessenger.of(context).showSnackBar(
-                        SnackBar(
-                          content: Text(
-                            '${TranslationService.translate(context, 'import_fail')}: ${response.data['error']}',
-                          ),
-                          backgroundColor: Colors.red,
-                        ),
-                      );
-                    }
-                  }
-                }
-              } catch (e) {
-                if (context.mounted) {
-                  ScaffoldMessenger.of(context).showSnackBar(
-                    SnackBar(
-                      content: Text(
-                        '${TranslationService.translate(context, 'error_picking_file')}: $e',
                       ),
-                      backgroundColor: Colors.red,
+                      trailing: const Icon(Icons.chevron_right),
+                      onTap: () {
+                        context.go('/profile/link-device');
+                      },
                     ),
-                  );
-                }
-              }
-            },
-            icon: const Icon(Icons.upload_file),
-            label: Text(TranslationService.translate(context, 'import_csv')),
-            style: ElevatedButton.styleFrom(
-              minimumSize: const Size(double.infinity, 50),
-            ),
-          ),
-          const SizedBox(height: 32),
-
-          // App Settings
-          Text(
-            TranslationService.translate(context, 'app_settings'),
-            style: Theme.of(context).textTheme.titleMedium,
-          ),
-          const SizedBox(height: 16),
-          Card(
-            child: Column(
-              children: [
-                ListTile(
-                  leading: const Icon(Icons.download),
-                  title: Text(
-                    TranslationService.translate(context, 'import_demo_data'),
-                  ),
-                  onTap: () async {
-                    final confirm = await showDialog<bool>(
-                      context: context,
-                      builder: (context) => AlertDialog(
+                    const Divider(),
+                    // Borrowing Module Toggle
+                    Consumer<ThemeProvider>(
+                      builder: (context, themeProvider, _) => SwitchListTile(
+                        secondary: const Icon(Icons.swap_horiz),
                         title: Text(
                           TranslationService.translate(
                             context,
-                            'import_demo_data_title',
+                            'enable_borrowing_module',
                           ),
                         ),
-                        content: Text(
+                        subtitle: Text(
                           TranslationService.translate(
                             context,
-                            'import_demo_data_desc',
+                            'borrowing_module_desc',
                           ),
                         ),
-                        actions: [
-                          TextButton(
-                            onPressed: () => Navigator.pop(context, false),
-                            child: Text(
-                              TranslationService.translate(context, 'cancel'),
-                            ),
-                          ),
-                          TextButton(
-                            onPressed: () => Navigator.pop(context, true),
-                            child: Text(
-                              TranslationService.translate(context, 'import'),
-                            ),
-                          ),
-                        ],
+                        value: themeProvider.canBorrowBooks,
+                        onChanged: (value) =>
+                            themeProvider.setCanBorrowBooks(value),
                       ),
-                    );
+                    ),
+                    // TODO: Re-enable when borrowed books list is needed (currently using filters instead)
+                    // if (_config?['profile_type'] == 'individual')
+                    //   SwitchListTile(
+                    //     title: Text(TranslationService.translate(context, 'show_borrowed_books')),
+                    //     subtitle: Text(TranslationService.translate(context, 'show_borrowed_subtitle')),
+                    //     value: _config?['show_borrowed_books'] ?? false,
+                    //     onChanged: (value) async {
+                    //       try {
+                    //         final api = Provider.of<ApiService>(context, listen: false);
+                    //         await api.updateLibraryConfig(
+                    //           name: _config!['library_name'] ?? _config!['name'] ?? 'My Library',
+                    //           description: _config!['description'],
+                    //           tags: _config?['tags'] != null ? List<String>.from(_config!['tags']) : [],
+                    //           latitude: _config?['latitude'],
+                    //           longitude: _config?['longitude'],
+                    //           showBorrowedBooks: value,
+                    //           shareLocation: _config!['share_location'],
+                    //         );
+                    //         _fetchStatus();
+                    //       } catch (e) {
+                    //         if (mounted) {
+                    //           ScaffoldMessenger.of(context).showSnackBar(
+                    //             SnackBar(content: Text('${TranslationService.translate(context, 'error_updating_setting')}: $e')),
+                    //           );
+                    //         }
+                    //       }
+                    //     },
+                    //   ),
+                  ],
+                ),
+              ),
+              const SizedBox(height: 16),
+              // Profile Type Summary Card
+              _buildProfileTypeSummary(),
+              const SizedBox(height: 32),
 
-                    if (confirm == true && context.mounted) {
-                      await DemoService.importDemoBooks(context);
+              // Security Settings (MFA)
+              Text(
+                TranslationService.translate(context, 'security_settings') ??
+                    'Security Settings',
+                style: Theme.of(context).textTheme.titleMedium,
+              ),
+              const SizedBox(height: 16),
+              Card(
+                child: Column(
+                  children: [
+                    ListTile(
+                      leading: const Icon(Icons.security),
+                      title: Text(
+                        TranslationService.translate(
+                              context,
+                              'two_factor_auth',
+                            ) ??
+                            'Two-Factor Authentication',
+                      ),
+                      subtitle: Text(
+                        (_userInfo?['mfa_enabled'] == true)
+                            ? (TranslationService.translate(
+                                    context,
+                                    'mfa_enabled',
+                                  ) ??
+                                  'Enabled')
+                            : (TranslationService.translate(
+                                    context,
+                                    'mfa_disabled',
+                                  ) ??
+                                  'Disabled'),
+                        style: TextStyle(
+                          color: (_userInfo?['mfa_enabled'] == true)
+                              ? Colors.green
+                              : Colors.grey,
+                          fontWeight: FontWeight.bold,
+                        ),
+                      ),
+                      trailing: (_userInfo?['mfa_enabled'] == true)
+                          ? null // TODO: Add disable button
+                          : ElevatedButton(
+                              onPressed: _setupMfa,
+                              child: Text(
+                                TranslationService.translate(
+                                      context,
+                                      'enable',
+                                    ) ??
+                                    'Enable',
+                              ),
+                            ),
+                    ),
+                    const Divider(),
+                    ListTile(
+                      leading: const Icon(Icons.password),
+                      title: Text(
+                        TranslationService.translate(
+                              context,
+                              'change_password',
+                            ) ??
+                            'Change Password',
+                      ),
+                      trailing: ElevatedButton(
+                        onPressed: _showChangePasswordDialog,
+                        child: Text(
+                          TranslationService.translate(
+                                context,
+                                'change_password',
+                              ) ??
+                              'Change',
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+              const SizedBox(height: 32),
+
+              // Audio Module Settings (decoupled - can be removed without breaking the app)
+              const AudioSettingsCard(),
+              const SizedBox(height: 32),
+
+              // Integrations (MCP for Claude Desktop)
+              if (!kIsWeb) _buildMcpIntegrationSection(),
+
+              // Data Management
+              Center(
+                child: Text(
+                  TranslationService.translate(context, 'data_management'),
+                  style: Theme.of(context).textTheme.titleMedium?.copyWith(
+                    fontWeight: FontWeight.bold,
+                  ),
+                ),
+              ),
+              const SizedBox(height: 16),
+              ElevatedButton.icon(
+                onPressed: _exportData,
+                icon: const Icon(Icons.download),
+                label: Text(
+                  TranslationService.translate(context, 'export_backup'),
+                ),
+                style: ElevatedButton.styleFrom(
+                  minimumSize: const Size(double.infinity, 50),
+                ),
+              ),
+              const SizedBox(height: 16),
+
+              // Shelf Management (back-office)
+              ElevatedButton.icon(
+                onPressed: () => context.push('/shelves-management'),
+                icon: const Icon(Icons.folder_special),
+                label: Text(
+                  TranslationService.translate(context, 'manage_shelves') ??
+                      'Manage Shelves',
+                ),
+                style: ElevatedButton.styleFrom(
+                  minimumSize: const Size(double.infinity, 50),
+                ),
+              ),
+              const SizedBox(height: 16),
+              ElevatedButton.icon(
+                onPressed: () async {
+                  try {
+                    final result = await FilePicker.platform.pickFiles(
+                      type: FileType.custom,
+                      allowedExtensions: ['csv', 'txt'],
+                      withData: kIsWeb,
+                    );
+                    if (result != null) {
                       if (context.mounted) {
                         ScaffoldMessenger.of(context).showSnackBar(
                           SnackBar(
                             content: Text(
                               TranslationService.translate(
                                 context,
-                                'demo_data_imported',
+                                'importing_books',
                               ),
                             ),
                           ),
                         );
                       }
-                    }
-                  },
-                ),
-                const Divider(),
-                ListTile(
-                  leading: const Icon(Icons.settings),
-                  title: Text(
-                    TranslationService.translate(context, 'edit_settings'),
-                  ),
-                  onTap: () {
-                    _showSettingsDialog(context);
-                  },
-                ),
-                const Divider(),
-                ListTile(
-                  leading: const Icon(Icons.delete_forever, color: Colors.red),
-                  title: Text(
-                    TranslationService.translate(context, 'reset_app'),
-                    style: const TextStyle(color: Colors.red),
-                  ),
-                  onTap: () async {
-                    final authService = Provider.of<AuthService>(
-                      context,
-                      listen: false,
-                    );
-                    final hasPassword = await authService.hasPasswordSet();
-
-                    if (!mounted) return;
-
-                    // Password entry controller and reset type selection
-                    final passwordController = TextEditingController();
-                    String? errorText;
-                    bool resetEntirely =
-                        false; // false = standard, true = full reset
-
-                    final confirmed = await showDialog<bool>(
-                      context: context,
-                      builder: (dialogContext) => StatefulBuilder(
-                        builder: (context, setState) => AlertDialog(
-                          title: Text(
-                            TranslationService.translate(
-                              context,
-                              'reset_app_title',
-                            ),
-                          ),
-                          content: SingleChildScrollView(
-                            child: Column(
-                              mainAxisSize: MainAxisSize.min,
-                              crossAxisAlignment: CrossAxisAlignment.start,
-                              children: [
-                                Text(
-                                  TranslationService.translate(
-                                    context,
-                                    'reset_app_confirmation',
-                                  ),
-                                ),
-                                const SizedBox(height: 16),
-
-                                // Reset Type Selection
-                                Text(
-                                  TranslationService.translate(
-                                        context,
-                                        'reset_type_label',
-                                      ) ??
-                                      'Choose reset type:',
-                                  style: const TextStyle(
-                                    fontWeight: FontWeight.bold,
-                                  ),
-                                ),
-                                const SizedBox(height: 8),
-
-                                // Standard Reset Option
-                                RadioListTile<bool>(
-                                  value: false,
-                                  groupValue: resetEntirely,
-                                  title: Text(
-                                    TranslationService.translate(
-                                          context,
-                                          'reset_type_standard',
-                                        ) ??
-                                        'Standard Reset',
-                                  ),
-                                  subtitle: Text(
-                                    TranslationService.translate(
-                                          context,
-                                          'reset_standard_desc',
-                                        ) ??
-                                        'Clears library data but keeps your login',
-                                    style: TextStyle(
-                                      fontSize: 12,
-                                      color: Colors.grey[600],
-                                    ),
-                                  ),
-                                  onChanged: (val) =>
-                                      setState(() => resetEntirely = val!),
-                                  dense: true,
-                                  contentPadding: EdgeInsets.zero,
-                                ),
-
-                                // Reset Entirely Option
-                                RadioListTile<bool>(
-                                  value: true,
-                                  groupValue: resetEntirely,
-                                  title: Text(
-                                    TranslationService.translate(
-                                          context,
-                                          'reset_type_full',
-                                        ) ??
-                                        'Reset Entirely',
-                                    style: const TextStyle(color: Colors.red),
-                                  ),
-                                  subtitle: Text(
-                                    TranslationService.translate(
-                                          context,
-                                          'reset_full_desc',
-                                        ) ??
-                                        'Completely removes all data and credentials',
-                                    style: TextStyle(
-                                      fontSize: 12,
-                                      color: Colors.grey[600],
-                                    ),
-                                  ),
-                                  onChanged: (val) =>
-                                      setState(() => resetEntirely = val!),
-                                  dense: true,
-                                  contentPadding: EdgeInsets.zero,
-                                ),
-
-                                // Warning for full reset
-                                if (resetEntirely) ...[
-                                  const SizedBox(height: 8),
-                                  Container(
-                                    padding: const EdgeInsets.all(8),
-                                    decoration: BoxDecoration(
-                                      color: Colors.orange.withValues(
-                                        alpha: 0.1,
-                                      ),
-                                      borderRadius: BorderRadius.circular(8),
-                                      border: Border.all(color: Colors.orange),
-                                    ),
-                                    child: Row(
-                                      children: [
-                                        const Icon(
-                                          Icons.warning,
-                                          color: Colors.orange,
-                                          size: 20,
-                                        ),
-                                        const SizedBox(width: 8),
-                                        Expanded(
-                                          child: Text(
-                                            TranslationService.translate(
-                                                  context,
-                                                  'reset_full_warning',
-                                                ) ??
-                                                'You will need to set a new username and password',
-                                            style: const TextStyle(
-                                              fontSize: 12,
-                                              color: Colors.orange,
-                                            ),
-                                          ),
-                                        ),
-                                      ],
-                                    ),
-                                  ),
-                                ],
-
-                                if (hasPassword) ...[
-                                  const SizedBox(height: 16),
-                                  TextField(
-                                    controller: passwordController,
-                                    obscureText: true,
-                                    decoration: InputDecoration(
-                                      labelText:
-                                          TranslationService.translate(
-                                            context,
-                                            'enter_password_to_reset',
-                                          ) ??
-                                          'Enter your password to confirm',
-                                      errorText: errorText,
-                                      border: const OutlineInputBorder(),
-                                    ),
-                                  ),
-                                ],
-                              ],
-                            ),
-                          ),
-                          actions: [
-                            TextButton(
-                              onPressed: () => Navigator.pop(context, false),
-                              child: Text(
-                                TranslationService.translate(context, 'cancel'),
-                              ),
-                            ),
-                            TextButton(
-                              onPressed: () async {
-                                if (hasPassword) {
-                                  final isValid = await authService
-                                      .verifyPassword(passwordController.text);
-                                  if (!isValid) {
-                                    setState(
-                                      () => errorText =
-                                          TranslationService.translate(
-                                            context,
-                                            'password_incorrect',
-                                          ) ??
-                                          'Incorrect password',
-                                    );
-                                    return;
-                                  }
-                                }
-                                Navigator.pop(context, true);
-                              },
-                              child: Text(
-                                TranslationService.translate(
-                                  context,
-                                  'reset_confirm',
-                                ),
-                                style: const TextStyle(color: Colors.red),
-                              ),
-                            ),
-                          ],
-                        ),
-                      ),
-                    );
-
-                    if (confirmed == true && mounted) {
-                      try {
-                        // 1. Call backend to wipe data
-                        final api = Provider.of<ApiService>(
-                          context,
-                          listen: false,
+                      final apiService = Provider.of<ApiService>(
+                        context,
+                        listen: false,
+                      );
+                      late final Response response;
+                      if (kIsWeb) {
+                        response = await apiService.importBooks(
+                          result.files.single.bytes!,
+                          filename: result.files.single.name,
                         );
-                        await api.resetApp();
-
-                        // 2. Clear local state
-                        final themeProvider = Provider.of<ThemeProvider>(
-                          context,
-                          listen: false,
+                      } else {
+                        response = await apiService.importBooks(
+                          result.files.single.path!,
                         );
-                        await themeProvider.resetSetup();
-
-                        // 3. If full reset, also clear credentials
-                        if (resetEntirely) {
-                          await authService.clearAll();
-                          // Also clear SharedPreferences completely for fresh start
-                          final prefs = await SharedPreferences.getInstance();
-                          await prefs.clear();
-                        }
-
-                        if (mounted) {
-                          context.go('/setup');
-                        }
-                      } catch (e) {
-                        if (mounted) {
+                      }
+                      if (context.mounted) {
+                        if (response.statusCode == 200) {
+                          final imported = response.data['imported'];
                           ScaffoldMessenger.of(context).showSnackBar(
-                            SnackBar(content: Text('Reset failed: $e')),
+                            SnackBar(
+                              content: Text(
+                                '${TranslationService.translate(context, 'import_success')} $imported ${TranslationService.translate(context, 'books')}',
+                              ),
+                              backgroundColor: Colors.green,
+                            ),
+                          );
+                        } else {
+                          ScaffoldMessenger.of(context).showSnackBar(
+                            SnackBar(
+                              content: Text(
+                                '${TranslationService.translate(context, 'import_fail')}: ${response.data['error']}',
+                              ),
+                              backgroundColor: Colors.red,
+                            ),
                           );
                         }
                       }
                     }
-                  },
+                  } catch (e) {
+                    if (context.mounted) {
+                      ScaffoldMessenger.of(context).showSnackBar(
+                        SnackBar(
+                          content: Text(
+                            '${TranslationService.translate(context, 'error_picking_file')}: $e',
+                          ),
+                          backgroundColor: Colors.red,
+                        ),
+                      );
+                    }
+                  }
+                },
+                icon: const Icon(Icons.upload_file),
+                label: Text(
+                  TranslationService.translate(context, 'import_csv'),
                 ),
-              ],
-            ),
-          ),
-          const SizedBox(height: 32),
+                style: ElevatedButton.styleFrom(
+                  minimumSize: const Size(double.infinity, 50),
+                ),
+              ),
+              const SizedBox(height: 32),
 
-          // Security Settings (Change Password)
-          Text(
-            TranslationService.translate(context, 'security') ?? 'Security',
-            style: Theme.of(context).textTheme.titleMedium,
-          ),
-          const SizedBox(height: 16),
-          Card(
-            child: Column(
-              children: [
-                ListTile(
-                  leading: const Icon(Icons.lock_outline),
-                  title: Text(
-                    TranslationService.translate(context, 'change_password') ??
-                        'Change Password',
-                  ),
-                  subtitle: Text(
-                    (TranslationService.translate(
+              // App Settings
+              Text(
+                TranslationService.translate(context, 'app_settings'),
+                style: Theme.of(context).textTheme.titleMedium,
+              ),
+              const SizedBox(height: 16),
+              Card(
+                child: Column(
+                  children: [
+                    ListTile(
+                      leading: const Icon(Icons.download),
+                      title: Text(
+                        TranslationService.translate(
                           context,
-                          'manage_login_credentials',
-                        ) ??
-                        'Manage your login credentials'),
-                  ),
-                  trailing: const Icon(Icons.chevron_right),
-                  onTap: _showChangePasswordDialog,
+                          'import_demo_data',
+                        ),
+                      ),
+                      onTap: () async {
+                        final confirm = await showDialog<bool>(
+                          context: context,
+                          builder: (context) => AlertDialog(
+                            title: Text(
+                              TranslationService.translate(
+                                context,
+                                'import_demo_data_title',
+                              ),
+                            ),
+                            content: Text(
+                              TranslationService.translate(
+                                context,
+                                'import_demo_data_desc',
+                              ),
+                            ),
+                            actions: [
+                              TextButton(
+                                onPressed: () => Navigator.pop(context, false),
+                                child: Text(
+                                  TranslationService.translate(
+                                    context,
+                                    'cancel',
+                                  ),
+                                ),
+                              ),
+                              TextButton(
+                                onPressed: () => Navigator.pop(context, true),
+                                child: Text(
+                                  TranslationService.translate(
+                                    context,
+                                    'import',
+                                  ),
+                                ),
+                              ),
+                            ],
+                          ),
+                        );
+
+                        if (confirm == true && context.mounted) {
+                          await DemoService.importDemoBooks(context);
+                          if (context.mounted) {
+                            ScaffoldMessenger.of(context).showSnackBar(
+                              SnackBar(
+                                content: Text(
+                                  TranslationService.translate(
+                                    context,
+                                    'demo_data_imported',
+                                  ),
+                                ),
+                              ),
+                            );
+                          }
+                        }
+                      },
+                    ),
+                    const Divider(),
+                    ListTile(
+                      leading: const Icon(Icons.settings),
+                      title: Text(
+                        TranslationService.translate(context, 'edit_settings'),
+                      ),
+                      onTap: () {
+                        _showSettingsDialog(context);
+                      },
+                    ),
+                    const Divider(),
+                    ListTile(
+                      leading: const Icon(
+                        Icons.delete_forever,
+                        color: Colors.red,
+                      ),
+                      title: Text(
+                        TranslationService.translate(context, 'reset_app'),
+                        style: const TextStyle(color: Colors.red),
+                      ),
+                      onTap: () async {
+                        final authService = Provider.of<AuthService>(
+                          context,
+                          listen: false,
+                        );
+                        final hasPassword = await authService.hasPasswordSet();
+
+                        if (!mounted) return;
+
+                        // Password entry controller and reset type selection
+                        final passwordController = TextEditingController();
+                        String? errorText;
+                        bool resetEntirely =
+                            false; // false = standard, true = full reset
+
+                        final confirmed = await showDialog<bool>(
+                          context: context,
+                          builder: (dialogContext) => StatefulBuilder(
+                            builder: (context, setState) => AlertDialog(
+                              title: Text(
+                                TranslationService.translate(
+                                  context,
+                                  'reset_app_title',
+                                ),
+                              ),
+                              content: SingleChildScrollView(
+                                child: Column(
+                                  mainAxisSize: MainAxisSize.min,
+                                  crossAxisAlignment: CrossAxisAlignment.start,
+                                  children: [
+                                    Text(
+                                      TranslationService.translate(
+                                        context,
+                                        'reset_app_confirmation',
+                                      ),
+                                    ),
+                                    const SizedBox(height: 16),
+
+                                    // Reset Type Selection
+                                    Text(
+                                      TranslationService.translate(
+                                            context,
+                                            'reset_type_label',
+                                          ) ??
+                                          'Choose reset type:',
+                                      style: const TextStyle(
+                                        fontWeight: FontWeight.bold,
+                                      ),
+                                    ),
+                                    const SizedBox(height: 8),
+
+                                    // Standard Reset Option
+                                    RadioListTile<bool>(
+                                      value: false,
+                                      groupValue: resetEntirely,
+                                      title: Text(
+                                        TranslationService.translate(
+                                              context,
+                                              'reset_type_standard',
+                                            ) ??
+                                            'Standard Reset',
+                                      ),
+                                      subtitle: Text(
+                                        TranslationService.translate(
+                                              context,
+                                              'reset_standard_desc',
+                                            ) ??
+                                            'Clears library data but keeps your login',
+                                        style: TextStyle(
+                                          fontSize: 12,
+                                          color: Colors.grey[600],
+                                        ),
+                                      ),
+                                      onChanged: (val) =>
+                                          setState(() => resetEntirely = val!),
+                                      dense: true,
+                                      contentPadding: EdgeInsets.zero,
+                                    ),
+
+                                    // Reset Entirely Option
+                                    RadioListTile<bool>(
+                                      value: true,
+                                      groupValue: resetEntirely,
+                                      title: Text(
+                                        TranslationService.translate(
+                                              context,
+                                              'reset_type_full',
+                                            ) ??
+                                            'Reset Entirely',
+                                        style: const TextStyle(
+                                          color: Colors.red,
+                                        ),
+                                      ),
+                                      subtitle: Text(
+                                        TranslationService.translate(
+                                              context,
+                                              'reset_full_desc',
+                                            ) ??
+                                            'Completely removes all data and credentials',
+                                        style: TextStyle(
+                                          fontSize: 12,
+                                          color: Colors.grey[600],
+                                        ),
+                                      ),
+                                      onChanged: (val) =>
+                                          setState(() => resetEntirely = val!),
+                                      dense: true,
+                                      contentPadding: EdgeInsets.zero,
+                                    ),
+
+                                    // Warning for full reset
+                                    if (resetEntirely) ...[
+                                      const SizedBox(height: 8),
+                                      Container(
+                                        padding: const EdgeInsets.all(8),
+                                        decoration: BoxDecoration(
+                                          color: Colors.orange.withValues(
+                                            alpha: 0.1,
+                                          ),
+                                          borderRadius: BorderRadius.circular(
+                                            8,
+                                          ),
+                                          border: Border.all(
+                                            color: Colors.orange,
+                                          ),
+                                        ),
+                                        child: Row(
+                                          children: [
+                                            const Icon(
+                                              Icons.warning,
+                                              color: Colors.orange,
+                                              size: 20,
+                                            ),
+                                            const SizedBox(width: 8),
+                                            Expanded(
+                                              child: Text(
+                                                TranslationService.translate(
+                                                      context,
+                                                      'reset_full_warning',
+                                                    ) ??
+                                                    'You will need to set a new username and password',
+                                                style: const TextStyle(
+                                                  fontSize: 12,
+                                                  color: Colors.orange,
+                                                ),
+                                              ),
+                                            ),
+                                          ],
+                                        ),
+                                      ),
+                                    ],
+
+                                    if (hasPassword) ...[
+                                      const SizedBox(height: 16),
+                                      TextField(
+                                        controller: passwordController,
+                                        obscureText: true,
+                                        decoration: InputDecoration(
+                                          labelText:
+                                              TranslationService.translate(
+                                                context,
+                                                'enter_password_to_reset',
+                                              ) ??
+                                              'Enter your password to confirm',
+                                          errorText: errorText,
+                                          border: const OutlineInputBorder(),
+                                        ),
+                                      ),
+                                    ],
+                                  ],
+                                ),
+                              ),
+                              actions: [
+                                TextButton(
+                                  onPressed: () =>
+                                      Navigator.pop(context, false),
+                                  child: Text(
+                                    TranslationService.translate(
+                                      context,
+                                      'cancel',
+                                    ),
+                                  ),
+                                ),
+                                TextButton(
+                                  onPressed: () async {
+                                    if (hasPassword) {
+                                      final isValid = await authService
+                                          .verifyPassword(
+                                            passwordController.text,
+                                          );
+                                      if (!isValid) {
+                                        setState(
+                                          () => errorText =
+                                              TranslationService.translate(
+                                                context,
+                                                'password_incorrect',
+                                              ) ??
+                                              'Incorrect password',
+                                        );
+                                        return;
+                                      }
+                                    }
+                                    Navigator.pop(context, true);
+                                  },
+                                  child: Text(
+                                    TranslationService.translate(
+                                      context,
+                                      'reset_confirm',
+                                    ),
+                                    style: const TextStyle(color: Colors.red),
+                                  ),
+                                ),
+                              ],
+                            ),
+                          ),
+                        );
+
+                        if (confirmed == true && mounted) {
+                          try {
+                            // 1. Call backend to wipe data
+                            final api = Provider.of<ApiService>(
+                              context,
+                              listen: false,
+                            );
+                            await api.resetApp();
+
+                            // 2. Clear local state
+                            final themeProvider = Provider.of<ThemeProvider>(
+                              context,
+                              listen: false,
+                            );
+                            await themeProvider.resetSetup();
+
+                            // 3. If full reset, also clear credentials
+                            if (resetEntirely) {
+                              await authService.clearAll();
+                              // Also clear SharedPreferences completely for fresh start
+                              final prefs =
+                                  await SharedPreferences.getInstance();
+                              await prefs.clear();
+                            }
+
+                            if (mounted) {
+                              context.go('/setup');
+                            }
+                          } catch (e) {
+                            if (mounted) {
+                              ScaffoldMessenger.of(context).showSnackBar(
+                                SnackBar(content: Text('Reset failed: $e')),
+                              );
+                            }
+                          }
+                        }
+                      },
+                    ),
+                  ],
                 ),
-              ],
-            ),
-          ),
-          const SizedBox(height: 32),
+              ),
+              const SizedBox(height: 32),
 
-          // Logout Button
-          OutlinedButton.icon(
-            onPressed: () async {
-              final authService = Provider.of<AuthService>(
-                context,
-                listen: false,
-              );
-              // Small delay to ensure any pending theme/UI updates are settled
-              // This prevents 'Failed assertion: _dependents.isEmpty' if theme changed recently
-              await Future.delayed(const Duration(milliseconds: 200));
+              // Security Settings (Change Password)
+              Text(
+                TranslationService.translate(context, 'security') ?? 'Security',
+                style: Theme.of(context).textTheme.titleMedium,
+              ),
+              const SizedBox(height: 16),
+              Card(
+                child: Column(
+                  children: [
+                    ListTile(
+                      leading: const Icon(Icons.lock_outline),
+                      title: Text(
+                        TranslationService.translate(
+                              context,
+                              'change_password',
+                            ) ??
+                            'Change Password',
+                      ),
+                      subtitle: Text(
+                        (TranslationService.translate(
+                              context,
+                              'manage_login_credentials',
+                            ) ??
+                            'Manage your login credentials'),
+                      ),
+                      trailing: const Icon(Icons.chevron_right),
+                      onTap: _showChangePasswordDialog,
+                    ),
+                  ],
+                ),
+              ),
+              const SizedBox(height: 32),
 
-              await authService.logout();
-              if (mounted) {
-                context.go('/login');
-              }
-            },
-            icon: const Icon(Icons.logout),
-            label: Text(TranslationService.translate(context, 'logout')),
-            style: OutlinedButton.styleFrom(
-              minimumSize: const Size(double.infinity, 50),
-            ),
+              // Logout Button
+              OutlinedButton.icon(
+                onPressed: () async {
+                  final authService = Provider.of<AuthService>(
+                    context,
+                    listen: false,
+                  );
+                  // Small delay to ensure any pending theme/UI updates are settled
+                  // This prevents 'Failed assertion: _dependents.isEmpty' if theme changed recently
+                  await Future.delayed(const Duration(milliseconds: 200));
+
+                  await authService.logout();
+                  if (mounted) {
+                    context.go('/login');
+                  }
+                },
+                icon: const Icon(Icons.logout),
+                label: Text(TranslationService.translate(context, 'logout')),
+                style: OutlinedButton.styleFrom(
+                  minimumSize: const Size(double.infinity, 50),
+                ),
+              ),
+            ],
           ),
-        ],
+        ),
       ),
     );
   }
@@ -1879,22 +1961,17 @@ class _ProfileScreenState extends State<ProfileScreen> {
                   ],
                 ),
                 const SizedBox(height: 16),
-                SizedBox(
-                  width: double.infinity,
-                  child: ElevatedButton.icon(
-                    onPressed: () => _copyMcpConfig(),
-                    icon: const Icon(Icons.copy),
-                    label: Text(
-                      TranslationService.translate(
-                            context,
-                            'copy_mcp_config',
-                          ) ??
-                          'Copy Config for Claude Desktop',
-                    ),
-                    style: ElevatedButton.styleFrom(
-                      backgroundColor: Colors.deepPurple,
-                      foregroundColor: Colors.white,
-                    ),
+                ElevatedButton.icon(
+                  onPressed: () => _copyMcpConfig(),
+                  icon: const Icon(Icons.copy),
+                  label: Text(
+                    TranslationService.translate(context, 'copy_mcp_config') ??
+                        'Copy Config for Claude Desktop',
+                  ),
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: Colors.deepPurple,
+                    foregroundColor: Colors.white,
+                    minimumSize: const Size(double.infinity, 48),
                   ),
                 ),
                 const SizedBox(height: 8),

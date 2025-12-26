@@ -39,10 +39,15 @@ class AudiobookService {
   ///
   /// Returns the first match found from any source, or null if not found.
   /// Caches negative results for 7 days to avoid repeated failed queries.
+  ///
+  /// [preferredLanguage] can be a language code (e.g., 'fr', 'en', 'es') or
+  /// full language name (e.g., 'French', 'English'). When set, LibriVox results
+  /// will be filtered to prioritize audiobooks in that language.
   Future<AudioResource?> searchByTitleAndAuthor({
     required int bookId,
     required String title,
     String? author,
+    String? preferredLanguage,
   }) async {
     final cacheKey = '${title.toLowerCase()}_${author?.toLowerCase() ?? ''}';
 
@@ -59,7 +64,12 @@ class AudiobookService {
 
     // Try LibriVox first
     try {
-      final librivoxResult = await _searchLibriVox(bookId, title, author);
+      final librivoxResult = await _searchLibriVox(
+        bookId,
+        title,
+        author,
+        preferredLanguage: preferredLanguage,
+      );
       if (librivoxResult != null) {
         debugPrint('[AudiobookService] Found on LibriVox: $title');
         return librivoxResult;
@@ -68,19 +78,27 @@ class AudiobookService {
       debugPrint('[AudiobookService] LibriVox error: $e');
     }
 
-    // Try Litteratureaudio.com
-    try {
-      final litteratureResult = await _searchLitteratureAudio(
-        bookId,
-        title,
-        author,
-      );
-      if (litteratureResult != null) {
-        debugPrint('[AudiobookService] Found on Litteratureaudio: $title');
-        return litteratureResult;
+    // Try Litteratureaudio.com (French only - skip if user prefers other language)
+    final prefLangLower = preferredLanguage?.toLowerCase() ?? '';
+    final skipFrench =
+        prefLangLower.isNotEmpty &&
+        !prefLangLower.contains('fr') &&
+        prefLangLower != 'french';
+
+    if (!skipFrench) {
+      try {
+        final litteratureResult = await _searchLitteratureAudio(
+          bookId,
+          title,
+          author,
+        );
+        if (litteratureResult != null) {
+          debugPrint('[AudiobookService] Found on Litteratureaudio: $title');
+          return litteratureResult;
+        }
+      } catch (e) {
+        debugPrint('[AudiobookService] Litteratureaudio error: $e');
       }
-    } catch (e) {
-      debugPrint('[AudiobookService] Litteratureaudio error: $e');
     }
 
     // Try Internet Archive as fallback
@@ -104,8 +122,9 @@ class AudiobookService {
   Future<AudioResource?> _searchLibriVox(
     int bookId,
     String title,
-    String? author,
-  ) async {
+    String? author, {
+    String? preferredLanguage,
+  }) async {
     // Build search query - LibriVox uses separate title and author params
     final normalizedTitle = _normalizeTitle(title);
     final queryParams = <String, dynamic>{
@@ -136,6 +155,7 @@ class AudiobookService {
           response.data,
           bookId,
           title,
+          preferredLanguage: preferredLanguage,
         );
         if (result != null) return result;
       }
@@ -158,6 +178,7 @@ class AudiobookService {
             response.data,
             bookId,
             title,
+            preferredLanguage: preferredLanguage,
           );
           if (result != null) return result;
         }
@@ -183,6 +204,7 @@ class AudiobookService {
             response.data,
             bookId,
             title,
+            preferredLanguage: preferredLanguage,
           );
           if (result != null) return result;
         }
@@ -211,6 +233,7 @@ class AudiobookService {
             response.data,
             bookId,
             title,
+            preferredLanguage: preferredLanguage,
           );
           if (result != null) return result;
         }
@@ -225,8 +248,9 @@ class AudiobookService {
   Future<AudioResource?> _parseLibriVoxResponse(
     dynamic data,
     int bookId,
-    String title,
-  ) async {
+    String title, {
+    String? preferredLanguage,
+  }) async {
     if (data == null) return null;
 
     // LibriVox returns { books: [...] } or empty string if no results
@@ -247,8 +271,55 @@ class AudiobookService {
     final books = jsonData['books'] as List?;
     if (books == null || books.isEmpty) return null;
 
-    // Take first result
-    final book = books.first as Map<String, dynamic>;
+    // Filter/sort books by preferred language
+    Map<String, dynamic>? book;
+    if (preferredLanguage != null && preferredLanguage.isNotEmpty) {
+      final prefLangLower = preferredLanguage.toLowerCase();
+
+      // Map common language codes to LibriVox language names
+      final langMap = {
+        'fr': 'french',
+        'en': 'english',
+        'es': 'spanish',
+        'de': 'german',
+        'it': 'italian',
+        'pt': 'portuguese',
+        'nl': 'dutch',
+        'ru': 'russian',
+        'zh': 'chinese',
+        'ja': 'japanese',
+      };
+
+      final targetLang = langMap[prefLangLower] ?? prefLangLower;
+
+      // Find book in preferred language
+      for (final b in books) {
+        if (b is! Map<String, dynamic>) continue;
+        final bookLang = (b['language'] as String?)?.toLowerCase() ?? '';
+        if (bookLang.contains(targetLang) || targetLang.contains(bookLang)) {
+          book = b;
+          debugPrint(
+            '[AudiobookService] Found book in preferred language: $bookLang',
+          );
+          break;
+        }
+      }
+
+      // If no match, log what languages were available
+      if (book == null) {
+        final availableLangs = books
+            .whereType<Map<String, dynamic>>()
+            .map((b) => b['language'] as String?)
+            .where((l) => l != null)
+            .toSet();
+        debugPrint(
+          '[AudiobookService] No book in "$targetLang". Available: $availableLangs',
+        );
+      }
+    }
+
+    // Fall back to first result if no language match
+    book ??= books.first as Map<String, dynamic>;
 
     // Fetch chapters from RSS if available
     List<AudioChapter>? chapters;

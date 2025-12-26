@@ -12,6 +12,7 @@ import '../widgets/star_rating_widget.dart';
 import '../widgets/loan_dialog.dart';
 import '../providers/theme_provider.dart';
 import '../audio/audio_module.dart'; // Audio module (decoupled)
+import '../widgets/cached_book_cover.dart';
 
 class BookDetailsScreen extends StatefulWidget {
   final Book? book;
@@ -184,6 +185,10 @@ class _BookDetailsScreenState extends State<BookDetailsScreen> {
                       bookId: book.id!,
                       bookTitle: book.title,
                       bookAuthor: book.author,
+                      // Use app language as preferred audiobook language
+                      bookLanguage: Localizations.localeOf(
+                        context,
+                      ).languageCode,
                     ),
                   const SizedBox(height: 32),
                   if (book.summary != null && book.summary!.isNotEmpty) ...[
@@ -307,15 +312,11 @@ class _BookDetailsScreenState extends State<BookDetailsScreen> {
 
             // Layer 1: Network Image (if available)
             if (coverUrl != null && coverUrl.isNotEmpty)
-              Image.network(
-                coverUrl,
+              CachedBookCover(
+                imageUrl: coverUrl,
                 fit: BoxFit.cover,
-                loadingBuilder: (context, child, loadingProgress) {
-                  if (loadingProgress == null) return child;
-                  return const SizedBox.shrink(); // Show fallback while loading
-                },
-                errorBuilder: (context, error, stackTrace) =>
-                    const SizedBox.shrink(),
+                placeholder: const SizedBox.shrink(),
+                errorWidget: const SizedBox.shrink(),
               ),
 
             // Layer 2: Blur Effect (applied on top of fallback or image)
@@ -352,15 +353,11 @@ class _BookDetailsScreenState extends State<BookDetailsScreen> {
                         _buildFallbackCover(book),
                         // Image on top
                         if (coverUrl != null && coverUrl.isNotEmpty)
-                          Image.network(
-                            coverUrl,
+                          CachedBookCover(
+                            imageUrl: coverUrl,
                             fit: BoxFit.cover,
-                            loadingBuilder: (context, child, loadingProgress) {
-                              if (loadingProgress == null) return child;
-                              return const SizedBox.shrink();
-                            },
-                            errorBuilder: (context, error, stackTrace) =>
-                                const SizedBox.shrink(),
+                            placeholder: const SizedBox.shrink(),
+                            errorWidget: const SizedBox.shrink(),
                           ),
                       ],
                     ),

@@ -4,6 +4,7 @@ import '../models/book.dart';
 import 'dart:math';
 import '../services/translation_service.dart';
 import '../providers/theme_provider.dart';
+import 'cached_book_cover.dart';
 
 class BookCoverCard extends StatelessWidget {
   final Book book;
@@ -62,15 +63,12 @@ class BookCoverCard extends StatelessWidget {
             _buildFallbackCover(context),
 
             if (book.coverUrl != null && book.coverUrl!.isNotEmpty)
-              Image.network(
-                book.coverUrl!,
+              CachedBookCover(
+                imageUrl: book.coverUrl!,
                 fit: BoxFit.cover,
-                loadingBuilder: (context, child, loadingProgress) {
-                  if (loadingProgress == null) return child; // Image loaded
-                  return const SizedBox.shrink(); // Show fallback while loading
-                },
-                errorBuilder: (context, error, stackTrace) =>
-                    const SizedBox.shrink(), // Show fallback on error
+                placeholder:
+                    const SizedBox.shrink(), // Show fallback while loading
+                errorWidget: const SizedBox.shrink(), // Show fallback on error
               ),
 
             // Gradient overlay for text readability (only if using fallback or if needed)

@@ -14,6 +14,7 @@ import '../services/quote_service.dart';
 import '../models/quote.dart';
 import '../theme/app_design.dart';
 import '../services/backup_reminder_service.dart';
+import '../widgets/gamification_widgets.dart';
 
 class DashboardScreen extends StatefulWidget {
   const DashboardScreen({super.key});
@@ -75,7 +76,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
     // DISABLED: Dashboard spotlight wizard disabled for alpha release
     // to avoid UI issues during theme transitions
     return;
-    
+
     /*
     if (!mounted) return;
     
@@ -136,9 +137,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
         if (mounted) {
           setState(() {
             _stats['total_books'] = books.length;
-            _stats['borrowed_count'] = books
-                .where((b) => !b.owned)
-                .length;
+            _stats['borrowed_count'] = books.where((b) => !b.owned).length;
 
             final readingListCandidates = books
                 .where((b) => ['reading', 'to_read'].contains(b.readingStatus))
@@ -320,334 +319,347 @@ class _DashboardScreenState extends State<DashboardScreen> {
                   onRefresh: _fetchDashboardData,
                   child: SingleChildScrollView(
                     physics: const AlwaysScrollableScrollPhysics(),
-                    padding: const EdgeInsets.symmetric(
-                      horizontal: 20,
-                      vertical: 20,
+                    padding: EdgeInsets.symmetric(
+                      horizontal: isWide ? 32 : 16,
+                      vertical: 16,
                     ),
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        // 1. Header with Quote
-                        _buildHeader(context),
-                        const SizedBox(height: 24),
-
-                        // Stats Row - Full Width
-                        Row(
-                          key: _statsKey,
-                          children: [
-                            Expanded(
-                              child: _buildStatCard(
-                                context,
-                                TranslationService.translate(
-                                  context,
-                                  'my_books',
-                                ),
-                                (_stats['total_books'] ?? 0).toString(),
-                                Icons.menu_book,
-                              ),
-                            ),
-                            const SizedBox(width: 12),
-                            // Lent books (prêtés) - visible for all
-                            Expanded(
-                              child: _buildStatCard(
-                                context,
-                                TranslationService.translate(
-                                  context,
-                                  'lent_status',
-                                ),
-                                (_stats['active_loans'] ?? 0).toString(),
-                                Icons.arrow_upward,
-                                isAccent: true,
-                              ),
-                            ),
-                            // Borrowed books (empruntés) - hidden for librarians
-                            if (!themeProvider.isLibrarian) ...[
-                              const SizedBox(width: 12),
-                              Expanded(
-                                child: _buildStatCard(
-                                  context,
-                                  TranslationService.translate(
-                                    context,
-                                    'borrowed_status',
-                                  ),
-                                  (_stats['borrowed_count'] ?? 0).toString(),
-                                  Icons.arrow_downward,
-                                ),
-                              ),
-                            ],
-                            if (!isKid) ...[
-                              const SizedBox(width: 12),
-                              Expanded(
-                                child: _buildStatCard(
-                                  context,
-                                  themeProvider.isLibrarian
-                                      ? TranslationService.translate(
-                                          context,
-                                          'borrowers',
-                                        )
-                                      : TranslationService.translate(
-                                          context,
-                                          'contacts',
-                                        ),
-                                  (_stats['contacts_count'] ?? 0).toString(),
-                                  Icons.people,
-                                ),
-                              ),
-                            ],
-                          ],
+                    child: Center(
+                      child: ConstrainedBox(
+                        constraints: BoxConstraints(
+                          maxWidth: isWide ? 900 : double.infinity,
                         ),
-
-                        const SizedBox(height: 24),
-
-                        // Gamification Mini-Widget
-                        if (_gamificationStatus != null && !isKid)
-                          _buildGamificationMini(context),
-
-                        const SizedBox(height: 32),
-
-                        // Main Content Container
-                        Column(
+                        child: Column(
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
-                            if (isKid) ...[
-                              _buildSectionTitle(
-                                context,
-                                TranslationService.translate(
-                                  context,
-                                  'quick_actions',
-                                ),
-                              ),
-                              const SizedBox(height: 16),
-                              Row(
-                                children: [
-                                  Expanded(
-                                    child: _buildKidActionCard(
+                            // 1. Header with Quote
+                            _buildHeader(context),
+                            const SizedBox(height: 24),
+
+                            // Stats Row - Full Width
+                            Row(
+                              key: _statsKey,
+                              children: [
+                                Expanded(
+                                  child: _buildStatCard(
+                                    context,
+                                    TranslationService.translate(
                                       context,
-                                      TranslationService.translate(
-                                        context,
-                                        'action_scan_barcode',
-                                      ),
-                                      Icons.qr_code_scanner,
-                                      Colors.orange,
-                                      () async {
-                                        final isbn = await context.push<String>(
-                                          '/scan',
-                                        );
-                                        if (isbn != null && context.mounted) {
-                                          context.push(
-                                            '/books/add',
-                                            extra: {'isbn': isbn},
-                                          );
-                                        }
-                                      },
+                                      'my_books',
                                     ),
+                                    (_stats['total_books'] ?? 0).toString(),
+                                    Icons.menu_book,
                                   ),
-                                  const SizedBox(width: 16),
+                                ),
+                                const SizedBox(width: 12),
+                                // Lent books (prêtés) - visible for all
+                                Expanded(
+                                  child: _buildStatCard(
+                                    context,
+                                    TranslationService.translate(
+                                      context,
+                                      'lent_status',
+                                    ),
+                                    (_stats['active_loans'] ?? 0).toString(),
+                                    Icons.arrow_upward,
+                                    isAccent: true,
+                                  ),
+                                ),
+                                // Borrowed books (empruntés) - hidden for librarians
+                                if (!themeProvider.isLibrarian) ...[
+                                  const SizedBox(width: 12),
                                   Expanded(
-                                    child: _buildKidActionCard(
+                                    child: _buildStatCard(
                                       context,
                                       TranslationService.translate(
                                         context,
-                                        'action_search_online',
+                                        'borrowed_status',
                                       ),
-                                      Icons.search,
-                                      Colors.blue,
-                                      () => context.push('/search/external'),
-                                      key: const Key('addBookButton'),
+                                      (_stats['borrowed_count'] ?? 0)
+                                          .toString(),
+                                      Icons.arrow_downward,
                                     ),
                                   ),
                                 ],
-                              ),
-                              const SizedBox(height: 32),
-                            ] else if (_heroBook != null)
-                              // Hero Section
-                              _buildHeroBook(context, _heroBook!),
-
-                            if (!isKid) ...[
-                              _buildSectionTitle(
-                                context,
-                                TranslationService.translate(
-                                  context,
-                                  'quick_actions',
-                                ),
-                              ),
-                              const SizedBox(height: 16),
-                              Container(
-                                padding: const EdgeInsets.all(20),
-                                decoration: BoxDecoration(
-                                  color: Colors.white,
-                                  borderRadius: BorderRadius.circular(20),
-                                  boxShadow: [
-                                    BoxShadow(
-                                      color: Colors.black.withValues(
-                                        alpha: 0.08,
-                                      ),
-                                      blurRadius: 15,
-                                      offset: const Offset(0, 4),
-                                    ),
-                                  ],
-                                  border: Border.all(
-                                    color: const Color(
-                                      0xFF667eea,
-                                    ).withValues(alpha: 0.1),
-                                    width: 1,
-                                  ),
-                                ),
-                                child: Wrap(
-                                  spacing: 12,
-                                  runSpacing: 12,
-                                  children: [
-                                    _buildActionButton(
+                                if (!isKid) ...[
+                                  const SizedBox(width: 12),
+                                  Expanded(
+                                    child: _buildStatCard(
                                       context,
-                                      TranslationService.translate(
-                                        context,
-                                        'action_add_book',
-                                      ),
-                                      Icons.add,
-                                      () => context.push('/books/add'),
-                                      isPrimary: true,
-                                      key: _addKey,
-                                      testKey: const Key('addBookButton'),
+                                      themeProvider.isLibrarian
+                                          ? TranslationService.translate(
+                                              context,
+                                              'borrowers',
+                                            )
+                                          : TranslationService.translate(
+                                              context,
+                                              'contacts',
+                                            ),
+                                      (_stats['contacts_count'] ?? 0)
+                                          .toString(),
+                                      Icons.people,
                                     ),
-                                    _buildActionButton(
-                                      context,
-                                      TranslationService.translate(
-                                        context,
-                                        'action_checkout_book',
-                                      ),
-                                      Icons.upload_file,
-                                      () => context.push('/network-search'),
-                                    ),
-                                    // _buildActionButton(
-                                    //   context,
-                                    //   TranslationService.translate(
-                                    //     context,
-                                    //     'ask_genie',
-                                    //   ), // Translated
-                                    //   Icons.auto_awesome,
-                                    //   () => context.push('/genie-chat'),
-                                    // ),
-                                  ],
-                                ),
-                              ),
-                              const SizedBox(height: 32),
-                            ],
-
-                            // Recent Books
-                            if (_recentBooks.isNotEmpty) ...[
-                              _buildSectionTitle(
-                                context,
-                                TranslationService.translate(
-                                  context,
-                                  'recent_books',
-                                ),
-                              ),
-                              const SizedBox(height: 16),
-                              Container(
-                                padding: const EdgeInsets.all(16),
-                                decoration: BoxDecoration(
-                                  color: Colors.white,
-                                  borderRadius: BorderRadius.circular(20),
-                                  boxShadow: [
-                                    BoxShadow(
-                                      color: Colors.black.withValues(
-                                        alpha: 0.08,
-                                      ),
-                                      blurRadius: 15,
-                                      offset: const Offset(0, 4),
-                                    ),
-                                  ],
-                                ),
-                                child: _buildBookList(
-                                  context,
-                                  _recentBooks,
-                                  TranslationService.translate(
-                                    context,
-                                    'no_recent_books',
                                   ),
-                                ),
-                              ),
-                              const SizedBox(height: 32),
-                            ],
+                                ],
+                              ],
+                            ),
 
-                            // Reading List
-                            if (_readingListBooks.isNotEmpty) ...[
-                              _buildSectionTitle(
-                                context,
-                                TranslationService.translate(
-                                  context,
-                                  'reading_list',
-                                ),
-                              ),
-                              const SizedBox(height: 16),
-                              Container(
-                                padding: const EdgeInsets.all(16),
-                                decoration: BoxDecoration(
-                                  color: Colors.white,
-                                  borderRadius: BorderRadius.circular(20),
-                                  boxShadow: [
-                                    BoxShadow(
-                                      color: Colors.black.withValues(
-                                        alpha: 0.08,
-                                      ),
-                                      blurRadius: 15,
-                                      offset: const Offset(0, 4),
-                                    ),
-                                  ],
-                                ),
-                                child: _buildBookList(
-                                  context,
-                                  _readingListBooks,
-                                  TranslationService.translate(
-                                    context,
-                                    'no_reading_list',
-                                  ),
-                                ),
-                              ),
-                            ],
+                            const SizedBox(height: 24),
+
+                            // Gamification Mini-Widget
+                            if (_gamificationStatus != null && !isKid)
+                              _buildGamificationMini(context),
 
                             const SizedBox(height: 32),
-                            if (!isKid)
-                              Center(
-                                child: ScaleOnTap(
-                                  child: TextButton.icon(
-                                    onPressed: () =>
-                                        context.push('/statistics'),
-                                    icon: const Icon(
-                                      Icons.insights,
-                                      color: Colors.black54,
+
+                            // Main Content Container
+                            Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                if (isKid) ...[
+                                  _buildSectionTitle(
+                                    context,
+                                    TranslationService.translate(
+                                      context,
+                                      'quick_actions',
                                     ),
-                                    label: Text(
+                                  ),
+                                  const SizedBox(height: 16),
+                                  Row(
+                                    children: [
+                                      Expanded(
+                                        child: _buildKidActionCard(
+                                          context,
+                                          TranslationService.translate(
+                                            context,
+                                            'action_scan_barcode',
+                                          ),
+                                          Icons.qr_code_scanner,
+                                          Colors.orange,
+                                          () async {
+                                            final isbn = await context
+                                                .push<String>('/scan');
+                                            if (isbn != null &&
+                                                context.mounted) {
+                                              context.push(
+                                                '/books/add',
+                                                extra: {'isbn': isbn},
+                                              );
+                                            }
+                                          },
+                                        ),
+                                      ),
+                                      const SizedBox(width: 16),
+                                      Expanded(
+                                        child: _buildKidActionCard(
+                                          context,
+                                          TranslationService.translate(
+                                            context,
+                                            'action_search_online',
+                                          ),
+                                          Icons.search,
+                                          Colors.blue,
+                                          () =>
+                                              context.push('/search/external'),
+                                          key: const Key('addBookButton'),
+                                        ),
+                                      ),
+                                    ],
+                                  ),
+                                  const SizedBox(height: 32),
+                                ] else if (_heroBook != null)
+                                  // Hero Section
+                                  _buildHeroBook(context, _heroBook!),
+
+                                if (!isKid) ...[
+                                  _buildSectionTitle(
+                                    context,
+                                    TranslationService.translate(
+                                      context,
+                                      'quick_actions',
+                                    ),
+                                  ),
+                                  const SizedBox(height: 16),
+                                  Container(
+                                    padding: const EdgeInsets.all(20),
+                                    decoration: BoxDecoration(
+                                      color: Colors.white,
+                                      borderRadius: BorderRadius.circular(20),
+                                      boxShadow: [
+                                        BoxShadow(
+                                          color: Colors.black.withValues(
+                                            alpha: 0.08,
+                                          ),
+                                          blurRadius: 15,
+                                          offset: const Offset(0, 4),
+                                        ),
+                                      ],
+                                      border: Border.all(
+                                        color: const Color(
+                                          0xFF667eea,
+                                        ).withValues(alpha: 0.1),
+                                        width: 1,
+                                      ),
+                                    ),
+                                    child: Wrap(
+                                      spacing: 12,
+                                      runSpacing: 12,
+                                      children: [
+                                        _buildActionButton(
+                                          context,
+                                          TranslationService.translate(
+                                            context,
+                                            'action_add_book',
+                                          ),
+                                          Icons.add,
+                                          () => context.push('/books/add'),
+                                          isPrimary: true,
+                                          key: _addKey,
+                                          testKey: const Key('addBookButton'),
+                                        ),
+                                        _buildActionButton(
+                                          context,
+                                          TranslationService.translate(
+                                            context,
+                                            'action_checkout_book',
+                                          ),
+                                          Icons.upload_file,
+                                          () => context.push('/network-search'),
+                                        ),
+                                        // _buildActionButton(
+                                        //   context,
+                                        //   TranslationService.translate(
+                                        //     context,
+                                        //     'ask_genie',
+                                        //   ), // Translated
+                                        //   Icons.auto_awesome,
+                                        //   () => context.push('/genie-chat'),
+                                        // ),
+                                      ],
+                                    ),
+                                  ),
+                                  const SizedBox(height: 32),
+                                ],
+
+                                // Recent Books
+                                if (_recentBooks.isNotEmpty) ...[
+                                  _buildSectionTitle(
+                                    context,
+                                    TranslationService.translate(
+                                      context,
+                                      'recent_books',
+                                    ),
+                                  ),
+                                  const SizedBox(height: 16),
+                                  Container(
+                                    padding: const EdgeInsets.all(16),
+                                    decoration: BoxDecoration(
+                                      color: Colors.white,
+                                      borderRadius: BorderRadius.circular(20),
+                                      boxShadow: [
+                                        BoxShadow(
+                                          color: Colors.black.withValues(
+                                            alpha: 0.08,
+                                          ),
+                                          blurRadius: 15,
+                                          offset: const Offset(0, 4),
+                                        ),
+                                      ],
+                                    ),
+                                    child: _buildBookList(
+                                      context,
+                                      _recentBooks,
                                       TranslationService.translate(
                                         context,
-                                        'view_insights',
+                                        'no_recent_books',
                                       ),
-                                      style: TextStyle(color: Colors.black54),
                                     ),
-                                    style: TextButton.styleFrom(
-                                      padding: const EdgeInsets.symmetric(
-                                        horizontal: 24,
-                                        vertical: 16,
-                                      ),
-                                      backgroundColor: Colors.black.withValues(
-                                        alpha: 0.05,
-                                      ),
-                                      shape: RoundedRectangleBorder(
-                                        borderRadius: BorderRadius.circular(30),
-                                        side: BorderSide(
+                                  ),
+                                  const SizedBox(height: 32),
+                                ],
+
+                                // Reading List
+                                if (_readingListBooks.isNotEmpty) ...[
+                                  _buildSectionTitle(
+                                    context,
+                                    TranslationService.translate(
+                                      context,
+                                      'reading_list',
+                                    ),
+                                  ),
+                                  const SizedBox(height: 16),
+                                  Container(
+                                    padding: const EdgeInsets.all(16),
+                                    decoration: BoxDecoration(
+                                      color: Colors.white,
+                                      borderRadius: BorderRadius.circular(20),
+                                      boxShadow: [
+                                        BoxShadow(
                                           color: Colors.black.withValues(
-                                            alpha: 0.1,
+                                            alpha: 0.08,
+                                          ),
+                                          blurRadius: 15,
+                                          offset: const Offset(0, 4),
+                                        ),
+                                      ],
+                                    ),
+                                    child: _buildBookList(
+                                      context,
+                                      _readingListBooks,
+                                      TranslationService.translate(
+                                        context,
+                                        'no_reading_list',
+                                      ),
+                                    ),
+                                  ),
+                                ],
+
+                                const SizedBox(height: 32),
+                                if (!isKid)
+                                  Center(
+                                    child: ScaleOnTap(
+                                      child: TextButton.icon(
+                                        onPressed: () =>
+                                            context.push('/statistics'),
+                                        icon: const Icon(
+                                          Icons.insights,
+                                          color: Colors.black54,
+                                        ),
+                                        label: Text(
+                                          TranslationService.translate(
+                                            context,
+                                            'view_insights',
+                                          ),
+                                          style: TextStyle(
+                                            color: Colors.black54,
+                                          ),
+                                        ),
+                                        style: TextButton.styleFrom(
+                                          padding: const EdgeInsets.symmetric(
+                                            horizontal: 24,
+                                            vertical: 16,
+                                          ),
+                                          backgroundColor: Colors.black
+                                              .withValues(alpha: 0.05),
+                                          shape: RoundedRectangleBorder(
+                                            borderRadius: BorderRadius.circular(
+                                              30,
+                                            ),
+                                            side: BorderSide(
+                                              color: Colors.black.withValues(
+                                                alpha: 0.1,
+                                              ),
+                                            ),
                                           ),
                                         ),
                                       ),
                                     ),
                                   ),
-                                ),
-                              ),
-                            const SizedBox(height: 32),
+                                const SizedBox(height: 32),
+                              ],
+                            ),
                           ],
                         ),
-                      ],
+                      ),
                     ),
                   ),
                 ),
@@ -662,11 +674,19 @@ class _DashboardScreenState extends State<DashboardScreen> {
     final theme = Theme.of(context);
     final isDark = theme.brightness == Brightness.dark;
 
-    // Theme-aware colors - dark wood for Sorbonne, soft pastel for light themes
-    final bgColor = isDark ? const Color(0xFF2D1810) : const Color(0xFFF5F0E8);
+    // Theme-aware colors - dark wood for Sorbonne, warm gradient for light themes
+    final bgColor = isDark
+        ? const Color(0xFF2D1810)
+        : const Color(0xFFFFFBF5); // Warm cream white
+    final gradientColors = isDark
+        ? [const Color(0xFF2D1810), const Color(0xFF3D2518)]
+        : [
+            const Color(0xFFFFF8F0),
+            const Color(0xFFFFE8D6),
+          ]; // Warm peach gradient
     final textColor = isDark
         ? const Color(0xFFC4A35A)
-        : const Color(0xFF4A3728);
+        : const Color(0xFF8B5A2B); // Richer brown
 
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
@@ -675,88 +695,91 @@ class _DashboardScreenState extends State<DashboardScreen> {
         Container(
           width: double.infinity,
           decoration: BoxDecoration(
-            color: bgColor,
+            gradient: LinearGradient(
+              begin: Alignment.topLeft,
+              end: Alignment.bottomRight,
+              colors: gradientColors,
+            ),
             borderRadius: BorderRadius.circular(AppDesign.radiusLarge),
             border: isDark
                 ? Border.all(color: const Color(0xFF5D3A1A), width: 1)
-                : null,
+                : Border.all(color: const Color(0xFFE8D4C4), width: 1),
             boxShadow: [
               BoxShadow(
-                color: Colors.black.withValues(alpha: isDark ? 0.3 : 0.06),
-                blurRadius: 10,
-                offset: const Offset(0, 3),
+                color: Colors.black.withValues(alpha: isDark ? 0.3 : 0.08),
+                blurRadius: 12,
+                offset: const Offset(0, 4),
               ),
             ],
           ),
           child: SizedBox(
-        width: double.infinity,
-        child: Stack(
-          clipBehavior: Clip.hardEdge,
-            children: [
-              // Decorative background icon
-              Positioned(
-                right: -20,
-                top: -16,
-                child: Icon(
-                  Icons.format_quote_rounded,
-                  size: 120,
-                  color: textColor.withValues(alpha: 0.08),
+            width: double.infinity,
+            child: Stack(
+              clipBehavior: Clip.hardEdge,
+              children: [
+                // Decorative background icon
+                Positioned(
+                  right: -20,
+                  top: -16,
+                  child: Icon(
+                    Icons.format_quote_rounded,
+                    size: 120,
+                    color: textColor.withValues(alpha: 0.08),
+                  ),
                 ),
-              ),
-              // Content
-              Padding(
-                padding: const EdgeInsets.symmetric(
-                  horizontal: 20,
-                  vertical: 16,
-                ),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text(
-                      _dailyQuote!.text,
-                      style: TextStyle(
-                        fontSize: 16,
-                        height: 1.4,
-                        fontStyle: FontStyle.italic,
-                        fontFamily: 'Georgia',
-                        color: textColor,
-                        fontWeight: FontWeight.w500,
+                // Content
+                Padding(
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 20,
+                    vertical: 16,
+                  ),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        _dailyQuote!.text,
+                        style: TextStyle(
+                          fontSize: 16,
+                          height: 1.4,
+                          fontStyle: FontStyle.italic,
+                          color: textColor,
+                          fontWeight: FontWeight.w500,
+                        ),
                       ),
-                    ),
-                    const SizedBox(height: 12),
-                    Align(
-                      alignment: Alignment.centerRight,
-                      child: Row(
-                        mainAxisSize: MainAxisSize.min,
-                        children: [
-                          Container(
-                            width: 16,
-                            height: 1,
-                            color: textColor.withValues(alpha: 0.3),
-                          ),
-                          const SizedBox(width: 8),
-                          Text(
-                            _dailyQuote!.author,
-                            style: TextStyle(
-                              fontSize: 13,
-                              fontWeight: FontWeight.w600,
-                              color: textColor,
-                              letterSpacing: 0.3,
+                      const SizedBox(height: 12),
+                      Align(
+                        alignment: Alignment.centerRight,
+                        child: Row(
+                          mainAxisSize: MainAxisSize.min,
+                          children: [
+                            Container(
+                              width: 16,
+                              height: 1,
+                              color: textColor.withValues(alpha: 0.3),
                             ),
-                          ),
-                        ],
+                            const SizedBox(width: 8),
+                            Text(
+                              _dailyQuote!.author,
+                              style: TextStyle(
+                                fontSize: 13,
+                                fontWeight: FontWeight.w600,
+                                color: textColor,
+                                letterSpacing: 0.3,
+                              ),
+                            ),
+                          ],
+                        ),
                       ),
-                    ),
-                  ],
+                    ],
+                  ),
                 ),
-              ),
-            ],
+              ],
+            ),
           ),
         ),
-      ),
-    ],
-  );
-}
+      ],
+    );
+  }
 
   String _getGreeting(BuildContext context) {
     final hour = DateTime.now().hour;
@@ -827,128 +850,65 @@ class _DashboardScreenState extends State<DashboardScreen> {
               ],
             ),
             const SizedBox(height: 16),
-            Row(
-              mainAxisAlignment: MainAxisAlignment.spaceAround,
-              children: [
-                _buildMiniTrack(
-                  context,
-                  Icons.collections_bookmark,
-                  _gamificationStatus!.collector,
-                  Colors.blue,
-                  TranslationService.translate(context, 'track_collector'),
-                ),
-                _buildMiniTrack(
-                  context,
-                  Icons.menu_book,
-                  _gamificationStatus!.reader,
-                  Colors.green,
-                  TranslationService.translate(context, 'track_reader'),
-                ),
-                _buildMiniTrack(
-                  context,
-                  Icons.volunteer_activism,
-                  _gamificationStatus!.lender,
-                  Colors.orange,
-                  TranslationService.translate(context, 'track_lender'),
-                ),
-                _buildMiniTrack(
-                  context,
-                  Icons.list_alt,
-                  _gamificationStatus!.cataloguer,
-                  Colors.purple,
-                  TranslationService.translate(context, 'track_cataloguer'),
-                ),
-              ],
+            Builder(
+              builder: (context) {
+                final isDesktop = MediaQuery.of(context).size.width > 600;
+                final trackSize = isDesktop ? 80.0 : 60.0;
+                return Center(
+                  child: Wrap(
+                    alignment: WrapAlignment.spaceAround,
+                    spacing: isDesktop ? 32 : 16,
+                    runSpacing: isDesktop ? 24 : 12,
+                    children: [
+                      TrackProgressWidget(
+                        track: _gamificationStatus!.collector,
+                        trackName: TranslationService.translate(
+                          context,
+                          'track_collector',
+                        ),
+                        icon: Icons.collections_bookmark,
+                        color: Colors.blue,
+                        size: trackSize,
+                      ),
+                      TrackProgressWidget(
+                        track: _gamificationStatus!.reader,
+                        trackName: TranslationService.translate(
+                          context,
+                          'track_reader',
+                        ),
+                        icon: Icons.menu_book,
+                        color: Colors.green,
+                        size: trackSize,
+                      ),
+                      TrackProgressWidget(
+                        track: _gamificationStatus!.lender,
+                        trackName: TranslationService.translate(
+                          context,
+                          'track_lender',
+                        ),
+                        icon: Icons.volunteer_activism,
+                        color: Colors.orange,
+                        size: trackSize,
+                      ),
+                      TrackProgressWidget(
+                        track: _gamificationStatus!.cataloguer,
+                        trackName: TranslationService.translate(
+                          context,
+                          'track_cataloguer',
+                        ),
+                        icon: Icons.list_alt,
+                        color: Colors.purple,
+                        size: trackSize,
+                      ),
+                    ],
+                  ),
+                );
+              },
             ),
           ],
         ),
       ),
     );
-  }
-
-  Widget _buildMiniTrack(
-    BuildContext context,
-    IconData icon,
-    TrackProgress track,
-    Color color,
-    String label,
-  ) {
-    return Column(
-      children: [
-        Stack(
-          alignment: Alignment.center,
-          children: [
-            SizedBox(
-              width: 50,
-              height: 50,
-              child: CircularProgressIndicator(
-                value: track.progress,
-                strokeWidth: 4,
-                backgroundColor: color.withValues(alpha: 0.2),
-                valueColor: AlwaysStoppedAnimation<Color>(color),
-              ),
-            ),
-            Container(
-              width: 36,
-              height: 36,
-              decoration: BoxDecoration(
-                shape: BoxShape.circle,
-                color: color.withValues(alpha: 0.1),
-              ),
-              child: Icon(icon, color: color, size: 18),
-            ),
-            if (track.level > 0)
-              Positioned(
-                top: 0,
-                right: 0,
-                child: Container(
-                  width: 16,
-                  height: 16,
-                  decoration: BoxDecoration(
-                    color: _getLevelColor(track.level),
-                    shape: BoxShape.circle,
-                    border: Border.all(color: Colors.white, width: 1.5),
-                  ),
-                  child: Center(
-                    child: Text(
-                      '${track.level}',
-                      style: TextStyle(
-                        color: Colors.white,
-                        fontSize: 9,
-                        fontWeight: FontWeight.bold,
-                      ),
-                    ),
-                  ),
-                ),
-              ),
-          ],
-        ),
-        const SizedBox(height: 4),
-        Text(
-          label.split(' ').last,
-          style: TextStyle(
-            fontWeight: FontWeight.bold,
-            fontSize: 10,
-            color: color,
-          ),
-          maxLines: 1,
-          overflow: TextOverflow.ellipsis,
-        ),
-      ],
-    );
-  }
-
-  Color _getLevelColor(int level) {
-    switch (level) {
-      case 1:
-        return const Color(0xFFCD7F32); // Bronze
-      case 2:
-        return const Color(0xFFC0C0C0); // Silver
-      case 3:
-        return const Color(0xFFFFD700); // Gold
-      default:
-        return Colors.grey;
-    }
   }
 
   Widget _buildStatCard(
@@ -997,31 +957,36 @@ class _DashboardScreenState extends State<DashboardScreen> {
               ]
             : AppDesign.subtleShadow,
       ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Icon(icon, color: iconClr, size: 24),
-          const SizedBox(height: 12),
-          Text(
-            value,
-            style: TextStyle(
-              fontSize: 24,
-              fontWeight: FontWeight.bold,
-              color: valueClr,
-            ),
-          ),
-          const SizedBox(height: 4),
-          Text(
-            label,
-            style: TextStyle(
-              fontSize: 12,
-              fontWeight: FontWeight.w500,
-              color: labelClr,
-            ),
-            maxLines: 1,
-            overflow: TextOverflow.ellipsis,
-          ),
-        ],
+      child: Builder(
+        builder: (context) {
+          final isDesktop = MediaQuery.of(context).size.width > 600;
+          return Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Icon(icon, color: iconClr, size: isDesktop ? 28 : 24),
+              SizedBox(height: isDesktop ? 16 : 12),
+              Text(
+                value,
+                style: TextStyle(
+                  fontSize: isDesktop ? 32 : 24,
+                  fontWeight: FontWeight.bold,
+                  color: valueClr,
+                ),
+              ),
+              SizedBox(height: isDesktop ? 6 : 4),
+              Text(
+                label,
+                style: TextStyle(
+                  fontSize: isDesktop ? 14 : 12,
+                  fontWeight: FontWeight.w500,
+                  color: labelClr,
+                ),
+                maxLines: 1,
+                overflow: TextOverflow.ellipsis,
+              ),
+            ],
+          );
+        },
       ),
     );
   }

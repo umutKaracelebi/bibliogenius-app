@@ -9,6 +9,8 @@ import '../models/book.dart';
 import '../services/open_library_service.dart';
 import '../services/search_cache.dart';
 import '../widgets/plus_one_animation.dart';
+import '../widgets/cached_book_cover.dart';
+import 'package:cached_network_image/cached_network_image.dart';
 import 'scan_screen.dart';
 
 class AddBookScreen extends StatefulWidget {
@@ -425,15 +427,10 @@ class _AddBookScreenState extends State<AddBookScreen> {
                               }
 
                               return ListTile(
-                                leading: cover != null && cover.isNotEmpty
-                                    ? Image.network(
-                                        cover,
-                                        width: 40,
-                                        errorBuilder:
-                                            (context, error, stackTrace) =>
-                                                const Icon(Icons.book),
-                                      )
-                                    : const Icon(Icons.book),
+                                leading: CompactBookCover(
+                                  imageUrl: cover,
+                                  size: 40,
+                                ),
                                 title: Text(option['title'] ?? ''),
                                 subtitle: subtitle.isNotEmpty
                                     ? Text(
@@ -562,12 +559,12 @@ class _AddBookScreenState extends State<AddBookScreen> {
                             padding: const EdgeInsets.only(right: 12.0),
                             child: ClipRRect(
                               borderRadius: BorderRadius.circular(40),
-                              child: Image.network(
-                                imageUrl,
+                              child: CachedNetworkImage(
+                                imageUrl: imageUrl,
                                 width: 60,
                                 height: 60,
                                 fit: BoxFit.cover,
-                                errorBuilder: (_, __, ___) =>
+                                errorWidget: (_, __, ___) =>
                                     const Icon(Icons.person, size: 40),
                               ),
                             ),

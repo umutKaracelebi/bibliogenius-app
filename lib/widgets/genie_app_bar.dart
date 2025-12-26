@@ -3,6 +3,7 @@ import 'package:provider/provider.dart';
 import 'package:go_router/go_router.dart';
 import '../providers/theme_provider.dart';
 import '../utils/avatars.dart';
+import 'package:cached_network_image/cached_network_image.dart';
 
 class GenieAppBar extends StatelessWidget implements PreferredSizeWidget {
   final dynamic title;
@@ -131,10 +132,11 @@ class GenieAppBar extends StatelessWidget implements PreferredSizeWidget {
                         avatarConfig?.assetPath ?? 'assets/genie_mascot.jpg',
                         fit: BoxFit.cover,
                       )
-                    : Image.network(
-                        avatarConfig?.toUrl(size: 32, format: 'png') ?? '',
+                    : CachedNetworkImage(
+                        imageUrl:
+                            avatarConfig?.toUrl(size: 32, format: 'png') ?? '',
                         fit: BoxFit.cover,
-                        errorBuilder: (_, __, ___) =>
+                        errorWidget: (_, __, ___) =>
                             Image.asset(avatar.assetPath, fit: BoxFit.cover),
                       ),
               ),

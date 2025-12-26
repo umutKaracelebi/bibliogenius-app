@@ -256,8 +256,7 @@ class _ShelvesScreenState extends State<ShelvesScreen> {
             ),
             const SizedBox(height: 24),
             Text(
-              TranslationService.translate(context, 'no_shelves_title') ??
-                  'No Shelves Yet',
+              TranslationService.translate(context, 'no_shelves_title'),
               style: Theme.of(context).textTheme.headlineSmall?.copyWith(
                 fontWeight: FontWeight.bold,
                 color: Theme.of(context).colorScheme.primary,
@@ -265,8 +264,7 @@ class _ShelvesScreenState extends State<ShelvesScreen> {
             ),
             const SizedBox(height: 12),
             Text(
-              TranslationService.translate(context, 'no_shelves_hint') ??
-                  'Add tags to your books to organize them into shelves.',
+              TranslationService.translate(context, 'no_shelves_hint'),
               textAlign: TextAlign.center,
               style: TextStyle(
                 fontSize: 16,
@@ -279,8 +277,7 @@ class _ShelvesScreenState extends State<ShelvesScreen> {
               onPressed: () => context.go('/books'),
               icon: const Icon(Icons.library_books),
               label: Text(
-                TranslationService.translate(context, 'go_to_library') ??
-                    'Go to Library',
+                TranslationService.translate(context, 'go_to_library'),
               ),
               style: ElevatedButton.styleFrom(
                 padding: const EdgeInsets.symmetric(
@@ -472,8 +469,8 @@ class _ShelvesScreenState extends State<ShelvesScreen> {
                         const SizedBox(height: 4),
                         Text(
                           tag.count == 1
-                              ? '${tag.count} ${TranslationService.translate(context, 'book') ?? 'book'}'
-                              : '${tag.count} ${TranslationService.translate(context, 'books') ?? 'books'}',
+                              ? '${tag.count} ${TranslationService.translate(context, 'book')}'
+                              : '${tag.count} ${TranslationService.translate(context, 'books')}',
                           style: TextStyle(
                             color: Colors.white.withValues(alpha: 0.8),
                             fontSize: 13,
@@ -484,6 +481,51 @@ class _ShelvesScreenState extends State<ShelvesScreen> {
                   ],
                 ),
               ),
+              // Direct access button for shelves with sub-shelves
+              if (hasChildren)
+                Positioned(
+                  bottom: 16,
+                  right: 16,
+                  child: Material(
+                    color: Colors.transparent,
+                    child: InkWell(
+                      onTap: () => context.go('/books?tag=${tag.name}'),
+                      borderRadius: BorderRadius.circular(30),
+                      child: Container(
+                        padding: const EdgeInsets.symmetric(
+                          horizontal: 12,
+                          vertical: 8,
+                        ),
+                        decoration: BoxDecoration(
+                          color: Colors.white.withValues(alpha: 0.2),
+                          borderRadius: BorderRadius.circular(30),
+                          border: Border.all(
+                            color: Colors.white.withValues(alpha: 0.4),
+                          ),
+                        ),
+                        child: Row(
+                          mainAxisSize: MainAxisSize.min,
+                          children: [
+                            const Icon(
+                              Icons.visibility,
+                              color: Colors.white,
+                              size: 16,
+                            ),
+                            const SizedBox(width: 4),
+                            Text(
+                              TranslationService.translate(context, 'view'),
+                              style: const TextStyle(
+                                color: Colors.white,
+                                fontWeight: FontWeight.bold,
+                                fontSize: 12,
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+                    ),
+                  ),
+                ),
             ],
           ),
         ),

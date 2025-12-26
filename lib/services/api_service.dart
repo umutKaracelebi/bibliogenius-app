@@ -304,7 +304,7 @@ class ApiService {
     if (useFfi) {
       try {
         final localDio = Dio(
-          BaseOptions(baseUrl: 'http://localhost:$httpPort'),
+          BaseOptions(baseUrl: 'http://127.0.0.1:$httpPort'),
         );
         return await localDio.post('/api/copies', data: copyData);
       } catch (e) {
@@ -420,7 +420,7 @@ class ApiService {
     if (useFfi) {
       try {
         final localDio = Dio(
-          BaseOptions(baseUrl: 'http://localhost:$httpPort'),
+          BaseOptions(baseUrl: 'http://127.0.0.1:$httpPort'),
         );
         return await localDio.get('/api/books/$bookId/copies');
       } catch (e) {
@@ -442,7 +442,7 @@ class ApiService {
     if (useFfi) {
       try {
         final localDio = Dio(
-          BaseOptions(baseUrl: 'http://localhost:$httpPort'),
+          BaseOptions(baseUrl: 'http://127.0.0.1:$httpPort'),
         );
         return await localDio.put('/api/copies/$copyId', data: data);
       } catch (e) {

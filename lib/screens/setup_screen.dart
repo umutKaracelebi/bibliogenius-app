@@ -18,9 +18,12 @@ class SetupScreen extends StatefulWidget {
 
 class _SetupScreenState extends State<SetupScreen> {
   final TextEditingController _libraryNameController = TextEditingController();
-  final TextEditingController _usernameController = TextEditingController(text: 'admin');
+  final TextEditingController _usernameController = TextEditingController(
+    text: 'admin',
+  );
   final TextEditingController _passwordController = TextEditingController();
-  final TextEditingController _confirmPasswordController = TextEditingController();
+  final TextEditingController _confirmPasswordController =
+      TextEditingController();
   String? _passwordError;
 
   @override
@@ -165,7 +168,9 @@ class _SetupScreenState extends State<SetupScreen> {
       builder: (context, themeProvider, child) {
         // Safety check for dropdown value
         final currentTheme = themeProvider.themeStyle;
-        final validTheme = ThemeRegistry.exists(currentTheme) ? currentTheme : 'default';
+        final validTheme = ThemeRegistry.exists(currentTheme)
+            ? currentTheme
+            : 'default';
 
         final lang = themeProvider.locale.languageCode;
         final strings = _t[lang] ?? _t['en']!;
@@ -177,10 +182,13 @@ class _SetupScreenState extends State<SetupScreen> {
             automaticallyImplyLeading: false, // Hide back button
           ),
           body: Stepper(
-            physics: const ClampingScrollPhysics(), // Ensure scrolling works well
+            physics:
+                const ClampingScrollPhysics(), // Ensure scrolling works well
             currentStep: currentStep,
             onStepContinue: () {
-              debugPrint('Stepper onStepContinue called - currentStep: $currentStep');
+              debugPrint(
+                'Stepper onStepContinue called - currentStep: $currentStep',
+              );
               if (currentStep < 6) {
                 if (currentStep == 1) {
                   // Save library name when leaving step 1
@@ -191,9 +199,16 @@ class _SetupScreenState extends State<SetupScreen> {
                 // Validate password on credentials step
                 if (currentStep == 5) {
                   if (_passwordController.text.isNotEmpty &&
-                      _passwordController.text != _confirmPasswordController.text) {
-                    setState(() => _passwordError = TranslationService.translate(
-                      context, 'passwords_do_not_match') ?? 'Passwords do not match');
+                      _passwordController.text !=
+                          _confirmPasswordController.text) {
+                    setState(
+                      () => _passwordError =
+                          TranslationService.translate(
+                            context,
+                            'passwords_do_not_match',
+                          ) ??
+                          'Passwords do not match',
+                    );
                     return;
                   }
                   setState(() => _passwordError = null);
@@ -225,14 +240,19 @@ class _SetupScreenState extends State<SetupScreen> {
                       elevation: 4,
                       borderRadius: BorderRadius.circular(8),
                       child: InkWell(
-                        key: const Key('setupNextButton'),
+                        key: Key('setupNextButton_${details.stepIndex}'),
                         onTap: () {
-                          debugPrint('SetupNextButton tapped - currentStep: $currentStep, isLastStep: $isLastStep');
+                          debugPrint(
+                            'SetupNextButton tapped - currentStep: $currentStep, isLastStep: $isLastStep',
+                          );
                           details.onStepContinue?.call();
                         },
                         borderRadius: BorderRadius.circular(8),
                         child: Padding(
-                          padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 12),
+                          padding: const EdgeInsets.symmetric(
+                            horizontal: 24,
+                            vertical: 12,
+                          ),
                           child: Text(
                             isLastStep
                                 ? strings['btn_finish']!
@@ -254,7 +274,10 @@ class _SetupScreenState extends State<SetupScreen> {
                         onTap: details.onStepCancel,
                         borderRadius: BorderRadius.circular(8),
                         child: Padding(
-                          padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+                          padding: const EdgeInsets.symmetric(
+                            horizontal: 16,
+                            vertical: 12,
+                          ),
                           child: Text(
                             strings['btn_back']!,
                             style: TextStyle(
@@ -469,11 +492,17 @@ class _SetupScreenState extends State<SetupScreen> {
                                       Container(
                                         width: 24,
                                         height: 24,
-                                        margin: const EdgeInsets.only(right: 12),
+                                        margin: const EdgeInsets.only(
+                                          right: 12,
+                                        ),
                                         decoration: BoxDecoration(
                                           color: theme.previewColor,
-                                          borderRadius: BorderRadius.circular(4),
-                                          border: Border.all(color: Colors.grey.shade300),
+                                          borderRadius: BorderRadius.circular(
+                                            4,
+                                          ),
+                                          border: Border.all(
+                                            color: Colors.grey.shade300,
+                                          ),
                                         ),
                                       ),
                                       Expanded(
@@ -527,7 +556,11 @@ class _SetupScreenState extends State<SetupScreen> {
                               height: 24,
                               margin: const EdgeInsets.only(right: 12),
                               decoration: BoxDecoration(
-                                color: ThemeRegistry.get(validTheme)?.previewColor ?? Colors.grey,
+                                color:
+                                    ThemeRegistry.get(
+                                      validTheme,
+                                    )?.previewColor ??
+                                    Colors.grey,
                                 borderRadius: BorderRadius.circular(4),
                                 border: Border.all(color: Colors.grey.shade300),
                               ),
@@ -538,7 +571,10 @@ class _SetupScreenState extends State<SetupScreen> {
                                       context,
                                       'theme_$validTheme',
                                     ) ??
-                                    ThemeRegistry.get(validTheme)?.displayName ?? validTheme,
+                                    ThemeRegistry.get(
+                                      validTheme,
+                                    )?.displayName ??
+                                    validTheme,
                                 style: const TextStyle(fontSize: 16),
                               ),
                             ),
@@ -555,13 +591,20 @@ class _SetupScreenState extends State<SetupScreen> {
               // Step 5: Credentials
               Step(
                 title: Text(
-                  TranslationService.translate(context, 'setup_credentials_title') ?? 'Credentials',
+                  TranslationService.translate(
+                        context,
+                        'setup_credentials_title',
+                      ) ??
+                      'Credentials',
                 ),
                 content: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     Text(
-                      TranslationService.translate(context, 'setup_password_optional') ??
+                      TranslationService.translate(
+                            context,
+                            'setup_password_optional',
+                          ) ??
                           'Optional - Set a password to protect your library',
                       style: TextStyle(color: Colors.grey[600], fontSize: 14),
                     ),
@@ -570,7 +613,12 @@ class _SetupScreenState extends State<SetupScreen> {
                       key: const Key('setupUsernameField'),
                       controller: _usernameController,
                       decoration: InputDecoration(
-                        labelText: TranslationService.translate(context, 'setup_username_label') ?? 'Username',
+                        labelText:
+                            TranslationService.translate(
+                              context,
+                              'setup_username_label',
+                            ) ??
+                            'Username',
                         border: const OutlineInputBorder(),
                         prefixIcon: const Icon(Icons.person),
                       ),
@@ -581,10 +629,20 @@ class _SetupScreenState extends State<SetupScreen> {
                       controller: _passwordController,
                       obscureText: true,
                       decoration: InputDecoration(
-                        labelText: TranslationService.translate(context, 'setup_password_label') ?? 'Password',
+                        labelText:
+                            TranslationService.translate(
+                              context,
+                              'setup_password_label',
+                            ) ??
+                            'Password',
                         border: const OutlineInputBorder(),
                         prefixIcon: const Icon(Icons.lock),
-                        helperText: TranslationService.translate(context, 'leave_empty_no_password') ?? 'Leave empty for no password',
+                        helperText:
+                            TranslationService.translate(
+                              context,
+                              'leave_empty_no_password',
+                            ) ??
+                            'Leave empty for no password',
                       ),
                     ),
                     const SizedBox(height: 16),
@@ -593,7 +651,12 @@ class _SetupScreenState extends State<SetupScreen> {
                       controller: _confirmPasswordController,
                       obscureText: true,
                       decoration: InputDecoration(
-                        labelText: TranslationService.translate(context, 'setup_confirm_password') ?? 'Confirm Password',
+                        labelText:
+                            TranslationService.translate(
+                              context,
+                              'setup_confirm_password',
+                            ) ??
+                            'Confirm Password',
                         border: const OutlineInputBorder(),
                         prefixIcon: const Icon(Icons.lock_outline),
                         errorText: _passwordError,
@@ -638,7 +701,7 @@ class _SetupScreenState extends State<SetupScreen> {
     Map<String, String> strings,
   ) async {
     debugPrint('_finishSetup: Starting...');
-    
+
     // Show loading indicator
     showDialog(
       context: context,
@@ -668,21 +731,25 @@ class _SetupScreenState extends State<SetupScreen> {
         debugPrint('_finishSetup: Demo data imported');
       }
 
-      debugPrint('_finishSetup: Checking context.mounted (1): ${context.mounted}');
+      debugPrint(
+        '_finishSetup: Checking context.mounted (1): ${context.mounted}',
+      );
       if (context.mounted) {
         // Close loading dialog FIRST to avoid build scope conflicts
         debugPrint('_finishSetup: Closing dialog...');
         Navigator.of(context).pop();
         debugPrint('_finishSetup: Dialog closed');
-        
+
         // Wait for dialog animation to finish and frame to settle
         await Future.delayed(const Duration(milliseconds: 350));
         debugPrint('_finishSetup: Delay completed');
-        
+
         // Only proceed if still mounted after delay
-        debugPrint('_finishSetup: Checking context.mounted (2): ${context.mounted}');
+        debugPrint(
+          '_finishSetup: Checking context.mounted (2): ${context.mounted}',
+        );
         if (!context.mounted) return;
-        
+
         // Use batch method to apply all settings with single notification
         // This is done AFTER dialog is fully closed to prevent dirty widget errors
         debugPrint('_finishSetup: Calling completeSetupWithSettings...');
@@ -695,29 +762,31 @@ class _SetupScreenState extends State<SetupScreen> {
         debugPrint('_finishSetup: completeSetupWithSettings done');
 
         if (!context.mounted) return;
-        
+
         final authService = Provider.of<AuthService>(context, listen: false);
-        
+
         // Save username from setup (default 'admin' if empty)
-        final username = _usernameController.text.trim().isNotEmpty 
-            ? _usernameController.text.trim() 
+        final username = _usernameController.text.trim().isNotEmpty
+            ? _usernameController.text.trim()
             : 'admin';
         await authService.saveUsername(username);
         debugPrint('_finishSetup: Username saved: $username');
-        
+
         // Save password if provided
         if (_passwordController.text.isNotEmpty) {
           await authService.savePassword(_passwordController.text);
           debugPrint('_finishSetup: Password saved');
         }
-        
+
         debugPrint('_finishSetup: COMPLETE - Navigating to login...');
         // Explicitly navigate to login since GoRouter refresh may not trigger automatically
         if (context.mounted) {
           GoRouter.of(context).go('/login');
         }
       } else {
-        debugPrint('_finishSetup: ERROR - context not mounted after apiService.setup!');
+        debugPrint(
+          '_finishSetup: ERROR - context not mounted after apiService.setup!',
+        );
       }
     } catch (e) {
       // Close loading dialog

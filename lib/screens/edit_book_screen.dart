@@ -563,14 +563,24 @@ class _EditBookScreenState extends State<EditBookScreen> {
                 children: [
                   Icon(
                     Icons.edit_note,
-                    size: 32,
+                    size: MediaQuery.of(context).size.width < 400 ? 24 : 32,
                     color: Theme.of(context).primaryColor,
                   ),
-                  const SizedBox(width: 12),
-                  Text(
-                    TranslationService.translate(context, 'edit_book_details'),
-                    style: Theme.of(context).textTheme.headlineSmall?.copyWith(
-                      fontWeight: FontWeight.bold,
+                  const SizedBox(width: 8),
+                  Flexible(
+                    child: Text(
+                      TranslationService.translate(
+                        context,
+                        'edit_book_details',
+                      ),
+                      style: Theme.of(context).textTheme.headlineSmall
+                          ?.copyWith(
+                            fontWeight: FontWeight.bold,
+                            fontSize: MediaQuery.of(context).size.width < 400
+                                ? 16
+                                : null,
+                          ),
+                      overflow: TextOverflow.ellipsis,
                     ),
                   ),
                 ],

@@ -229,25 +229,31 @@ class _BookListScreenState extends State<BookListScreen>
                 }
               },
             ),
-            IconButton(
-              icon: const Icon(Icons.refresh, color: Colors.white),
-              tooltip: TranslationService.translate(context, 'action_refresh'),
-              onPressed: _fetchBooks,
-            ),
-            IconButton(
-              key: _externalSearchKey,
-              icon: const Icon(Icons.public, color: Colors.white),
-              tooltip: TranslationService.translate(
-                context,
-                'btn_search_online',
+            // Hide refresh and external search on mobile to prevent overlap
+            if (!isMobile) ...[
+              IconButton(
+                icon: const Icon(Icons.refresh, color: Colors.white),
+                tooltip: TranslationService.translate(
+                  context,
+                  'action_refresh',
+                ),
+                onPressed: _fetchBooks,
               ),
-              onPressed: () async {
-                final result = await context.push('/search/external');
-                if (result == true) {
-                  _fetchBooks();
-                }
-              },
-            ),
+              IconButton(
+                key: _externalSearchKey,
+                icon: const Icon(Icons.public, color: Colors.white),
+                tooltip: TranslationService.translate(
+                  context,
+                  'btn_search_online',
+                ),
+                onPressed: () async {
+                  final result = await context.push('/search/external');
+                  if (result == true) {
+                    _fetchBooks();
+                  }
+                },
+              ),
+            ],
           ],
         ],
       ),

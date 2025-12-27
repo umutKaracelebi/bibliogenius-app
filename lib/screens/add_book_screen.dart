@@ -40,6 +40,8 @@ class _AddBookScreenState extends State<AddBookScreen> {
   String? _lastLookedUpIsbn; // Prevent duplicate lookups
   final List<String> _selectedTags = [];
   final List<String> _authors = []; // Multiple authors support
+  Book? _duplicateBook; // Existing book with same ISBN
+  bool _isDuplicate = false;
   late TextEditingController _tagsController;
   final FocusNode _titleFocusNode = FocusNode();
 
@@ -97,8 +99,25 @@ class _AddBookScreenState extends State<AddBookScreen> {
     _lastLookedUpIsbn = isbn; // Prevent duplicate lookups
     setState(() => _isFetchingDetails = true);
     try {
-      // Use backend (Inventaire with OpenLibrary cover enrichment)
+      // Check if this ISBN already exists in library
       final api = Provider.of<ApiService>(context, listen: false);
+      final existingBook = await api.findBookByIsbn(isbn);
+      if (existingBook != null && mounted) {
+        setState(() {
+          _duplicateBook = existingBook;
+          _isDuplicate = true;
+          _isFetchingDetails = false;
+        });
+        return; // Don't fetch external details, show warning instead
+      }
+
+      // Reset duplicate state if ISBN changed
+      setState(() {
+        _duplicateBook = null;
+        _isDuplicate = false;
+      });
+
+      // Use backend (Inventaire with OpenLibrary cover enrichment)
       final bookData = await api.lookupBook(isbn);
 
       if (bookData != null && mounted) {
@@ -357,6 +376,124 @@ class _AddBookScreenState extends State<AddBookScreen> {
               ],
             ),
             const Divider(height: 32),
+
+            // Duplicate ISBN Warning Banner
+            if (_isDuplicate && _duplicateBook != null)
+              Container(
+                margin: const EdgeInsets.only(bottom: 16),
+                padding: const EdgeInsets.all(16),
+                decoration: BoxDecoration(
+                  color: Colors.orange.withValues(alpha: 0.1),
+                  borderRadius: BorderRadius.circular(12),
+                  border: Border.all(color: Colors.orange, width: 1.5),
+                ),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Row(
+                      children: [
+                        const Icon(
+                          Icons.warning_amber_rounded,
+                          color: Colors.orange,
+                          size: 24,
+                        ),
+                        const SizedBox(width: 8),
+                        Expanded(
+                          child: Text(
+                            TranslationService.translate(
+                                  context,
+                                  'isbn_already_exists',
+                                ) ??
+                                'This book is already in your collection',
+                            style: const TextStyle(
+                              fontWeight: FontWeight.bold,
+                              fontSize: 16,
+                            ),
+                          ),
+                        ),
+                      ],
+                    ),
+                    const SizedBox(height: 12),
+                    Text(
+                      '${_duplicateBook!.title}${_duplicateBook!.author != null ? ' - ${_duplicateBook!.author}' : ''}',
+                      style: TextStyle(color: Colors.grey[700]),
+                    ),
+                    const SizedBox(height: 16),
+                    Row(
+                      children: [
+                        Expanded(
+                          child: OutlinedButton.icon(
+                            onPressed: () {
+                              context.push('/books/${_duplicateBook!.id}');
+                            },
+                            icon: const Icon(Icons.visibility),
+                            label: Text(
+                              TranslationService.translate(
+                                    context,
+                                    'view_existing',
+                                  ) ??
+                                  'View Book',
+                            ),
+                          ),
+                        ),
+                        const SizedBox(width: 12),
+                        Expanded(
+                          child: ElevatedButton.icon(
+                            onPressed: () async {
+                              final api = Provider.of<ApiService>(
+                                context,
+                                listen: false,
+                              );
+                              try {
+                                await api.createCopy({
+                                  'book_id': _duplicateBook!.id,
+                                  'status': 'available',
+                                });
+                                if (mounted) {
+                                  ScaffoldMessenger.of(context).showSnackBar(
+                                    SnackBar(
+                                      content: Text(
+                                        TranslationService.translate(
+                                              context,
+                                              'copy_added',
+                                            ) ??
+                                            'Copy added successfully',
+                                      ),
+                                      backgroundColor: Colors.green,
+                                    ),
+                                  );
+                                  context.pop(true);
+                                }
+                              } catch (e) {
+                                if (mounted) {
+                                  ScaffoldMessenger.of(context).showSnackBar(
+                                    SnackBar(
+                                      content: Text('Error: $e'),
+                                      backgroundColor: Colors.red,
+                                    ),
+                                  );
+                                }
+                              }
+                            },
+                            icon: const Icon(Icons.add),
+                            label: Text(
+                              TranslationService.translate(
+                                    context,
+                                    'add_copy',
+                                  ) ??
+                                  'Add Copy',
+                            ),
+                            style: ElevatedButton.styleFrom(
+                              backgroundColor: Colors.orange,
+                              foregroundColor: Colors.white,
+                            ),
+                          ),
+                        ),
+                      ],
+                    ),
+                  ],
+                ),
+              ),
 
             // Title
             _buildLabel(TranslationService.translate(context, 'title_label')),

@@ -329,6 +329,10 @@ class TranslationService {
       'saving': 'Saving...',
       'error_saving_book': 'Error saving book',
       'book_not_found': 'Book not found in database',
+      'isbn_already_exists': 'This book is already in your collection',
+      'view_existing': 'View Book',
+      'add_copy': 'Add Copy',
+      'copy_added': 'Copy added successfully',
       'error_fetching_isbn':
           'Error looking up ISBN. Please enter details manually.',
       'book_details_found': 'Book details found!',
@@ -1337,6 +1341,10 @@ class TranslationService {
       'saving': 'Enregistrement...',
       'error_saving_book': 'Erreur lors de l\'enregistrement du livre',
       'book_not_found': 'Livre non trouvé dans la base de données',
+      'isbn_already_exists': 'Ce livre est déjà dans votre collection',
+      'view_existing': 'Voir le livre',
+      'add_copy': 'Ajouter une copie',
+      'copy_added': 'Copie ajoutée avec succès',
       'error_fetching_isbn':
           'Erreur lors de la recherche de l\'ISBN. Veuillez saisir les détails manuellement.',
       'book_details_found': 'Détails du livre trouvés !',

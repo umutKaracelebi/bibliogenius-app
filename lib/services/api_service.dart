@@ -2016,6 +2016,26 @@ class ApiService {
     }
   }
 
+  /// Find a book by ISBN in the local library
+  /// Returns the book if found, null otherwise
+  Future<Book?> findBookByIsbn(String isbn) async {
+    if (isbn.isEmpty) return null;
+    final cleanIsbn = isbn.replaceAll(RegExp(r'[^0-9X]'), '');
+    if (cleanIsbn.length != 10 && cleanIsbn.length != 13) return null;
+
+    try {
+      final books = await getBooks();
+      return books.firstWhere(
+        (b) =>
+            b.isbn != null &&
+            b.isbn!.replaceAll(RegExp(r'[^0-9X]'), '') == cleanIsbn,
+        orElse: () => throw StateError('Not found'),
+      );
+    } catch (_) {
+      return null;
+    }
+  }
+
   Future<Book> getBook(int id) async {
     // Use FFI for native platforms
     if (useFfi) {

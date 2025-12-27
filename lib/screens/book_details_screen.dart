@@ -418,7 +418,11 @@ class _BookDetailsScreenState extends State<BookDetailsScreen> {
                       extra: _book,
                     );
                     if (result == true && context.mounted) {
-                      Navigator.of(context).pop(true);
+                      // Refresh book data before returning to list
+                      await _fetchBookDetails();
+                      if (mounted) {
+                        Navigator.of(context).pop(true);
+                      }
                     }
                   },
                   icon: const Icon(Icons.edit_outlined),

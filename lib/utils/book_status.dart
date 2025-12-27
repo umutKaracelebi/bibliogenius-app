@@ -41,6 +41,12 @@ const List<BookStatus> individualStatuses = [
     icon: Icons.favorite_border,
     color: Colors.red,
   ),
+  BookStatus(
+    value: 'owned',
+    label: 'owned_status',
+    icon: Icons.inventory_2_outlined,
+    color: Colors.blueGrey,
+  ),
 ];
 
 // Status options for librarian/professional cataloging

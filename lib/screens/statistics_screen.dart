@@ -269,9 +269,7 @@ class _StatisticsScreenState extends State<StatisticsScreen>
   Widget _buildSummaryCards() {
     final totalBooks = _books.length;
     final readBooks = _books.where((b) => b.readingStatus == 'read').length;
-    final borrowedBooks = _books
-        .where((b) => !b.owned)
-        .length;
+    final borrowedBooks = _books.where((b) => !b.owned).length;
 
     final uniqueAuthors = _books
         .where((b) => b.author != null && b.author!.isNotEmpty)
@@ -412,6 +410,7 @@ class _StatisticsScreenState extends State<StatisticsScreen>
       'reading': const Color(0xFF0EA5E9),
       'to_read': const Color(0xFFF59E0B),
       'wanted': const Color(0xFFEC4899),
+      'owned': const Color(0xFF607D8B),
       'borrowed': const Color(0xFF8B5CF6),
       'unknown': Colors.grey,
     };
@@ -481,6 +480,8 @@ class _StatisticsScreenState extends State<StatisticsScreen>
       case 'wanted':
       case 'wanting':
         return TranslationService.translate(context, 'reading_status_wanting');
+      case 'owned':
+        return TranslationService.translate(context, 'owned_status');
       case 'lent':
         return TranslationService.translate(context, 'reading_status_lent');
       case 'borrowed':
@@ -1221,9 +1222,7 @@ class _StatisticsScreenState extends State<StatisticsScreen>
 
   Widget _buildBorrowedStatisticsSection() {
     // Get borrowed books from library
-    final borrowedBooks = _books
-        .where((b) => !b.owned)
-        .toList();
+    final borrowedBooks = _books.where((b) => !b.owned).toList();
     final totalBorrowed = borrowedBooks.length;
 
     return Container(

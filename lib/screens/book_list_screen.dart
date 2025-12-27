@@ -666,6 +666,10 @@ class _BookListScreenState extends State<BookListScreen> {
             status: 'read',
             label: TranslationService.translate(context, 'reading_status_read'),
           ),
+          _buildFilterPill(
+            status: 'owned',
+            label: TranslationService.translate(context, 'owned_status'),
+          ),
           // Note: lent/borrowed filters removed - these are now copy-level concepts
           // Users can view loan status via copy management
         ],

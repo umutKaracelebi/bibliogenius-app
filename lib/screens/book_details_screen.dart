@@ -863,6 +863,9 @@ class _BookDetailsScreenState extends State<BookDetailsScreen> {
     if (status == 'wanted' || status == 'wanting')
       return TranslationService.translate(context, 'reading_status_wanting') ??
           'Wanted';
+    if (status == 'owned')
+      return TranslationService.translate(context, 'owned_status') ??
+          'In Collection';
     if (status == 'lent')
       return TranslationService.translate(context, 'lent_status') ?? 'Lent';
     if (status == 'borrowed')

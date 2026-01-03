@@ -1,5 +1,8 @@
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:uuid/uuid.dart';
+import 'package:shared_preferences/shared_preferences.dart';
+import 'dart:io' show Platform;
+import 'package:flutter/foundation.dart' show kDebugMode;
 
 abstract class SecureStorageInterface {
   Future<void> write({required String key, required String? value});
@@ -18,6 +21,34 @@ class RealSecureStorage implements SecureStorageInterface {
   Future<void> delete({required String key}) => _storage.delete(key: key);
 }
 
+/// Fallback storage using SharedPreferences for macOS debug builds
+/// WARNING: Not secure for production - data is stored in plain text
+class SharedPreferencesStorage implements SecureStorageInterface {
+  static const _prefix = 'auth_fallback_';
+
+  @override
+  Future<void> write({required String key, required String? value}) async {
+    final prefs = await SharedPreferences.getInstance();
+    if (value != null) {
+      await prefs.setString('$_prefix$key', value);
+    } else {
+      await prefs.remove('$_prefix$key');
+    }
+  }
+
+  @override
+  Future<String?> read({required String key}) async {
+    final prefs = await SharedPreferences.getInstance();
+    return prefs.getString('$_prefix$key');
+  }
+
+  @override
+  Future<void> delete({required String key}) async {
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.remove('$_prefix$key');
+  }
+}
+
 class MockSecureStorage implements SecureStorageInterface {
   final Map<String, String> _data = {};
   @override
@@ -30,7 +61,17 @@ class MockSecureStorage implements SecureStorageInterface {
 }
 
 class AuthService {
-  static SecureStorageInterface storage = RealSecureStorage();
+  // Use SharedPreferences fallback on macOS debug to avoid keychain issues
+  static SecureStorageInterface storage = _createStorage();
+
+  static SecureStorageInterface _createStorage() {
+    if (kDebugMode && Platform.isMacOS) {
+      // Use SharedPreferences fallback on macOS debug builds
+      // This avoids keychain entitlement issues without Apple Developer account
+      return SharedPreferencesStorage();
+    }
+    return RealSecureStorage();
+  }
 
   static const _tokenKey = 'auth_token';
   static const _usernameKey = 'username';

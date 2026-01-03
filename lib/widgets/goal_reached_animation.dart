@@ -1,5 +1,6 @@
 import 'dart:math';
 import 'package:flutter/material.dart';
+import '../services/translation_service.dart';
 
 /// A celebratory fireworks animation when user reaches a reading goal.
 /// More festive than Achievement Pop - used for milestone goals.
@@ -134,7 +135,7 @@ class _GoalReachedWidgetState extends State<_GoalReachedWidget>
       _fireworksController.stop();
       widget.onComplete();
     });
-    _fireworksController.repeat();
+    _fireworksController.forward();
   }
 
   void _generateFireworks() {
@@ -278,13 +279,26 @@ class _GoalReachedWidgetState extends State<_GoalReachedWidget>
                         const SizedBox(height: 20),
 
                         // Details
-                        Text(
-                          '${widget.booksRead} books ${widget.goalType == "yearly" ? "this year" : "this month"}',
-                          style: const TextStyle(
-                            color: Colors.white,
-                            fontSize: 20,
-                            fontWeight: FontWeight.w600,
-                          ),
+                        Builder(
+                          builder: (context) {
+                            final periodText = widget.goalType == "yearly"
+                                ? TranslationService.translate(
+                                    context,
+                                    'goal_books_this_year',
+                                  )
+                                : TranslationService.translate(
+                                    context,
+                                    'goal_books_this_month',
+                                  );
+                            return Text(
+                              '${widget.booksRead} $periodText',
+                              style: const TextStyle(
+                                color: Colors.white,
+                                fontSize: 20,
+                                fontWeight: FontWeight.w600,
+                              ),
+                            );
+                          },
                         ),
                       ],
                     ),

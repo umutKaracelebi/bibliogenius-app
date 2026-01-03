@@ -37,6 +37,10 @@ class ThemeProvider with ChangeNotifier {
   bool _canBorrowBooks = true;
   bool get canBorrowBooks => _canBorrowBooks;
 
+  // Gamification: disabled by default for librarians
+  bool _gamificationEnabled = true;
+  bool get gamificationEnabled => _gamificationEnabled;
+
   ThemeData get themeData {
     // Initialize registry if needed
     ThemeRegistry.initialize();
@@ -79,6 +83,15 @@ class ThemeProvider with ChangeNotifier {
     } else {
       // Default: disabled for librarians (they lend, not borrow), enabled for others
       _canBorrowBooks = !isLibrarian;
+    }
+
+    // Load gamification setting (default based on profile type)
+    final savedGamification = prefs.getBool('gamificationEnabled');
+    if (savedGamification != null) {
+      _gamificationEnabled = savedGamification;
+    } else {
+      // Default: disabled for librarians, enabled for others
+      _gamificationEnabled = !isLibrarian;
     }
 
     final avatarConfigJson = prefs.getString('avatarConfig');
@@ -127,6 +140,13 @@ class ThemeProvider with ChangeNotifier {
     _canBorrowBooks = enabled;
     final prefs = await SharedPreferences.getInstance();
     await prefs.setBool('canBorrowBooks', enabled);
+    notifyListeners();
+  }
+
+  Future<void> setGamificationEnabled(bool enabled) async {
+    _gamificationEnabled = enabled;
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.setBool('gamificationEnabled', enabled);
     notifyListeners();
   }
 

@@ -627,9 +627,16 @@ class _ProfileScreenState extends State<ProfileScreen> {
               StatusBadge(level: level, size: 32),
               const SizedBox(height: 32),
 
-              // Gamification V3 - Track Progress Card
-              GamificationSummaryCard(
-                status: GamificationStatus.fromJson(_userStatus!),
+              // Gamification V3 - Track Progress Card (if enabled)
+              Consumer<ThemeProvider>(
+                builder: (context, themeProvider, _) {
+                  if (!themeProvider.gamificationEnabled) {
+                    return const SizedBox.shrink();
+                  }
+                  return GamificationSummaryCard(
+                    status: GamificationStatus.fromJson(_userStatus!),
+                  );
+                },
               ),
               const SizedBox(height: 32),
 
@@ -978,6 +985,28 @@ class _ProfileScreenState extends State<ProfileScreen> {
                         value: themeProvider.canBorrowBooks,
                         onChanged: (value) =>
                             themeProvider.setCanBorrowBooks(value),
+                      ),
+                    ),
+                    const Divider(),
+                    // Gamification Toggle
+                    Consumer<ThemeProvider>(
+                      builder: (context, themeProvider, _) => SwitchListTile(
+                        secondary: const Icon(Icons.emoji_events),
+                        title: Text(
+                          TranslationService.translate(
+                            context,
+                            'enable_gamification',
+                          ),
+                        ),
+                        subtitle: Text(
+                          TranslationService.translate(
+                            context,
+                            'gamification_desc',
+                          ),
+                        ),
+                        value: themeProvider.gamificationEnabled,
+                        onChanged: (value) =>
+                            themeProvider.setGamificationEnabled(value),
                       ),
                     ),
                     // TODO: Re-enable when borrowed books list is needed (currently using filters instead)

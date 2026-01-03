@@ -55,20 +55,32 @@ class GenieAppBar extends StatelessWidget implements PreferredSizeWidget {
         ),
       ),
       elevation: 0,
+      leadingWidth: 40, // Reduce space after hamburger menu
       title: LayoutBuilder(
         builder: (context, constraints) {
-          // On mobile, reduce logo size and give more space to title text
-          final isMobile = constraints.maxWidth < 200;
-          final logoSize = isMobile ? 22.0 : 28.0;
+          // Responsive breakpoints based on available title width
+          final availableWidth = constraints.maxWidth;
+          // More aggressive thresholds to hide rather than truncate
+          final hideTitle = availableWidth < 120;
+          final hideSubtitle = availableWidth < 180;
+          final isCompact = availableWidth < 220;
+
+          // Adaptive sizes
+          final logoSize = isCompact ? 20.0 : 28.0;
+          final titleFontSize = isCompact ? 15.0 : 20.0;
+          final subtitleFontSize = isCompact ? 10.0 : 13.0;
+          final logoPadding = isCompact ? 4.0 : 6.0;
+          final logoRadius = isCompact ? 8.0 : 12.0;
+          final spacing = isCompact ? 6.0 : 12.0;
 
           return Row(
             mainAxisSize: MainAxisSize.min,
             children: [
               Container(
-                padding: EdgeInsets.all(isMobile ? 4 : 6),
+                padding: EdgeInsets.all(logoPadding),
                 decoration: BoxDecoration(
                   color: Colors.white.withValues(alpha: 0.2),
-                  borderRadius: BorderRadius.circular(isMobile ? 8 : 12),
+                  borderRadius: BorderRadius.circular(logoRadius),
                   border: Border.all(
                     color: Colors.white.withValues(alpha: 0.3),
                   ),
@@ -79,39 +91,48 @@ class GenieAppBar extends StatelessWidget implements PreferredSizeWidget {
                   size: logoSize,
                 ),
               ),
-              SizedBox(width: isMobile ? 8 : 12),
-              Flexible(
-                child: title is Widget
-                    ? title
-                    : Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        mainAxisSize: MainAxisSize.min,
-                        children: [
-                          Text(
-                            title,
-                            style: TextStyle(
-                              fontWeight: FontWeight.bold,
-                              fontSize: isMobile ? 16 : 20,
-                              color: Colors.white,
-                              letterSpacing: 0.5,
-                            ),
-                            overflow: TextOverflow.ellipsis,
-                          ),
-                          if (displaySubtitle != null &&
-                              displaySubtitle.isNotEmpty)
+              // Hide text entirely if space is too tight (don't truncate)
+              if (!hideTitle) ...[
+                SizedBox(width: spacing),
+                Flexible(
+                  child: title is Widget
+                      ? title
+                      : Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          mainAxisSize: MainAxisSize.min,
+                          children: [
                             Text(
-                              displaySubtitle,
+                              title,
                               style: TextStyle(
-                                fontWeight: FontWeight.w400,
-                                fontSize: isMobile ? 11 : 13,
-                                color: Colors.white.withValues(alpha: 0.8),
-                                letterSpacing: 0.3,
+                                fontWeight: FontWeight.bold,
+                                fontSize: titleFontSize,
+                                color: Colors.white,
+                                letterSpacing: 0.5,
                               ),
-                              overflow: TextOverflow.ellipsis,
+                              maxLines: 1,
+                              overflow: TextOverflow.fade,
+                              softWrap: false,
                             ),
-                        ],
-                      ),
-              ),
+                            // Hide subtitle on narrower screens
+                            if (!hideSubtitle &&
+                                displaySubtitle != null &&
+                                displaySubtitle.isNotEmpty)
+                              Text(
+                                displaySubtitle,
+                                style: TextStyle(
+                                  fontWeight: FontWeight.w400,
+                                  fontSize: subtitleFontSize,
+                                  color: Colors.white.withValues(alpha: 0.8),
+                                  letterSpacing: 0.3,
+                                ),
+                                maxLines: 1,
+                                overflow: TextOverflow.fade,
+                                softWrap: false,
+                              ),
+                          ],
+                        ),
+                ),
+              ],
             ],
           );
         },

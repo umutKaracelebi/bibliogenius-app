@@ -610,9 +610,12 @@ class TranslationService {
       'badge_progress_info': 'Your Progress:',
       'badge_levels_title': 'Levels to Reach:',
       'current': 'Current',
+      'level_novice': 'Novice',
+      'level_apprenti': 'Apprentice',
       'level_bronze': 'Bronze',
       'level_silver': 'Silver',
       'level_gold': 'Gold',
+      'level_platine': 'Platinum',
       'close': 'Close',
       'stat_completion': 'Completion',
       'stat_oldest_book': 'Oldest Book',
@@ -740,6 +743,23 @@ class TranslationService {
       'help_contact_us': 'Contact Us',
       'help_tests_title': 'Tests',
       'help_animation_tests': 'Animation Tests',
+      'anim_gamification_title': 'Gamification Animations',
+      'anim_tap_to_test': 'Tap any button to test the animation',
+      'anim_achievement_pop': 'Achievement Pop',
+      'anim_achievement_pop_desc':
+          'Toast notification for unlocked achievements',
+      'anim_goal_reached': 'Goal Reached',
+      'anim_goal_reached_desc':
+          'Fireworks celebration for completed reading goals',
+      'anim_badge_unlock': 'Badge Unlock',
+      'anim_badge_unlock_desc': 'Full-screen confetti for new badge',
+      'anim_level_up': 'Level Up',
+      'anim_level_up_desc': 'Progress bar flash for level advancement',
+      'anim_book_complete': 'Book Complete',
+      'anim_book_complete_desc': 'Stars and XP when finishing a book',
+      'anim_plus_one': '+1 Mario Style',
+      'anim_plus_one_desc': 'Floating +1 when adding a book',
+      'anim_play_sequence': 'Play Sequence Demo',
       'add_contact_title': 'Add Contact',
       'contact_type_label': 'Type',
       'role_borrower': 'Borrower',
@@ -798,6 +818,8 @@ class TranslationService {
       'goal_reached_title': '🎯 Goal Reached!',
       'monthly_goal_reached': 'Monthly Goal Reached!',
       'yearly_goal_reached': 'Yearly Goal Reached!',
+      'goal_books_this_year': 'books this year',
+      'goal_books_this_month': 'books this month',
       'congratulations': 'Congratulations!',
       'keep_it_up': 'Keep it up!',
       // Reading Goals
@@ -949,6 +971,22 @@ class TranslationService {
       // Borrowing Module
       'enable_borrowing_module': 'Enable Borrowing',
       'borrowing_module_desc': 'Lend and borrow books with friends',
+      // Gamification
+      'enable_gamification': 'Enable Gamification',
+      'gamification_desc':
+          'Track progress with badges, levels and achievements',
+      'gamification_how_it_works': 'How does it work?',
+      'gamification_collector_desc': 'Add books to your library to level up',
+      'gamification_reader_desc': 'Mark books as read to earn badges',
+      'gamification_lender_desc': 'Lend books to friends to progress',
+      'gamification_cataloguer_desc': 'Organize books on shelves to advance',
+      'gamification_levels_title': '6 Levels per badge',
+      'gamification_levels_desc':
+          'Novice (25) → Apprentice (50) → Bronze (100) → Silver (250) → Gold (500) → Platinum (1000)',
+      'gamification_streak_desc': 'Use the app daily to build your streak!',
+      'gamification_status_title': 'Your Status',
+      'gamification_status_desc':
+          'Curieux (start) → Initié (Apprenti on 1 track) → Bibliophile (Bronze on ALL tracks) → Érudit (Gold on ALL tracks)',
       'loans_menu': 'Loans & Borrows',
       'tab_requests': 'Requests',
       'tab_lent': 'Lent',
@@ -1605,6 +1643,16 @@ class TranslationService {
       'stat_read': 'Lus',
       'stat_borrowed': 'Empruntés',
       'stat_unique_authors': 'Auteurs uniques',
+      'badge_progress_info': 'Votre progression :',
+      'badge_levels_title': 'Niveaux à atteindre :',
+      'current': 'Actuel',
+      'level_novice': 'Novice',
+      'level_apprenti': 'Apprenti',
+      'level_bronze': 'Bronze',
+      'level_silver': 'Argent',
+      'level_gold': 'Or',
+      'level_platine': 'Platine',
+      'close': 'Fermer',
       'stat_completion': 'Complétion',
       'stat_oldest_book': 'Livre le plus ancien',
       'stat_avg_year': 'Année moy.',
@@ -1724,6 +1772,23 @@ class TranslationService {
       'help_contact_us': 'Contactez-nous',
       'help_tests_title': 'Tests',
       'help_animation_tests': 'Tests d\'animations',
+      'anim_gamification_title': 'Animations de gamification',
+      'anim_tap_to_test': 'Appuyez sur un bouton pour tester l\'animation',
+      'anim_achievement_pop': 'Succès débloqué',
+      'anim_achievement_pop_desc':
+          'Notification toast pour les succès débloqués',
+      'anim_goal_reached': 'Objectif atteint',
+      'anim_goal_reached_desc':
+          'Célébration avec feux d\'artifice pour les objectifs de lecture',
+      'anim_badge_unlock': 'Badge débloqué',
+      'anim_badge_unlock_desc': 'Confettis pour un nouveau badge',
+      'anim_level_up': 'Niveau supérieur',
+      'anim_level_up_desc': 'Flash de barre de progression',
+      'anim_book_complete': 'Livre terminé',
+      'anim_book_complete_desc': 'Étoiles et XP en terminant un livre',
+      'anim_plus_one': '+1 Style Mario',
+      'anim_plus_one_desc': '+1 flottant quand on ajoute un livre',
+      'anim_play_sequence': 'Jouer la séquence démo',
       'add_contact_title': 'Ajouter un contact',
       'contact_type_label': 'Type',
       'role_borrower': 'Emprunteur',
@@ -1763,6 +1828,8 @@ class TranslationService {
       'goal_reached_title': '🎯 Objectif atteint !',
       'monthly_goal_reached': 'Objectif mensuel atteint !',
       'yearly_goal_reached': 'Objectif annuel atteint !',
+      'goal_books_this_year': 'livres cette année',
+      'goal_books_this_month': 'livres ce mois-ci',
       'congratulations': 'Félicitations !',
       'keep_it_up': 'Continuez comme ça !',
       // Reading Goals
@@ -1910,7 +1977,25 @@ class TranslationService {
           'Redémarrez l\'app pour appliquer les changements',
       // Borrowing Module
       'enable_borrowing_module': 'Activer les emprunts',
-      'borrowing_module_desc': 'Prêter et emprunter des livres entre amis',
+      'borrowing_module_desc': 'Prêter et emprunter des livres avec vos amis',
+      // Gamification
+      'enable_gamification': 'Activer la gamification',
+      'gamification_desc':
+          'Suivez votre progression avec des badges et niveaux',
+      'gamification_how_it_works': 'Comment ça marche ?',
+      'gamification_collector_desc': 'Ajoutez des livres pour monter de niveau',
+      'gamification_reader_desc':
+          'Marquez des livres comme lus pour progresser',
+      'gamification_lender_desc': 'Prêtez des livres à vos amis pour avancer',
+      'gamification_cataloguer_desc': 'Organisez vos livres sur des étagères',
+      'gamification_levels_title': '6 Niveaux par badge',
+      'gamification_levels_desc':
+          'Novice (25) → Apprenti (50) → Bronze (100) → Argent (250) → Or (500) → Platine (1000)',
+      'gamification_streak_desc':
+          'Utilisez l\'app chaque jour pour maintenir votre série !',
+      'gamification_status_title': 'Votre Statut',
+      'gamification_status_desc':
+          'Curieux (début) → Initié (Apprenti sur 1 badge) → Bibliophile (Bronze sur TOUS) → Érudit (Or sur TOUS)',
       'loans_menu': 'Prêts & Emprunts',
       'tab_requests': 'Demandes',
       'tab_lent': 'Prêtés',
@@ -2423,7 +2508,26 @@ class TranslationService {
       'no_pub_year_data': 'Sin datos de año de publicación.',
       // Borrowing Module
       'enable_borrowing_module': 'Habilitar préstamos',
-      'borrowing_module_desc': 'Prestar y tomar prestados libros entre amigos',
+      'borrowing_module_desc': 'Prestar y tomar prestados libros con amigos',
+      // Gamification
+      'enable_gamification': 'Habilitar gamificación',
+      'gamification_desc': 'Sigue tu progreso con insignias y niveles',
+      'gamification_how_it_works': '¿Cómo funciona?',
+      'gamification_collector_desc':
+          'Añade libros a tu biblioteca para subir de nivel',
+      'gamification_reader_desc':
+          'Marca libros como leídos para ganar insignias',
+      'gamification_lender_desc': 'Presta libros a amigos para avanzar',
+      'gamification_cataloguer_desc':
+          'Organiza libros en estantes para progresar',
+      'gamification_levels_title': '6 Niveles por insignia',
+      'gamification_levels_desc':
+          'Novato (25) → Aprendiz (50) → Bronce (100) → Plata (250) → Oro (500) → Platino (1000)',
+      'gamification_streak_desc':
+          '¡Usa la app cada día para mantener tu racha!',
+      'gamification_status_title': 'Tu Estado',
+      'gamification_status_desc':
+          'Curioso (inicio) → Iniciado (Aprendiz en 1) → Bibliófilo (Bronce en TODOS) → Erudito (Oro en TODOS)',
       'loans_menu': 'Préstamos',
       'tab_requests': 'Solicitudes',
       'tab_lent': 'Prestados',
@@ -2838,7 +2942,7 @@ class TranslationService {
       'lang_en': 'Englisch',
       'lang_fr': 'Französisch',
       'lang_es': 'Spanisch',
-      'lang_de': 'Deutsch',
+      'lang_de': 'Alemán',
       'theme_default': 'Standard (Bunt)',
       'theme_minimal': 'Minimal (Sauber)',
       'theme_sorbonne': 'Sorbonne (Vintage Bibliothek)',
@@ -2868,6 +2972,25 @@ class TranslationService {
       // Borrowing Module
       'enable_borrowing_module': 'Ausleihe aktivieren',
       'borrowing_module_desc': 'Bücher mit Freunden verleihen und ausleihen',
+      // Gamification
+      'enable_gamification': 'Gamification aktivieren',
+      'gamification_desc':
+          'Verfolgen Sie Ihren Fortschritt mit Abzeichen und Stufen',
+      'gamification_how_it_works': 'Wie funktioniert es?',
+      'gamification_collector_desc': 'Fügen Sie Bücher hinzu, um aufzusteigen',
+      'gamification_reader_desc':
+          'Markieren Sie Bücher als gelesen für Abzeichen',
+      'gamification_lender_desc':
+          'Verleihen Sie Bücher an Freunde, um voranzukommen',
+      'gamification_cataloguer_desc': 'Organisieren Sie Bücher in Regalen',
+      'gamification_levels_title': '6 Stufen pro Abzeichen',
+      'gamification_levels_desc':
+          'Anfänger (25) → Lehrling (50) → Bronze (100) → Silber (250) → Gold (500) → Platin (1000)',
+      'gamification_streak_desc':
+          'Nutzen Sie die App täglich, um Ihre Serie zu halten!',
+      'gamification_status_title': 'Ihr Status',
+      'gamification_status_desc':
+          'Neugierig (Start) → Eingeweiht (Lehrling in 1) → Bibliophil (Bronze in ALLEN) → Gelehrter (Gold in ALLEN)',
       'loans_menu': 'Ausleihen',
       'tab_requests': 'Anfragen',
       'tab_lent': 'Verliehen',

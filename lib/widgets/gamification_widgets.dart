@@ -17,8 +17,9 @@ class BadgeInfo {
   });
 }
 
-BadgeInfo getBadgeInfo(int level) {
-  switch (level) {
+// Status badges definitions by index (0-3)
+BadgeInfo getBadgeInfo(int index) {
+  switch (index) {
     case 0:
       return BadgeInfo(
         assetPath: 'assets/images/badges/curieux.svg',
@@ -51,6 +52,19 @@ BadgeInfo getBadgeInfo(int level) {
   }
 }
 
+/// Maps the user's calculated status level (based on track levels) to a badge index (0-3).
+/// statusLevel logic:
+/// - 5+ (requires ALL tracks Gold/Platine) -> 3 (Érudit)
+/// - 3+ (requires ALL tracks Bronze+) -> 2 (Bibliophile)
+/// - 2+ (requires ONE track Apprenti) -> 1 (Initié)
+/// - 0-1 -> 0 (Curieux)
+int getStatusBadgeIndex(int statusLevel) {
+  if (statusLevel >= 5) return 3; // Érudit
+  if (statusLevel >= 3) return 2; // Bibliophile
+  if (statusLevel >= 2) return 1; // Initié
+  return 0; // Curieux
+}
+
 /// Shows a dialog explaining the level thresholds for a gamification track.
 void showTrackLevelInfo(
   BuildContext context, {
@@ -60,30 +74,38 @@ void showTrackLevelInfo(
   required Color color,
 }) {
   // Define thresholds for each track type
-  // These match the backend thresholds
+  // All tracks now use 6 levels: Novice (25), Apprenti (50), Bronze (100), Argent (250), Or (500), Platine (1000)
   final thresholds = {
-    'collector': [10, 50, 100],
-    'reader': [5, 20, 50],
-    'lender': [5, 20, 50],
-    'cataloguer': [10, 50, 100],
+    'collector': [25, 50, 100, 250, 500, 1000],
+    'reader': [25, 50, 100, 250, 500, 1000],
+    'lender': [25, 50, 100, 250, 500, 1000],
+    'cataloguer': [25, 50, 100, 250, 500, 1000],
   };
 
   // Determine track type from name
+  // Order matters! "Collectionneur" contains "lect" so we must check for collector first
   String trackType = 'collector';
-  if (trackName.toLowerCase().contains('lect')) {
+  final nameLower = trackName.toLowerCase();
+  if (nameLower.contains('collect') || nameLower.contains('collec')) {
+    trackType = 'collector';
+  } else if (nameLower.contains('lect') || nameLower.contains('read')) {
     trackType = 'reader';
-  } else if (trackName.toLowerCase().contains('prêt') ||
-      trackName.toLowerCase().contains('lender')) {
+  } else if (nameLower.contains('prêt') || nameLower.contains('lend')) {
     trackType = 'lender';
-  } else if (trackName.toLowerCase().contains('catal')) {
+  } else if (nameLower.contains('catal')) {
     trackType = 'cataloguer';
   }
 
-  final levels = thresholds[trackType] ?? [10, 50, 100];
+  final levels = thresholds[trackType] ?? [25, 50, 100, 250, 500, 1000];
+
+  // All tracks now use 6 levels with same names
   final levelNames = [
-    TranslationService.translate(context, 'level_bronze') ?? 'Bronze',
-    TranslationService.translate(context, 'level_silver') ?? 'Argent',
-    TranslationService.translate(context, 'level_gold') ?? 'Or',
+    TranslationService.translate(context, 'level_novice'),
+    TranslationService.translate(context, 'level_apprenti'),
+    TranslationService.translate(context, 'level_bronze'),
+    TranslationService.translate(context, 'level_silver'),
+    TranslationService.translate(context, 'level_gold'),
+    TranslationService.translate(context, 'level_platine'),
   ];
 
   showDialog(
@@ -146,7 +168,7 @@ void showTrackLevelInfo(
           ),
           const SizedBox(height: 8),
           // Level thresholds
-          ...List.generate(3, (i) {
+          ...List.generate(levels.length, (i) {
             final threshold = levels[i];
             final isAchieved = track.current >= threshold;
             final isCurrent = track.level == i + 1;
@@ -202,9 +224,9 @@ void showTrackLevelInfo(
 }
 
 class BadgeCollectionWidget extends StatelessWidget {
-  final int maxTrackLevel;
+  final int statusLevel;
 
-  const BadgeCollectionWidget({super.key, required this.maxTrackLevel});
+  const BadgeCollectionWidget({super.key, required this.statusLevel});
 
   @override
   Widget build(BuildContext context) {
@@ -212,6 +234,7 @@ class BadgeCollectionWidget extends StatelessWidget {
     final isDesktop = MediaQuery.of(context).size.width > 600;
     final titleFontSize = isDesktop ? 16.0 : 12.0;
     final badgeLabelFontSize = isDesktop ? 16.0 : 12.0;
+    final currentBadgeIndex = getStatusBadgeIndex(statusLevel);
 
     return Column(
       crossAxisAlignment: CrossAxisAlignment.center,
@@ -244,7 +267,7 @@ class BadgeCollectionWidget extends StatelessWidget {
             mainAxisAlignment: MainAxisAlignment.spaceAround,
             children: List.generate(4, (index) {
               final badgeInfo = getBadgeInfo(index);
-              final isUnlocked = maxTrackLevel >= index;
+              final isUnlocked = currentBadgeIndex >= index;
               // Flexible sizing based on available space
               final badgeIconSize = isDesktop ? 72.0 : 50.0;
 
@@ -344,9 +367,9 @@ class BadgeCollectionWidget extends StatelessWidget {
 }
 
 class CurrentBadgeWidget extends StatefulWidget {
-  final int maxTrackLevel;
+  final int statusLevel;
 
-  const CurrentBadgeWidget({super.key, required this.maxTrackLevel});
+  const CurrentBadgeWidget({super.key, required this.statusLevel});
 
   @override
   State<CurrentBadgeWidget> createState() => _CurrentBadgeWidgetState();
@@ -378,8 +401,12 @@ class _CurrentBadgeWidgetState extends State<CurrentBadgeWidget>
 
   @override
   Widget build(BuildContext context) {
-    final badgeInfo = getBadgeInfo(widget.maxTrackLevel);
-    final isPrestige = widget.maxTrackLevel > 3;
+    final currentBadgeIndex = getStatusBadgeIndex(widget.statusLevel);
+    // Prestige affects animation (but max logic is handled by statusLevel > 5 check if needed,
+    // though statusLevel is capped at 5 in model? No, model cap is 5. 5 is Érudit.)
+    // Let's assume Prestige effect is for the top tier.
+    final badgeInfo = getBadgeInfo(currentBadgeIndex);
+    final isPrestige = widget.statusLevel >= 5;
 
     return Container(
       margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
@@ -452,7 +479,7 @@ class _CurrentBadgeWidgetState extends State<CurrentBadgeWidget>
                   ),
                   child: Text(
                     isPrestige
-                        ? '${TranslationService.translate(context, badgeInfo.translationKey)} ${widget.maxTrackLevel}'
+                        ? '${TranslationService.translate(context, badgeInfo.translationKey)} ${widget.statusLevel}'
                         : TranslationService.translate(
                             context,
                             badgeInfo.translationKey,
@@ -839,11 +866,19 @@ class StreakWidget extends StatelessWidget {
 }
 
 /// A premium card showing gamification summary with glassmorphism design.
-class GamificationSummaryCard extends StatelessWidget {
+class GamificationSummaryCard extends StatefulWidget {
   final GamificationStatus status;
   final VoidCallback? onTap;
 
   const GamificationSummaryCard({super.key, required this.status, this.onTap});
+
+  @override
+  State<GamificationSummaryCard> createState() =>
+      _GamificationSummaryCardState();
+}
+
+class _GamificationSummaryCardState extends State<GamificationSummaryCard> {
+  bool _showHelp = false;
 
   @override
   Widget build(BuildContext context) {
@@ -874,14 +909,14 @@ class GamificationSummaryCard extends StatelessWidget {
         child: Material(
           color: Colors.transparent,
           child: InkWell(
-            onTap: onTap,
+            onTap: widget.onTap,
             borderRadius: BorderRadius.circular(20),
             child: Padding(
               padding: const EdgeInsets.all(16.0),
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  // Header with title and streak
+                  // Header with title, info button and streak
                   Row(
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
@@ -910,15 +945,33 @@ class GamificationSummaryCard extends StatelessWidget {
                             style: Theme.of(context).textTheme.titleMedium
                                 ?.copyWith(fontWeight: FontWeight.bold),
                           ),
+                          const SizedBox(width: 8),
+                          GestureDetector(
+                            onTap: () => setState(() => _showHelp = !_showHelp),
+                            child: Icon(
+                              _showHelp ? Icons.close : Icons.help_outline,
+                              size: 20,
+                              color: isDark
+                                  ? Colors.grey[400]
+                                  : Colors.grey[600],
+                            ),
+                          ),
                         ],
                       ),
-                      StreakWidget(streak: status.streak),
+                      StreakWidget(streak: widget.status.streak),
                     ],
                   ),
+
+                  // Help panel (expandable)
+                  if (_showHelp) ...[
+                    const SizedBox(height: 16),
+                    _buildHelpPanel(context, isDark),
+                  ],
+
                   const SizedBox(height: 16),
 
                   // Badge Collection
-                  BadgeCollectionWidget(maxTrackLevel: status.maxTrackLevel),
+                  BadgeCollectionWidget(statusLevel: widget.status.statusLevel),
 
                   const SizedBox(height: 16),
                   const Divider(height: 1, indent: 24, endIndent: 24),
@@ -927,17 +980,17 @@ class GamificationSummaryCard extends StatelessWidget {
                   // Tracks with enhanced layout
                   Padding(
                     padding: const EdgeInsets.symmetric(horizontal: 24.0),
-                    child: TracksProgressRow(status: status),
+                    child: TracksProgressRow(status: widget.status),
                   ),
 
                   // Reading goal progress (if enabled)
-                  if (status.config.readingGoalYearly > 0) ...[
+                  if (widget.status.config.readingGoalYearly > 0) ...[
                     const SizedBox(height: 20),
                     _buildReadingGoalSection(context),
                   ],
 
                   // Achievements section
-                  if (status.hasAchievements) ...[
+                  if (widget.status.hasAchievements) ...[
                     const SizedBox(height: 20),
                     Container(
                       padding: const EdgeInsets.all(12),
@@ -972,7 +1025,7 @@ class GamificationSummaryCard extends StatelessWidget {
                           Wrap(
                             spacing: 8,
                             runSpacing: 6,
-                            children: status.recentAchievements
+                            children: widget.status.recentAchievements
                                 .take(3)
                                 .map((id) => _buildAchievementChip(context, id))
                                 .toList(),
@@ -990,10 +1043,178 @@ class GamificationSummaryCard extends StatelessWidget {
     );
   }
 
+  Widget _buildHelpPanel(BuildContext context, bool isDark) {
+    return Container(
+      padding: const EdgeInsets.all(16),
+      decoration: BoxDecoration(
+        color: isDark
+            ? Colors.white.withValues(alpha: 0.08)
+            : Colors.blue.withValues(alpha: 0.05),
+        borderRadius: BorderRadius.circular(12),
+        border: Border.all(
+          color: isDark
+              ? Colors.white.withValues(alpha: 0.1)
+              : Colors.blue.withValues(alpha: 0.2),
+        ),
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Text(
+            TranslationService.translate(context, 'gamification_how_it_works'),
+            style: Theme.of(context).textTheme.titleSmall?.copyWith(
+              fontWeight: FontWeight.bold,
+              color: isDark ? Colors.white : Colors.blue[800],
+            ),
+          ),
+          const SizedBox(height: 12),
+
+          // Badges explanation
+          _buildHelpItem(
+            context,
+            Icons.collections_bookmark,
+            TranslationService.translate(context, 'track_collector'),
+            TranslationService.translate(
+              context,
+              'gamification_collector_desc',
+            ),
+            Colors.blue,
+          ),
+          const SizedBox(height: 8),
+          _buildHelpItem(
+            context,
+            Icons.menu_book,
+            TranslationService.translate(context, 'track_reader'),
+            TranslationService.translate(context, 'gamification_reader_desc'),
+            Colors.green,
+          ),
+          const SizedBox(height: 8),
+          _buildHelpItem(
+            context,
+            Icons.volunteer_activism,
+            TranslationService.translate(context, 'track_lender'),
+            TranslationService.translate(context, 'gamification_lender_desc'),
+            Colors.orange,
+          ),
+          const SizedBox(height: 8),
+          _buildHelpItem(
+            context,
+            Icons.list_alt,
+            TranslationService.translate(context, 'track_cataloguer'),
+            TranslationService.translate(
+              context,
+              'gamification_cataloguer_desc',
+            ),
+            Colors.purple,
+          ),
+
+          const SizedBox(height: 16),
+          const Divider(),
+          const SizedBox(height: 12),
+
+          // Status badges explanation
+          Text(
+            TranslationService.translate(context, 'gamification_status_title'),
+            style: Theme.of(
+              context,
+            ).textTheme.bodyMedium?.copyWith(fontWeight: FontWeight.bold),
+          ),
+          const SizedBox(height: 8),
+          Text(
+            TranslationService.translate(context, 'gamification_status_desc'),
+            style: Theme.of(
+              context,
+            ).textTheme.bodySmall?.copyWith(color: Colors.grey[600]),
+          ),
+
+          const SizedBox(height: 16),
+          const Divider(),
+          const SizedBox(height: 12),
+
+          // Levels explanation
+          Text(
+            TranslationService.translate(context, 'gamification_levels_title'),
+            style: Theme.of(
+              context,
+            ).textTheme.bodyMedium?.copyWith(fontWeight: FontWeight.bold),
+          ),
+          const SizedBox(height: 8),
+          Text(
+            TranslationService.translate(context, 'gamification_levels_desc'),
+            style: Theme.of(
+              context,
+            ).textTheme.bodySmall?.copyWith(color: Colors.grey[600]),
+          ),
+
+          const SizedBox(height: 12),
+
+          // Streak explanation
+          Row(
+            children: [
+              const Icon(
+                Icons.local_fire_department,
+                size: 18,
+                color: Colors.orange,
+              ),
+              const SizedBox(width: 8),
+              Expanded(
+                child: Text(
+                  TranslationService.translate(
+                    context,
+                    'gamification_streak_desc',
+                  ),
+                  style: Theme.of(
+                    context,
+                  ).textTheme.bodySmall?.copyWith(color: Colors.grey[600]),
+                ),
+              ),
+            ],
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildHelpItem(
+    BuildContext context,
+    IconData icon,
+    String title,
+    String description,
+    Color color,
+  ) {
+    return Row(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Icon(icon, size: 18, color: color),
+        const SizedBox(width: 10),
+        Expanded(
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text(
+                title,
+                style: Theme.of(
+                  context,
+                ).textTheme.bodySmall?.copyWith(fontWeight: FontWeight.bold),
+              ),
+              Text(
+                description,
+                style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                  color: Colors.grey[600],
+                  fontSize: 11,
+                ),
+              ),
+            ],
+          ),
+        ),
+      ],
+    );
+  }
+
   Widget _buildReadingGoalSection(BuildContext context) {
-    final progress = status.config.goalProgress;
-    final current = status.config.readingGoalProgress;
-    final goal = status.config.readingGoalYearly;
+    final progress = widget.status.config.goalProgress;
+    final current = widget.status.config.readingGoalProgress;
+    final goal = widget.status.config.readingGoalYearly;
 
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,

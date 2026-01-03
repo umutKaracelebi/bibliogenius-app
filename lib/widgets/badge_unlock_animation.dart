@@ -137,7 +137,12 @@ class _BadgeUnlockAnimationWidgetState
     _generateConfetti();
 
     // Start animations
-    _mainController.forward().then((_) => widget.onComplete());
+    _mainController.forward().then((_) {
+      // Stop all repeating animations before removing overlay
+      _pulseController.stop();
+      _confettiController.stop();
+      widget.onComplete();
+    });
     _confettiController.forward();
   }
 

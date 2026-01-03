@@ -171,6 +171,29 @@ class GamificationStatus {
     cataloguer.level,
   ].reduce((a, b) => a > b ? a : b);
 
+  /// Returns the lowest level achieved across all tracks.
+  /// Used for balanced status calculation.
+  int get minTrackLevel => [
+    collector.level,
+    reader.level,
+    lender.level,
+    cataloguer.level,
+  ].reduce((a, b) => a < b ? a : b);
+
+  /// Returns status level for badge display.
+  /// Uses minTrackLevel for Érudit (requires excellence on ALL tracks)
+  /// and maxTrackLevel for lower statuses (rewards early engagement).
+  int get statusLevel {
+    // Érudit requires ALL tracks at level 5+ (Or/Platine)
+    if (minTrackLevel >= 5) return 5;
+    // Bibliophile requires ALL tracks at level 3+ (Bronze+)
+    if (minTrackLevel >= 3) return 3;
+    // Initié requires at least ONE track at level 2+ (Apprenti)
+    if (maxTrackLevel >= 2) return 2;
+    // Curieux is the default
+    return maxTrackLevel;
+  }
+
   /// Returns true if user has any achievements.
   bool get hasAchievements => recentAchievements.isNotEmpty;
 

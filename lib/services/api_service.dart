@@ -816,38 +816,56 @@ class ApiService {
           if (longestStreak < currentStreak) longestStreak = currentStreak;
         }
 
-        // Calculate collector progress (thresholds: 10, 50, 100)
+        // Calculate collector progress (6 levels: Novice 25, Apprenti 50, Bronze 100, Argent 250, Or 500, Platine 1000)
         int collectorLevel = 0;
-        int collectorNext = 10;
-        if (totalBooks >= 100) {
+        int collectorNext = 25;
+        if (totalBooks >= 1000) {
+          collectorLevel = 6;
+          collectorNext = 1000;
+        } else if (totalBooks >= 500) {
+          collectorLevel = 5;
+          collectorNext = 1000;
+        } else if (totalBooks >= 250) {
+          collectorLevel = 4;
+          collectorNext = 500;
+        } else if (totalBooks >= 100) {
           collectorLevel = 3;
-          collectorNext = 100;
+          collectorNext = 250;
         } else if (totalBooks >= 50) {
           collectorLevel = 2;
           collectorNext = 100;
-        } else if (totalBooks >= 10) {
+        } else if (totalBooks >= 25) {
           collectorLevel = 1;
           collectorNext = 50;
         }
 
-        // Calculate reader progress (thresholds: 5, 25, 50)
+        // Calculate reader progress (6 levels: 25, 50, 100, 250, 500, 1000)
         int readerLevel = 0;
-        int readerNext = 5;
-        if (booksRead >= 50) {
+        int readerNext = 25;
+        if (booksRead >= 1000) {
+          readerLevel = 6;
+          readerNext = 1000;
+        } else if (booksRead >= 500) {
+          readerLevel = 5;
+          readerNext = 1000;
+        } else if (booksRead >= 250) {
+          readerLevel = 4;
+          readerNext = 500;
+        } else if (booksRead >= 100) {
           readerLevel = 3;
-          readerNext = 50;
-        } else if (booksRead >= 25) {
+          readerNext = 250;
+        } else if (booksRead >= 50) {
           readerLevel = 2;
-          readerNext = 50;
-        } else if (booksRead >= 5) {
+          readerNext = 100;
+        } else if (booksRead >= 25) {
           readerLevel = 1;
-          readerNext = 25;
+          readerNext = 50;
         }
 
-        double collectorProgress = collectorLevel >= 3
+        double collectorProgress = collectorLevel >= 6
             ? 1.0
             : totalBooks / collectorNext;
-        double readerProgress = readerLevel >= 3 ? 1.0 : booksRead / readerNext;
+        double readerProgress = readerLevel >= 6 ? 1.0 : booksRead / readerNext;
 
         // Calculate lender progress (thresholds: 5, 20, 50)
         int totalLoans = 0;
@@ -859,22 +877,31 @@ class ApiService {
         }
 
         int lenderLevel = 0;
-        int lenderNext = 5;
-        if (totalLoans >= 50) {
+        int lenderNext = 25;
+        if (totalLoans >= 1000) {
+          lenderLevel = 6;
+          lenderNext = 1000;
+        } else if (totalLoans >= 500) {
+          lenderLevel = 5;
+          lenderNext = 1000;
+        } else if (totalLoans >= 250) {
+          lenderLevel = 4;
+          lenderNext = 500;
+        } else if (totalLoans >= 100) {
           lenderLevel = 3;
-          lenderNext = 50;
-        } else if (totalLoans >= 20) {
+          lenderNext = 250;
+        } else if (totalLoans >= 50) {
           lenderLevel = 2;
-          lenderNext = 50;
-        } else if (totalLoans >= 5) {
+          lenderNext = 100;
+        } else if (totalLoans >= 25) {
           lenderLevel = 1;
-          lenderNext = 20;
+          lenderNext = 50;
         }
-        double lenderProgress = lenderLevel >= 3
+        double lenderProgress = lenderLevel >= 6
             ? 1.0
             : totalLoans / lenderNext;
 
-        // Calculate cataloguer progress (thresholds: 10, 20, 50) based on shelves (tags)
+        // Calculate cataloguer progress (6 levels: 25, 50, 100, 250, 500, 1000) based on shelves (tags)
         int totalShelves = 0;
         try {
           final tags = await FfiService().getTags();
@@ -884,18 +911,27 @@ class ApiService {
         }
 
         int cataloguerLevel = 0;
-        int cataloguerNext = 10;
-        if (totalShelves >= 50) {
+        int cataloguerNext = 25;
+        if (totalShelves >= 1000) {
+          cataloguerLevel = 6;
+          cataloguerNext = 1000;
+        } else if (totalShelves >= 500) {
+          cataloguerLevel = 5;
+          cataloguerNext = 1000;
+        } else if (totalShelves >= 250) {
+          cataloguerLevel = 4;
+          cataloguerNext = 500;
+        } else if (totalShelves >= 100) {
           cataloguerLevel = 3;
-          cataloguerNext = 50;
-        } else if (totalShelves >= 20) {
+          cataloguerNext = 250;
+        } else if (totalShelves >= 50) {
           cataloguerLevel = 2;
-          cataloguerNext = 50;
-        } else if (totalShelves >= 10) {
+          cataloguerNext = 100;
+        } else if (totalShelves >= 25) {
           cataloguerLevel = 1;
-          cataloguerNext = 20;
+          cataloguerNext = 50;
         }
-        double cataloguerProgress = cataloguerLevel >= 3
+        double cataloguerProgress = cataloguerLevel >= 6
             ? 1.0
             : totalShelves / cataloguerNext;
 

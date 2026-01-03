@@ -5,6 +5,7 @@ import '../widgets/badge_unlock_animation.dart';
 import '../widgets/level_up_animation.dart';
 import '../widgets/book_complete_animation.dart';
 import '../widgets/plus_one_animation.dart';
+import '../services/translation_service.dart';
 
 /// Demo screen to test all gamification animations
 class AnimationsTestScreen extends StatelessWidget {
@@ -14,7 +15,9 @@ class AnimationsTestScreen extends StatelessWidget {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text('🎮 Animation Tests'),
+        title: Text(
+          TranslationService.translate(context, 'help_animation_tests'),
+        ),
         backgroundColor: Theme.of(context).colorScheme.primary,
       ),
       body: SingleChildScrollView(
@@ -22,26 +25,33 @@ class AnimationsTestScreen extends StatelessWidget {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
-            const Text(
-              'Gamification Animations',
-              style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
+            Text(
+              TranslationService.translate(context, 'anim_gamification_title'),
+              style: const TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
             ),
             const SizedBox(height: 8),
-            const Text(
-              'Tap any button to test the animation',
-              style: TextStyle(color: Colors.grey),
+            Text(
+              TranslationService.translate(context, 'anim_tap_to_test'),
+              style: const TextStyle(color: Colors.grey),
             ),
             const SizedBox(height: 32),
 
             // Achievement Pop
             _AnimationCard(
-              title: '🏆 Achievement Pop',
-              description: 'Toast notification for unlocked achievements',
+              title:
+                  '🏆 ${TranslationService.translate(context, 'anim_achievement_pop')}',
+              description: TranslationService.translate(
+                context,
+                'anim_achievement_pop_desc',
+              ),
               color: Colors.amber,
               onTap: () {
                 AchievementPopAnimation.show(
                   context,
-                  achievementName: 'First Book Added!',
+                  achievementName: TranslationService.translate(
+                    context,
+                    'achievement_first_book',
+                  ),
                   achievementIcon: Icons.auto_stories,
                   color: Colors.amber,
                 );
@@ -52,15 +62,22 @@ class AnimationsTestScreen extends StatelessWidget {
 
             // Goal Reached
             _AnimationCard(
-              title: '🎯 Goal Reached',
-              description: 'Fireworks celebration for completed reading goals',
+              title:
+                  '🎯 ${TranslationService.translate(context, 'anim_goal_reached')}',
+              description: TranslationService.translate(
+                context,
+                'anim_goal_reached_desc',
+              ),
               color: Colors.green,
               onTap: () {
                 GoalReachedAnimation.show(
                   context,
                   goalType: 'yearly',
                   booksRead: 25,
-                  customMessage: '🎯 Yearly Goal Reached!',
+                  customMessage: TranslationService.translate(
+                    context,
+                    'yearly_goal_reached',
+                  ),
                 );
               },
             ),
@@ -69,16 +86,26 @@ class AnimationsTestScreen extends StatelessWidget {
 
             // Badge Unlock
             _AnimationCard(
-              title: '🏅 Badge Unlock',
-              description: 'Full-screen confetti for new badge',
+              title:
+                  '🏅 ${TranslationService.translate(context, 'anim_badge_unlock')}',
+              description: TranslationService.translate(
+                context,
+                'anim_badge_unlock_desc',
+              ),
               color: Colors.purple,
               onTap: () {
                 BadgeUnlockAnimation.show(
                   context,
-                  badgeName: 'Bibliophile',
+                  badgeName: TranslationService.translate(
+                    context,
+                    'level_bibliophile',
+                  ),
                   badgeAssetPath: 'assets/images/badges/bibliophile.svg',
                   badgeColor: const Color(0xFFFF9800),
-                  subtitle: '🏆 New Badge Unlocked!',
+                  subtitle: TranslationService.translate(
+                    context,
+                    'new_badge_unlocked',
+                  ),
                 );
               },
             ),
@@ -87,14 +114,21 @@ class AnimationsTestScreen extends StatelessWidget {
 
             // Level Up
             _AnimationCard(
-              title: '⬆️ Level Up',
-              description: 'Progress bar flash for level advancement',
+              title:
+                  '⬆️ ${TranslationService.translate(context, 'anim_level_up')}',
+              description: TranslationService.translate(
+                context,
+                'anim_level_up_desc',
+              ),
               color: Colors.blue,
               onTap: () {
                 LevelUpAnimation.show(
                   context,
                   newLevel: 3,
-                  trackName: 'Reader',
+                  trackName: TranslationService.translate(
+                    context,
+                    'track_reader',
+                  ),
                   trackColor: Colors.green,
                   trackIcon: Icons.menu_book,
                 );
@@ -105,8 +139,12 @@ class AnimationsTestScreen extends StatelessWidget {
 
             // Book Complete
             _AnimationCard(
-              title: '📚 Book Complete',
-              description: 'Stars and XP when finishing a book',
+              title:
+                  '📚 ${TranslationService.translate(context, 'anim_book_complete')}',
+              description: TranslationService.translate(
+                context,
+                'anim_book_complete_desc',
+              ),
               color: Colors.teal,
               onTap: () {
                 BookCompleteCelebration.show(
@@ -121,8 +159,11 @@ class AnimationsTestScreen extends StatelessWidget {
 
             // Plus One
             _AnimationCard(
-              title: '+1 Mario Style',
-              description: 'Floating +1 when adding a book',
+              title: TranslationService.translate(context, 'anim_plus_one'),
+              description: TranslationService.translate(
+                context,
+                'anim_plus_one_desc',
+              ),
               color: Colors.orange,
               onTap: () {
                 PlusOneAnimation.show(context);
@@ -137,7 +178,10 @@ class AnimationsTestScreen extends StatelessWidget {
                 // Trigger sequence of animations
                 AchievementPopAnimation.show(
                   context,
-                  achievementName: 'Streak Master!',
+                  achievementName: TranslationService.translate(
+                    context,
+                    'achievement_streak_7',
+                  ),
                   achievementIcon: Icons.local_fire_department,
                   color: Colors.red,
                 );
@@ -151,13 +195,18 @@ class AnimationsTestScreen extends StatelessWidget {
                 LevelUpAnimation.show(
                   context,
                   newLevel: 2,
-                  trackName: 'Collector',
+                  trackName: TranslationService.translate(
+                    context,
+                    'track_collector',
+                  ),
                   trackColor: Colors.blue,
                   trackIcon: Icons.collections_bookmark,
                 );
               },
               icon: const Icon(Icons.play_arrow),
-              label: const Text('Play Sequence Demo'),
+              label: Text(
+                TranslationService.translate(context, 'anim_play_sequence'),
+              ),
               style: ElevatedButton.styleFrom(
                 padding: const EdgeInsets.all(16),
                 backgroundColor: Colors.deepPurple,

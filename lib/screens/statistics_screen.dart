@@ -791,7 +791,8 @@ class _StatisticsScreenState extends State<StatisticsScreen>
       child: Column(
         children: [
           // Badge display at top
-          CurrentBadgeWidget(maxTrackLevel: _userStatus!.maxTrackLevel),
+          // Badge display at top
+          CurrentBadgeWidget(statusLevel: _userStatus!.statusLevel),
           const SizedBox(height: 24),
           Padding(
             padding: const EdgeInsets.symmetric(horizontal: 24.0),
@@ -818,7 +819,7 @@ class _StatisticsScreenState extends State<StatisticsScreen>
             ),
           ),
           const SizedBox(height: 24),
-          BadgeCollectionWidget(maxTrackLevel: _userStatus!.maxTrackLevel),
+          BadgeCollectionWidget(statusLevel: _userStatus!.statusLevel),
           const SizedBox(height: 24),
           const Divider(height: 1, indent: 24, endIndent: 24),
           const SizedBox(height: 24),
@@ -903,80 +904,89 @@ class _StatisticsScreenState extends State<StatisticsScreen>
     Color color,
   ) {
     return Expanded(
-      child: Column(
-        children: [
-          SizedBox(
-            width: 70,
-            height: 70,
-            child: Stack(
-              alignment: Alignment.center,
-              children: [
-                SizedBox(
-                  width: 60,
-                  height: 60,
-                  child: CircularProgressIndicator(
-                    value: 1.0,
-                    strokeWidth: 6,
-                    color: color.withValues(alpha: 0.1),
+      child: GestureDetector(
+        onTap: () => showTrackLevelInfo(
+          context,
+          trackName: title,
+          track: track,
+          icon: icon,
+          color: color,
+        ),
+        child: Column(
+          children: [
+            SizedBox(
+              width: 70,
+              height: 70,
+              child: Stack(
+                alignment: Alignment.center,
+                children: [
+                  SizedBox(
+                    width: 60,
+                    height: 60,
+                    child: CircularProgressIndicator(
+                      value: 1.0,
+                      strokeWidth: 6,
+                      color: color.withValues(alpha: 0.1),
+                    ),
                   ),
-                ),
-                SizedBox(
-                  width: 60,
-                  height: 60,
-                  child: CircularProgressIndicator(
-                    value: track.progress,
-                    strokeWidth: 6,
-                    color: color,
-                    strokeCap: StrokeCap.round,
+                  SizedBox(
+                    width: 60,
+                    height: 60,
+                    child: CircularProgressIndicator(
+                      value: track.progress,
+                      strokeWidth: 6,
+                      color: color,
+                      strokeCap: StrokeCap.round,
+                    ),
                   ),
-                ),
-                Icon(icon, color: color, size: 28),
-                if (track.level > 0)
-                  Positioned(
-                    top: 0,
-                    right: 4,
-                    child: Container(
-                      padding: const EdgeInsets.all(5),
-                      decoration: const BoxDecoration(
-                        color: Colors.amber,
-                        shape: BoxShape.circle,
-                      ),
-                      child: Text(
-                        track.level.toString(),
-                        style: const TextStyle(
-                          color: Colors.white,
-                          fontSize: 10,
-                          fontWeight: FontWeight.bold,
+                  Icon(icon, color: color, size: 28),
+                  if (track.level > 0)
+                    Positioned(
+                      top: 0,
+                      right: 4,
+                      child: Container(
+                        padding: const EdgeInsets.all(5),
+                        decoration: const BoxDecoration(
+                          color: Colors.amber,
+                          shape: BoxShape.circle,
+                        ),
+                        child: Text(
+                          track.level.toString(),
+                          style: const TextStyle(
+                            color: Colors.white,
+                            fontSize: 10,
+                            fontWeight: FontWeight.bold,
+                          ),
                         ),
                       ),
                     ),
-                  ),
-              ],
+                ],
+              ),
             ),
-          ),
-          const SizedBox(height: 8),
-          Text(
-            title.split(' ').last,
-            textAlign: TextAlign.center,
-            style: TextStyle(
-              fontSize: 11,
-              fontWeight: FontWeight.bold,
-              color: Theme.of(context).textTheme.bodySmall?.color,
+            const SizedBox(height: 8),
+            Text(
+              title.split(' ').last,
+              textAlign: TextAlign.center,
+              style: TextStyle(
+                fontSize: 11,
+                fontWeight: FontWeight.bold,
+                color: Theme.of(context).textTheme.bodySmall?.color,
+              ),
+              maxLines: 1,
+              overflow: TextOverflow.ellipsis,
             ),
-            maxLines: 1,
-            overflow: TextOverflow.ellipsis,
-          ),
-          const SizedBox(height: 2),
-          // Show progress intelligently: if current >= nextThreshold, show level completed
-          Text(
-            track.isMaxLevel
-                ? '${track.current} ✓'
-                : track.current >= track.nextThreshold
-                ? '${track.current}/${track.nextThreshold} ✓'
-                : '${track.current}/${track.nextThreshold}',
-            style: TextStyle(fontSize: 10, color: Colors.grey[600]),
-          ),
-        ],
+            const SizedBox(height: 2),
+            // Show progress intelligently: if current >= nextThreshold, show level completed
+            Text(
+              track.isMaxLevel
+                  ? '${track.current} ✓'
+                  : track.current >= track.nextThreshold
+                  ? '${track.current}/${track.nextThreshold} ✓'
+                  : '${track.current}/${track.nextThreshold}',
+              style: TextStyle(fontSize: 10, color: Colors.grey[600]),
+            ),
+          ],
+        ),
       ),
     );
   }

@@ -116,10 +116,15 @@ class _BookListScreenState extends State<BookListScreen>
 
   @override
   Widget build(BuildContext context) {
-    // Banner always shows translated "My Library"
+    final width = MediaQuery.of(context).size.width;
+    final bool isMobile = width <= 600;
+
+    // On mobile, hide title (just show icon); on desktop, show full title
     dynamic titleWidget = _isSearching
         ? _buildSearchField() // Use custom search field with autocomplete
-        : TranslationService.translate(context, 'my_library_title');
+        : (isMobile
+              ? null
+              : TranslationService.translate(context, 'my_library_title'));
 
     if (_isReordering) {
       titleWidget = Text(
@@ -128,9 +133,6 @@ class _BookListScreenState extends State<BookListScreen>
         style: const TextStyle(color: Colors.white, fontSize: 18),
       );
     }
-
-    final width = MediaQuery.of(context).size.width;
-    final bool isMobile = width <= 600;
 
     return Scaffold(
       extendBodyBehindAppBar: true,
@@ -229,31 +231,21 @@ class _BookListScreenState extends State<BookListScreen>
                 }
               },
             ),
-            // Hide refresh and external search on mobile to prevent overlap
-            if (!isMobile) ...[
-              IconButton(
-                icon: const Icon(Icons.refresh, color: Colors.white),
-                tooltip: TranslationService.translate(
-                  context,
-                  'action_refresh',
-                ),
-                onPressed: _fetchBooks,
+            // Online search - show on all devices
+            IconButton(
+              key: _externalSearchKey,
+              icon: const Icon(Icons.public, color: Colors.white),
+              tooltip: TranslationService.translate(
+                context,
+                'btn_search_online',
               ),
-              IconButton(
-                key: _externalSearchKey,
-                icon: const Icon(Icons.public, color: Colors.white),
-                tooltip: TranslationService.translate(
-                  context,
-                  'btn_search_online',
-                ),
-                onPressed: () async {
-                  final result = await context.push('/search/external');
-                  if (result == true) {
-                    _fetchBooks();
-                  }
-                },
-              ),
-            ],
+              onPressed: () async {
+                final result = await context.push('/search/external');
+                if (result == true) {
+                  _fetchBooks();
+                }
+              },
+            ),
           ],
         ],
       ),
@@ -399,8 +391,20 @@ class _BookListScreenState extends State<BookListScreen>
           .toList();
     }
 
-    // Default sort: alphabetical by author, then by title
+    // Default sort: alphabetical by author surname (last word), then by title
+    // Helper to extract surname (last word) from author name
+    String getSurname(String? author) {
+      if (author == null || author.isEmpty) return '';
+      final parts = author.trim().split(RegExp(r'\s+'));
+      return parts.last.toLowerCase();
+    }
+
     tempBooks.sort((a, b) {
+      final surnameA = getSurname(a.author);
+      final surnameB = getSurname(b.author);
+      final surnameCompare = surnameA.compareTo(surnameB);
+      if (surnameCompare != 0) return surnameCompare;
+      // If same surname, compare full author name
       final authorA = (a.author ?? '').toLowerCase();
       final authorB = (b.author ?? '').toLowerCase();
       final authorCompare = authorA.compareTo(authorB);

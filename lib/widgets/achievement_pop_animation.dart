@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import '../services/translation_service.dart';
 
 /// A toast-style notification that slides from the top when achievements are unlocked.
 /// More subtle than BadgeUnlockAnimation - good for frequent achievements.
@@ -15,6 +16,10 @@ class AchievementPopAnimation {
   }) {
     final overlay = Overlay.of(context);
     final effectiveColor = color ?? Colors.amber;
+    final unlockText = TranslationService.translate(
+      context,
+      'achievement_unlocked',
+    );
 
     late OverlayEntry entry;
     entry = OverlayEntry(
@@ -22,6 +27,7 @@ class AchievementPopAnimation {
         achievementName: achievementName,
         achievementIcon: achievementIcon,
         color: effectiveColor,
+        unlockText: unlockText,
         onComplete: () => entry.remove(),
       ),
     );
@@ -34,12 +40,14 @@ class _AchievementPopWidget extends StatefulWidget {
   final String achievementName;
   final IconData achievementIcon;
   final Color color;
+  final String unlockText;
   final VoidCallback onComplete;
 
   const _AchievementPopWidget({
     required this.achievementName,
     required this.achievementIcon,
     required this.color,
+    required this.unlockText,
     required this.onComplete,
   });
 
@@ -209,7 +217,7 @@ class _AchievementPopWidgetState extends State<_AchievementPopWidget>
                               mainAxisSize: MainAxisSize.min,
                               children: [
                                 Text(
-                                  '🏆 Achievement Unlocked!',
+                                  widget.unlockText,
                                   style: TextStyle(
                                     color: Colors.white.withValues(alpha: 0.9),
                                     fontSize: 12,

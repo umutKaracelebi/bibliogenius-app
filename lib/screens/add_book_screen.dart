@@ -13,7 +13,6 @@ import '../widgets/plus_one_animation.dart';
 import '../widgets/cached_book_cover.dart';
 import 'package:cached_network_image/cached_network_image.dart';
 import 'scan_screen.dart';
-import '../utils/global_keys.dart';
 
 class AddBookScreen extends StatefulWidget {
   final String? isbn;
@@ -317,29 +316,36 @@ class _AddBookScreenState extends State<AddBookScreen> {
 
     return Scaffold(
       appBar: AppBar(
-        leading: isMobile
-            ? IconButton(
-                icon: const Icon(Icons.menu),
-                onPressed: () {
-                  GlobalKeys.rootScaffoldKey.currentState?.openDrawer();
-                },
-              )
-            : null, // Default back button on desktop
+        leading: IconButton(
+          icon: const Icon(Icons.arrow_back),
+          onPressed: () => context.pop(),
+        ),
         title: Text(TranslationService.translate(context, 'add_book_title')),
         actions: [
-          TextButton.icon(
-            onPressed: () => context.push('/search/external'),
-            icon: Icon(
-              Icons.search,
-              color: Theme.of(context).appBarTheme.foregroundColor,
-            ),
-            label: Text(
-              TranslationService.translate(context, 'btn_search_online'),
-              style: TextStyle(
+          // Online search button - icon only on mobile, with label on desktop
+          if (isMobile)
+            IconButton(
+              icon: const Icon(Icons.public),
+              tooltip: TranslationService.translate(
+                context,
+                'btn_search_online',
+              ),
+              onPressed: () => context.push('/search/external'),
+            )
+          else
+            TextButton.icon(
+              onPressed: () => context.push('/search/external'),
+              icon: Icon(
+                Icons.public,
                 color: Theme.of(context).appBarTheme.foregroundColor,
               ),
+              label: Text(
+                TranslationService.translate(context, 'btn_search_online'),
+                style: TextStyle(
+                  color: Theme.of(context).appBarTheme.foregroundColor,
+                ),
+              ),
             ),
-          ),
           Padding(
             padding: const EdgeInsets.only(right: 8.0, left: 8.0),
             child: _isSaving
@@ -353,6 +359,30 @@ class _AddBookScreenState extends State<AddBookScreen> {
                       ),
                     ),
                   )
+                : isMobile
+                // Mobile: shorter button with just "Enregistrer"
+                ? TextButton(
+                    onPressed: _saveBook,
+                    key: const Key('saveBookButton'),
+                    style: TextButton.styleFrom(
+                      backgroundColor: Colors.white.withValues(alpha: 0.2),
+                      foregroundColor: Theme.of(
+                        context,
+                      ).appBarTheme.foregroundColor,
+                      padding: const EdgeInsets.symmetric(
+                        horizontal: 12,
+                        vertical: 8,
+                      ),
+                    ),
+                    child: Text(
+                      TranslationService.translate(context, 'save'),
+                      style: const TextStyle(
+                        fontWeight: FontWeight.bold,
+                        fontSize: 14,
+                      ),
+                    ),
+                  )
+                // Desktop: full button
                 : TextButton(
                     onPressed: _saveBook,
                     key: const Key('saveBookButton'),
@@ -367,8 +397,7 @@ class _AddBookScreenState extends State<AddBookScreen> {
                       ),
                     ),
                     child: Text(
-                      TranslationService.translate(context, 'save_book') ??
-                          'Save',
+                      TranslationService.translate(context, 'save_book'),
                       style: const TextStyle(
                         fontWeight: FontWeight.bold,
                         fontSize: 16,

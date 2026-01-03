@@ -67,13 +67,13 @@ class _BookDetailsScreenState extends State<BookDetailsScreen> {
     }
   }
 
-  Future<void> _fetchBookDetails() async {
+  Future<void> _fetchBookDetails({bool forceRefresh = false}) async {
     final api = Provider.of<ApiService>(context, listen: false);
     try {
       final futures = <Future<dynamic>>[api.getBookCopies(widget.bookId)];
 
-      // If we don't have the book, we need to fetch it
-      if (_book == null) {
+      // Fetch book if we don't have it OR if forced refresh is requested
+      if (_book == null || forceRefresh) {
         futures.add(api.getBook(widget.bookId));
       }
 
@@ -426,7 +426,7 @@ class _BookDetailsScreenState extends State<BookDetailsScreen> {
                     );
                     if (result == true && context.mounted) {
                       // Refresh book data but STAY on the screen
-                      await _fetchBookDetails();
+                      await _fetchBookDetails(forceRefresh: true);
                       // Mark that we have changes so we can return true later
                       setState(() {
                         // We track this via a member variable which we need to add to the State class

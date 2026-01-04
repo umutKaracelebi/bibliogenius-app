@@ -30,16 +30,16 @@ class ThemeProvider with ChangeNotifier {
   bool get isLibrarian =>
       _profileType == 'librarian' || _profileType == 'professional';
   bool get isBookseller =>
-      _profileType == 'bookseller'; // Nouveau profil Libraire
+      _profileType == 'bookseller'; // New Bookseller profile
   bool get isKid => _profileType == 'kid';
   bool get hasReadingStatus =>
       _profileType == 'individual' || _profileType == 'kid';
 
-  // Nouveau: modules spécifiques pour le profil Libraire
-  bool get hasCommerce => isBookseller; // Module commerce (prix) actif
-  bool get hasSales => isBookseller; // Module ventes/transactions actif
+  // New: Bookseller-specific modules
+  bool get hasCommerce => isBookseller; // Commerce module (pricing) active
+  bool get hasSales => isBookseller; // Sales/transactions module active
   bool get hasLoans =>
-      !isBookseller; // Prêts désactivés par défaut pour libraires
+      !isBookseller; // Loans disabled by default for booksellers
 
   // Borrowing capability: disabled by default for librarians (they lend, not borrow)
   // Also disabled for booksellers (they sell, not borrow)

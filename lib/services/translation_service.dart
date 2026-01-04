@@ -66,7 +66,7 @@ class TranslationService {
       'book': 'Book',
       'profile': 'My Profile',
       'librarian': 'Librarian',
-      'bookseller': 'Bookseller', // Nouveau profil Libraire
+      'bookseller': 'Bookseller', // New Bookseller profile
       'individual': 'Individual',
       'individual_reader': 'Individual Reader',
       'professional': 'Professional',
@@ -1042,7 +1042,7 @@ class TranslationService {
       'book': 'Livre',
       'profile': 'Mon Profil',
       'librarian': 'Bibliothécaire',
-      'bookseller': 'Libraire', // Nouveau profil
+      'bookseller': 'Libraire', // New profile
       'individual': 'Particulier',
       'individual_reader': 'Lecteur individuel',
       'professional': 'Professionnel',

@@ -32,7 +32,7 @@ class _EditBookScreenState extends State<EditBookScreen> {
   late TextEditingController _startedDateController;
   late TextEditingController _finishedDateController;
   late TextEditingController _tagsController; // Add this
-  late TextEditingController _priceController; // Prix pour profil Libraire
+  late TextEditingController _priceController; // Price for Bookseller profile
   late Book _book;
   List<String> _selectedTags = []; // Add this
   List<String> _authors = []; // Multiple authors support
@@ -100,7 +100,7 @@ class _EditBookScreenState extends State<EditBookScreen> {
         ? List.from(widget.book.subjects!)
         : [];
 
-    // Initialize price controller for bookseller profile
+    // Initialize price controller
     _priceController = TextEditingController(
       text: widget.book.price?.toString() ?? '',
     );
@@ -235,7 +235,7 @@ class _EditBookScreenState extends State<EditBookScreen> {
     _summaryController.dispose();
     _startedDateController.dispose();
     _finishedDateController.dispose();
-    _priceController.dispose(); // Dispose price controller
+    _priceController.dispose();
     // Dispose FocusNodes
     _titleFocusNode.dispose();
     _authorFocusNode.dispose();
@@ -328,7 +328,7 @@ class _EditBookScreenState extends State<EditBookScreen> {
       'owned': _owned,
       'price': _priceController.text.isNotEmpty
           ? double.tryParse(_priceController.text)
-          : null, // Prix pour profil Libraire
+          : null, // Price for Bookseller profile
     };
 
     try {
@@ -365,7 +365,7 @@ class _EditBookScreenState extends State<EditBookScreen> {
             _selectedTags = updatedBook.subjects ?? [];
             _owned = updatedBook.owned;
             _priceController.text =
-                updatedBook.price?.toString() ?? ''; // Sync prix
+                updatedBook.price?.toString() ?? ''; // Sync price
 
             // Sync authors list
             if (updatedBook.author != null && updatedBook.author!.isNotEmpty) {

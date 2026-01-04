@@ -795,20 +795,53 @@ class _BookDetailsScreenState extends State<BookDetailsScreen> {
               ),
             ],
           ),
-          if (Provider.of<ThemeProvider>(context).isBookseller &&
-              book.price != null &&
-              book.price! > 0 &&
-              !_copies.any((c) => c['price'] != null)) ...[
-            const Divider(height: 32),
-            Row(
-              children: [
-                _buildMetadataItem(
-                  context,
-                  TranslationService.translate(context, 'price'),
-                  '${book.price!.toStringAsFixed(2)} ${Provider.of<ThemeProvider>(context).currency}',
-                ),
-              ],
-            ),
+          if (Provider.of<ThemeProvider>(context).isBookseller) ...[
+            () {
+              // Get all copy prices that are set and greater than zero
+              final copyPrices = _copies
+                  .where((c) => c['price'] != null && (c['price'] as num) > 0)
+                  .map((c) => (c['price'] as num).toDouble())
+                  .toList();
+
+              String? priceString;
+              final currency = Provider.of<ThemeProvider>(context).currency;
+
+              if (copyPrices.isEmpty) {
+                // No copy has a non-zero price set
+                // Show book price only if it's set and greater than zero
+                if (book.price != null && book.price! > 0) {
+                  priceString = '${book.price!.toStringAsFixed(2)} $currency';
+                }
+              } else {
+                // At least one copy has a valid price > 0
+                final uniquePrices = copyPrices.toSet().toList();
+                uniquePrices.sort();
+                if (uniquePrices.length == 1) {
+                  priceString =
+                      '${uniquePrices.first.toStringAsFixed(2)} $currency';
+                } else {
+                  priceString =
+                      '${uniquePrices.first.toStringAsFixed(2)} - ${uniquePrices.last.toStringAsFixed(2)} $currency';
+                }
+              }
+
+              if (priceString == null) return const SizedBox.shrink();
+
+              return Column(
+                children: [
+                  const Divider(height: 32),
+                  Row(
+                    children: [
+                      _buildMetadataItem(
+                        context,
+                        TranslationService.translate(context, 'price'),
+                        priceString,
+                      ),
+                    ],
+                  ),
+                ],
+              );
+            }(),
           ],
           if ((book.readingStatus == 'reading' ||
                   book.readingStatus == 'read') &&

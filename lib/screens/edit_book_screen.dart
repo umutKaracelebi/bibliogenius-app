@@ -327,7 +327,7 @@ class _EditBookScreenState extends State<EditBookScreen> {
           : _selectedTags, // Ensure null if empty for cleaner JSON
       'owned': _owned,
       'price': _priceController.text.isNotEmpty
-          ? double.tryParse(_priceController.text)
+          ? double.tryParse(_priceController.text.replaceAll(',', '.'))
           : null, // Price for Bookseller profile
     };
 

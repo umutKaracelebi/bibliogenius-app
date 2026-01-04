@@ -340,6 +340,8 @@ class TranslationService {
       'status_label': 'Status',
       'save_changes': 'Save Changes',
       'saving_changes': 'Saving Changes...',
+      'commerce_module_label': 'Commerce Module',
+      'commerce_module_subtitle': 'Enable pricing and sales tracking',
       // Commerce (Bookseller profile)
       'price': 'Price',
       'price_label': 'Price (EUR)',
@@ -1381,6 +1383,8 @@ class TranslationService {
       'total_revenue': 'Revenu total',
       'average_price': 'Prix moyen',
       'sales_count': 'Nombre de ventes',
+      'commerce_module_label': 'Module Commerce',
+      'commerce_module_subtitle': 'Activer la gestion des prix et des ventes',
 
       // Sales recording
       'record_sale_title': 'Enregistrer une vente',
@@ -1402,6 +1406,16 @@ class TranslationService {
       'confirm_sale': 'Confirmer la vente',
       'sale_price': 'Prix de vente',
       'sell_book_btn': 'Vendre ce livre',
+      'price': 'Prix',
+      'edit': 'Modifier',
+      'delete': 'Supprimer',
+      'delete_copy_title': 'Supprimer l\'exemplaire',
+      'delete_copy_confirm':
+          'Êtes-vous sûr de vouloir supprimer cet exemplaire ?',
+      'delete_copy_btn': 'Supprimer l\'exemplaire',
+      'copy_status': 'Statut',
+      'is_temporary_copy': 'Exemplaire temporaire',
+      'acquisition_date': 'Date d\'acquisition',
 
       // Book copies
       'copy_label': 'Exemplaire',

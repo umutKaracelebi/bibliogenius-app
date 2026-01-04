@@ -343,6 +343,7 @@ class FfiService {
       userRating: fb.userRating,
       subjects: fb.subjects != null ? _parseSubjects(fb.subjects!) : null,
       owned: fb.owned,
+      price: fb.price,
     );
   }
 

@@ -916,124 +916,158 @@ class _ProfileScreenState extends State<ProfileScreen> {
                         },
                       ),
                     ),
-                    const Divider(),
-                    ListTile(
-                      title: Text(
-                        TranslationService.translate(context, 'currency_label'),
-                      ),
-                      subtitle: Consumer<ThemeProvider>(
-                        builder: (context, themeProvider, _) {
-                          return Text(themeProvider.currency);
-                        },
-                      ),
-                      trailing: IconButton(
-                        icon: const Icon(Icons.edit),
-                        onPressed: () {
-                          String tempCurrency = Provider.of<ThemeProvider>(
+                    if (Provider.of<ThemeProvider>(context).isBookseller) ...[
+                      const Divider(),
+                      SwitchListTile(
+                        title: Text(
+                          TranslationService.translate(
                             context,
-                            listen: false,
-                          ).currency;
-                          showDialog(
-                            context: context,
-                            builder: (context) => AlertDialog(
-                              title: Text(
-                                TranslationService.translate(
-                                  context,
-                                  'select_currency',
-                                ),
-                              ),
-                              content: SizedBox(
-                                width: 300,
-                                child: Autocomplete<String>(
-                                  initialValue: TextEditingValue(
-                                    text: tempCurrency,
-                                  ),
-                                  optionsBuilder:
-                                      (TextEditingValue textEditingValue) {
-                                        const options = [
-                                          'EUR',
-                                          'USD',
-                                          'GBP',
-                                          'CAD',
-                                          'CHF',
-                                          'JPY',
-                                          'AUD',
-                                          'CNY',
-                                          'INR',
-                                          'BRL',
-                                          'SEK',
-                                          'NOK',
-                                          'DKK',
-                                          'RUB',
-                                        ];
-                                        if (textEditingValue.text == '') {
-                                          return options;
-                                        }
-                                        return options.where((String option) {
-                                          return option.toLowerCase().contains(
-                                            textEditingValue.text.toLowerCase(),
-                                          );
-                                        });
-                                      },
-                                  onSelected: (String selection) {
-                                    tempCurrency = selection;
-                                  },
-                                  fieldViewBuilder:
-                                      (
-                                        context,
-                                        textEditingController,
-                                        focusNode,
-                                        onFieldSubmitted,
-                                      ) {
-                                        return TextField(
-                                          controller: textEditingController,
-                                          focusNode: focusNode,
-                                          decoration: InputDecoration(
-                                            labelText:
-                                                TranslationService.translate(
-                                                  context,
-                                                  'currency_label',
-                                                ),
-                                            border: const OutlineInputBorder(),
-                                          ),
-                                          onChanged: (value) {
-                                            tempCurrency = value;
-                                          },
-                                        );
-                                      },
-                                ),
-                              ),
-                              actions: [
-                                TextButton(
-                                  onPressed: () => Navigator.pop(context),
-                                  child: Text(
-                                    TranslationService.translate(
-                                      context,
-                                      'cancel',
-                                    ),
-                                  ),
-                                ),
-                                TextButton(
-                                  onPressed: () {
-                                    Provider.of<ThemeProvider>(
-                                      context,
-                                      listen: false,
-                                    ).setCurrency(tempCurrency);
-                                    Navigator.pop(context);
-                                  },
-                                  child: Text(
-                                    TranslationService.translate(
-                                      context,
-                                      'save',
-                                    ),
-                                  ),
-                                ),
-                              ],
-                            ),
-                          );
-                        },
+                            'commerce_module_label',
+                          ),
+                        ),
+                        subtitle: Text(
+                          TranslationService.translate(
+                            context,
+                            'commerce_module_subtitle',
+                          ),
+                        ),
+                        value: Provider.of<ThemeProvider>(
+                          context,
+                        ).commerceEnabled,
+                        activeColor: Theme.of(context).primaryColor,
+                        onChanged: (value) => Provider.of<ThemeProvider>(
+                          context,
+                          listen: false,
+                        ).setCommerceEnabled(value),
                       ),
-                    ),
+                    ],
+                    if (Provider.of<ThemeProvider>(context).hasCommerce) ...[
+                      const Divider(),
+                      ListTile(
+                        title: Text(
+                          TranslationService.translate(
+                            context,
+                            'currency_label',
+                          ),
+                        ),
+                        subtitle: Consumer<ThemeProvider>(
+                          builder: (context, themeProvider, _) {
+                            return Text(themeProvider.currency);
+                          },
+                        ),
+                        trailing: IconButton(
+                          icon: const Icon(Icons.edit),
+                          onPressed: () {
+                            String tempCurrency = Provider.of<ThemeProvider>(
+                              context,
+                              listen: false,
+                            ).currency;
+                            showDialog(
+                              context: context,
+                              builder: (context) => AlertDialog(
+                                title: Text(
+                                  TranslationService.translate(
+                                    context,
+                                    'select_currency',
+                                  ),
+                                ),
+                                content: SizedBox(
+                                  width: 300,
+                                  child: Autocomplete<String>(
+                                    initialValue: TextEditingValue(
+                                      text: tempCurrency,
+                                    ),
+                                    optionsBuilder:
+                                        (TextEditingValue textEditingValue) {
+                                          const options = [
+                                            'EUR',
+                                            'USD',
+                                            'GBP',
+                                            'CAD',
+                                            'CHF',
+                                            'JPY',
+                                            'AUD',
+                                            'CNY',
+                                            'INR',
+                                            'BRL',
+                                            'SEK',
+                                            'NOK',
+                                            'DKK',
+                                            'RUB',
+                                          ];
+                                          if (textEditingValue.text == '') {
+                                            return options;
+                                          }
+                                          return options.where((String option) {
+                                            return option
+                                                .toLowerCase()
+                                                .contains(
+                                                  textEditingValue.text
+                                                      .toLowerCase(),
+                                                );
+                                          });
+                                        },
+                                    onSelected: (String selection) {
+                                      tempCurrency = selection;
+                                    },
+                                    fieldViewBuilder:
+                                        (
+                                          context,
+                                          textEditingController,
+                                          focusNode,
+                                          onFieldSubmitted,
+                                        ) {
+                                          return TextField(
+                                            controller: textEditingController,
+                                            focusNode: focusNode,
+                                            decoration: InputDecoration(
+                                              labelText:
+                                                  TranslationService.translate(
+                                                    context,
+                                                    'currency_label',
+                                                  ),
+                                              border:
+                                                  const OutlineInputBorder(),
+                                            ),
+                                            onChanged: (value) {
+                                              tempCurrency = value;
+                                            },
+                                          );
+                                        },
+                                  ),
+                                ),
+                                actions: [
+                                  TextButton(
+                                    onPressed: () => Navigator.pop(context),
+                                    child: Text(
+                                      TranslationService.translate(
+                                        context,
+                                        'cancel',
+                                      ),
+                                    ),
+                                  ),
+                                  TextButton(
+                                    onPressed: () {
+                                      Provider.of<ThemeProvider>(
+                                        context,
+                                        listen: false,
+                                      ).setCurrency(tempCurrency);
+                                      Navigator.pop(context);
+                                    },
+                                    child: Text(
+                                      TranslationService.translate(
+                                        context,
+                                        'save',
+                                      ),
+                                    ),
+                                  ),
+                                ],
+                              ),
+                            );
+                          },
+                        ),
+                      ),
+                    ],
                     const Divider(),
                     // Hierarchical Tags Toggle
                     SwitchListTile(

@@ -114,9 +114,7 @@ class GenieAppBar extends StatelessWidget implements PreferredSizeWidget {
                               softWrap: false,
                             ),
                             // Hide subtitle on narrower screens
-                            if (!hideSubtitle &&
-                                displaySubtitle != null &&
-                                displaySubtitle.isNotEmpty)
+                            if (!hideSubtitle && displaySubtitle.isNotEmpty)
                               Text(
                                 displaySubtitle,
                                 style: TextStyle(

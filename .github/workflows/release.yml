@@ -165,6 +165,9 @@ jobs:
           sed -i '' 's/"Apple Development"/-/g' macos/Runner.xcodeproj/project.pbxproj
           sed -i '' 's/DEVELOPMENT_TEAM = RF374CUSUZ/DEVELOPMENT_TEAM = ""/g' macos/Runner.xcodeproj/project.pbxproj
           
+          # Disable sandbox (required for unsigned apps)
+          sed -i '' 's/<true\/>/<false\/>/g' macos/Runner/Release.entitlements
+          
           # Build the app
           flutter build macos --release
       

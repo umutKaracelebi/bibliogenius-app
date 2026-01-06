@@ -477,7 +477,7 @@ class _LoansScreenState extends State<LoansScreen>
 
   Color _getStatusColor(String status) {
     switch (status) {
-      case 'approved':
+      case 'accepted':
         return Colors.green;
       case 'rejected':
         return Colors.red;
@@ -522,7 +522,7 @@ class _LoansScreenState extends State<LoansScreen>
                 ),
                 onTap: () {
                   Navigator.pop(ctx);
-                  _updateRequestStatus(id, 'approved');
+                  _updateRequestStatus(id, 'accepted');
                 },
               ),
               ListTile(

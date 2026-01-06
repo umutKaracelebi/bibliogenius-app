@@ -44,6 +44,8 @@ class _NetworkScreenState extends State<NetworkScreen>
   NetworkFilter _filter = NetworkFilter.all;
   Timer? _refreshTimer;
   Map<int, bool> _peerConnectivity = {}; // Track online status per peer ID
+  Map<String, bool?> _mdnsPeerConnectivity =
+      {}; // Track mDNS peer connectivity by URL
 
   // QR State
   String? _localIp;
@@ -269,6 +271,8 @@ class _NetworkScreenState extends State<NetworkScreen>
         });
         // Check connectivity for network peers in parallel
         // _checkPeersConnectivity(allMembers); // Reverted
+        // Check connectivity for mDNS peers
+        _checkMdnsPeersConnectivity(localPeers);
       }
     } catch (e) {
       debugPrint('Error loading network members: $e');
@@ -293,6 +297,31 @@ class _NetworkScreenState extends State<NetworkScreen>
         return _members
             .where((m) => m.source == NetworkMemberSource.local)
             .toList();
+    }
+  }
+
+  /// Check connectivity for mDNS discovered peers
+  Future<void> _checkMdnsPeersConnectivity(
+    List<Map<String, dynamic>> peers,
+  ) async {
+    final api = Provider.of<ApiService>(context, listen: false);
+
+    for (final peer in peers) {
+      final addresses =
+          (peer['addresses'] as List<dynamic>?)?.cast<String>() ?? [];
+      final port = peer['port'] ?? 8000;
+      if (addresses.isEmpty) continue;
+
+      final url = 'http://${addresses.first}:$port';
+
+      // Check connectivity in parallel (don't await each one)
+      api.checkPeerConnectivity(url, timeoutMs: 2000).then((isOnline) {
+        if (mounted) {
+          setState(() {
+            _mdnsPeerConnectivity[url] = isOnline;
+          });
+        }
+      });
     }
   }
 
@@ -1028,30 +1057,83 @@ class _NetworkScreenState extends State<NetworkScreen>
                   maxLines: 1,
                   overflow: TextOverflow.ellipsis,
                 ),
+                // Show connectivity status
+                Builder(
+                  builder: (context) {
+                    final isOnline = _mdnsPeerConnectivity[url];
+                    final isChecking = isOnline == null;
+                    final statusText = isChecking
+                        ? 'CHECKING...'
+                        : (isOnline
+                              ? TranslationService.translate(
+                                  context,
+                                  'status_active',
+                                )
+                              : TranslationService.translate(
+                                  context,
+                                  'status_offline',
+                                ));
+                    final statusColor = isChecking
+                        ? Colors.grey
+                        : (isOnline ? Colors.green : Colors.grey);
+
+                    return Container(
+                      margin: const EdgeInsets.only(top: 4),
+                      padding: const EdgeInsets.symmetric(
+                        horizontal: 6,
+                        vertical: 2,
+                      ),
+                      decoration: BoxDecoration(
+                        color: statusColor.withAlpha(26),
+                        borderRadius: BorderRadius.circular(4),
+                      ),
+                      child: Text(
+                        statusText.toUpperCase(),
+                        style: TextStyle(
+                          fontSize: 9,
+                          fontWeight: FontWeight.bold,
+                          color: statusColor,
+                        ),
+                      ),
+                    );
+                  },
+                ),
               ],
             ),
           ),
           const SizedBox(width: 8),
-          // Always show Browse for mDNS peers (server will check permissions)
-          ElevatedButton.icon(
-            onPressed: () {
-              debugPrint('📚 Browse mDNS peer: name=$name, url=$url');
-              context.push(
-                '/peers/0/books', // Use 0 as ID since this is direct mDNS access
-                extra: {'id': 0, 'name': name, 'url': url},
+          // Browse button - disabled if peer is offline
+          Builder(
+            builder: (context) {
+              final isOnline = _mdnsPeerConnectivity[url] ?? false;
+              return ElevatedButton.icon(
+                onPressed: isOnline
+                    ? () {
+                        debugPrint('📚 Browse mDNS peer: name=$name, url=$url');
+                        context.push(
+                          '/peers/0/books',
+                          extra: {'id': 0, 'name': name, 'url': url},
+                        );
+                      }
+                    : null,
+                icon: const Icon(Icons.auto_stories_rounded, size: 14),
+                label: const Text('Browse', style: TextStyle(fontSize: 12)),
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: isOnline ? Colors.indigo : Colors.grey[400],
+                  foregroundColor: Colors.white,
+                  disabledBackgroundColor: Colors.grey[300],
+                  disabledForegroundColor: Colors.grey[500],
+                  elevation: 0,
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 12,
+                    vertical: 8,
+                  ),
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(8),
+                  ),
+                ),
               );
             },
-            icon: const Icon(Icons.auto_stories_rounded, size: 14),
-            label: const Text('Browse', style: TextStyle(fontSize: 12)),
-            style: ElevatedButton.styleFrom(
-              backgroundColor: Colors.indigo,
-              foregroundColor: Colors.white,
-              elevation: 0,
-              padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
-              shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(8),
-              ),
-            ),
           ),
         ],
       ),

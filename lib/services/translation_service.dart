@@ -1364,6 +1364,7 @@ class TranslationService {
       'availability_borrowed': 'Emprunté',
       'availability_lost': 'Perdu',
       'availability_wanted': 'Souhaité',
+      'status_loaned': 'Prêté',
       // Owned checkbox
       'own_this_book': 'Je possède ce livre',
       'own_this_book_hint':
@@ -2043,7 +2044,7 @@ class TranslationService {
       'reading_status_abandoned': 'Abandonné',
       'reading_status_lent': 'Prêté',
       'reading_status_borrowed': 'Emprunté',
-      'reading_status_owned': 'Dans ma collection',
+      'reading_status_owned': 'Dans ma bibliothèque',
 
       'street_address_label': 'Adresse',
       'postal_code_label': 'Code postal',

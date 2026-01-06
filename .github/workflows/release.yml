@@ -96,6 +96,13 @@ jobs:
           mkdir -p ~/.android
           keytool -genkey -v -keystore ~/.android/debug.keystore -storepass android -alias androiddebugkey -keypass android -keyalg RSA -keysize 2048 -validity 10000 -dname "CN=Android Debug,O=Android,C=US"
 
+      - name: Create key.properties
+        run: |
+          echo "storePassword=android" > android/key.properties
+          echo "keyPassword=android" >> android/key.properties
+          echo "keyAlias=androiddebugkey" >> android/key.properties
+          echo "storeFile=$HOME/.android/debug.keystore" >> android/key.properties
+
       - name: Create .env file
         run: cp .env.example .env
 
@@ -188,6 +195,7 @@ jobs:
           # Update project with correct team ID
           sed -i '' "s/DEVELOPMENT_TEAM = RF374CUSUZ/DEVELOPMENT_TEAM = $APPLE_TEAM_ID/g" macos/Runner.xcodeproj/project.pbxproj
           sed -i '' 's/"Apple Development"/"Developer ID Application"/g' macos/Runner.xcodeproj/project.pbxproj
+          sed -i '' 's/CODE_SIGN_STYLE = Automatic;/CODE_SIGN_STYLE = Manual;/g' macos/Runner.xcodeproj/project.pbxproj
           
           # Build the app
           flutter build macos --release

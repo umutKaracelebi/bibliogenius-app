@@ -768,23 +768,114 @@ class _ProfileScreenState extends State<ProfileScreen> {
               _buildReadingGoalsSection(),
               const SizedBox(height: 32),
               // Module Management
-              Text('Modules', style: Theme.of(context).textTheme.titleMedium),
+              Text(
+                TranslationService.translate(context, 'modules'),
+                style: Theme.of(context).textTheme.titleMedium,
+              ),
               const SizedBox(height: 16),
               Card(
                 child: Column(
                   children: [
                     Consumer<ThemeProvider>(
                       builder: (context, themeProvider, _) {
-                        return SwitchListTile(
-                          title: const Text('Collections Module'),
-                          subtitle: const Text(
-                            'Enable or disable the collection management features.',
-                          ),
-                          secondary: const Icon(Icons.collections_bookmark),
-                          value: themeProvider.collectionsEnabled,
-                          onChanged: (bool value) {
-                            themeProvider.setCollectionsEnabled(value);
-                          },
+                        return Column(
+                          children: [
+                            SwitchListTile(
+                              title: Text(
+                                TranslationService.translate(
+                                  context,
+                                  'module_collections',
+                                ),
+                              ),
+                              subtitle: Text(
+                                TranslationService.translate(
+                                  context,
+                                  'module_collections_desc',
+                                ),
+                              ),
+                              secondary: const Icon(Icons.collections_bookmark),
+                              value: themeProvider.collectionsEnabled,
+                              onChanged: (bool value) {
+                                themeProvider.setCollectionsEnabled(value);
+                              },
+                            ),
+                            const Divider(),
+                            // Network Discovery Toggle (mDNS)
+                            SwitchListTile(
+                              secondary: const Icon(Icons.wifi_tethering),
+                              title: Text(
+                                TranslationService.translate(
+                                  context,
+                                  'module_network',
+                                ),
+                              ),
+                              subtitle: Text(
+                                TranslationService.translate(
+                                  context,
+                                  'module_network_desc',
+                                ),
+                              ),
+                              value: themeProvider.networkDiscoveryEnabled,
+                              onChanged: (value) async {
+                                await themeProvider.setNetworkDiscoveryEnabled(
+                                  value,
+                                );
+                                if (mounted) {
+                                  ScaffoldMessenger.of(context).showSnackBar(
+                                    SnackBar(
+                                      content: Text(
+                                        TranslationService.translate(
+                                              context,
+                                              'restart_required_for_changes',
+                                            ) ??
+                                            'Please restart the app for changes to take full effect',
+                                      ),
+                                    ),
+                                  );
+                                }
+                              },
+                            ),
+                            const Divider(),
+                            // Gamification Toggle
+                            SwitchListTile(
+                              secondary: const Icon(Icons.emoji_events),
+                              title: Text(
+                                TranslationService.translate(
+                                  context,
+                                  'module_gamification',
+                                ),
+                              ),
+                              subtitle: Text(
+                                TranslationService.translate(
+                                  context,
+                                  'module_gamification_desc',
+                                ),
+                              ),
+                              value: themeProvider.gamificationEnabled,
+                              onChanged: (value) =>
+                                  themeProvider.setGamificationEnabled(value),
+                            ),
+                            const Divider(),
+                            // Borrowing Module Toggle
+                            SwitchListTile(
+                              secondary: const Icon(Icons.swap_horiz),
+                              title: Text(
+                                TranslationService.translate(
+                                  context,
+                                  'enable_borrowing_module',
+                                ),
+                              ),
+                              subtitle: Text(
+                                TranslationService.translate(
+                                  context,
+                                  'borrowing_module_desc',
+                                ),
+                              ),
+                              value: themeProvider.canBorrowBooks,
+                              onChanged: (value) =>
+                                  themeProvider.setCanBorrowBooks(value),
+                            ),
+                          ],
                         );
                       },
                     ),
@@ -1276,86 +1367,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                         context.go('/profile/link-device');
                       },
                     ),
-                    const Divider(),
-                    // Borrowing Module Toggle
-                    Consumer<ThemeProvider>(
-                      builder: (context, themeProvider, _) => SwitchListTile(
-                        secondary: const Icon(Icons.swap_horiz),
-                        title: Text(
-                          TranslationService.translate(
-                            context,
-                            'enable_borrowing_module',
-                          ),
-                        ),
-                        subtitle: Text(
-                          TranslationService.translate(
-                            context,
-                            'borrowing_module_desc',
-                          ),
-                        ),
-                        value: themeProvider.canBorrowBooks,
-                        onChanged: (value) =>
-                            themeProvider.setCanBorrowBooks(value),
-                      ),
-                    ),
-                    const Divider(),
-                    // Gamification Toggle
-                    Consumer<ThemeProvider>(
-                      builder: (context, themeProvider, _) => SwitchListTile(
-                        secondary: const Icon(Icons.emoji_events),
-                        title: Text(
-                          TranslationService.translate(
-                            context,
-                            'enable_gamification',
-                          ),
-                        ),
-                        subtitle: Text(
-                          TranslationService.translate(
-                            context,
-                            'gamification_desc',
-                          ),
-                        ),
-                        value: themeProvider.gamificationEnabled,
-                        onChanged: (value) =>
-                            themeProvider.setGamificationEnabled(value),
-                      ),
-                    ),
-                    const Divider(),
-                    // Network Discovery Toggle (mDNS)
-                    Consumer<ThemeProvider>(
-                      builder: (context, themeProvider, _) => SwitchListTile(
-                        secondary: const Icon(Icons.wifi_tethering),
-                        title: Text(
-                          TranslationService.translate(
-                            context,
-                            'enable_network_discovery',
-                          ),
-                        ),
-                        subtitle: Text(
-                          TranslationService.translate(
-                            context,
-                            'network_discovery_desc',
-                          ),
-                        ),
-                        value: themeProvider.networkDiscoveryEnabled,
-                        onChanged: (value) async {
-                          await themeProvider.setNetworkDiscoveryEnabled(value);
-                          if (mounted) {
-                            ScaffoldMessenger.of(context).showSnackBar(
-                              SnackBar(
-                                content: Text(
-                                  TranslationService.translate(
-                                        context,
-                                        'restart_required_for_changes',
-                                      ) ??
-                                      'Please restart the app for changes to take full effect',
-                                ),
-                              ),
-                            );
-                          }
-                        },
-                      ),
-                    ),
+
                     // TODO: Re-enable when borrowed books list is needed (currently using filters instead)
                     // if (_config?['profile_type'] == 'individual')
                     //   SwitchListTile(

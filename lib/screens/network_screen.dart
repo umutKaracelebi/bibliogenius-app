@@ -268,37 +268,11 @@ class _NetworkScreenState extends State<NetworkScreen>
           _isLoading = false;
         });
         // Check connectivity for network peers in parallel
-        _checkPeersConnectivity(allMembers);
+        // _checkPeersConnectivity(allMembers); // Reverted
       }
     } catch (e) {
       debugPrint('Error loading network members: $e');
       if (mounted) setState(() => _isLoading = false);
-    }
-  }
-
-  /// Check connectivity for all network peers in parallel
-  Future<void> _checkPeersConnectivity(List<NetworkMember> members) async {
-    final api = Provider.of<ApiService>(context, listen: false);
-    final networkPeers = members
-        .where((m) => m.source == NetworkMemberSource.network && m.url != null)
-        .toList();
-
-    if (networkPeers.isEmpty) return;
-
-    // Check all peers in parallel with a reasonable concurrency limit
-    final futures = networkPeers.map((peer) async {
-      final isOnline = await api.checkPeerConnectivity(peer.url!);
-      return MapEntry(peer.id, isOnline);
-    });
-
-    final results = await Future.wait(futures);
-
-    if (mounted) {
-      setState(() {
-        for (final entry in results) {
-          _peerConnectivity[entry.key] = entry.value;
-        }
-      });
     }
   }
 

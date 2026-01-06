@@ -50,3 +50,8 @@ macos/Runner/Resources/backend/bibliogenius
 # Build logs
 *log*.txt
 logs/
+
+# Keystore and Signatures
+key.properties
+**/*.jks
+**/*.keystore

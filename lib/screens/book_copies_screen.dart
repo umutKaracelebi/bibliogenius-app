@@ -343,31 +343,38 @@ class _BookCopiesScreenState extends State<BookCopiesScreen>
   }
 
   Widget _buildStandardEmptyState() {
-    return Column(
-      mainAxisAlignment: MainAxisAlignment.center,
-      children: [
-        Icon(
-          Icons.library_books_outlined,
-          size: 64,
-          color: Colors.grey.withValues(alpha: 0.5),
-        ),
-        const SizedBox(height: 16),
-        Text(
-          TranslationService.translate(context, 'no_copies_found') ??
-              'No copies found',
-          style: Theme.of(
-            context,
-          ).textTheme.titleLarge?.copyWith(color: Colors.grey),
-        ),
-        const SizedBox(height: 8),
-        Text(
-          TranslationService.translate(context, 'add_copy_hint') ??
-              'Add a copy to start tracking this book',
-          style: Theme.of(
-            context,
-          ).textTheme.bodyMedium?.copyWith(color: Colors.grey),
-        ),
-      ],
+    return Center(
+      child: Column(
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: [
+          Icon(
+            Icons.library_books_outlined,
+            size: 64,
+            color: Colors.grey.withValues(alpha: 0.5),
+          ),
+          const SizedBox(height: 16),
+          Text(
+            TranslationService.translate(context, 'no_copies_found') ??
+                'No copies found',
+            style: Theme.of(
+              context,
+            ).textTheme.titleLarge?.copyWith(color: Colors.grey),
+            textAlign: TextAlign.center,
+          ),
+          const SizedBox(height: 8),
+          Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 32.0),
+            child: Text(
+              TranslationService.translate(context, 'add_copy_hint') ??
+                  'Add a copy to start tracking this book',
+              style: Theme.of(
+                context,
+              ).textTheme.bodyMedium?.copyWith(color: Colors.grey),
+              textAlign: TextAlign.center,
+            ),
+          ),
+        ],
+      ),
     );
   }
 
@@ -548,7 +555,7 @@ class _Book3DState extends State<_Book3D> {
         return Icons.check_circle;
       case 'borrowed':
         return Icons.swap_horiz;
-      case 'lent':
+      case 'loaned':
         return Icons.output;
       case 'lost':
         return Icons.error;
@@ -563,7 +570,7 @@ class _Book3DState extends State<_Book3D> {
         return Colors.green;
       case 'borrowed':
         return Colors.orange;
-      case 'lent':
+      case 'loaned':
         return Colors.purple;
       case 'lost':
         return Colors.red;
@@ -1501,10 +1508,10 @@ class _StandardAddCopySheetState extends State<_StandardAddCopySheet> {
                   ),
                 ),
                 DropdownMenuItem(
-                  value: 'lent',
+                  value: 'loaned',
                   child: Text(
-                    TranslationService.translate(context, 'status_lent') ??
-                        'Lent',
+                    TranslationService.translate(context, 'status_loaned') ??
+                        'Loaned',
                   ),
                 ),
                 DropdownMenuItem(

@@ -124,7 +124,7 @@ class _BookDetailsScreenState extends State<BookDetailsScreen> {
 
   bool get _hasLentCopies {
     if (_copies.isEmpty) return false;
-    return _copies.any((copy) => copy['status'] == 'lent');
+    return _copies.any((copy) => copy['status'] == 'loaned');
   }
 
   bool get _hasBorrowedCopies {
@@ -556,7 +556,7 @@ class _BookDetailsScreenState extends State<BookDetailsScreen> {
           ),
         ],
         // Lend book button - only visible when there are available copies and book is owned
-        if (_hasAvailableCopies && book.owned && _copies.length == 1) ...[
+        if (_hasAvailableCopies && book.owned) ...[
           const SizedBox(height: 12),
           SizedBox(
             width: double.infinity,
@@ -995,8 +995,9 @@ class _BookDetailsScreenState extends State<BookDetailsScreen> {
     if (status == 'owned')
       return TranslationService.translate(context, 'owned_status') ??
           'In Collection';
-    if (status == 'lent')
-      return TranslationService.translate(context, 'lent_status') ?? 'Lent';
+    if (status == 'loaned')
+      return TranslationService.translate(context, 'availability_loaned') ??
+          'Loaned';
     if (status == 'borrowed')
       return TranslationService.translate(context, 'borrowed_status') ??
           'Borrowed';
@@ -1287,10 +1288,7 @@ class _BookDetailsScreenState extends State<BookDetailsScreen> {
       });
 
       // 5. Update copy status to 'lent'
-      await apiService.updateCopy(copyId, {'status': 'lent'});
-
-      // Note: We no longer update book reading_status to 'lent'
-      // because lent/borrowed are copy availability statuses, not reading statuses
+      await apiService.updateCopy(copyId, {'status': 'loaned'});
 
       if (context.mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
@@ -1330,7 +1328,7 @@ class _BookDetailsScreenState extends State<BookDetailsScreen> {
       }
 
       // Get the lent copy - find one with 'lent' status first
-      final lentCopies = copies.where((c) => c['status'] == 'lent').toList();
+      final lentCopies = copies.where((c) => c['status'] == 'loaned').toList();
       if (lentCopies.isEmpty) {
         throw Exception('No lent copy found for this book');
       }
@@ -1352,9 +1350,6 @@ class _BookDetailsScreenState extends State<BookDetailsScreen> {
 
       // Update copy status back to 'available'
       await apiService.updateCopy(lentCopy['id'], {'status': 'available'});
-
-      // Note: We no longer update book reading_status
-      // because lent/borrowed are copy availability statuses, not reading statuses
 
       if (context.mounted) {
         ScaffoldMessenger.of(context).showSnackBar(

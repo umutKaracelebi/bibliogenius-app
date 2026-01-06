@@ -4,6 +4,8 @@ import 'package:url_launcher/url_launcher.dart';
 import '../widgets/genie_app_bar.dart';
 import '../services/translation_service.dart';
 import '../theme/app_design.dart';
+import 'package:provider/provider.dart';
+import '../providers/theme_provider.dart';
 
 class HelpScreen extends StatefulWidget {
   const HelpScreen({super.key});
@@ -14,51 +16,67 @@ class HelpScreen extends StatefulWidget {
 
 class _HelpScreenState extends State<HelpScreen> {
   int? _expandedIndex;
+  late List<_HelpTopic> _topics;
 
-  final List<_HelpTopic> _topics = [
-    _HelpTopic(
-      icon: Icons.add_circle_outline,
-      titleKey: 'help_topic_add_book',
-      descKey: 'help_desc_add_book',
-      gradient: AppDesign.successGradient,
-    ),
-    _HelpTopic(
-      icon: Icons.import_contacts,
-      titleKey: 'help_topic_lend',
-      descKey: 'help_desc_lend',
-      gradient: AppDesign.oceanGradient,
-    ),
-    _HelpTopic(
-      icon: Icons.qr_code,
-      titleKey: 'help_topic_connect',
-      descKey: 'help_desc_connect',
-      gradient: AppDesign.warningGradient,
-    ),
-    _HelpTopic(
-      icon: Icons.people,
-      titleKey: 'help_topic_contacts',
-      descKey: 'help_desc_contacts',
-      gradient: AppDesign.primaryGradient,
-    ),
-    _HelpTopic(
-      icon: Icons.cloud_sync,
-      titleKey: 'help_topic_network',
-      descKey: 'help_desc_network_p2p', // Updated for P2P roadmap
-      gradient: AppDesign.accentGradient,
-    ),
-    _HelpTopic(
-      icon: Icons.swap_horiz,
-      titleKey: 'help_topic_requests',
-      descKey: 'help_desc_requests_p2p', // Updated for P2P roadmap
-      gradient: AppDesign.darkGradient,
-    ),
-    _HelpTopic(
-      icon: Icons.sort,
-      titleKey: 'help_topic_organize_shelf',
-      descKey: 'help_desc_organize_shelf',
-      gradient: AppDesign.successGradient,
-    ),
-  ];
+  @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    final collectionsEnabled = Provider.of<ThemeProvider>(
+      context,
+    ).collectionsEnabled;
+
+    _topics = [
+      _HelpTopic(
+        icon: Icons.add_circle_outline,
+        titleKey: 'help_topic_add_book',
+        descKey: 'help_desc_add_book',
+        gradient: AppDesign.successGradient,
+      ),
+      _HelpTopic(
+        icon: Icons.import_contacts,
+        titleKey: 'help_topic_lend',
+        descKey: 'help_desc_lend',
+        gradient: AppDesign.oceanGradient,
+      ),
+      _HelpTopic(
+        icon: Icons.qr_code,
+        titleKey: 'help_topic_connect',
+        descKey: 'help_desc_connect',
+        gradient: AppDesign.warningGradient,
+      ),
+      _HelpTopic(
+        icon: Icons.people,
+        titleKey: 'help_topic_contacts',
+        descKey: 'help_desc_contacts',
+        gradient: AppDesign.primaryGradient,
+      ),
+      _HelpTopic(
+        icon: Icons.cloud_sync,
+        titleKey: 'help_topic_network',
+        descKey: 'help_desc_network_p2p', // Updated for P2P roadmap
+        gradient: AppDesign.accentGradient,
+      ),
+      _HelpTopic(
+        icon: Icons.swap_horiz,
+        titleKey: 'help_topic_requests',
+        descKey: 'help_desc_requests_p2p', // Updated for P2P roadmap
+        gradient: AppDesign.darkGradient,
+      ),
+      _HelpTopic(
+        icon: Icons.sort,
+        titleKey: 'help_topic_organize_shelf',
+        descKey: 'help_desc_organize_shelf',
+        gradient: AppDesign.successGradient,
+      ),
+      if (collectionsEnabled)
+        _HelpTopic(
+          icon: Icons.inventory_2_outlined,
+          titleKey: 'help_topic_collections',
+          descKey: 'help_desc_collections',
+          gradient: AppDesign.primaryGradient,
+        ),
+    ];
+  }
 
   @override
   Widget build(BuildContext context) {

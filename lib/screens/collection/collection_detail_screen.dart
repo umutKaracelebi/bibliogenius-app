@@ -369,10 +369,29 @@ class _CollectionDetailScreenState extends State<CollectionDetailScreen> {
   Future<void> _toggleBookStatus(CollectionBook book) async {
     try {
       final newStatus = !book.isOwned;
-      await Provider.of<ApiService>(
-        context,
-        listen: false,
-      ).updateBook(book.bookId, {'owned': newStatus});
+      final api = Provider.of<ApiService>(context, listen: false);
+
+      // 1. Update the book's owned status
+      await api.updateBook(book.bookId, {'owned': newStatus});
+
+      // 2. If becoming owned, check/create copy
+      if (newStatus) {
+        final copiesRes = await api.getBookCopies(book.bookId);
+        final List copies = copiesRes.data['copies'] ?? [];
+
+        if (copies.isEmpty) {
+          await api.createCopy({
+            'book_id': book.bookId,
+            'library_id': 1, // Default library
+            'status': 'available',
+            'is_temporary': false,
+          });
+          if (mounted) {
+            // Optional: Show specific message about copy creation or just rely on generic status update
+            // Ideally we just inform the user that it's now owned.
+          }
+        }
+      }
 
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(

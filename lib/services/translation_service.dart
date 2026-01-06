@@ -404,6 +404,7 @@ class TranslationService {
       'reading_status_abandoned': 'Abandoned',
       'reading_status_lent': 'Lent',
       'reading_status_borrowed': 'Borrowed',
+      'reading_status_owned': 'Owned',
       'contact_name_label': 'Name',
       'contact_name_required': 'Name is required',
       'contact_first_name_label': 'First Name',
@@ -609,6 +610,7 @@ class TranslationService {
       'status_on_order': 'On Order',
       'status_borrowed': 'Borrowed',
       'status_lent': 'Lent',
+      'status_loaned': 'Loaned',
       'status_lost': 'Lost',
       'status_wanted': 'Wanted',
       // Profiles
@@ -1421,6 +1423,8 @@ class TranslationService {
       'borrowed_label': 'Prêté',
       'status_wanted': 'Souhaité',
       'lend_book_label': 'Prêter le livre',
+      'add_copy_hint': 'Ajoutez un exemplaire pour commencer le suivi',
+      'no_copies_found': 'Aucun exemplaire trouvé',
       'no_copies_title': 'Aucun exemplaire trouvé',
       'no_copies_confirm':
           'Ce livre n\'a pas d\'exemplaire. En créer un nouveau pour le prêter ?',
@@ -1728,6 +1732,26 @@ class TranslationService {
 
       'avatar_professional_librarian': 'Bibliothécaire Pro',
       'avatar_robot': 'Robot',
+
+      // Help
+      'help_topic_collections': 'Gestion des Collections',
+      'help_desc_collections':
+          'Créez et organisez vos collections de livres (sagas, thèmes, listes de lecture). Vous pouvez importer des listes existantes ou créer les vôtres.',
+
+      // Modules
+      'modules': 'Modules',
+      'module_collections': 'Collections',
+      'module_collections_desc':
+          'Activez ou désactivez les fonctionnalités de gestion de collections.',
+      'module_network': 'Découverte Réseau (mDNS)',
+      'module_network_desc':
+          'Rend votre bibliothèque visible par les autres utilisateurs sur le réseau local.',
+      'module_gamification': 'Ludification',
+      'module_gamification_desc':
+          'Activez les badges, niveaux et le suivi de progression.',
+      'enable_borrowing_module': 'Activer les emprunts',
+      'borrowing_module_desc': 'Prêter et emprunter des livres avec vos amis',
+
       // Badges
       'badge_pro': 'Pro',
       'badge_bibliogenius': 'BiblioGenius',
@@ -2019,6 +2043,7 @@ class TranslationService {
       'reading_status_abandoned': 'Abandonné',
       'reading_status_lent': 'Prêté',
       'reading_status_borrowed': 'Emprunté',
+      'reading_status_owned': 'Dans ma collection',
 
       'street_address_label': 'Adresse',
       'postal_code_label': 'Code postal',
@@ -2640,6 +2665,7 @@ class TranslationService {
       'stat_avg_year': 'Año prom.',
       'stat_books_per_author': 'Libros/Autor',
       'no_pub_year_data': 'Sin datos de año de publicación.',
+      'reading_status_owned': 'En propiedad',
       // Borrowing Module
       'enable_borrowing_module': 'Habilitar préstamos',
       'borrowing_module_desc': 'Prestar y tomar prestados libros con amigos',

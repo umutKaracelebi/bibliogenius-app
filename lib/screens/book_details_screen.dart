@@ -1327,8 +1327,12 @@ class _BookDetailsScreenState extends State<BookDetailsScreen> {
         throw Exception('No copy found for this book');
       }
 
-      // Get the lent copy - find one with 'lent' status first
-      final lentCopies = copies.where((c) => c['status'] == 'loaned').toList();
+      // Get the lent copy - find one with 'loaned' status first
+      var lentCopies = copies.where((c) => c['status'] == 'loaned').toList();
+      if (lentCopies.isEmpty) {
+        lentCopies = copies.where((c) => c['status'] == 'borrowed').toList();
+      }
+
       if (lentCopies.isEmpty) {
         throw Exception('No lent copy found for this book');
       }

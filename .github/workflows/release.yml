@@ -295,13 +295,29 @@ jobs:
             BiblioGenius-macOS.dmg
             BiblioGenius-macOS.zip
 
+      - name: Decode Auth Key
+        run: |
+          mkdir -p private_keys
+          echo "${{ secrets.APP_STORE_CONNECT_API_KEY_BASE64 }}" | base64 --decode > private_keys/AuthKey_${{ secrets.APP_STORE_CONNECT_KEY_ID }}.p8
+
+      - name: Create Installer Package (PKG)
+        run: |
+          # Use productbuild to create a signed package. 
+          # Note: This requires an Installer Certificate. If missing, this might fail or produce an unsigned pkg.
+          # We use the imported certificate. If it's a standard distribution cert, it might work?
+          # Actually, for TestFlight, we usually upload the .app (as zip) or .pkg if it's an installer.
+          # apple-actions/upload-testflight-build supports .pkg or .ipa.
+          
+          # Create pkg
+          productbuild --component "build/macos/Build/Products/Release/bibliogenius.app" /Applications build/macos/Build/Products/Release/bibliogenius.pkg
+          
       - name: Upload to TestFlight
         uses: apple-actions/upload-testflight-build@v1
         with:
           app-path: build/macos/Build/Products/Release/bibliogenius.pkg
           issuer-id: ${{ secrets.APP_STORE_CONNECT_ISSUER_ID }}
           api-key-id: ${{ secrets.APP_STORE_CONNECT_KEY_ID }}
-          api-private-key: ${{ secrets.APP_STORE_CONNECT_API_KEY_BASE64 }}
+          api-private-key: private_keys/AuthKey_${{ secrets.APP_STORE_CONNECT_KEY_ID }}.p8
 
   build-ios:
     needs: build-rust
@@ -377,6 +393,33 @@ jobs:
           cp $RUNNER_TEMP/profile.mobileprovision ~/Library/MobileDevice/Provisioning\ Profiles/$UUID.mobileprovision
           echo "PROFILE_UUID=$UUID" >> $GITHUB_ENV
 
+      - name: Create ExportOptions.plist
+        env:
+          APPLE_TEAM_ID: ${{ secrets.APPLE_TEAM_ID }}
+        run: |
+          cat <<EOF > ios/Runner/ExportOptions.plist
+          <?xml version="1.0" encoding="UTF-8"?>
+          <!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+          <plist version="1.0">
+          <dict>
+              <key>method</key>
+              <string>app-store</string>
+              <key>teamID</key>
+              <string>$APPLE_TEAM_ID</string>
+              <key>manageAppVersionAndBuildNumber</key>
+              <true/>
+              <key>stripSwiftSymbols</key>
+              <true/>
+              <key>compileBitcode</key>
+              <false/>
+              <key>uploadBitcode</key>
+              <false/>
+              <key>uploadSymbols</key>
+              <true/>
+          </dict>
+          </plist>
+          EOF
+
       - name: Build iOS app (IPA)
         env:
           APPLE_TEAM_ID: ${{ secrets.APPLE_TEAM_ID }}
@@ -385,10 +428,13 @@ jobs:
           sed -i '' "s/DEVELOPMENT_TEAM = RF374CUSUZ/DEVELOPMENT_TEAM = $APPLE_TEAM_ID/g" ios/Runner.xcodeproj/project.pbxproj
           sed -i '' "s/PROVISIONING_PROFILE_SPECIFIER_APP_STORE = \"\";/PROVISIONING_PROFILE_SPECIFIER_APP_STORE = \"$PROFILE_UUID\";/g" ios/Runner.xcodeproj/project.pbxproj
           
-          # Inject Team ID into ExportOptions.plist
-          sed -i '' "s/\${APPLE_TEAM_ID}/$APPLE_TEAM_ID/g" ios/Runner/ExportOptions.plist
-          
+          # Build IPA
           flutter build ipa --release --export-options-plist=ios/Runner/ExportOptions.plist
+
+      - name: Decode Auth Key
+        run: |
+          mkdir -p private_keys
+          echo "${{ secrets.APP_STORE_CONNECT_API_KEY_BASE64 }}" | base64 --decode > private_keys/AuthKey_${{ secrets.APP_STORE_CONNECT_KEY_ID }}.p8
 
       - name: Upload to TestFlight
         uses: apple-actions/upload-testflight-build@v1
@@ -396,7 +442,7 @@ jobs:
           app-path: build/ios/ipa/BiblioGenius.ipa
           issuer-id: ${{ secrets.APP_STORE_CONNECT_ISSUER_ID }}
           api-key-id: ${{ secrets.APP_STORE_CONNECT_KEY_ID }}
-          api-private-key: ${{ secrets.APP_STORE_CONNECT_API_KEY_BASE64 }}
+          api-private-key: private_keys/AuthKey_${{ secrets.APP_STORE_CONNECT_KEY_ID }}.p8
 
   build-windows:
     needs: build-rust

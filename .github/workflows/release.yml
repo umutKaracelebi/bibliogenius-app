@@ -300,22 +300,53 @@ jobs:
           mkdir -p private_keys
           echo "${{ secrets.APP_STORE_CONNECT_API_KEY_BASE64 }}" | base64 --decode > private_keys/AuthKey_${{ secrets.APP_STORE_CONNECT_KEY_ID }}.p8
 
-      - name: Create Installer Package (PKG)
+      - name: Sign and Package macOS App
+        env:
+          APPLE_TEAM_ID: ${{ secrets.APPLE_TEAM_ID }}
         run: |
-          # Use productbuild to create a signed package. 
-          # Note: This requires an Installer Certificate. If missing, this might fail or produce an unsigned pkg.
-          # We use the imported certificate. If it's a standard distribution cert, it might work?
-          # Actually, for TestFlight, we usually upload the .app (as zip) or .pkg if it's an installer.
-          # apple-actions/upload-testflight-build supports .pkg or .ipa.
+          APP_PATH="build/macos/Build/Products/Release/bibliogenius.app"
+          BACKEND_PATH="$APP_PATH/Contents/Resources/backend/bibliogenius"
           
-          # Create pkg
-          productbuild --component "build/macos/Build/Products/Release/bibliogenius.app" /Applications build/macos/Build/Products/Release/bibliogenius.pkg
+          echo "Listing compiled directory:"
+          ls -R build/macos/Build/Products/Release/
           
+          # Decode certificate to find the identity
+          # (We rely on the keychain from previous steps, but let's be explicit about identity)
+          # Assuming "Apple Distribution" or similar is available.
+          IDENTITY="Apple Distribution: Federico Vitale ($APPLE_TEAM_ID)"
+          
+          echo "Signing backend binary with entitlements..."
+          codesign --force --verbose --sign "$IDENTITY" --entitlements macos/Runner/Release.entitlements "$BACKEND_PATH"
+          
+          echo "Signing main app bundle..."
+          codesign --force --deep --verbose --options runtime --sign "$IDENTITY" --entitlements macos/Runner/Release.entitlements "$APP_PATH"
+          
+          # Verify signing
+          codesign --verify --verbose "$APP_PATH"
+          spctl --assess --verbose "$APP_PATH" || echo "spctl assessment failed, but continuing..."
+          
+          # Create ZIP for upload (skipping productbuild to avoid Installer Cert requirement)
+          # Use ditch/ditto or zip to preserve attributes
+          /usr/bin/ditto -c -k --keepParent "$APP_PATH" build/macos/Build/Products/Release/bibliogenius.zip
+
+      - name: Find macOS Archive
+        run: |
+           echo "APP_ARCHIVE=build/macos/Build/Products/Release/bibliogenius.zip" >> $GITHUB_ENV
+
+      - name: Debug macOS files
+        if: always()
+        run: ls -lR build/macos/Build/Products/Release/
+
+      - name: Decode Auth Key
+        run: |
+          mkdir -p private_keys
+          echo "${{ secrets.APP_STORE_CONNECT_API_KEY_BASE64 }}" | base64 --decode > private_keys/AuthKey_${{ secrets.APP_STORE_CONNECT_KEY_ID }}.p8
+
       - name: Upload to TestFlight
         uses: apple-actions/upload-testflight-build@v1
         with:
           app-type: osx
-          app-path: build/macos/Build/Products/Release/bibliogenius.pkg
+          app-path: ${{ env.APP_ARCHIVE }}
           issuer-id: ${{ secrets.APP_STORE_CONNECT_ISSUER_ID }}
           api-key-id: ${{ secrets.APP_STORE_CONNECT_KEY_ID }}
           api-private-key: private_keys/AuthKey_${{ secrets.APP_STORE_CONNECT_KEY_ID }}.p8

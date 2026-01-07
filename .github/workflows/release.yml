@@ -314,6 +314,7 @@ jobs:
       - name: Upload to TestFlight
         uses: apple-actions/upload-testflight-build@v1
         with:
+          app-type: osx
           app-path: build/macos/Build/Products/Release/bibliogenius.pkg
           issuer-id: ${{ secrets.APP_STORE_CONNECT_ISSUER_ID }}
           api-key-id: ${{ secrets.APP_STORE_CONNECT_KEY_ID }}
@@ -406,6 +407,11 @@ jobs:
               <string>app-store</string>
               <key>teamID</key>
               <string>$APPLE_TEAM_ID</string>
+              <key>provisioningProfiles</key>
+              <dict>
+                <key>com.bibliogenius.app</key>
+                <string>$PROFILE_UUID</string>
+              </dict>
               <key>manageAppVersionAndBuildNumber</key>
               <true/>
               <key>stripSwiftSymbols</key>
@@ -434,7 +440,6 @@ jobs:
           # FORCE BUNDLE ID to com.bibliogenius.app (to match Apple ID)
           sed -i '' 's/org.bibliogenius.app/com.bibliogenius.app/g' ios/Runner.xcodeproj/project.pbxproj
           sed -i '' 's/PRODUCT_BUNDLE_IDENTIFIER = org.bibliogenius.app;/PRODUCT_BUNDLE_IDENTIFIER = com.bibliogenius.app;/g' ios/Runner.xcodeproj/project.pbxproj
-
           
           # Force Distribution Identity
           sed -i '' 's/"CODE_SIGN_IDENTITY\[sdk=iphoneos\*\]" = "iPhone Developer"/"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "iPhone Distribution"/g' ios/Runner.xcodeproj/project.pbxproj
@@ -448,6 +453,10 @@ jobs:
           
           # Build IPA
           flutter build ipa --release --export-options-plist=ios/Runner/ExportOptions.plist
+
+      - name: Debug Build Directory
+        if: always()
+        run: ls -R build/ios || echo "build/ios not found"
 
       - name: Decode Auth Key
         run: |

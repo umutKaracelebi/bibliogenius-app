@@ -321,23 +321,29 @@ jobs:
           
           echo "Found Identity: $IDENTITY"
           
+          echo "Prepare entitlements..."
+          # Replace $(AppIdentifierPrefix) with the actual Team ID followed by a dot
+          sed "s/\$(AppIdentifierPrefix)/$APPLE_TEAM_ID./g" macos/Runner/Release.entitlements > macos/Runner/Release.processed.entitlements
+          
           echo "Signing backend binary with entitlements..."
-          codesign --force --verbose --sign "$IDENTITY" --entitlements macos/Runner/Release.entitlements "$BACKEND_PATH"
+          codesign --force --verbose --sign "$IDENTITY" --entitlements macos/Runner/Release.processed.entitlements "$BACKEND_PATH"
           
           echo "Signing main app bundle..."
-          codesign --force --deep --verbose --options runtime --sign "$IDENTITY" --entitlements macos/Runner/Release.entitlements "$APP_PATH"
+          echo "Signing main app bundle..."
+          codesign --force --deep --verbose --options runtime --sign "$IDENTITY" --entitlements macos/Runner/Release.processed.entitlements "$APP_PATH"
           
           # Verify signing
           codesign --verify --verbose "$APP_PATH"
           spctl --assess --verbose "$APP_PATH" || echo "spctl assessment failed, but continuing..."
           
-          # Create ZIP for upload (skipping productbuild to avoid Installer Cert requirement)
-          # Use ditch/ditto or zip to preserve attributes
-          /usr/bin/ditto -c -k --keepParent "$APP_PATH" build/macos/Build/Products/Release/bibliogenius.zip
+          # Create PKG for upload (required for App Store / TestFlight)
+          # We use the same identity for installer signing if possible, or fallback
+          echo "Building signed package..."
+          productbuild --component "$APP_PATH" /Applications --sign "$IDENTITY" "build/macos/Build/Products/Release/bibliogenius.pkg"
 
       - name: Find macOS Archive
         run: |
-           echo "APP_ARCHIVE=build/macos/Build/Products/Release/bibliogenius.zip" >> $GITHUB_ENV
+           echo "APP_ARCHIVE=build/macos/Build/Products/Release/bibliogenius.pkg" >> $GITHUB_ENV
 
       - name: Debug macOS files
         if: always()

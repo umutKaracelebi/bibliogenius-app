@@ -215,6 +215,17 @@ jobs:
           # Store keychain path for later
           echo "KEYCHAIN_PATH=$KEYCHAIN_PATH" >> $GITHUB_ENV
 
+          # Download and Import Apple WWDR Intermediate (G3 and G4) and Developer ID CA
+          # This ensures the chain is complete for the Developer ID certificate
+          curl -LO https://www.apple.com/certificateauthority/AppleWWDRCAG3.cer
+          curl -LO https://www.apple.com/certificateauthority/AppleWWDRCAG4.cer
+          curl -LO https://www.apple.com/certificateauthority/DeveloperIDCA.cer
+          
+          # Import trusted intermediates
+          security import AppleWWDRCAG3.cer -k $KEYCHAIN_PATH -t agg
+          security import AppleWWDRCAG4.cer -k $KEYCHAIN_PATH -t agg
+          security import DeveloperIDCA.cer -k $KEYCHAIN_PATH -t agg
+
       - name: Install Installer Certificate
         env:
           MACOS_INSTALLER_CERT_BASE64: ${{ secrets.MACOS_INSTALLER_CERT_BASE64 }}
@@ -323,18 +334,20 @@ jobs:
           sed "s/\$(AppIdentifierPrefix)/$APPLE_TEAM_ID./g" macos/Runner/Release.entitlements > macos/Runner/Release.processed.entitlements
           
           echo "Signing inner libraries and frameworks..."
-          # Sign all frameworks and dylibs deep inside the bundle first
-          find "$APP_PATH/Contents/Frameworks" -name "*.framework" -or -name "*.dylib" | while read file; do
+          # Sign all frameworks and dylibs deep inside the bundle first (depth-first order)
+          # We explicitly add timestamp and runtime options to everything to be safe
+          find "$APP_PATH/Contents/Frameworks" -depth \( -name "*.framework" -o -name "*.dylib" \) | while read file; do
              echo "Signing $file..."
-             codesign --force --verbose --timestamp --sign "$IDENTITY" "$file"
+             codesign --force --verbose --timestamp --options runtime --sign "$IDENTITY" "$file"
           done
           
           echo "Signing backend binary with hardened runtime and entitlements..."
           codesign --force --verbose --timestamp --options runtime --sign "$IDENTITY" --entitlements macos/Runner/Release.processed.entitlements "$BACKEND_PATH"
           
           echo "Signing main app bundle with hardened runtime and entitlements..."
-          # Note: We use --deep to catch any other nested binaries, but having signed frameworks explicitly above is safer.
-          codesign --force --deep --verbose --timestamp --options runtime --sign "$IDENTITY" --entitlements macos/Runner/Release.processed.entitlements "$APP_PATH"
+          # Explicitly sign the bundle (covers simple structure and main executable) without --deep
+          # This preserves the specific signatures we just applied to nested content
+          codesign --force --verbose --timestamp --options runtime --sign "$IDENTITY" --entitlements macos/Runner/Release.processed.entitlements "$APP_PATH"
           
           # Verify signing
           echo "Verifying signature..."

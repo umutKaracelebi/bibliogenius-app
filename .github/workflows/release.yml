@@ -311,6 +311,71 @@ jobs:
             cp backend-x64/bibliogenius build/macos/Build/Products/Release/bibliogenius.app/Contents/Resources/backend/
           fi
           chmod +x build/macos/Build/Products/Release/bibliogenius.app/Contents/Resources/backend/bibliogenius
+
+      # === TESTFLIGHT UPLOAD (before Developer ID re-signing) ===
+      # The app is already signed with Apple Distribution from flutter build
+      
+      - name: Sign Backend for App Store
+        env:
+          APPLE_TEAM_ID: ${{ secrets.APPLE_TEAM_ID }}
+        run: |
+          APP_PATH="build/macos/Build/Products/Release/bibliogenius.app"
+          BACKEND_PATH="$APP_PATH/Contents/Resources/backend/bibliogenius"
+          
+          # Find Apple Distribution identity for App Store
+          APPLE_DIST=$(security find-identity -v -p codesigning | grep "Apple Distribution" | head -1 | awk -F '"' '{print $2}')
+          
+          if [ -z "$APPLE_DIST" ]; then
+            echo "❌ Error: Apple Distribution certificate not found"
+            security find-identity -v -p codesigning
+            exit 1
+          fi
+          
+          echo "Signing backend with Apple Distribution for TestFlight: $APPLE_DIST"
+          
+          # Prepare entitlements
+          sed "s/\$(AppIdentifierPrefix)/$APPLE_TEAM_ID./g" macos/Runner/Release.entitlements > macos/Runner/Release.processed.entitlements
+          
+          # Sign the injected backend binary with Apple Distribution
+          codesign --force --verbose --timestamp --options runtime --sign "$APPLE_DIST" --entitlements macos/Runner/Release.processed.entitlements "$BACKEND_PATH"
+          
+          # Re-sign the main app bundle to include the new backend
+          codesign --force --verbose --timestamp --options runtime --sign "$APPLE_DIST" --entitlements macos/Runner/Release.processed.entitlements "$APP_PATH"
+          
+          echo "✅ App signed with Apple Distribution for TestFlight"
+          codesign -dvv "$APP_PATH"
+
+      - name: Create Signed PKG for TestFlight
+        run: |
+          APP_PATH="build/macos/Build/Products/Release/bibliogenius.app"
+          
+          INSTALLER_IDENTITY=$(security find-identity -v | grep "3rd Party Mac Developer Installer" | head -1 | awk -F '"' '{print $2}')
+          
+          if [ -z "$INSTALLER_IDENTITY" ]; then
+            echo "Error: No '3rd Party Mac Developer Installer' identity found."
+            security find-identity -v
+            exit 1
+          fi
+          
+          echo "Found Installer Identity: $INSTALLER_IDENTITY"
+          productbuild --component "$APP_PATH" /Applications --sign "$INSTALLER_IDENTITY" "bibliogenius-testflight.pkg"
+          echo "✅ PKG created for TestFlight"
+
+      - name: Decode Auth Key for TestFlight
+        run: |
+          mkdir -p private_keys
+          echo "${{ secrets.APP_STORE_CONNECT_API_KEY_BASE64 }}" | base64 --decode > private_keys/AuthKey_${{ secrets.APP_STORE_CONNECT_KEY_ID }}.p8
+
+      - name: Upload to TestFlight
+        uses: apple-actions/upload-testflight-build@v1
+        with:
+          app-type: osx
+          app-path: bibliogenius-testflight.pkg
+          issuer-id: ${{ secrets.APP_STORE_CONNECT_ISSUER_ID }}
+          api-key-id: ${{ secrets.APP_STORE_CONNECT_KEY_ID }}
+          api-private-key: private_keys/AuthKey_${{ secrets.APP_STORE_CONNECT_KEY_ID }}.p8
+
+      # === DMG DISTRIBUTION (with Developer ID for notarization) ===
         
       - name: Decode Auth Key
         run: |
@@ -459,41 +524,6 @@ jobs:
             BiblioGenius-macOS.dmg
             BiblioGenius-macOS.zip
 
-      - name: Create Signed PKG (for App Store)
-        run: |
-          APP_PATH="build/macos/Build/Products/Release/bibliogenius.app"
-          
-          INSTALLER_IDENTITY=$(security find-identity -v | grep "Installer" | head -1 | awk '{print $2}')
-          
-          if [ -z "$INSTALLER_IDENTITY" ]; then
-            echo "Error: No Installer identity found."
-            exit 1
-          fi
-          
-          echo "Found Installer Identity: $INSTALLER_IDENTITY"
-          productbuild --component "$APP_PATH" /Applications --sign "$INSTALLER_IDENTITY" "build/macos/Build/Products/Release/bibliogenius.pkg"
-
-      - name: Find macOS Archive
-        run: |
-           echo "APP_ARCHIVE=build/macos/Build/Products/Release/bibliogenius.pkg" >> $GITHUB_ENV
-
-      - name: Debug macOS files
-        if: always()
-        run: ls -lR build/macos/Build/Products/Release/
-
-      - name: Decode Auth Key
-        run: |
-          mkdir -p private_keys
-          echo "${{ secrets.APP_STORE_CONNECT_API_KEY_BASE64 }}" | base64 --decode > private_keys/AuthKey_${{ secrets.APP_STORE_CONNECT_KEY_ID }}.p8
-
-      - name: Upload to TestFlight
-        uses: apple-actions/upload-testflight-build@v1
-        with:
-          app-type: osx
-          app-path: ${{ env.APP_ARCHIVE }}
-          issuer-id: ${{ secrets.APP_STORE_CONNECT_ISSUER_ID }}
-          api-key-id: ${{ secrets.APP_STORE_CONNECT_KEY_ID }}
-          api-private-key: private_keys/AuthKey_${{ secrets.APP_STORE_CONNECT_KEY_ID }}.p8
 
   build-ios:
     needs: build-rust

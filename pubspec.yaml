@@ -1,7 +1,7 @@
 name: app
 description: "BiblioGenius flutter application."
 publish_to: 'none' # Remove this line if you wish to publish to pub.dev
-version: 0.6.2+38
+version: 0.6.2+39
 environment:
   sdk: ^3.10.1
 dependencies:

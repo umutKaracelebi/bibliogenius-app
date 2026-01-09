@@ -102,6 +102,150 @@ const List<CuratedList> curatedLists = [
     ],
   ),
   CuratedList(
+    title: "Prix Goncourt - Grands classiques",
+    description:
+        "Sélection de romans ayant remporté le plus prestigieux prix littéraire français.",
+    coverUrl: "https://covers.openlibrary.org/b/id/8228691-L.jpg",
+    books: [
+      CuratedBook(
+        title: "L'Amant",
+        author: "Marguerite Duras",
+        isbn: "9782707306432",
+      ),
+      CuratedBook(
+        title: "Les Bienveillantes",
+        author: "Jonathan Littell",
+        isbn: "9782070788972",
+      ),
+      CuratedBook(
+        title: "Au revoir là-haut",
+        author: "Pierre Lemaitre",
+        isbn: "9782253168744",
+      ),
+      CuratedBook(
+        title: "Chanson douce",
+        author: "Leïla Slimani",
+        isbn: "9782072681578",
+      ),
+      CuratedBook(
+        title: "L'Anomalie",
+        author: "Hervé Le Tellier",
+        isbn: "9782072887598",
+      ),
+      CuratedBook(
+        title: "Boussole",
+        author: "Mathias Énard",
+        isbn: "9782330053062",
+      ),
+      CuratedBook(
+        title: "Pas pleurer",
+        author: "Lydie Salvayre",
+        isbn: "9782021181142",
+      ),
+      CuratedBook(
+        title: "La Carte et le Territoire",
+        author: "Michel Houellebecq",
+        isbn: "9782290030615",
+      ),
+    ],
+  ),
+  CuratedList(
+    title: "Classiques de la littérature jeunesse",
+    description: "Les incontournables pour les jeunes lecteurs, de 8 à 15 ans.",
+    coverUrl: "https://covers.openlibrary.org/b/id/8225138-L.jpg",
+    books: [
+      CuratedBook(
+        title: "Harry Potter à l'école des sorciers",
+        author: "J.K. Rowling",
+        isbn: "9782070643028",
+      ),
+      CuratedBook(
+        title:
+            "Le Monde de Narnia - Le Lion, la Sorcière Blanche et l'Armoire Magique",
+        author: "C.S. Lewis",
+        isbn: "9782070619023",
+      ),
+      CuratedBook(
+        title: "Charlie et la Chocolaterie",
+        author: "Roald Dahl",
+        isbn: "9782070601578",
+      ),
+      CuratedBook(
+        title: "Matilda",
+        author: "Roald Dahl",
+        isbn: "9782070601561",
+      ),
+      CuratedBook(
+        title: "L'Île au trésor",
+        author: "Robert Louis Stevenson",
+        isbn: "9782070409013",
+      ),
+      CuratedBook(
+        title: "Le Hobbit",
+        author: "J.R.R. Tolkien",
+        isbn: "9782253049418",
+      ),
+      CuratedBook(
+        title: "Percy Jackson - Le Voleur de foudre",
+        author: "Rick Riordan",
+        isbn: "9782226326249",
+      ),
+      CuratedBook(
+        title: "Eragon",
+        author: "Christopher Paolini",
+        isbn: "9782747017510",
+      ),
+    ],
+  ),
+  CuratedList(
+    title: "Manga essentiels",
+    description:
+        "Les séries manga incontournables pour débuter ou enrichir sa collection.",
+    coverUrl: "https://covers.openlibrary.org/b/id/10521421-L.jpg",
+    books: [
+      CuratedBook(
+        title: "One Piece - Tome 1",
+        author: "Eiichiro Oda",
+        isbn: "9782723488525",
+      ),
+      CuratedBook(
+        title: "Naruto - Tome 1",
+        author: "Masashi Kishimoto",
+        isbn: "9782871294658",
+      ),
+      CuratedBook(
+        title: "Death Note - Tome 1",
+        author: "Tsugumi Ohba, Takeshi Obata",
+        isbn: "9782871294948",
+      ),
+      CuratedBook(
+        title: "L'Attaque des Titans - Tome 1",
+        author: "Hajime Isayama",
+        isbn: "9782811607203",
+      ),
+      CuratedBook(
+        title: "Fullmetal Alchemist - Tome 1",
+        author: "Hiromu Arakawa",
+        isbn: "9782351420010",
+      ),
+      CuratedBook(
+        title: "Dragon Ball - Tome 1",
+        author: "Akira Toriyama",
+        isbn: "9782723418478",
+      ),
+      CuratedBook(
+        title: "My Hero Academia - Tome 1",
+        author: "Kohei Horikoshi",
+        isbn: "9791032700365",
+      ),
+      CuratedBook(
+        title: "Demon Slayer - Tome 1",
+        author: "Koyoharu Gotouge",
+        isbn: "9782809465808",
+      ),
+    ],
+  ),
+  CuratedList(
     title: "Prix Hugo (Meilleur Roman)",
     description:
         "Romans de science-fiction et de fantasy ayant remporté le prestigieux prix Hugo.",
@@ -174,6 +318,44 @@ const List<CuratedList> curatedLists = [
         title: "Carbone modifié",
         author: "Richard K. Morgan",
         isbn: "9782290004081",
+      ),
+    ],
+  ),
+  CuratedList(
+    title: "Romans policiers français",
+    description:
+        "Les maîtres du polar français : suspense, enquêtes et mystères.",
+    coverUrl: "https://covers.openlibrary.org/b/id/8701830-L.jpg",
+    books: [
+      CuratedBook(
+        title: "Au revoir là-haut",
+        author: "Pierre Lemaitre",
+        isbn: "9782253168744",
+      ),
+      CuratedBook(
+        title: "La Vérité sur l'Affaire Harry Quebert",
+        author: "Joël Dicker",
+        isbn: "9782877068635",
+      ),
+      CuratedBook(
+        title: "Dans les bois éternels",
+        author: "Fred Vargas",
+        isbn: "9782290019344",
+      ),
+      CuratedBook(
+        title: "Le Parfum",
+        author: "Patrick Süskind",
+        isbn: "9782253044901",
+      ),
+      CuratedBook(
+        title: "Millénium 1 - Les hommes qui n'aimaient pas les femmes",
+        author: "Stieg Larsson",
+        isbn: "9782742778430",
+      ),
+      CuratedBook(
+        title: "L'Homme qui voulait vivre sa vie",
+        author: "Douglas Kennedy",
+        isbn: "9782714437358",
       ),
     ],
   ),

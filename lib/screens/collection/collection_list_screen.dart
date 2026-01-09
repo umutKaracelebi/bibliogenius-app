@@ -108,9 +108,9 @@ class _CollectionListScreenState extends State<CollectionListScreen> {
       appBar: AppBar(
         title: Text(TranslationService.translate(context, 'collections')),
         actions: [
-          IconButton(
-            icon: const Icon(Icons.auto_awesome_motion),
-            tooltip: 'Discover Curated Collections',
+          TextButton.icon(
+            icon: const Icon(Icons.auto_awesome),
+            label: Text(TranslationService.translate(context, 'discover')),
             onPressed: () async {
               final result = await Navigator.push(
                 context,
@@ -134,10 +134,86 @@ class _CollectionListScreenState extends State<CollectionListScreen> {
           } else if (snapshot.hasError) {
             return Center(child: Text('Error: ${snapshot.error}'));
           } else if (!snapshot.hasData || snapshot.data!.isEmpty) {
-            return Center(
+            return SingleChildScrollView(
+              padding: const EdgeInsets.all(24),
               child: Column(
-                mainAxisAlignment: MainAxisAlignment.center,
                 children: [
+                  // Promotional banner
+                  Container(
+                    padding: const EdgeInsets.all(20),
+                    decoration: BoxDecoration(
+                      gradient: LinearGradient(
+                        colors: [
+                          Theme.of(context).primaryColor.withValues(alpha: 0.8),
+                          Theme.of(context).primaryColor,
+                        ],
+                        begin: Alignment.topLeft,
+                        end: Alignment.bottomRight,
+                      ),
+                      borderRadius: BorderRadius.circular(16),
+                    ),
+                    child: Column(
+                      children: [
+                        const Icon(
+                          Icons.auto_awesome,
+                          size: 48,
+                          color: Colors.white,
+                        ),
+                        const SizedBox(height: 12),
+                        Text(
+                          TranslationService.translate(
+                            context,
+                            'discover_collections_title',
+                          ),
+                          style: Theme.of(context).textTheme.titleLarge
+                              ?.copyWith(
+                                color: Colors.white,
+                                fontWeight: FontWeight.bold,
+                              ),
+                          textAlign: TextAlign.center,
+                        ),
+                        const SizedBox(height: 8),
+                        Text(
+                          TranslationService.translate(
+                            context,
+                            'discover_collections_subtitle',
+                          ),
+                          style: Theme.of(context).textTheme.bodyMedium
+                              ?.copyWith(
+                                color: Colors.white.withValues(alpha: 0.9),
+                              ),
+                          textAlign: TextAlign.center,
+                        ),
+                        const SizedBox(height: 16),
+                        FilledButton.tonal(
+                          onPressed: () async {
+                            final result = await Navigator.push(
+                              context,
+                              MaterialPageRoute(
+                                builder: (context) =>
+                                    const import_curated.ImportCuratedListScreen(),
+                              ),
+                            );
+                            if (result == true) {
+                              _refreshCollections();
+                            }
+                          },
+                          style: FilledButton.styleFrom(
+                            backgroundColor: Colors.white,
+                            foregroundColor: Theme.of(context).primaryColor,
+                          ),
+                          child: Text(
+                            TranslationService.translate(
+                              context,
+                              'explore_collections',
+                            ),
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                  const SizedBox(height: 32),
+                  // Empty state
                   const Icon(
                     Icons.collections_bookmark,
                     size: 64,
@@ -146,24 +222,16 @@ class _CollectionListScreenState extends State<CollectionListScreen> {
                   const SizedBox(height: 16),
                   Text(
                     TranslationService.translate(context, 'no_collections'),
-                    style: Theme.of(context).textTheme.titleLarge,
+                    style: Theme.of(context).textTheme.titleMedium,
                   ),
-                  const SizedBox(height: 24),
-                  FilledButton.icon(
-                    onPressed: () async {
-                      final result = await Navigator.push(
-                        context,
-                        MaterialPageRoute(
-                          builder: (context) =>
-                              const import_curated.ImportCuratedListScreen(),
-                        ),
-                      );
-                      if (result == true) {
-                        _refreshCollections();
-                      }
-                    },
-                    icon: const Icon(Icons.auto_awesome_motion),
-                    label: const Text('Discover Curated Lists'),
+                  const SizedBox(height: 8),
+                  Text(
+                    TranslationService.translate(
+                      context,
+                      'create_collection_hint',
+                    ),
+                    style: Theme.of(context).textTheme.bodySmall,
+                    textAlign: TextAlign.center,
                   ),
                 ],
               ),
@@ -178,7 +246,9 @@ class _CollectionListScreenState extends State<CollectionListScreen> {
               return ListTile(
                 leading: const Icon(Icons.folder),
                 title: Text(collection.name),
-                subtitle: Text('${collection.totalBooks} books'),
+                subtitle: Text(
+                  '${collection.totalBooks} ${TranslationService.translate(context, "books")}',
+                ),
                 trailing: IconButton(
                   icon: const Icon(Icons.delete),
                   onPressed: () async {

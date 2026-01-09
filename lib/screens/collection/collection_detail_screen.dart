@@ -214,6 +214,22 @@ class _CollectionDetailScreenState extends State<CollectionDetailScreen> {
       appBar: AppBar(
         title: Text(widget.collection.name),
         actions: [
+          // Batch scan for this collection
+          IconButton(
+            icon: const Icon(Icons.qr_code_scanner),
+            onPressed: () {
+              final collectionName = Uri.encodeComponent(
+                widget.collection.name,
+              );
+              context.push(
+                '/scan?collectionId=${widget.collection.id}&collectionName=$collectionName&batch=true',
+              );
+            },
+            tooltip: TranslationService.translate(
+              context,
+              'scan_into_collection',
+            ),
+          ),
           IconButton(
             icon: const Icon(Icons.upload_file),
             onPressed: _importBooks,

@@ -459,7 +459,26 @@ class _AppRouterState extends State<AppRouter> {
             ),
             GoRoute(
               path: '/scan',
-              builder: (context, state) => const ScanScreen(),
+              builder: (context, state) {
+                // Support batch mode with pre-selected destination
+                final shelfId = state.uri.queryParameters['shelfId'];
+                final shelfName = state.uri.queryParameters['shelfName'];
+                final collectionIdStr =
+                    state.uri.queryParameters['collectionId'];
+                final collectionName =
+                    state.uri.queryParameters['collectionName'];
+                final batch = state.uri.queryParameters['batch'] == 'true';
+
+                return ScanScreen(
+                  preSelectedShelfId: shelfId,
+                  preSelectedShelfName: shelfName,
+                  preSelectedCollectionId: collectionIdStr != null
+                      ? int.tryParse(collectionIdStr)
+                      : null,
+                  preSelectedCollectionName: collectionName,
+                  batchMode: batch,
+                );
+              },
             ),
             GoRoute(path: '/p2p', redirect: (context, state) => '/network'),
             GoRoute(

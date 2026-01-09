@@ -544,6 +544,10 @@ class TranslationService {
       'select_lender': 'Select who is lending you this book',
       // Scan Screen
       'scan_isbn_title': 'Scan ISBN',
+      'batch_scan_title': 'Batch Scan',
+      'books_added': 'books added',
+      'scan_into_collection': 'Scan into this collection',
+      'scan_into_shelf': 'Scan into this shelf',
       'btn_enter_manually': 'Enter Manually',
       // External Search
       'external_search_title': 'External Book Search',
@@ -1681,6 +1685,10 @@ class TranslationService {
       'select_lender': 'Sélectionnez qui vous prête ce livre',
       // Scan Screen
       'scan_isbn_title': 'Scanner un ISBN',
+      'batch_scan_title': 'Scan en série',
+      'books_added': 'livres ajoutés',
+      'scan_into_collection': 'Scanner dans cette collection',
+      'scan_into_shelf': 'Scanner dans cette étagère',
       'btn_enter_manually': 'Saisir manuellement',
       // External Search
       'external_search_title': 'Recherche de livre externe',

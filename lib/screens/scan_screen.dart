@@ -2,11 +2,30 @@ import 'package:flutter/material.dart';
 import 'package:mobile_scanner/mobile_scanner.dart';
 import 'package:go_router/go_router.dart';
 import 'package:flutter/services.dart'; // For HapticFeedback
+import 'package:provider/provider.dart';
 import '../services/translation_service.dart';
+import '../services/api_service.dart';
 import '../utils/isbn_validator.dart';
 
+/// Scan screen with optional batch mode and pre-selected destination.
+///
+/// In batch mode, books are added directly with the pre-selected shelf/collection
+/// and the scanner continues for the next book.
 class ScanScreen extends StatefulWidget {
-  const ScanScreen({super.key});
+  final String? preSelectedShelfId;
+  final String? preSelectedShelfName;
+  final int? preSelectedCollectionId;
+  final String? preSelectedCollectionName;
+  final bool batchMode;
+
+  const ScanScreen({
+    super.key,
+    this.preSelectedShelfId,
+    this.preSelectedShelfName,
+    this.preSelectedCollectionId,
+    this.preSelectedCollectionName,
+    this.batchMode = false,
+  });
 
   @override
   State<ScanScreen> createState() => _ScanScreenState();
@@ -22,6 +41,11 @@ class _ScanScreenState extends State<ScanScreen> {
   bool _isTorchOn = false;
   String? _lastScannedIsbn; // Prevent duplicate navigation for same ISBN
 
+  // Batch mode state
+  int _batchCount = 0;
+  String? _lastAddedTitle;
+  bool _isProcessingBatch = false;
+
   @override
   void dispose() {
     controller.dispose();
@@ -29,6 +53,19 @@ class _ScanScreenState extends State<ScanScreen> {
   }
 
   DateTime? _lastInvalidScanTime;
+
+  String get _destinationLabel {
+    if (widget.preSelectedShelfName != null) {
+      return widget.preSelectedShelfName!;
+    } else if (widget.preSelectedCollectionName != null) {
+      return widget.preSelectedCollectionName!;
+    }
+    return '';
+  }
+
+  bool get _hasDestination =>
+      widget.preSelectedShelfId != null ||
+      widget.preSelectedCollectionId != null;
 
   void _onDetect(BarcodeCapture capture) {
     if (!_isScanning) return;
@@ -45,16 +82,19 @@ class _ScanScreenState extends State<ScanScreen> {
         foundValid = true;
         _lastScannedIsbn = rawValue; // Remember this ISBN
 
-        // Valid ISBN found
-        setState(() {
-          _isScanning = false;
-        });
-
         // Haptic feedback
         HapticFeedback.lightImpact();
 
-        // Return ISBN to previous screen (add book screen)
-        context.pop(rawValue);
+        if (widget.batchMode && _hasDestination) {
+          // Batch mode: add book directly and continue scanning
+          _handleBatchScan(rawValue);
+        } else {
+          // Normal mode: return ISBN to previous screen
+          setState(() {
+            _isScanning = false;
+          });
+          context.pop(rawValue);
+        }
         return;
       }
     }
@@ -68,6 +108,135 @@ class _ScanScreenState extends State<ScanScreen> {
         _showInvalidBarcodeDialog();
       }
     }
+  }
+
+  Future<void> _handleBatchScan(String isbn) async {
+    if (_isProcessingBatch) return;
+
+    setState(() {
+      _isScanning = false;
+      _isProcessingBatch = true;
+    });
+
+    try {
+      final api = Provider.of<ApiService>(context, listen: false);
+
+      // First, try to get book details from lookup
+      final bookData = await api.lookupBook(isbn);
+
+      if (bookData != null) {
+        // Create the book with pre-selected shelf/collection
+        final bookPayload = {
+          'title': bookData['title'] ?? 'Unknown Title',
+          'author': bookData['authors'] != null
+              ? (bookData['authors'] as List).join(', ')
+              : bookData['author'] ?? '',
+          'isbn': isbn,
+          'publisher': bookData['publisher'],
+          'publication_year': bookData['year'],
+          'cover_url': bookData['cover_url'],
+          'summary': bookData['summary'],
+          'reading_status': 'to_read',
+          if (widget.preSelectedShelfId != null)
+            'subjects': [widget.preSelectedShelfId],
+        };
+
+        final response = await api.createBook(bookPayload);
+        final newBookId = response.data['id'];
+
+        // Add to collection if specified
+        if (newBookId != null && widget.preSelectedCollectionId != null) {
+          await api.updateBookCollections(newBookId, [
+            widget.preSelectedCollectionId!.toString(),
+          ]);
+        }
+
+        setState(() {
+          _batchCount++;
+          _lastAddedTitle = bookData['title'] ?? isbn;
+          _lastScannedIsbn = isbn;
+        });
+
+        // Show success feedback
+        if (mounted) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(
+              content: Text('✓ ${bookData['title'] ?? isbn}'),
+              duration: const Duration(seconds: 1),
+              behavior: SnackBarBehavior.floating,
+              backgroundColor: Colors.green.shade700,
+            ),
+          );
+        }
+      } else {
+        // Book not found - allow manual entry
+        if (mounted) {
+          _showBookNotFoundDialog(isbn);
+        }
+      }
+    } catch (e) {
+      debugPrint('Batch scan error: $e');
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('Erreur: $e'), backgroundColor: Colors.red),
+        );
+      }
+    } finally {
+      // Re-enable scanning after a short delay
+      await Future.delayed(const Duration(milliseconds: 500));
+      if (mounted) {
+        setState(() {
+          _isScanning = true;
+          _isProcessingBatch = false;
+        });
+      }
+    }
+  }
+
+  void _showBookNotFoundDialog(String isbn) {
+    showDialog(
+      context: context,
+      builder: (ctx) => AlertDialog(
+        title: Row(
+          children: [
+            const Icon(Icons.help_outline, color: Colors.orange),
+            const SizedBox(width: 8),
+            Text(TranslationService.translate(context, 'book_not_found')),
+          ],
+        ),
+        content: Text('ISBN: $isbn'),
+        actions: [
+          TextButton(
+            onPressed: () {
+              Navigator.pop(ctx);
+              setState(() {
+                _isScanning = true;
+                _isProcessingBatch = false;
+              });
+            },
+            child: Text(TranslationService.translate(context, 'cancel')),
+          ),
+          ElevatedButton.icon(
+            onPressed: () {
+              Navigator.pop(ctx);
+              // Navigate to add book screen with ISBN and pre-selected destination
+              final extra = {
+                'isbn': isbn,
+                if (widget.preSelectedShelfId != null)
+                  'shelfId': widget.preSelectedShelfId,
+                if (widget.preSelectedCollectionId != null)
+                  'collectionId': widget.preSelectedCollectionId,
+              };
+              context.push('/books/add', extra: extra);
+            },
+            icon: const Icon(Icons.edit),
+            label: Text(
+              TranslationService.translate(context, 'add_book_manually'),
+            ),
+          ),
+        ],
+      ),
+    );
   }
 
   void _showInvalidBarcodeDialog() {
@@ -139,7 +308,11 @@ class _ScanScreenState extends State<ScanScreen> {
           onSubmitted: (value) {
             if (value.isNotEmpty) {
               Navigator.pop(ctx);
-              context.push('/books/add', extra: {'isbn': value});
+              if (widget.batchMode && _hasDestination) {
+                _handleBatchScan(value);
+              } else {
+                context.push('/books/add', extra: {'isbn': value});
+              }
             }
           },
         ),
@@ -152,7 +325,11 @@ class _ScanScreenState extends State<ScanScreen> {
             onPressed: () {
               if (controller.text.isNotEmpty) {
                 Navigator.pop(ctx);
-                context.push('/books/add', extra: {'isbn': controller.text});
+                if (widget.batchMode && _hasDestination) {
+                  _handleBatchScan(controller.text);
+                } else {
+                  context.push('/books/add', extra: {'isbn': controller.text});
+                }
               }
             },
             child: Text(TranslationService.translate(context, 'confirm')),
@@ -173,7 +350,11 @@ class _ScanScreenState extends State<ScanScreen> {
     return Scaffold(
       extendBodyBehindAppBar: true,
       appBar: AppBar(
-        title: Text(TranslationService.translate(context, 'scan_isbn_title')),
+        title: Text(
+          widget.batchMode && _hasDestination
+              ? TranslationService.translate(context, 'batch_scan_title')
+              : TranslationService.translate(context, 'scan_isbn_title'),
+        ),
         backgroundColor: Colors.transparent,
         elevation: 0,
         actions: [
@@ -214,8 +395,63 @@ class _ScanScreenState extends State<ScanScreen> {
             painter: ScannerOverlayPainter(scanWindow),
             child: Container(),
           ),
+
+          // Batch mode: destination indicator at top
+          if (widget.batchMode && _hasDestination)
+            Positioned(
+              top: 100,
+              left: 20,
+              right: 20,
+              child: Container(
+                padding: const EdgeInsets.symmetric(
+                  horizontal: 16,
+                  vertical: 10,
+                ),
+                decoration: BoxDecoration(
+                  color: Theme.of(context).primaryColor.withValues(alpha: 0.9),
+                  borderRadius: BorderRadius.circular(20),
+                ),
+                child: Row(
+                  mainAxisSize: MainAxisSize.min,
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    Icon(
+                      widget.preSelectedShelfId != null
+                          ? Icons.folder
+                          : Icons.collections_bookmark,
+                      color: Colors.white,
+                      size: 18,
+                    ),
+                    const SizedBox(width: 8),
+                    Flexible(
+                      child: Text(
+                        _destinationLabel,
+                        style: const TextStyle(
+                          color: Colors.white,
+                          fontWeight: FontWeight.bold,
+                        ),
+                        overflow: TextOverflow.ellipsis,
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            ),
+
+          // Processing indicator
+          if (_isProcessingBatch)
+            Positioned.fill(
+              child: Container(
+                color: Colors.black54,
+                child: const Center(
+                  child: CircularProgressIndicator(color: Colors.white),
+                ),
+              ),
+            ),
+
+          // Scan instruction
           Positioned(
-            bottom: 80,
+            bottom: widget.batchMode ? 140 : 80,
             left: 20,
             right: 20,
             child: Text(
@@ -235,25 +471,93 @@ class _ScanScreenState extends State<ScanScreen> {
               ),
             ),
           ),
+
+          // Batch mode: counter and last added
+          if (widget.batchMode && _hasDestination)
+            Positioned(
+              bottom: 90,
+              left: 20,
+              right: 20,
+              child: Container(
+                padding: const EdgeInsets.all(12),
+                decoration: BoxDecoration(
+                  color: Colors.black87,
+                  borderRadius: BorderRadius.circular(12),
+                ),
+                child: Column(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    if (_lastAddedTitle != null)
+                      Row(
+                        children: [
+                          const Icon(
+                            Icons.check_circle,
+                            color: Colors.green,
+                            size: 18,
+                          ),
+                          const SizedBox(width: 8),
+                          Expanded(
+                            child: Text(
+                              _lastAddedTitle!,
+                              style: const TextStyle(
+                                color: Colors.white,
+                                fontSize: 14,
+                              ),
+                              overflow: TextOverflow.ellipsis,
+                            ),
+                          ),
+                        ],
+                      ),
+                    const SizedBox(height: 4),
+                    Text(
+                      '$_batchCount ${TranslationService.translate(context, 'books_added') ?? 'livres ajoutés'}',
+                      style: TextStyle(
+                        color: Colors.white.withValues(alpha: 0.8),
+                        fontSize: 12,
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            ),
+
+          // Bottom button
           Positioned(
             bottom: 30,
             left: 50,
             right: 50,
-            child: ElevatedButton.icon(
-              icon: const Icon(Icons.keyboard),
-              label: Text(
-                TranslationService.translate(context, 'btn_enter_manually') ??
-                    'Enter Manually',
-              ),
-              onPressed: () {
-                context.push('/books/add');
-              },
-              style: ElevatedButton.styleFrom(
-                backgroundColor: Colors.white,
-                foregroundColor: Colors.black,
-                padding: const EdgeInsets.symmetric(vertical: 12),
-              ),
-            ),
+            child: widget.batchMode
+                ? ElevatedButton.icon(
+                    icon: const Icon(Icons.done),
+                    label: Text(
+                      TranslationService.translate(context, 'done') ??
+                          'Terminé',
+                    ),
+                    onPressed: () => context.pop(_batchCount > 0),
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: Colors.white,
+                      foregroundColor: Colors.black,
+                      padding: const EdgeInsets.symmetric(vertical: 12),
+                    ),
+                  )
+                : ElevatedButton.icon(
+                    icon: const Icon(Icons.keyboard),
+                    label: Text(
+                      TranslationService.translate(
+                            context,
+                            'btn_enter_manually',
+                          ) ??
+                          'Enter Manually',
+                    ),
+                    onPressed: () {
+                      context.push('/books/add');
+                    },
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: Colors.white,
+                      foregroundColor: Colors.black,
+                      padding: const EdgeInsets.symmetric(vertical: 12),
+                    ),
+                  ),
           ),
         ],
       ),

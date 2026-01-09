@@ -3072,24 +3072,62 @@ class _ProfileScreenState extends State<ProfileScreen> {
         _userInfo?['fallback_preferences'] ??
         {};
 
-    // Determine OpenLibrary state (default: enabled)
+    // Determine OpenLibrary state
     bool openLibraryEnabled;
     if (userPrefs.containsKey('openlibrary')) {
       openLibraryEnabled = userPrefs['openlibrary'] == true;
     } else {
-      // Fallback to old modules logic (deprecated)
       final List<dynamic> modules = config['enabled_modules'] ?? [];
       openLibraryEnabled = !modules.contains('disable_fallback:openlibrary');
     }
 
-    // Determine Google Books state (default: disabled)
+    // Determine Google Books state
     bool googleBooksEnabled;
     if (userPrefs.containsKey('google_books')) {
       googleBooksEnabled = userPrefs['google_books'] == true;
     } else {
-      // Fallback to old modules logic (deprecated)
       final List<dynamic> modules = config['enabled_modules'] ?? [];
       googleBooksEnabled = modules.contains('enable_google_books');
+    }
+
+    // Determine Inventaire state (default: enabled)
+    bool inventaireEnabled;
+    if (userPrefs.containsKey('inventaire')) {
+      inventaireEnabled = userPrefs['inventaire'] == true;
+    } else {
+      final List<dynamic> modules = config['enabled_modules'] ?? [];
+      inventaireEnabled = !modules.contains('disable_fallback:inventaire');
+    }
+
+    // Determine BNF state (default: enabled)
+    bool bnfEnabled;
+    if (userPrefs.containsKey('bnf')) {
+      bnfEnabled = userPrefs['bnf'] == true;
+    } else {
+      final List<dynamic> modules = config['enabled_modules'] ?? [];
+      bnfEnabled = !modules.contains('disable_fallback:bnf');
+    }
+
+    void handleSourceChange(String source, bool value) {
+      if (!value) {
+        int count = 0;
+        if (openLibraryEnabled) count++;
+        if (googleBooksEnabled) count++;
+        if (inventaireEnabled) count++;
+        if (bnfEnabled) count++;
+        if (count <= 1) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(
+              content: Text(
+                TranslationService.translate(context, 'min_one_source_error'),
+              ),
+              backgroundColor: Colors.red,
+            ),
+          );
+          return;
+        }
+      }
+      _updateFallbackPreference(source, value);
     }
 
     return Column(
@@ -3104,6 +3142,29 @@ class _ProfileScreenState extends State<ProfileScreen> {
           child: Column(
             children: [
               SwitchListTile(
+                title: const Text('Inventaire.io'),
+                subtitle: Text(
+                  TranslationService.translate(
+                    context,
+                    'source_inventaire_desc',
+                  ),
+                ),
+                secondary: const Icon(Icons.dataset),
+                value: inventaireEnabled,
+                onChanged: (val) => handleSourceChange('inventaire', val),
+              ),
+              const Divider(),
+              SwitchListTile(
+                title: const Text('data.bnf.fr'),
+                subtitle: Text(
+                  TranslationService.translate(context, 'source_bnf_desc'),
+                ),
+                secondary: const Icon(Icons.local_library),
+                value: bnfEnabled,
+                onChanged: (val) => handleSourceChange('bnf', val),
+              ),
+              const Divider(),
+              SwitchListTile(
                 title: const Text('OpenLibrary'),
                 subtitle: Text(
                   TranslationService.translate(
@@ -3113,8 +3174,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                 ),
                 secondary: const Icon(Icons.public),
                 value: openLibraryEnabled,
-                onChanged: (val) =>
-                    _updateFallbackPreference('openlibrary', val),
+                onChanged: (val) => handleSourceChange('openlibrary', val),
               ),
               const Divider(),
               SwitchListTile(
@@ -3124,8 +3184,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                 ),
                 secondary: const Icon(Icons.search),
                 value: googleBooksEnabled,
-                onChanged: (val) =>
-                    _updateFallbackPreference('google_books', val),
+                onChanged: (val) => handleSourceChange('google_books', val),
               ),
             ],
           ),

@@ -1120,8 +1120,11 @@ class TranslationService {
       'added_date_label': 'Added:',
       'status_owned': 'Owned',
       'search_sources': 'Search Sources',
-      'source_openlibrary_desc': 'Broad coverage, especially for English books',
+      'source_openlibrary_desc': 'Great coverage, especially for English books',
+      'source_inventaire_desc': 'Primary collaborative open database',
+      'source_bnf_desc': 'National Library of France (French books)',
       'source_google_desc': 'Excellent for covers and modern metadata',
+      'min_one_source_error': 'At least one search source is required',
     },
     'fr': {
       'app_title': 'BiblioGenius',
@@ -2240,8 +2243,11 @@ class TranslationService {
       'search_sources': 'Sources de recherche',
       'source_openlibrary_desc':
           'Large couverture, surtout pour les livres en anglais',
+      'source_inventaire_desc': 'Base de données collaborative principale',
+      'source_bnf_desc': 'Bibliothèque nationale de France (livres français)',
       'source_google_desc':
           'Excellent pour les couvertures et métadonnées modernes',
+      'min_one_source_error': 'Au moins une source de recherche est requise',
     },
     'es': {
       'app_title': 'BiblioGenius',

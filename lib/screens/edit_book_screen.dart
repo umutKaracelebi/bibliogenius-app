@@ -208,7 +208,10 @@ class _EditBookScreenState extends State<EditBookScreen> {
     setState(() => _isFetchingDetails = true);
     try {
       final api = Provider.of<ApiService>(context, listen: false);
-      final bookData = await api.lookupBook(isbn);
+      final bookData = await api.lookupBook(
+        isbn,
+        locale: Localizations.localeOf(context),
+      );
 
       if (bookData != null && mounted) {
         setState(() {

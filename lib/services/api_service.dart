@@ -1,8 +1,8 @@
-import 'dart:io' show Platform, File;
+import 'dart:io' show File;
+import 'dart:ui';
 import 'dart:convert';
 import 'package:dio/dio.dart';
 import 'package:flutter/foundation.dart';
-import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:network_info_plus/network_info_plus.dart';
 
@@ -2426,9 +2426,13 @@ class ApiService {
     }
   }
 
-  Future<Map<String, dynamic>?> lookupBook(String isbn) async {
+  Future<Map<String, dynamic>?> lookupBook(
+    String isbn, {
+    Locale? locale,
+  }) async {
     // In FFI mode, use OpenLibrary directly since we can't reach the Rust HTTP server
     if (useFfi) {
+      // ... (FFI implementation kept same)
       try {
         final openLibraryService = OpenLibraryService();
         final result = await openLibraryService.lookupByIsbn(isbn);
@@ -2449,7 +2453,11 @@ class ApiService {
     }
 
     try {
-      final response = await _dio.get('/api/lookup/$isbn');
+      final currentLang = locale?.languageCode ?? 'en';
+      final response = await _dio.get(
+        '/api/lookup/$isbn',
+        queryParameters: {'lang': currentLang},
+      );
 
       if (response.statusCode == 200 && response.data != null) {
         final data = response.data;

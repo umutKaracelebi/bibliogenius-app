@@ -180,7 +180,10 @@ class _AddBookScreenState extends State<AddBookScreen> {
       });
 
       // Use backend (Inventaire with OpenLibrary cover enrichment)
-      final bookData = await api.lookupBook(isbn);
+      final bookData = await api.lookupBook(
+        isbn,
+        locale: Localizations.localeOf(context),
+      );
 
       if (bookData != null && mounted) {
         setState(() {

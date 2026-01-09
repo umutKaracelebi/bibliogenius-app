@@ -149,7 +149,10 @@ class _ScanScreenState extends State<ScanScreen> {
         }
       } else {
         // 2. Not found locally, lookup metadata
-        final bookData = await api.lookupBook(isbn);
+        final bookData = await api.lookupBook(
+          isbn,
+          locale: Localizations.localeOf(context),
+        );
 
         if (bookData != null) {
           bookTitle = bookData['title'] ?? 'Unknown Title';

@@ -17,7 +17,6 @@ import '../src/rust/frb_generated.dart';
 import 'auth_service.dart';
 import 'ffi_service.dart';
 import 'mdns_service.dart';
-import 'open_library_service.dart';
 
 class ApiService {
   final Dio _dio;
@@ -2302,11 +2301,18 @@ class ApiService {
           jsonEncode(fallbackPreferences),
         );
       }
-      return Response(
-        requestOptions: RequestOptions(path: '/api/profile'),
-        statusCode: 200,
-        data: {'success': true, 'message': 'Profile stored locally'},
-      );
+      // Call local HTTP server to persist in database
+      try {
+        final localDio = Dio(
+          BaseOptions(baseUrl: 'http://127.0.0.1:$httpPort'),
+        );
+        return await localDio.put('/api/profile', data: data);
+      } catch (e) {
+        debugPrint('❌ updateProfile local error: $e');
+        // Return success if at least SharedPreferences worked, or rethrow?
+        // Rethrow because search relies on DB
+        rethrow;
+      }
     }
     return await _dio.put('/api/profile', data: data);
   }
@@ -2430,27 +2436,8 @@ class ApiService {
     String isbn, {
     Locale? locale,
   }) async {
-    // In FFI mode, use OpenLibrary directly since we can't reach the Rust HTTP server
-    if (useFfi) {
-      // ... (FFI implementation kept same)
-      try {
-        final openLibraryService = OpenLibraryService();
-        final result = await openLibraryService.lookupByIsbn(isbn);
-        if (result != null) {
-          return {
-            'title': result.title,
-            'author': result.author,
-            'publisher': result.publisher,
-            'year': result.year,
-            'cover_url': result.coverUrl,
-            'summary': result.summary,
-          };
-        }
-      } catch (e) {
-        debugPrint('FFI Lookup via OpenLibrary failed: $e');
-      }
-      return null;
-    }
+    // Use backend API for lookup to respect enabled sources (OpenLibrary, Inventaire, etc.)
+    // Even in FFI mode, the local HTTP server handles these requests.
 
     try {
       final currentLang = locale?.languageCode ?? 'en';
@@ -2507,10 +2494,14 @@ class ApiService {
         queryParams['subject'] = subject;
       if (lang != null && lang.isNotEmpty) queryParams['lang'] = lang;
 
-      // External search always uses HTTP to Rust backend, even in FFI mode
-      // because OpenLibrary/Google Books API calls must go through Rust HTTP server
+      // Use a new Dio instance to avoid FFI adapter issues with ffi:// scheme
+      // We explicitly check for useFfi to access the local HTTP server directly.
       final searchDio = Dio();
-      searchDio.options.baseUrl = defaultBaseUrl;
+      if (useFfi) {
+        searchDio.options.baseUrl = 'http://localhost:$httpPort';
+      } else {
+        searchDio.options.baseUrl = _dio.options.baseUrl;
+      }
 
       final response = await searchDio.get(
         '/api/integrations/search_unified',

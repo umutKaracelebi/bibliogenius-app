@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
+import 'dart:math';
 import 'package:provider/provider.dart';
+import 'package:cached_network_image/cached_network_image.dart';
 import 'package:go_router/go_router.dart';
 import '../services/api_service.dart';
 import '../services/translation_service.dart';
@@ -7,7 +9,7 @@ import '../services/sync_service.dart';
 import '../providers/theme_provider.dart';
 import '../utils/book_status.dart';
 import '../models/book.dart';
-import '../services/open_library_service.dart';
+
 import '../services/search_cache.dart';
 import '../widgets/plus_one_animation.dart';
 import '../widgets/cached_book_cover.dart';
@@ -34,7 +36,7 @@ class AddBookScreen extends StatefulWidget {
 
 class _AddBookScreenState extends State<AddBookScreen> {
   final _formKey = GlobalKey<FormState>();
-  final _openLibraryService = OpenLibraryService();
+
   final _searchCache = SearchCache();
   final _titleController = TextEditingController();
   final _publisherController = TextEditingController();
@@ -648,35 +650,43 @@ class _AddBookScreenState extends State<AddBookScreen> {
                       return cached;
                     }
 
-                    // Use OpenLibrary for title search (better relevance, covers, authors)
-                    // Inventaire search is too basic (missing authors) for autocomplete
-                    final results = await _openLibraryService.searchBooks(
-                      textEditingValue.text,
+                    // Use unified search via backend API (respects enabled sources)
+                    final api = Provider.of<ApiService>(context, listen: false);
+                    final results = await api.searchBooks(
+                      query: textEditingValue.text,
+                      lang: Localizations.localeOf(context).languageCode,
                     );
 
                     // Filter out "Independently Published" (POD/self-published reprints)
-                    // These pollute results with low-quality editions of public domain works
                     final filteredResults = results.where((book) {
-                      final publisher = book.toMap()['publisher'] as String?;
+                      final publisher = book['publisher'] as String?;
                       return publisher != 'Independently Published';
                     }).toList();
 
-                    final resultMaps = filteredResults
-                        .map((book) => book.toMap())
-                        .toList();
-
                     // Cache the results
-                    _searchCache.set(textEditingValue.text, resultMaps);
+                    _searchCache.set(textEditingValue.text, filteredResults);
 
-                    return resultMaps;
+                    return filteredResults;
                   },
                   displayStringForOption: (option) => option['title'] ?? '',
                   onSelected: (Map<String, dynamic> selection) {
                     setState(() {
                       if (selection['title'] != null)
                         _titleController.text = selection['title'];
-                      if (selection['author'] != null)
+
+                      // Handle authors
+                      if (selection['authors'] != null &&
+                          selection['authors'] is List) {
+                        _authors.clear();
+                        final list = selection['authors'] as List;
+                        _authors.addAll(list.map((e) => e.toString()));
+                        _authorController.text = _authors.join(', ');
+                      } else if (selection['author'] != null) {
                         _authorController.text = selection['author'];
+                        _authors.clear();
+                        _authors.add(selection['author']);
+                      }
+
                       if (selection['isbn'] != null)
                         _isbnController.text = selection['isbn'];
                       if (selection['publisher'] != null)
@@ -753,17 +763,119 @@ class _AddBookScreenState extends State<AddBookScreen> {
                               }
 
                               return ListTile(
-                                leading: CompactBookCover(
-                                  imageUrl: cover,
-                                  size: 40,
+                                leading: SizedBox(
+                                  width: 40,
+                                  height: 60,
+                                  child: Stack(
+                                    children: [
+                                      // 1. Fallback Colored Cover
+                                      Container(
+                                        decoration: BoxDecoration(
+                                          borderRadius: BorderRadius.circular(
+                                            4,
+                                          ),
+                                          gradient: LinearGradient(
+                                            begin: Alignment.topLeft,
+                                            end: Alignment.bottomRight,
+                                            colors: [
+                                              _getCoverColor(
+                                                option['title'] ?? '',
+                                              ),
+                                              _getCoverColor(
+                                                option['title'] ?? '',
+                                              ).withOpacity(0.7),
+                                            ],
+                                          ),
+                                        ),
+                                        child: Center(
+                                          child: Text(
+                                            (option['title'] as String?)
+                                                    ?.substring(0, 1)
+                                                    .toUpperCase() ??
+                                                '',
+                                            style: const TextStyle(
+                                              color: Colors.white,
+                                              fontWeight: FontWeight.bold,
+                                              fontSize: 20,
+                                            ),
+                                          ),
+                                        ),
+                                      ),
+                                      // 2. Image
+                                      if (cover != null && cover.isNotEmpty)
+                                        ClipRRect(
+                                          borderRadius: BorderRadius.circular(
+                                            4,
+                                          ),
+                                          child: CachedNetworkImage(
+                                            imageUrl: cover,
+                                            width: 40,
+                                            height: 60,
+                                            fit: BoxFit.cover,
+                                            placeholder: (context, url) =>
+                                                const SizedBox.shrink(),
+                                            errorWidget:
+                                                (context, url, error) =>
+                                                    const SizedBox.shrink(),
+                                          ),
+                                        ),
+                                      // 3. Source Badge
+                                      if (option['source'] != null)
+                                        Positioned(
+                                          bottom: 0,
+                                          right: 0,
+                                          child: Container(
+                                            padding: const EdgeInsets.symmetric(
+                                              horizontal: 2,
+                                              vertical: 1,
+                                            ),
+                                            decoration: BoxDecoration(
+                                              color: _getSourceColor(
+                                                option['source'],
+                                              ),
+                                              borderRadius:
+                                                  BorderRadius.circular(2),
+                                              boxShadow: [
+                                                BoxShadow(
+                                                  color: Colors.black
+                                                      .withOpacity(0.3),
+                                                  blurRadius: 2,
+                                                  offset: const Offset(0, 1),
+                                                ),
+                                              ],
+                                            ),
+                                            child: Text(
+                                              _getSourceLabel(option['source']),
+                                              style: const TextStyle(
+                                                color: Colors.white,
+                                                fontSize: 7,
+                                                fontWeight: FontWeight.bold,
+                                              ),
+                                            ),
+                                          ),
+                                        ),
+                                    ],
+                                  ),
                                 ),
-                                title: Text(option['title'] ?? ''),
+                                title: Text(
+                                  option['title'] ?? '',
+                                  maxLines: 2,
+                                  overflow: TextOverflow.ellipsis,
+                                  style: const TextStyle(
+                                    fontWeight: FontWeight.bold,
+                                    fontSize: 14,
+                                  ),
+                                ),
                                 subtitle: subtitle.isNotEmpty
                                     ? Text(
                                         subtitle,
+                                        maxLines: 1,
+                                        overflow: TextOverflow.ellipsis,
                                         style: const TextStyle(fontSize: 12),
                                       )
                                     : null,
+                                isThreeLine: false,
+                                dense: true,
                                 onTap: () => onSelected(option),
                               );
                             },
@@ -1272,6 +1384,31 @@ class _AddBookScreenState extends State<AddBookScreen> {
       ),
       filled: true,
       fillColor: null, // Uses theme InputDecorationTheme
+    );
+  }
+
+  Color _getSourceColor(String source) {
+    if (source.contains('Inventaire')) return Colors.green;
+    if (source.toLowerCase().contains('bnf')) return Colors.orange;
+    if (source.contains('Google')) return Colors.red;
+    return Colors.blue;
+  }
+
+  String _getSourceLabel(String source) {
+    if (source.contains('Inventaire')) return 'INV';
+    if (source.toLowerCase().contains('bnf')) return 'BNF';
+    if (source.contains('Google')) return 'GB';
+    return 'OL';
+  }
+
+  Color _getCoverColor(String title) {
+    if (title.isEmpty) return Colors.grey;
+    final random = Random(title.hashCode);
+    return Color.fromARGB(
+      255,
+      random.nextInt(200),
+      random.nextInt(200),
+      random.nextInt(200),
     );
   }
 }

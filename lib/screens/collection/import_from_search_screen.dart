@@ -5,7 +5,8 @@ import '../../models/collection.dart';
 import '../../services/translation_service.dart';
 import '../../services/api_service.dart';
 import '../../providers/theme_provider.dart';
-import '../../widgets/cached_book_cover.dart';
+import 'dart:math';
+import 'package:cached_network_image/cached_network_image.dart';
 import '../../widgets/hierarchical_tag_selector.dart';
 import '../../widgets/collection_selector.dart';
 import '../../widgets/work_edition_card.dart';
@@ -665,37 +666,88 @@ class _ImportFromSearchScreenState extends State<ImportFromSearchScreen>
         final source = book['source'] as String?;
 
         return ListTile(
-          leading: Stack(
-            children: [
-              CachedBookCover(
-                imageUrl: book['cover_url'],
-                width: 40,
-                height: 60,
-              ),
-              // Source indicator
-              if (source != null)
-                Positioned(
-                  bottom: 0,
-                  right: 0,
-                  child: Container(
-                    padding: const EdgeInsets.all(2),
-                    decoration: BoxDecoration(
-                      color: source.contains('Inventaire')
-                          ? Colors.green
-                          : Colors.blue,
-                      borderRadius: BorderRadius.circular(4),
+          leading: SizedBox(
+            width: 40,
+            height: 60,
+            child: Stack(
+              children: [
+                // 1. Fallback Colored Cover (Always visible behind)
+                Container(
+                  decoration: BoxDecoration(
+                    borderRadius: BorderRadius.circular(4),
+                    gradient: LinearGradient(
+                      begin: Alignment.topLeft,
+                      end: Alignment.bottomRight,
+                      colors: [
+                        _getCoverColor(book['title'] ?? ''),
+                        _getCoverColor(book['title'] ?? '').withOpacity(0.7),
+                      ],
                     ),
+                  ),
+                  child: Center(
                     child: Text(
-                      source.contains('Inventaire') ? 'INV' : 'OL',
+                      (book['title'] as String?)
+                              ?.substring(0, 1)
+                              .toUpperCase() ??
+                          '',
                       style: const TextStyle(
                         color: Colors.white,
-                        fontSize: 8,
                         fontWeight: FontWeight.bold,
+                        fontSize: 20,
                       ),
                     ),
                   ),
                 ),
-            ],
+
+                // 2. Network Image (if available)
+                if (book['cover_url'] != null &&
+                    (book['cover_url'] as String).isNotEmpty)
+                  ClipRRect(
+                    borderRadius: BorderRadius.circular(4),
+                    child: CachedNetworkImage(
+                      imageUrl: book['cover_url'],
+                      width: 40,
+                      height: 60,
+                      fit: BoxFit.cover,
+                      placeholder: (context, url) => const SizedBox.shrink(),
+                      errorWidget: (context, url, error) =>
+                          const SizedBox.shrink(),
+                    ),
+                  ),
+
+                // 3. Source Badge
+                if (source != null)
+                  Positioned(
+                    bottom: 0,
+                    right: 0,
+                    child: Container(
+                      padding: const EdgeInsets.symmetric(
+                        horizontal: 2,
+                        vertical: 1,
+                      ),
+                      decoration: BoxDecoration(
+                        color: _getSourceColor(source),
+                        borderRadius: BorderRadius.circular(2),
+                        boxShadow: [
+                          BoxShadow(
+                            color: Colors.black.withOpacity(0.3),
+                            blurRadius: 2,
+                            offset: const Offset(0, 1),
+                          ),
+                        ],
+                      ),
+                      child: Text(
+                        _getSourceLabel(source),
+                        style: const TextStyle(
+                          color: Colors.white,
+                          fontSize: 7,
+                          fontWeight: FontWeight.bold,
+                        ),
+                      ),
+                    ),
+                  ),
+              ],
+            ),
           ),
           title: Text(book['title'] ?? 'Unknown'),
           subtitle: Text(
@@ -705,10 +757,9 @@ class _ImportFromSearchScreenState extends State<ImportFromSearchScreen>
             value: isSelected,
             onChanged: (val) => _toggleSelection(index),
           ),
-          onTap: () => _toggleSelection(index),
-        );
+        ); // End ListTile
       },
-    );
+    ); // End ListView.builder
   }
 
   Widget _buildEditionView() {
@@ -732,6 +783,31 @@ class _ImportFromSearchScreenState extends State<ImportFromSearchScreen>
           onAddBook: _addBookFromEdition,
         );
       },
+    );
+  }
+
+  Color _getSourceColor(String source) {
+    if (source.contains('Inventaire')) return Colors.green;
+    if (source.toLowerCase().contains('bnf')) return Colors.orange;
+    if (source.contains('Google')) return Colors.red;
+    return Colors.blue; // OpenLibrary or default
+  }
+
+  String _getSourceLabel(String source) {
+    if (source.contains('Inventaire')) return 'INV';
+    if (source.toLowerCase().contains('bnf')) return 'BNF';
+    if (source.contains('Google')) return 'GB';
+    return 'OL';
+  }
+
+  Color _getCoverColor(String title) {
+    if (title.isEmpty) return Colors.grey;
+    final random = Random(title.hashCode);
+    return Color.fromARGB(
+      255,
+      random.nextInt(200),
+      random.nextInt(200),
+      random.nextInt(200),
     );
   }
 }

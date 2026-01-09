@@ -868,6 +868,7 @@ class TranslationService {
       'network_search_title': 'Borrow a Book',
       'network_search_hint': 'Search in your network...',
       'network_search_no_results': 'No books found in your network',
+      'no_results': 'No results found',
       'network_search_prompt':
           'Search for books available in your friends\' libraries',
       'request_book_btn': 'Request',
@@ -2028,6 +2029,7 @@ class TranslationService {
       'network_search_title': 'Emprunter un livre',
       'network_search_hint': 'Rechercher dans votre réseau...',
       'network_search_no_results': 'Aucun livre trouvé dans votre réseau',
+      'no_results': 'Aucun résultat trouvé',
       'network_search_prompt':
           'Recherchez des livres disponibles dans les bibliothèques de vos amis',
       'request_book_btn': 'Demander',
@@ -2530,6 +2532,7 @@ class TranslationService {
       'network_search_title': 'Tomar prestado un libro',
       'network_search_hint': 'Buscar en tu red...',
       'network_search_no_results': 'No se encontraron libros en tu red',
+      'no_results': 'No se encontraron resultados',
       'network_search_prompt':
           'Busca libros disponibles en las bibliotecas de tus amigos',
       'request_book_btn': 'Solicitar',
@@ -2906,6 +2909,7 @@ class TranslationService {
       'network_search_title': 'Ein Buch ausleihen',
       'network_search_hint': 'In Ihrem Netzwerk suchen...',
       'network_search_no_results': 'Keine Bücher in Ihrem Netzwerk gefunden',
+      'no_results': 'Keine Ergebnisse gefunden',
       'network_search_prompt':
           'Suchen Sie nach Büchern, die in den Bibliotheken Ihrer Freunde verfügbar sind',
       'request_book_btn': 'Anfragen',

@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import 'package:go_router/go_router.dart';
 import '../widgets/genie_app_bar.dart';
 import '../services/api_service.dart';
@@ -15,6 +16,7 @@ import '../models/quote.dart';
 import '../theme/app_design.dart';
 import '../services/backup_reminder_service.dart';
 import '../widgets/gamification_widgets.dart';
+import '../widgets/level_up_animation.dart';
 
 class DashboardScreen extends StatefulWidget {
   const DashboardScreen({super.key});
@@ -206,6 +208,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
               _userName = statusData['name'];
               _gamificationStatus = GamificationStatus.fromJson(statusData);
             });
+            _checkGamificationLevelUp(statusData);
           }
         }
       } catch (e) {
@@ -260,6 +263,84 @@ class _DashboardScreenState extends State<DashboardScreen> {
       }
     } catch (e) {
       debugPrint('Error fetching quote: $e');
+    }
+  }
+
+  Future<void> _checkGamificationLevelUp(
+    Map<String, dynamic> statusData,
+  ) async {
+    try {
+      if (!mounted) return;
+      final prefs = await SharedPreferences.getInstance();
+      final tracks = statusData['tracks'] as Map<String, dynamic>?;
+
+      if (tracks == null) return;
+
+      final trackConfigs = {
+        'collector': {
+          'key': 'last_collector_level',
+          'icon': Icons.library_books,
+          'color': Colors.blue,
+          'translation_key': 'track_collector',
+        },
+        'reader': {
+          'key': 'last_reader_level',
+          'icon': Icons.menu_book,
+          'color': Colors.green,
+          'translation_key': 'track_reader',
+        },
+        'lender': {
+          'key': 'last_lender_level',
+          'icon': Icons.handshake,
+          'color': Colors.orange,
+          'translation_key': 'track_lender',
+        },
+        'cataloguer': {
+          'key': 'last_cataloguer_level',
+          'icon': Icons.sort,
+          'color': Colors.purple,
+          'translation_key': 'track_cataloguer',
+        },
+      };
+
+      for (final entry in trackConfigs.entries) {
+        final trackId = entry.key;
+        final config = entry.value;
+        final trackData = tracks[trackId] as Map<String, dynamic>?;
+
+        if (trackData != null) {
+          final currentLevel = trackData['level'] as int? ?? 0;
+          final lastLevelKey = config['key'] as String;
+          final lastLevel = prefs.getInt(lastLevelKey);
+
+          // Only trigger if we have a previous History (lastLevel != null)
+          // AND the level has increased
+          // AND we are mounted
+          if (lastLevel != null &&
+              currentLevel > lastLevel &&
+              currentLevel > 0) {
+            if (mounted) {
+              LevelUpAnimation.show(
+                context,
+                newLevel: currentLevel,
+                trackName: TranslationService.translate(
+                  context,
+                  config['translation_key'] as String,
+                ),
+                trackColor: config['color'] as Color,
+                trackIcon: config['icon'] as IconData,
+              );
+            }
+          }
+
+          // Update stored level
+          if (lastLevel != currentLevel) {
+            await prefs.setInt(lastLevelKey, currentLevel);
+          }
+        }
+      }
+    } catch (e) {
+      debugPrint('Error checking level up: $e');
     }
   }
 

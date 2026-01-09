@@ -352,8 +352,25 @@ class _AppRouterState extends State<AppRouter> {
                   path: 'add',
                   builder: (context, state) {
                     final extra = state.extra as Map<String, dynamic>?;
-                    final isbn = extra?['isbn'] as String?;
-                    return AddBookScreen(isbn: isbn);
+                    final queryParams = state.uri.queryParameters;
+
+                    final isbn = extra?['isbn'] ?? queryParams['isbn'];
+
+                    final collectionIdStr =
+                        extra?['collectionId']?.toString() ??
+                        queryParams['collectionId'];
+                    final preSelectedCollectionId = collectionIdStr != null
+                        ? int.tryParse(collectionIdStr)
+                        : null;
+
+                    final preSelectedShelfId =
+                        extra?['shelfId'] ?? queryParams['shelfId'];
+
+                    return AddBookScreen(
+                      isbn: isbn,
+                      preSelectedCollectionId: preSelectedCollectionId,
+                      preSelectedShelfId: preSelectedShelfId,
+                    );
                   },
                 ),
                 GoRoute(

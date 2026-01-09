@@ -6,6 +6,7 @@ import 'package:provider/provider.dart';
 import '../services/translation_service.dart';
 import '../services/api_service.dart';
 import '../utils/isbn_validator.dart';
+import '../models/book.dart';
 
 /// Scan screen with optional batch mode and pre-selected destination.
 ///
@@ -121,58 +122,98 @@ class _ScanScreenState extends State<ScanScreen> {
     try {
       final api = Provider.of<ApiService>(context, listen: false);
 
-      // First, try to get book details from lookup
-      final bookData = await api.lookupBook(isbn);
+      int? bookId;
+      String? bookTitle;
 
-      if (bookData != null) {
-        // Create the book with pre-selected shelf/collection
-        final bookPayload = {
-          'title': bookData['title'] ?? 'Unknown Title',
-          'author': bookData['authors'] != null
-              ? (bookData['authors'] as List).join(', ')
-              : bookData['author'] ?? '',
-          'isbn': isbn,
-          'publisher': bookData['publisher'],
-          'publication_year': bookData['year'],
-          'cover_url': bookData['cover_url'],
-          'summary': bookData['summary'],
-          'reading_status': 'to_read',
-          if (widget.preSelectedShelfId != null)
-            'subjects': [widget.preSelectedShelfId],
-        };
+      // 1. Check if book already exists in library
+      // This "findBookByIsbn" might be slow if library is huge, but safe for now.
+      Book? existingBook = await api.findBookByIsbn(isbn);
 
-        final response = await api.createBook(bookPayload);
-        final newBookId = response.data['id'];
+      if (existingBook != null) {
+        bookId = existingBook.id;
+        bookTitle = existingBook.title;
 
-        // Add to collection if specified
-        if (newBookId != null && widget.preSelectedCollectionId != null) {
-          await api.updateBookCollections(newBookId, [
-            widget.preSelectedCollectionId!.toString(),
-          ]);
-        }
-
-        setState(() {
-          _batchCount++;
-          _lastAddedTitle = bookData['title'] ?? isbn;
-          _lastScannedIsbn = isbn;
-        });
-
-        // Show success feedback
-        if (mounted) {
-          ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(
-              content: Text('✓ ${bookData['title'] ?? isbn}'),
-              duration: const Duration(seconds: 1),
-              behavior: SnackBarBehavior.floating,
-              backgroundColor: Colors.green.shade700,
-            ),
-          );
+        // If shelf (tag) is pre-selected, ensure book has it
+        if (widget.preSelectedShelfId != null && bookId != null) {
+          final currentSubjects = existingBook.subjects ?? <String>[];
+          if (!currentSubjects.contains(widget.preSelectedShelfId)) {
+            final newSubjects = List<String>.from(currentSubjects)
+              ..add(widget.preSelectedShelfId!);
+            await api.updateBook(bookId, {'subjects': newSubjects});
+          }
         }
       } else {
-        // Book not found - allow manual entry
-        if (mounted) {
-          _showBookNotFoundDialog(isbn);
+        // 2. Not found locally, lookup metadata
+        final bookData = await api.lookupBook(isbn);
+
+        if (bookData != null) {
+          bookTitle = bookData['title'] ?? 'Unknown Title';
+
+          // Create the book
+          final bookPayload = {
+            'title': bookTitle,
+            'author': bookData['authors'] != null
+                ? (bookData['authors'] as List).join(', ')
+                : bookData['author'] ?? '',
+            'isbn': isbn,
+            'publisher': bookData['publisher'],
+            'publication_year': bookData['year'],
+            'cover_url': bookData['cover_url'],
+            'summary': bookData['summary'],
+            'reading_status': 'to_read',
+            if (widget.preSelectedShelfId != null)
+              'subjects': [widget.preSelectedShelfId],
+          };
+
+          final response = await api.createBook(bookPayload);
+
+          // Handle response format variations
+          if (response.data is Map) {
+            final data = response.data as Map<String, dynamic>;
+            if (data.containsKey('id')) {
+              bookId = data['id'];
+            } else if (data.containsKey('book') && data['book'] is Map) {
+              bookId = data['book']['id'];
+            }
+          }
+        } else {
+          // Book not found in metadata sources
+          if (mounted) await _showBookNotFoundDialog(isbn);
+          return; // Stop here, don't show success snackbar
         }
+      }
+
+      // 3. Add to collection if specified
+      if (bookId != null && widget.preSelectedCollectionId != null) {
+        try {
+          // Use addBookToCollection to append, not replace!
+          await api.addBookToCollection(
+            widget.preSelectedCollectionId!.toString(),
+            bookId,
+          );
+        } catch (e) {
+          // Ignore if already in collection or other minor error,
+          // but log it.
+          debugPrint('Error adding to collection: $e');
+        }
+      }
+
+      setState(() {
+        _batchCount++;
+        _lastAddedTitle = bookTitle ?? isbn;
+        _lastScannedIsbn = isbn;
+      });
+
+      // Show success feedback
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text('✓ ${bookTitle ?? isbn}'),
+            duration: const Duration(seconds: 1),
+            behavior: SnackBarBehavior.floating,
+            backgroundColor: Colors.green.shade700,
+          ),
+        );
       }
     } catch (e) {
       debugPrint('Batch scan error: $e');
@@ -193,8 +234,8 @@ class _ScanScreenState extends State<ScanScreen> {
     }
   }
 
-  void _showBookNotFoundDialog(String isbn) {
-    showDialog(
+  Future<void> _showBookNotFoundDialog(String isbn) async {
+    await showDialog(
       context: context,
       builder: (ctx) => AlertDialog(
         title: Row(
@@ -209,10 +250,6 @@ class _ScanScreenState extends State<ScanScreen> {
           TextButton(
             onPressed: () {
               Navigator.pop(ctx);
-              setState(() {
-                _isScanning = true;
-                _isProcessingBatch = false;
-              });
             },
             child: Text(TranslationService.translate(context, 'cancel')),
           ),

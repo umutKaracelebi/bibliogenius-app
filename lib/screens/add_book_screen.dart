@@ -18,7 +18,15 @@ import '../models/collection.dart';
 
 class AddBookScreen extends StatefulWidget {
   final String? isbn;
-  const AddBookScreen({super.key, this.isbn});
+  final int? preSelectedCollectionId;
+  final String? preSelectedShelfId;
+
+  const AddBookScreen({
+    super.key,
+    this.isbn,
+    this.preSelectedCollectionId,
+    this.preSelectedShelfId,
+  });
 
   @override
   State<AddBookScreen> createState() => _AddBookScreenState();
@@ -58,9 +66,41 @@ class _AddBookScreenState extends State<AddBookScreen> {
       _fetchBookDetails(widget.isbn!);
     }
     _isbnController.addListener(_onIsbnChanged);
-    _isbnController.addListener(_onIsbnChanged);
     _tagsController = TextEditingController();
-    WidgetsBinding.instance.addPostFrameCallback((_) => _loadAuthors());
+
+    // Pre-select shelf/tag
+    if (widget.preSelectedShelfId != null) {
+      _selectedTags.add(widget.preSelectedShelfId!);
+    }
+
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      _loadAuthors();
+      _loadPreSelectedCollection();
+    });
+  }
+
+  Future<void> _loadPreSelectedCollection() async {
+    if (widget.preSelectedCollectionId == null) return;
+    try {
+      final api = Provider.of<ApiService>(context, listen: false);
+      final collections = await api.getCollections();
+      try {
+        final collection = collections.firstWhere(
+          (c) => c.id == widget.preSelectedCollectionId,
+        );
+        if (mounted) {
+          setState(() {
+            if (!_selectedCollections.any((c) => c.id == collection.id)) {
+              _selectedCollections.add(collection);
+            }
+          });
+        }
+      } catch (_) {
+        // Collection not found
+      }
+    } catch (e) {
+      debugPrint('Error loading pre-selected collection: $e');
+    }
   }
 
   Future<void> _loadAuthors() async {

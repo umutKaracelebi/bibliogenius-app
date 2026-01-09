@@ -48,6 +48,24 @@ class _ScanScreenState extends State<ScanScreen> {
   bool _isProcessingBatch = false;
 
   @override
+  void initState() {
+    super.initState();
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (widget.preSelectedCollectionId != null) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text(
+              'Collection active: ${widget.preSelectedCollectionName ?? widget.preSelectedCollectionId}',
+            ),
+            backgroundColor: Colors.blue,
+            duration: const Duration(seconds: 2),
+          ),
+        );
+      }
+    });
+  }
+
+  @override
   void dispose() {
     controller.dispose();
     super.dispose();

@@ -762,121 +762,129 @@ class _AddBookScreenState extends State<AddBookScreen> {
                                 }
                               }
 
-                              return ListTile(
-                                leading: SizedBox(
-                                  width: 40,
-                                  height: 60,
-                                  child: Stack(
-                                    children: [
-                                      // 1. Fallback Colored Cover
-                                      Container(
-                                        decoration: BoxDecoration(
-                                          borderRadius: BorderRadius.circular(
-                                            4,
-                                          ),
-                                          gradient: LinearGradient(
-                                            begin: Alignment.topLeft,
-                                            end: Alignment.bottomRight,
-                                            colors: [
-                                              _getCoverColor(
-                                                option['title'] ?? '',
-                                              ),
-                                              _getCoverColor(
-                                                option['title'] ?? '',
-                                              ).withOpacity(0.7),
-                                            ],
-                                          ),
-                                        ),
-                                        child: Center(
-                                          child: Text(
-                                            (option['title'] as String?)
-                                                    ?.substring(0, 1)
-                                                    .toUpperCase() ??
-                                                '',
-                                            style: const TextStyle(
-                                              color: Colors.white,
-                                              fontWeight: FontWeight.bold,
-                                              fontSize: 20,
+                              return Padding(
+                                padding: const EdgeInsets.symmetric(
+                                  vertical: 4.0,
+                                ),
+                                child: ListTile(
+                                  leading: SizedBox(
+                                    width: 40,
+                                    height: 60,
+                                    child: Stack(
+                                      children: [
+                                        // 1. Fallback Colored Cover
+                                        Container(
+                                          decoration: BoxDecoration(
+                                            borderRadius: BorderRadius.circular(
+                                              4,
                                             ),
-                                          ),
-                                        ),
-                                      ),
-                                      // 2. Image
-                                      if (cover != null && cover.isNotEmpty)
-                                        ClipRRect(
-                                          borderRadius: BorderRadius.circular(
-                                            4,
-                                          ),
-                                          child: CachedNetworkImage(
-                                            imageUrl: cover,
-                                            width: 40,
-                                            height: 60,
-                                            fit: BoxFit.cover,
-                                            placeholder: (context, url) =>
-                                                const SizedBox.shrink(),
-                                            errorWidget:
-                                                (context, url, error) =>
-                                                    const SizedBox.shrink(),
-                                          ),
-                                        ),
-                                      // 3. Source Badge
-                                      if (option['source'] != null)
-                                        Positioned(
-                                          bottom: 0,
-                                          right: 0,
-                                          child: Container(
-                                            padding: const EdgeInsets.symmetric(
-                                              horizontal: 2,
-                                              vertical: 1,
-                                            ),
-                                            decoration: BoxDecoration(
-                                              color: _getSourceColor(
-                                                option['source'],
-                                              ),
-                                              borderRadius:
-                                                  BorderRadius.circular(2),
-                                              boxShadow: [
-                                                BoxShadow(
-                                                  color: Colors.black
-                                                      .withOpacity(0.3),
-                                                  blurRadius: 2,
-                                                  offset: const Offset(0, 1),
+                                            gradient: LinearGradient(
+                                              begin: Alignment.topLeft,
+                                              end: Alignment.bottomRight,
+                                              colors: [
+                                                _getCoverColor(
+                                                  option['title'] ?? '',
                                                 ),
+                                                _getCoverColor(
+                                                  option['title'] ?? '',
+                                                ).withOpacity(0.7),
                                               ],
                                             ),
+                                          ),
+                                          child: Center(
                                             child: Text(
-                                              _getSourceLabel(option['source']),
+                                              (option['title'] as String?)
+                                                      ?.substring(0, 1)
+                                                      .toUpperCase() ??
+                                                  '',
                                               style: const TextStyle(
                                                 color: Colors.white,
-                                                fontSize: 7,
                                                 fontWeight: FontWeight.bold,
+                                                fontSize: 20,
                                               ),
                                             ),
                                           ),
                                         ),
-                                    ],
+                                        // 2. Image
+                                        if (cover != null && cover.isNotEmpty)
+                                          ClipRRect(
+                                            borderRadius: BorderRadius.circular(
+                                              4,
+                                            ),
+                                            child: CachedNetworkImage(
+                                              imageUrl: cover,
+                                              width: 40,
+                                              height: 60,
+                                              fit: BoxFit.cover,
+                                              placeholder: (context, url) =>
+                                                  const SizedBox.shrink(),
+                                              errorWidget:
+                                                  (context, url, error) =>
+                                                      const SizedBox.shrink(),
+                                            ),
+                                          ),
+                                        // 3. Source Badge
+                                        if (option['source'] != null)
+                                          Positioned(
+                                            bottom: 0,
+                                            right: 0,
+                                            child: Container(
+                                              padding:
+                                                  const EdgeInsets.symmetric(
+                                                    horizontal: 2,
+                                                    vertical: 1,
+                                                  ),
+                                              decoration: BoxDecoration(
+                                                color: _getSourceColor(
+                                                  option['source'],
+                                                ),
+                                                borderRadius:
+                                                    BorderRadius.circular(2),
+                                                boxShadow: [
+                                                  BoxShadow(
+                                                    color: Colors.black
+                                                        .withOpacity(0.3),
+                                                    blurRadius: 2,
+                                                    offset: const Offset(0, 1),
+                                                  ),
+                                                ],
+                                              ),
+                                              child: Text(
+                                                _getSourceLabel(
+                                                  option['source'],
+                                                ),
+                                                style: const TextStyle(
+                                                  color: Colors.white,
+                                                  fontSize: 7,
+                                                  fontWeight: FontWeight.bold,
+                                                ),
+                                              ),
+                                            ),
+                                          ),
+                                      ],
+                                    ),
                                   ),
-                                ),
-                                title: Text(
-                                  option['title'] ?? '',
-                                  maxLines: 2,
-                                  overflow: TextOverflow.ellipsis,
-                                  style: const TextStyle(
-                                    fontWeight: FontWeight.bold,
-                                    fontSize: 14,
+                                  title: Text(
+                                    option['title'] ?? '',
+                                    maxLines: 2,
+                                    overflow: TextOverflow.ellipsis,
+                                    style: const TextStyle(
+                                      fontWeight: FontWeight.bold,
+                                      fontSize: 14,
+                                    ),
                                   ),
+                                  subtitle: subtitle.isNotEmpty
+                                      ? Text(
+                                          subtitle,
+                                          maxLines: 1,
+                                          overflow: TextOverflow.ellipsis,
+                                          style: const TextStyle(fontSize: 12),
+                                        )
+                                      : null,
+                                  isThreeLine: false,
+                                  dense: true,
+                                  onTap: () => onSelected(option),
                                 ),
-                                subtitle: subtitle.isNotEmpty
-                                    ? Text(
-                                        subtitle,
-                                        maxLines: 1,
-                                        overflow: TextOverflow.ellipsis,
-                                        style: const TextStyle(fontSize: 12),
-                                      )
-                                    : null,
-                                isThreeLine: false,
-                                dense: true,
-                                onTap: () => onSelected(option),
                               );
                             },
                           ),

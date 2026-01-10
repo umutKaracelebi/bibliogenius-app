@@ -107,8 +107,10 @@ void main([List<String>? args]) async {
     );
   };
 
+  Map<String, String> envConfig = {};
   try {
     await dotenv.load(fileName: ".env");
+    envConfig = dotenv.env;
   } catch (e) {
     debugPrint('No .env file found, using default configuration');
   }
@@ -170,21 +172,29 @@ void main([List<String>? args]) async {
 
   // Settings already loaded earlier, no need to call again
 
-  runApp(MyApp(themeProvider: themeProvider, useFfi: useFfi));
+  runApp(
+    MyApp(themeProvider: themeProvider, useFfi: useFfi, envConfig: envConfig),
+  );
 }
 
 class MyApp extends StatelessWidget {
   final ThemeProvider themeProvider;
   final bool useFfi;
+  final Map<String, String> envConfig;
 
-  const MyApp({super.key, required this.themeProvider, required this.useFfi});
+  const MyApp({
+    super.key,
+    required this.themeProvider,
+    required this.useFfi,
+    required this.envConfig,
+  });
 
   @override
   Widget build(BuildContext context) {
     final authService = AuthService();
 
     // Determine base URL for HTTP mode (web or fallback)
-    String baseUrl = dotenv.env['API_BASE_URL'] ?? '';
+    String baseUrl = envConfig['API_BASE_URL'] ?? '';
 
     if (useFfi) {
       // FFI mode: no HTTP needed for local operations

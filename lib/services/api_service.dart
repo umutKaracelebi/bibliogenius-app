@@ -2545,10 +2545,9 @@ class ApiService {
 
       // Use a new Dio instance to avoid FFI adapter issues with ffi:// scheme
       // We explicitly check for useFfi to access the local HTTP server directly.
-      final searchDio = Dio();
-      if (useFfi) {
-        searchDio.options.baseUrl = 'http://localhost:$httpPort';
-      } else {
+      final searchDio = useFfi ? await _getLocalDio() : Dio();
+
+      if (!useFfi) {
         searchDio.options.baseUrl = _dio.options.baseUrl;
       }
 

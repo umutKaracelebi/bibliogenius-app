@@ -38,7 +38,11 @@ void main() {
     await mockNetworkImagesFor(() async {
       // Build our app and trigger a frame.
       await tester.pumpWidget(
-        MyApp(themeProvider: ThemeProvider(), useFfi: false),
+        MyApp(
+          themeProvider: ThemeProvider(),
+          useFfi: false,
+          envConfig: const {},
+        ),
       );
       await tester.pumpAndSettle();
 

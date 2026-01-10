@@ -3151,8 +3151,8 @@ class _ProfileScreenState extends State<ProfileScreen> {
     if (userPrefs.containsKey('bnf')) {
       bnfEnabled = userPrefs['bnf'] == true;
     } else {
-      final List<dynamic> modules = config['enabled_modules'] ?? [];
-      bnfEnabled = !modules.contains('disable_fallback:bnf');
+      // Default to disabled (Beta/Experimental)
+      bnfEnabled = false;
     }
 
     void handleSourceChange(String source, bool value) {
@@ -3202,7 +3202,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
               ),
               const Divider(),
               SwitchListTile(
-                title: const Text('data.bnf.fr'),
+                title: const Text('data.bnf.fr (Beta)'),
                 subtitle: Text(
                   TranslationService.translate(context, 'source_bnf_desc'),
                 ),

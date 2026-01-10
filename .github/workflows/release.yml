@@ -277,8 +277,14 @@ jobs:
           sed -i '' 's/"Apple Development"/"Apple Distribution"/g' macos/Runner.xcodeproj/project.pbxproj
           sed -i '' "s/PROVISIONING_PROFILE_SPECIFIER = \"\";/PROVISIONING_PROFILE_SPECIFIER = \"$PROFILE_UUID\";/g" macos/Runner.xcodeproj/project.pbxproj
           
+          # Extract base version (e.g., 0.6.4 from 0.6.4-alpha.2) for Apple's CFBundleShortVersionString
+          # Apple requires at most 3 period-separated integers
+          FULL_VERSION=$(grep 'version:' pubspec.yaml | sed 's/version: //' | cut -d'+' -f1)
+          BASE_VERSION=$(echo "$FULL_VERSION" | sed 's/-.*$//')
+          echo "Using CFBundleShortVersionString: $BASE_VERSION"
+          
           # Build the app with Apple Distribution signing (for TestFlight/App Store)
-          flutter build macos --release
+          flutter build macos --release --build-name=$BASE_VERSION
       
       - name: Validate app bundle
         run: |
@@ -656,8 +662,14 @@ jobs:
           echo "Team ID: $APPLE_TEAM_ID"
           grep -C 5 "PROVISIONING_PROFILE_SPECIFIER" ios/Runner.xcodeproj/project.pbxproj || echo "Profile Specifier not found in file!"
           
+          # Extract base version (e.g., 0.6.4 from 0.6.4-alpha.2) for Apple's CFBundleShortVersionString
+          # Apple requires at most 3 period-separated integers
+          FULL_VERSION=$(grep 'version:' pubspec.yaml | sed 's/version: //' | cut -d'+' -f1)
+          BASE_VERSION=$(echo "$FULL_VERSION" | sed 's/-.*$//')
+          echo "Using CFBundleShortVersionString: $BASE_VERSION"
+          
           # Build IPA
-          flutter build ipa --release --export-options-plist=ios/Runner/ExportOptions.plist
+          flutter build ipa --release --build-name=$BASE_VERSION --export-options-plist=ios/Runner/ExportOptions.plist
 
       - name: Debug Build Directory
         if: always()

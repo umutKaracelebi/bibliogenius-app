@@ -3202,7 +3202,35 @@ class _ProfileScreenState extends State<ProfileScreen> {
               ),
               const Divider(),
               SwitchListTile(
-                title: const Text('data.bnf.fr (Beta)'),
+                title: Row(
+                  children: [
+                    const Text('data.bnf.fr'),
+                    const SizedBox(width: 8),
+                    Container(
+                      padding: const EdgeInsets.symmetric(
+                        horizontal: 6,
+                        vertical: 2,
+                      ),
+                      decoration: BoxDecoration(
+                        color: Theme.of(context).colorScheme.primaryContainer,
+                        borderRadius: BorderRadius.circular(4),
+                      ),
+                      child: Text(
+                        TranslationService.translate(
+                          context,
+                          'tag_beta',
+                        ).toUpperCase(),
+                        style: Theme.of(context).textTheme.labelSmall?.copyWith(
+                          color: Theme.of(
+                            context,
+                          ).colorScheme.onPrimaryContainer,
+                          fontWeight: FontWeight.bold,
+                          fontSize: 10,
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
                 subtitle: Text(
                   TranslationService.translate(context, 'source_bnf_desc'),
                 ),

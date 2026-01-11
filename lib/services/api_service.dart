@@ -2533,6 +2533,8 @@ class ApiService {
     String? subject,
     String?
     lang, // User's preferred language for relevance boost (e.g., "fr", "en")
+    String?
+    source, // Filter to specific source(s): "inventaire", "bnf", "openlibrary" (comma-separated)
   }) async {
     try {
       final queryParams = <String, dynamic>{};
@@ -2544,6 +2546,7 @@ class ApiService {
       if (subject != null && subject.isNotEmpty)
         queryParams['subject'] = subject;
       if (lang != null && lang.isNotEmpty) queryParams['lang'] = lang;
+      if (source != null && source.isNotEmpty) queryParams['source'] = source;
 
       // Use a new Dio instance to avoid FFI adapter issues with ffi:// scheme
       // We explicitly check for useFfi to access the local HTTP server directly.

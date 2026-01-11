@@ -44,8 +44,8 @@ import 'screens/network_screen.dart';
 import 'screens/feedback_screen.dart';
 
 import 'screens/link_device_screen.dart';
+import 'screens/external_search_screen.dart';
 import 'screens/collection/collection_list_screen.dart'; // Collection module
-import 'screens/collection/import_from_search_screen.dart';
 import 'services/wizard_service.dart';
 import 'widgets/scaffold_with_nav.dart';
 
@@ -398,7 +398,7 @@ class _AppRouterState extends State<AppRouter> {
             // External search - inside ShellRoute for hamburger menu access
             GoRoute(
               path: '/search/external',
-              builder: (context, state) => const ImportFromSearchScreen(),
+              builder: (context, state) => const ExternalSearchScreen(),
             ),
             GoRoute(
               path: '/network',

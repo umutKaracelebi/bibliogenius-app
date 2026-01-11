@@ -372,6 +372,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
                 onPressed: () => Scaffold.of(context).openDrawer(),
               ),
         automaticallyImplyLeading: false,
+        showQuickActions: true,
         actions: [
           IconButton(
             key: _searchKey,
@@ -610,6 +611,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
                                   ),
                                   const SizedBox(height: 16),
                                   Container(
+                                    width: double.infinity,
                                     padding: const EdgeInsets.all(20),
                                     decoration: BoxDecoration(
                                       color: Colors.white,
@@ -633,6 +635,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
                                     child: Wrap(
                                       spacing: 12,
                                       runSpacing: 12,
+                                      alignment: WrapAlignment.spaceEvenly,
                                       children: [
                                         _buildActionButton(
                                           context,

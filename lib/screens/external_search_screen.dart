@@ -8,6 +8,7 @@ import '../services/api_service.dart';
 import '../services/translation_service.dart';
 import '../providers/theme_provider.dart';
 import 'package:go_router/go_router.dart';
+import '../theme/app_design.dart';
 import '../utils/global_keys.dart';
 
 class ExternalSearchScreen extends StatefulWidget {
@@ -29,6 +30,18 @@ class _ExternalSearchScreenState extends State<ExternalSearchScreen> {
   String? _error;
   bool _booksAdded = false;
   bool _showAdvancedFilters = false; // Collapsed by default on mobile
+
+  // Source filter (upstream - before search)
+  String?
+  _upstreamSource; // null = all sources, "inventaire", "bnf", "openlibrary"
+  static const _sourceOptions = [
+    {'value': null, 'label': 'Toutes les sources'},
+    {'value': 'inventaire', 'label': 'Inventaire.io'},
+    {'value': 'openlibrary', 'label': 'Open Library'},
+    {'value': 'bnf', 'label': 'data.bnf.fr'},
+  ];
+  Set<String> _availableSources =
+      {}; // Populated from search results for post-filtering
 
   @override
   void dispose() {
@@ -118,20 +131,30 @@ class _ExternalSearchScreenState extends State<ExternalSearchScreen> {
       // Get user's language for relevance boosting
       final userLang = Localizations.localeOf(context).languageCode;
 
-      // Use unified search (Inventaire + OpenLibrary)
+      // Use unified search (Inventaire + OpenLibrary + BNF)
       final results = await api.searchBooks(
         title: _titleController.text,
         author: _authorController.text,
         subject: _subjectController.text,
         lang: userLang, // Boost results in user's language
+        source: _upstreamSource, // Filter to specific source(s)
       );
+
+      // Extract available sources from results
+      final sources = results
+          .map((r) => r['source'] as String?)
+          .where((s) => s != null && s.isNotEmpty)
+          .cast<String>()
+          .toSet();
 
       setState(() {
         _searchResults = results;
         _groupedWorks = _groupResultsByWork(results);
+        _availableSources = sources;
         // Debug: Print grouping info
         debugPrint('🔍 Search returned ${results.length} results');
         debugPrint('📚 Grouped into ${_groupedWorks.length} works');
+        debugPrint('🗂️ Sources: $sources');
         for (final work in _groupedWorks) {
           final editions = work['editions'] as List;
           debugPrint('  - "${work['title']}": ${editions.length} edition(s)');
@@ -306,143 +329,190 @@ class _ExternalSearchScreenState extends State<ExternalSearchScreen> {
                 ),
           automaticallyImplyLeading: false,
         ),
-        body: Column(
-          children: [
-            // Compact search bar - always visible
-            Padding(
-              padding: const EdgeInsets.fromLTRB(16, 12, 16, 8),
-              child: Form(
-                key: _formKey,
-                child: Row(
-                  children: [
-                    Expanded(
-                      child: TextFormField(
-                        controller: _titleController,
-                        decoration: InputDecoration(
-                          hintText: TranslationService.translate(
-                            context,
-                            'search_placeholder',
-                          ),
-                          prefixIcon: const Icon(Icons.search),
-                          border: OutlineInputBorder(
-                            borderRadius: BorderRadius.circular(8),
-                          ),
-                          contentPadding: const EdgeInsets.symmetric(
-                            horizontal: 12,
-                            vertical: 12,
-                          ),
-                          isDense: true,
-                        ),
-                        textInputAction: TextInputAction.search,
-                        onFieldSubmitted: (_) => _search(),
-                      ),
-                    ),
-                    const SizedBox(width: 8),
-                    // Filter toggle button
-                    IconButton(
-                      icon: Icon(
-                        _showAdvancedFilters
-                            ? Icons.filter_list_off
-                            : Icons.filter_list,
-                        color: _showAdvancedFilters
-                            ? Theme.of(context).primaryColor
-                            : null,
-                      ),
-                      tooltip: TranslationService.translate(
-                        context,
-                        'advanced_filters',
-                      ),
-                      onPressed: () {
-                        setState(() {
-                          _showAdvancedFilters = !_showAdvancedFilters;
-                        });
-                      },
-                    ),
-                    // Search button
-                    FilledButton(
-                      onPressed: _isSearching ? null : _search,
-                      style: FilledButton.styleFrom(
-                        padding: const EdgeInsets.symmetric(
-                          horizontal: 16,
-                          vertical: 12,
-                        ),
-                      ),
-                      child: _isSearching
-                          ? const SizedBox(
-                              width: 20,
-                              height: 20,
-                              child: CircularProgressIndicator(
-                                strokeWidth: 2,
-                                color: Colors.white,
+        extendBodyBehindAppBar: true,
+        body: Container(
+          decoration: BoxDecoration(
+            gradient: AppDesign.pageGradientForTheme(theme.themeStyle),
+          ),
+          child: SafeArea(
+            child: Column(
+              children: [
+                // Compact search bar - always visible
+                Padding(
+                  padding: const EdgeInsets.fromLTRB(16, 12, 16, 8),
+                  child: Form(
+                    key: _formKey,
+                    child: Row(
+                      children: [
+                        Expanded(
+                          child: TextFormField(
+                            controller: _titleController,
+                            decoration: InputDecoration(
+                              hintText: TranslationService.translate(
+                                context,
+                                'search_placeholder',
                               ),
-                            )
-                          : const Icon(Icons.search),
+                              prefixIcon: const Icon(Icons.search),
+                              border: OutlineInputBorder(
+                                borderRadius: BorderRadius.circular(8),
+                              ),
+                              contentPadding: const EdgeInsets.symmetric(
+                                horizontal: 12,
+                                vertical: 12,
+                              ),
+                              isDense: true,
+                            ),
+                            textInputAction: TextInputAction.search,
+                            onFieldSubmitted: (_) => _search(),
+                          ),
+                        ),
+                        const SizedBox(width: 8),
+                        // Filter toggle button
+                        IconButton(
+                          icon: Icon(
+                            _showAdvancedFilters
+                                ? Icons.filter_list_off
+                                : Icons.filter_list,
+                            color: _showAdvancedFilters
+                                ? Theme.of(context).primaryColor
+                                : null,
+                          ),
+                          tooltip: TranslationService.translate(
+                            context,
+                            'advanced_filters',
+                          ),
+                          onPressed: () {
+                            setState(() {
+                              _showAdvancedFilters = !_showAdvancedFilters;
+                            });
+                          },
+                        ),
+                        const SizedBox(width: 8),
+                        // Search button
+                        FilledButton(
+                          onPressed: _isSearching ? null : _search,
+                          style: FilledButton.styleFrom(
+                            padding: const EdgeInsets.symmetric(
+                              horizontal: 16,
+                              vertical: 12,
+                            ),
+                          ),
+                          child: _isSearching
+                              ? const SizedBox(
+                                  width: 20,
+                                  height: 20,
+                                  child: CircularProgressIndicator(
+                                    strokeWidth: 2,
+                                    color: Colors.white,
+                                  ),
+                                )
+                              : const Icon(Icons.search),
+                        ),
+                      ],
                     ),
-                  ],
+                  ),
                 ),
-              ),
-            ),
-            // Collapsible advanced filters
-            AnimatedCrossFade(
-              firstChild: const SizedBox.shrink(),
-              secondChild: Padding(
-                padding: const EdgeInsets.fromLTRB(16, 0, 16, 8),
-                child: Column(
-                  children: [
-                    TextFormField(
-                      controller: _authorController,
-                      decoration: InputDecoration(
-                        labelText: TranslationService.translate(
-                          context,
-                          'author_label',
-                        ),
-                        prefixIcon: const Icon(Icons.person, size: 20),
-                        border: const OutlineInputBorder(),
-                        contentPadding: const EdgeInsets.symmetric(
-                          horizontal: 12,
-                          vertical: 10,
-                        ),
-                        isDense: true,
-                      ),
-                      textInputAction: TextInputAction.next,
+                // Source filter - always visible (compact horizontal row)
+                Padding(
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 16,
+                    vertical: 4,
+                  ),
+                  child: SingleChildScrollView(
+                    scrollDirection: Axis.horizontal,
+                    child: Row(
+                      children: _sourceOptions.map((option) {
+                        final isSelected = _upstreamSource == option['value'];
+                        return Padding(
+                          padding: const EdgeInsets.only(right: 8),
+                          child: ChoiceChip(
+                            label: Text(option['label'] as String),
+                            selected: isSelected,
+                            onSelected: (_) {
+                              setState(
+                                () => _upstreamSource =
+                                    option['value'] as String?,
+                              );
+                            },
+                            selectedColor: Theme.of(context).primaryColor,
+                            labelStyle: TextStyle(
+                              color: isSelected ? Colors.white : null,
+                              fontSize: 12,
+                            ),
+                            padding: const EdgeInsets.symmetric(horizontal: 4),
+                            visualDensity: VisualDensity.compact,
+                          ),
+                        );
+                      }).toList(),
                     ),
-                    const SizedBox(height: 8),
-                    TextFormField(
-                      controller: _subjectController,
-                      decoration: InputDecoration(
-                        labelText: TranslationService.translate(
-                          context,
-                          'subject_label',
-                        ),
-                        prefixIcon: const Icon(Icons.category, size: 20),
-                        border: const OutlineInputBorder(),
-                        contentPadding: const EdgeInsets.symmetric(
-                          horizontal: 12,
-                          vertical: 10,
-                        ),
-                        isDense: true,
-                      ),
-                      onFieldSubmitted: (_) => _search(),
-                    ),
-                  ],
+                  ),
                 ),
-              ),
-              crossFadeState: _showAdvancedFilters
-                  ? CrossFadeState.showSecond
-                  : CrossFadeState.showFirst,
-              duration: const Duration(milliseconds: 200),
+                // Collapsible advanced filters
+                AnimatedCrossFade(
+                  firstChild: const SizedBox.shrink(),
+                  secondChild: Padding(
+                    padding: const EdgeInsets.fromLTRB(16, 0, 16, 8),
+                    child: Column(
+                      children: [
+                        TextFormField(
+                          controller: _authorController,
+                          decoration: InputDecoration(
+                            labelText: TranslationService.translate(
+                              context,
+                              'author_label',
+                            ),
+                            prefixIcon: const Icon(Icons.person, size: 20),
+                            border: const OutlineInputBorder(),
+                            contentPadding: const EdgeInsets.symmetric(
+                              horizontal: 12,
+                              vertical: 10,
+                            ),
+                            isDense: true,
+                          ),
+                          textInputAction: TextInputAction.next,
+                        ),
+                        const SizedBox(height: 8),
+                        TextFormField(
+                          controller: _subjectController,
+                          decoration: InputDecoration(
+                            labelText: TranslationService.translate(
+                              context,
+                              'subject_label',
+                            ),
+                            prefixIcon: const Icon(Icons.category, size: 20),
+                            border: const OutlineInputBorder(),
+                            contentPadding: const EdgeInsets.symmetric(
+                              horizontal: 12,
+                              vertical: 10,
+                            ),
+                            isDense: true,
+                          ),
+                          onFieldSubmitted: (_) => _search(),
+                        ),
+                      ],
+                    ),
+                  ),
+                  crossFadeState: _showAdvancedFilters
+                      ? CrossFadeState.showSecond
+                      : CrossFadeState.showFirst,
+                  duration: const Duration(milliseconds: 200),
+                ),
+                if (_error != null)
+                  Padding(
+                    padding: const EdgeInsets.all(8.0),
+                    child: Text(
+                      _error!,
+                      style: const TextStyle(color: Colors.red),
+                    ),
+                  ),
+                Expanded(
+                  child: useEditionBrowser
+                      ? _buildGroupedView()
+                      : _buildFlatListView(),
+                ),
+              ],
             ),
-            if (_error != null)
-              Padding(
-                padding: const EdgeInsets.all(8.0),
-                child: Text(_error!, style: const TextStyle(color: Colors.red)),
-              ),
-            Expanded(
-              child: useEditionBrowser
-                  ? _buildGroupedView()
-                  : _buildFlatListView(),
-            ),
-          ],
+          ),
         ),
       ),
     );

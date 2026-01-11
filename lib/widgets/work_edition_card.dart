@@ -333,23 +333,23 @@ class _WorkEditionCardState extends State<WorkEditionCard> {
                   ],
                 ),
 
-                const Spacer(),
-
-                // Display truncated summary
+                // Display truncated summary immediately below hierarchy
                 if (edition['summary'] != null &&
                     (edition['summary'] as String).isNotEmpty)
                   Padding(
-                    padding: const EdgeInsets.only(bottom: 8),
+                    padding: const EdgeInsets.only(top: 12),
                     child: Text(
                       _truncateSummary(edition['summary'] as String, 120),
                       style: theme.textTheme.bodySmall?.copyWith(
                         fontStyle: FontStyle.italic,
                         color: theme.colorScheme.onSurfaceVariant,
                       ),
-                      maxLines: 3,
+                      maxLines: 4,
                       overflow: TextOverflow.ellipsis,
                     ),
                   ),
+
+                const Spacer(),
               ],
             ),
           ),

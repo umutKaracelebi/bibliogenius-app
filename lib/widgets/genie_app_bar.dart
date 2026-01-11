@@ -12,6 +12,7 @@ class GenieAppBar extends StatelessWidget implements PreferredSizeWidget {
   final PreferredSizeWidget? bottom;
   final Widget? leading;
   final bool automaticallyImplyLeading;
+  final bool showQuickActions; // Show Scanner & Online Search buttons
 
   const GenieAppBar({
     super.key,
@@ -22,6 +23,7 @@ class GenieAppBar extends StatelessWidget implements PreferredSizeWidget {
     this.leading,
     this.automaticallyImplyLeading = true,
     this.transparent = false,
+    this.showQuickActions = false, // Disabled by default to avoid duplicates
   });
 
   final bool transparent;
@@ -158,6 +160,27 @@ class GenieAppBar extends StatelessWidget implements PreferredSizeWidget {
         },
       ),
       actions: [
+        // Quick Action Buttons (Scanner & Online Search) - only when explicitly enabled
+        if (showQuickActions) ...[
+          IconButton(
+            icon: const Icon(Icons.qr_code_scanner, color: Colors.white),
+            tooltip: 'Scanner ISBN',
+            onPressed: () async {
+              final isbn = await context.push<String>('/scan');
+              if (isbn != null && context.mounted) {
+                context.push('/books/add', extra: {'isbn': isbn});
+              }
+            },
+          ),
+          IconButton(
+            icon: const Icon(
+              Icons.travel_explore,
+              color: Colors.white,
+            ), // Globe + search icon
+            tooltip: 'Recherche en ligne',
+            onPressed: () => context.push('/search/external'),
+          ),
+        ],
         if (actions != null) ...actions!,
         // Avatar
         Padding(

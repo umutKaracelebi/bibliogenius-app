@@ -119,12 +119,8 @@ class _CollectionListScreenState extends State<CollectionListScreen> {
               )
             : null,
         automaticallyImplyLeading: false,
+        showQuickActions: true,
         actions: [
-          IconButton(
-            icon: const Icon(Icons.travel_explore, color: Colors.white),
-            tooltip: TranslationService.translate(context, 'btn_search_online'),
-            onPressed: () => context.push('/search/external'),
-          ),
           TextButton.icon(
             style: TextButton.styleFrom(
               foregroundColor: Colors.white,

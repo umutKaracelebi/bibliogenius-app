@@ -141,6 +141,7 @@ class _StatisticsScreenState extends State<StatisticsScreen>
               )
             : null,
         automaticallyImplyLeading: false,
+        showQuickActions: true,
       ),
       body: _isLoading
           ? const Center(child: CircularProgressIndicator())

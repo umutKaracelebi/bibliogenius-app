@@ -38,6 +38,10 @@ class _ImportFromSearchScreenState extends State<ImportFromSearchScreen>
   bool _showOptions = false; // Collapsed by default on mobile
   String? _errorMessage;
 
+  // Source filter
+  String? _selectedSource; // null = all sources
+  Set<String> _availableSources = {}; // Populated from search results
+
   TabController? _tabController;
 
   @override
@@ -198,9 +202,18 @@ class _ImportFromSearchScreenState extends State<ImportFromSearchScreen>
       final results = await api.searchBooks(query: query, lang: userLang);
 
       if (mounted) {
+        // Extract available sources from results
+        final sources = results
+            .map((r) => r['source'] as String?)
+            .where((s) => s != null && s.isNotEmpty)
+            .cast<String>()
+            .toSet();
+
         setState(() {
           _searchResults = results;
           _groupedWorks = _groupResultsByWork(results);
+          _availableSources = sources;
+          _selectedSource = null; // Reset filter on new search
           _isLoading = false;
           if (results.isEmpty) {
             _errorMessage = TranslationService.translate(context, 'no_results');
@@ -473,6 +486,77 @@ class _ImportFromSearchScreenState extends State<ImportFromSearchScreen>
             ),
           ),
 
+          // Source filter - compact, only shown if multiple sources
+          if (_searchResults.isNotEmpty && _availableSources.length > 1)
+            Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 16.0),
+              child: Row(
+                children: [
+                  Icon(
+                    Icons.filter_alt_outlined,
+                    size: 16,
+                    color: Theme.of(context).colorScheme.onSurfaceVariant,
+                  ),
+                  const SizedBox(width: 8),
+                  Text(
+                    TranslationService.translate(context, 'filter_by_source'),
+                    style: Theme.of(context).textTheme.bodySmall,
+                  ),
+                  const SizedBox(width: 8),
+                  Expanded(
+                    child: DropdownButton<String?>(
+                      value: _selectedSource,
+                      isExpanded: true,
+                      isDense: true,
+                      underline: const SizedBox.shrink(),
+                      hint: Text(
+                        TranslationService.translate(context, 'all_sources'),
+                        style: Theme.of(context).textTheme.bodySmall,
+                      ),
+                      items: [
+                        DropdownMenuItem<String?>(
+                          value: null,
+                          child: Text(
+                            TranslationService.translate(
+                              context,
+                              'all_sources',
+                            ),
+                            style: Theme.of(context).textTheme.bodySmall,
+                          ),
+                        ),
+                        ..._availableSources.map(
+                          (source) => DropdownMenuItem(
+                            value: source,
+                            child: Row(
+                              mainAxisSize: MainAxisSize.min,
+                              children: [
+                                Container(
+                                  width: 8,
+                                  height: 8,
+                                  decoration: BoxDecoration(
+                                    color: _getSourceColor(source),
+                                    shape: BoxShape.circle,
+                                  ),
+                                ),
+                                const SizedBox(width: 6),
+                                Text(
+                                  _getSourceFullLabel(source),
+                                  style: Theme.of(context).textTheme.bodySmall,
+                                ),
+                              ],
+                            ),
+                          ),
+                        ),
+                      ],
+                      onChanged: (value) {
+                        setState(() => _selectedSource = value);
+                      },
+                    ),
+                  ),
+                ],
+              ),
+            ),
+
           // Collapsible Options Panel
           ExpansionTile(
             title: Text(
@@ -658,11 +742,18 @@ class _ImportFromSearchScreenState extends State<ImportFromSearchScreen>
   }
 
   Widget _buildListView() {
+    // Apply source filter
+    final filteredResults = _selectedSource == null
+        ? _searchResults
+        : _searchResults.where((r) => r['source'] == _selectedSource).toList();
+
     return ListView.builder(
-      itemCount: _searchResults.length,
+      itemCount: filteredResults.length,
       itemBuilder: (context, index) {
-        final book = _searchResults[index];
-        final isSelected = _selectedIndices.contains(index);
+        final book = filteredResults[index];
+        // Find original index for selection tracking
+        final originalIndex = _searchResults.indexOf(book);
+        final isSelected = _selectedIndices.contains(originalIndex);
         final source = book['source'] as String?;
 
         return ListTile(
@@ -755,7 +846,7 @@ class _ImportFromSearchScreenState extends State<ImportFromSearchScreen>
           ),
           trailing: Checkbox(
             value: isSelected,
-            onChanged: (val) => _toggleSelection(index),
+            onChanged: (val) => _toggleSelection(originalIndex),
           ),
         ); // End ListTile
       },
@@ -798,6 +889,16 @@ class _ImportFromSearchScreenState extends State<ImportFromSearchScreen>
     if (source.toLowerCase().contains('bnf')) return 'BNF';
     if (source.contains('Google')) return 'GB';
     return 'OL';
+  }
+
+  /// Full source name for dropdown filter (truncated if too long)
+  String _getSourceFullLabel(String source) {
+    if (source.contains('Inventaire')) return 'Inventaire.io';
+    if (source.toLowerCase().contains('bnf')) return 'data.bnf.fr';
+    if (source.contains('Google')) return 'Google Books';
+    if (source.contains('Open Library')) return 'Open Library';
+    // Return original if not recognized, truncate if > 20 chars
+    return source.length > 20 ? '${source.substring(0, 17)}...' : source;
   }
 
   Color _getCoverColor(String title) {

@@ -104,6 +104,7 @@ class _ShelvesScreenState extends State<ShelvesScreen> {
                     )
                   : null),
         automaticallyImplyLeading: false,
+        showQuickActions: true,
       ),
       body: Container(
         decoration: BoxDecoration(

@@ -199,8 +199,18 @@ class _ExternalSearchScreenState extends State<ExternalSearchScreen> {
 
     // Sort editions within each work by publication year (newest first)
     for (final work in workMap.values) {
-      final editions = work['editions'] as List<Map<String, dynamic>>;
+      final editions = (work['editions'] as List).cast<Map<String, dynamic>>();
       editions.sort((a, b) {
+        // 1. Prioritize editions that HAVE an ISBN
+        final isbnA = a['isbn'] as String?;
+        final isbnB = b['isbn'] as String?;
+        final hasIsbnA = isbnA != null && isbnA.isNotEmpty;
+        final hasIsbnB = isbnB != null && isbnB.isNotEmpty;
+
+        if (hasIsbnA && !hasIsbnB) return -1; // a comes first
+        if (!hasIsbnA && hasIsbnB) return 1; // b comes first
+
+        // 2. Then sort by publication year (newest first)
         final yearA = a['publication_year'] as int?;
         final yearB = b['publication_year'] as int?;
         if (yearA == null && yearB == null) return 0;
@@ -284,7 +294,14 @@ class _ExternalSearchScreenState extends State<ExternalSearchScreen> {
   Future<void> _addBook(Map<String, dynamic> doc) async {
     try {
       final api = Provider.of<ApiService>(context, listen: false);
+      debugPrint('🔍 _addBook called with doc: $doc');
       final isbn = doc['isbn'] as String?;
+
+      if (isbn == null || isbn.isEmpty) {
+        debugPrint('⚠️ WARNING: Adding book with NULL or EMPTY ISBN!');
+      } else {
+        debugPrint('✅ ISBN found in doc: "$isbn"');
+      }
 
       // Check if ISBN already exists in library
       if (isbn != null && isbn.isNotEmpty) {

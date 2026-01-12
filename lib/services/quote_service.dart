@@ -151,7 +151,20 @@ class QuoteService {
     final cachedQuote = await _getCachedQuote(normalizedLocale);
     if (cachedQuote != null && !cachedQuote.isExpired) {
       debugPrint('QuoteService: Using cached quote for $normalizedLocale');
-      return cachedQuote;
+      // CRITICAL FIX: Re-clean the cached text to ensure legacy dirty caches are fixed immediately
+      // on hot reload/restart without needing to clear app data.
+      var (cleanedText, _) = _cleanQuoteText(
+        cachedQuote.text,
+        normalizedLocale,
+      );
+      return Quote(
+        text: cleanedText,
+        author: cachedQuote.author,
+        source: cachedQuote.source,
+        coverUrl: cachedQuote.coverUrl,
+        locale: cachedQuote.locale,
+        cachedAt: cachedQuote.cachedAt,
+      );
     }
 
     // Try Wikiquote API
@@ -392,10 +405,14 @@ class QuoteService {
     }
 
     // Remove specific date-based titles like "Citation du 12 janvier 2026"
-    // Matches "Citation du " followed by any characters until a newline or significant text start
-    // This covers variable dates without needing complex date parsing
+    // Regex explanation:
+    // ^Citation du : starts with literal
+    // .+ : any chars (day, month)
+    // (\d{4})? : optional year group
+    // \s* : trailing spaces/newlines
+    // Replaces just the first match at the start.
     processed = processed
-        .replaceAll(RegExp(r'^Citation du .+\d{4}\s*'), '')
+        .replaceAll(RegExp(r'^Citation du .+(\d{4})?\s*'), '')
         .trim();
 
     // Remove leading/trailing quotes

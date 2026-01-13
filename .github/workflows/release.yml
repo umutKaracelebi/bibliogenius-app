@@ -643,6 +643,8 @@ jobs:
         run: |
           # Force manual signing and update team ID
           sed -i '' "s/DEVELOPMENT_TEAM = RF374CUSUZ/DEVELOPMENT_TEAM = $APPLE_TEAM_ID/g" ios/Runner.xcodeproj/project.pbxproj
+          # Update Podfile with correct Team ID
+          sed -i '' "s/RF374CUSUZ/$APPLE_TEAM_ID/g" ios/Podfile
           sed -i '' 's/CODE_SIGN_STYLE = Automatic/CODE_SIGN_STYLE = Manual/g' ios/Runner.xcodeproj/project.pbxproj
           
           # Insert PROVISIONING_PROFILE_SPECIFIER after DEVELOPMENT_TEAM since it doesn't exist

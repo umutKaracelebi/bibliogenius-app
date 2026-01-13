@@ -276,7 +276,11 @@ class AudiobookService {
     final books = jsonData['books'] as List?;
     if (books == null || books.isEmpty) return null;
 
-    // Filter/sort books by preferred language
+    // Normalize the search title for comparison
+    final normalizedSearchTitle = _normalizeForComparison(title);
+    debugPrint('[AudiobookService] Searching for: "$normalizedSearchTitle"');
+
+    // Filter/sort books by preferred language AND title similarity
     Map<String, dynamic>? book;
     if (preferredLanguage != null && preferredLanguage.isNotEmpty) {
       final prefLangLower = preferredLanguage.toLowerCase();
@@ -297,34 +301,60 @@ class AudiobookService {
 
       final targetLang = langMap[prefLangLower] ?? prefLangLower;
 
-      // Find book in preferred language
+      // Find book in preferred language that ALSO matches the title
       for (final b in books) {
         if (b is! Map<String, dynamic>) continue;
         final bookLang = (b['language'] as String?)?.toLowerCase() ?? '';
-        if (bookLang.contains(targetLang) || targetLang.contains(bookLang)) {
+        final bookTitle = b['title'] as String? ?? '';
+        final normalizedBookTitle = _normalizeForComparison(bookTitle);
+
+        // Check language match
+        final langMatches =
+            bookLang.contains(targetLang) || targetLang.contains(bookLang);
+        if (!langMatches) continue;
+
+        // Check title similarity - must be a good match, not just partial
+        if (_isTitleMatch(normalizedSearchTitle, normalizedBookTitle)) {
           book = b;
           debugPrint(
-            '[AudiobookService] Found book in preferred language: $bookLang',
+            '[AudiobookService] Found matching book: "$bookTitle" (lang: $bookLang)',
           );
           break;
+        } else {
+          debugPrint(
+            '[AudiobookService] Skipping non-matching title: "$bookTitle"',
+          );
         }
       }
 
       // If no match in preferred language, don't fallback - return null
       if (book == null) {
-        final availableLangs = books
+        final availableTitles = books
             .whereType<Map<String, dynamic>>()
-            .map((b) => b['language'] as String?)
-            .where((l) => l != null)
-            .toSet();
+            .map((b) => b['title'] as String?)
+            .where((t) => t != null)
+            .toList();
         debugPrint(
-          '[AudiobookService] No book in "$targetLang". Available: $availableLangs. Skipping.',
+          '[AudiobookService] No matching book found. Available titles: $availableTitles',
         );
-        return null; // Don't show audiobooks in other languages
+        return null; // Don't show audiobooks that don't match
       }
     } else {
-      // No preferred language specified - use first result
-      book = books.first as Map<String, dynamic>;
+      // No preferred language specified - find first title match
+      for (final b in books) {
+        if (b is! Map<String, dynamic>) continue;
+        final bookTitle = b['title'] as String? ?? '';
+        final normalizedBookTitle = _normalizeForComparison(bookTitle);
+
+        if (_isTitleMatch(normalizedSearchTitle, normalizedBookTitle)) {
+          book = b;
+          break;
+        }
+      }
+      if (book == null) {
+        debugPrint('[AudiobookService] No title match found in results');
+        return null;
+      }
     }
 
     // Fetch chapters from RSS if available
@@ -707,7 +737,7 @@ class AudiobookService {
     String title,
     String? author,
   ) {
-    final normalizedTitle = _normalizeTitle(title).toLowerCase();
+    final normalizedSearchTitle = _normalizeForComparison(title);
 
     // Helper to check if a post has audio
     bool hasAudio(Map<String, dynamic> post) {
@@ -717,19 +747,18 @@ class AudiobookService {
       return stream.isNotEmpty || downloadUrl.isNotEmpty;
     }
 
-    // First pass: find posts with audio that match the title
+    // First pass: find posts with audio that match the title using strict matching
     for (final post in posts) {
       if (post is! Map<String, dynamic>) continue;
       if (!hasAudio(post)) continue;
 
       final titleRendered = post['title'] as Map<String, dynamic>?;
-      final postTitle =
-          (titleRendered?['rendered'] as String?)?.toLowerCase() ?? '';
+      final postTitleRaw = titleRendered?['rendered'] as String? ?? '';
+      final normalizedPostTitle = _normalizeForComparison(postTitleRaw);
 
-      if (postTitle.contains(normalizedTitle) ||
-          normalizedTitle.contains(postTitle)) {
+      if (_isTitleMatch(normalizedSearchTitle, normalizedPostTitle)) {
         debugPrint(
-          '[AudiobookService] Found match with audio: id=${post['id']}, title=$postTitle',
+          '[AudiobookService] Found match with audio: id=${post['id']}, title=$postTitleRaw',
         );
         return post;
       }
@@ -740,11 +769,10 @@ class AudiobookService {
       if (post is! Map<String, dynamic>) continue;
 
       final titleRendered = post['title'] as Map<String, dynamic>?;
-      final postTitle =
-          (titleRendered?['rendered'] as String?)?.toLowerCase() ?? '';
+      final postTitleRaw = titleRendered?['rendered'] as String? ?? '';
+      final normalizedPostTitle = _normalizeForComparison(postTitleRaw);
 
-      if (postTitle.contains(normalizedTitle) ||
-          normalizedTitle.contains(postTitle)) {
+      if (_isTitleMatch(normalizedSearchTitle, normalizedPostTitle)) {
         debugPrint(
           '[AudiobookService] Title match but no stream URL: id=${post['id']}',
         );
@@ -760,5 +788,66 @@ class AudiobookService {
   /// Clear the not-found cache (useful for testing or manual refresh)
   void clearCache() {
     _notFoundCache.clear();
+  }
+
+  /// Normalize a title for comparison: lowercase, remove diacritics, remove punctuation
+  String _normalizeForComparison(String title) {
+    var normalized = title.toLowerCase();
+    normalized = _removeDiacritics(normalized);
+    // Remove common articles (including French l')
+    normalized = normalized.replaceAll(
+      RegExp(r"^(the|a|an|le|la|les|un|une|des|l')\s*", caseSensitive: false),
+      '',
+    );
+    // Remove punctuation and extra spaces
+    normalized = normalized.replaceAll(RegExp(r'[^\w\s]'), ' ');
+    normalized = normalized.replaceAll(RegExp(r'\s+'), ' ').trim();
+    return normalized;
+  }
+
+  /// Check if two titles match sufficiently
+  /// Returns true if:
+  /// - One title contains the other completely, OR
+  /// - They share significant words (>= 60% overlap)
+  bool _isTitleMatch(String searchTitle, String bookTitle) {
+    // Exact match
+    if (searchTitle == bookTitle) return true;
+
+    // One contains the other (but must be substantial - at least 70% of the shorter one)
+    if (searchTitle.contains(bookTitle)) {
+      return bookTitle.length >= searchTitle.length * 0.7;
+    }
+    if (bookTitle.contains(searchTitle)) {
+      return searchTitle.length >= bookTitle.length * 0.7;
+    }
+
+    // Word-based matching for cases like "Lettres à un jeune poète" vs "Lettres de mon moulin"
+    final searchWords = searchTitle.split(' ').where((w) => w.length > 2).toSet();
+    final bookWords = bookTitle.split(' ').where((w) => w.length > 2).toSet();
+
+    if (searchWords.isEmpty || bookWords.isEmpty) return false;
+
+    // Count matching words
+    final matchingWords = searchWords.intersection(bookWords);
+    final totalUniqueWords = searchWords.union(bookWords);
+
+    // Jaccard similarity: matching / total unique words
+    final similarity = matchingWords.length / totalUniqueWords.length;
+
+    // For short titles (1-2 significant words), require exact match
+    if (searchWords.length <= 2) {
+      // All search words must be in the book title
+      return matchingWords.length == searchWords.length;
+    }
+
+    // For longer titles, require at least 50% word overlap
+    final matchRatio = matchingWords.length / searchWords.length;
+    debugPrint(
+      '[AudiobookService] Title comparison: "$searchTitle" vs "$bookTitle" '
+      '- matching: ${matchingWords.length}/${searchWords.length} (${(matchRatio * 100).toInt()}%), '
+      'similarity: ${(similarity * 100).toInt()}%',
+    );
+
+    return matchRatio >= 0.5 && similarity >= 0.4;
   }
 }

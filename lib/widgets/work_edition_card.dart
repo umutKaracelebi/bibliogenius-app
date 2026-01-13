@@ -11,6 +11,7 @@ class WorkEditionCard extends StatefulWidget {
   final String? author;
   final List<Map<String, dynamic>> editions;
   final Function(Map<String, dynamic>) onAddBook;
+  final Function(Map<String, dynamic>)? onOpenUrl;
 
   const WorkEditionCard({
     super.key,
@@ -19,6 +20,7 @@ class WorkEditionCard extends StatefulWidget {
     this.author,
     required this.editions,
     required this.onAddBook,
+    this.onOpenUrl,
   });
 
   @override
@@ -55,16 +57,40 @@ class _WorkEditionCardState extends State<WorkEditionCard> {
     if (langCode == null || langCode.isEmpty) return '';
     final code = langCode.toLowerCase();
     const langMap = {
-      'fr': 'FR', 'fre': 'FR', 'fra': 'FR', 'french': 'FR',
-      'en': 'EN', 'eng': 'EN', 'english': 'EN',
-      'es': 'ES', 'spa': 'ES', 'spanish': 'ES',
-      'de': 'DE', 'ger': 'DE', 'deu': 'DE', 'german': 'DE',
-      'it': 'IT', 'ita': 'IT', 'italian': 'IT',
-      'pt': 'PT', 'por': 'PT', 'portuguese': 'PT',
-      'nl': 'NL', 'dut': 'NL', 'nld': 'NL', 'dutch': 'NL',
-      'ru': 'RU', 'rus': 'RU', 'russian': 'RU',
-      'ja': 'JA', 'jpn': 'JA', 'japanese': 'JA',
-      'zh': 'ZH', 'chi': 'ZH', 'zho': 'ZH', 'chinese': 'ZH',
+      'fr': 'FR',
+      'fre': 'FR',
+      'fra': 'FR',
+      'french': 'FR',
+      'en': 'EN',
+      'eng': 'EN',
+      'english': 'EN',
+      'es': 'ES',
+      'spa': 'ES',
+      'spanish': 'ES',
+      'de': 'DE',
+      'ger': 'DE',
+      'deu': 'DE',
+      'german': 'DE',
+      'it': 'IT',
+      'ita': 'IT',
+      'italian': 'IT',
+      'pt': 'PT',
+      'por': 'PT',
+      'portuguese': 'PT',
+      'nl': 'NL',
+      'dut': 'NL',
+      'nld': 'NL',
+      'dutch': 'NL',
+      'ru': 'RU',
+      'rus': 'RU',
+      'russian': 'RU',
+      'ja': 'JA',
+      'jpn': 'JA',
+      'japanese': 'JA',
+      'zh': 'ZH',
+      'chi': 'ZH',
+      'zho': 'ZH',
+      'chinese': 'ZH',
     };
     return langMap[code] ?? code.toUpperCase().substring(0, 2);
   }
@@ -196,22 +222,27 @@ class _WorkEditionCardState extends State<WorkEditionCard> {
             padding: const EdgeInsets.all(16),
             child: Align(
               alignment: Alignment.centerRight,
-              child: FilledButton.icon(
-                onPressed: () =>
-                    widget.onAddBook(widget.editions[_currentPage]),
-                icon: const Icon(Icons.add_circle_outline),
-                label: Text(
-                  TranslationService.translate(context, 'add_to_library'),
-                ),
-                style: FilledButton.styleFrom(
-                  padding: const EdgeInsets.symmetric(
-                    horizontal: 24,
-                    vertical: 12,
+              child: Row(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  FilledButton.icon(
+                    onPressed: () =>
+                        widget.onAddBook(widget.editions[_currentPage]),
+                    icon: const Icon(Icons.add_circle_outline),
+                    label: Text(
+                      TranslationService.translate(context, 'add_to_library'),
+                    ),
+                    style: FilledButton.styleFrom(
+                      padding: const EdgeInsets.symmetric(
+                        horizontal: 24,
+                        vertical: 12,
+                      ),
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(12),
+                      ),
+                    ),
                   ),
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(12),
-                  ),
-                ),
+                ],
               ),
             ),
           ),
@@ -333,10 +364,11 @@ class _WorkEditionCardState extends State<WorkEditionCard> {
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
                 const SizedBox(height: 8),
-                if (edition['publisher'] != null)
+                if (edition['publisher'] != null &&
+                    (edition['publisher'] as String).isNotEmpty)
                   _buildDetailRow(
-                    Icons.business,
-                    edition['publisher'],
+                    Icons.apartment,
+                    'Ed. ${edition['publisher']}',
                     theme,
                     isProminent: true,
                   ),

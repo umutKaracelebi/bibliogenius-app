@@ -228,28 +228,39 @@ class MdnsService {
               return;
             }
 
-            // Prefer IP from attributes (reliable), fallback to hostname guess
+            // Prefer IP from attributes (reliable), fallback to resolved host
             final ipFromAttrs = service.attributes['ip'];
-            String host;
+            String? host;
             if (ipFromAttrs != null &&
                 ipFromAttrs.isNotEmpty &&
                 !_isLinkLocalAddress(ipFromAttrs)) {
               host = ipFromAttrs;
               debugPrint('📚 mDNS: Using IP from attributes: $host');
             } else {
-              // No valid IP in attributes - skip this peer entirely
-              // Hostname resolution (.local) is unreliable on Android
-              if (ipFromAttrs != null && _isLinkLocalAddress(ipFromAttrs)) {
+              // Try to use resolved host if available (better than nothing)
+              // This helps cross-platform discovery when IP attributes aren't set
+              if (service.host != null &&
+                  service.host!.isNotEmpty &&
+                  !_isLinkLocalAddress(service.host!)) {
+                host = service.host;
+                debugPrint(
+                  '📚 mDNS: Using resolved host for "${service.name}": $host',
+                );
+              } else if (ipFromAttrs != null && _isLinkLocalAddress(ipFromAttrs)) {
                 debugPrint(
                   '⚠️ mDNS: Peer advertised link-local IP ($ipFromAttrs), skipping',
                 );
+                return;
               } else {
                 debugPrint(
-                  '⚠️ mDNS: No valid IP in attributes for "${service.name}", skipping',
+                  '⚠️ mDNS: No valid IP for "${service.name}", waiting for resolve event',
                 );
+                return; // Wait for resolved event which may have better info
               }
-              return; // Don't add this peer without a valid IP
             }
+
+            // At this point host is guaranteed to be non-null (we returned early otherwise)
+            final validHost = host!;
 
             // Use actual port from service (default to 8000 if not available)
             final actualPort = service.port > 0 ? service.port : 8000;
@@ -261,13 +272,13 @@ class MdnsService {
             );
 
             // Use host:port as key to deduplicate same library announced multiple times
-            final peerKey = '$host:$actualPort';
+            final peerKey = '$validHost:$actualPort';
 
             final peer = DiscoveredPeer(
               name: cleanName,
-              host: host,
+              host: validHost,
               port: actualPort,
-              addresses: [host],
+              addresses: [validHost],
               libraryId: service.attributes['library_id'],
               discoveredAt: DateTime.now(),
             );
@@ -279,20 +290,52 @@ class MdnsService {
           else if (event is BonsoirDiscoveryServiceResolvedEvent) {
             final service = event.service;
 
-            // Skip our own service (also handle Bonjour auto-suffix)
-            // Strip Bonjour auto-suffix first
-            final cleanName = service.name.replaceAll(
-              RegExp(r'\s*\(\d+\)$'),
-              '',
-            );
-            if (_ownServiceName != null && cleanName == _ownServiceName) {
+            // Get peer IP from attributes first (more reliable)
+            final peerIp = service.attributes['ip'];
+
+            // Skip our own service by IP first (most reliable)
+            if (_ownIp != null && peerIp == _ownIp) {
               debugPrint(
-                '🔇 mDNS: Skipping own resolved service: ${service.name}',
+                '🔇 mDNS: Skipping own resolved service by IP: ${service.name}',
               );
               return;
             }
 
-            final resolvedHost = service.host ?? 'unknown';
+            // Strip Bonjour auto-suffix
+            final cleanName = service.name.replaceAll(
+              RegExp(r'\s*\(\d+\)$'),
+              '',
+            );
+
+            // Also skip by name as fallback
+            if (_ownServiceName != null &&
+                cleanName == _ownServiceName &&
+                peerIp == null) {
+              debugPrint(
+                '🔇 mDNS: Skipping own resolved service by name: ${service.name}',
+              );
+              return;
+            }
+
+            // Prefer IP from attributes, then resolved host
+            String resolvedHost;
+            if (peerIp != null &&
+                peerIp.isNotEmpty &&
+                !_isLinkLocalAddress(peerIp)) {
+              resolvedHost = peerIp;
+              debugPrint('📚 mDNS: Resolved using IP from attributes: $peerIp');
+            } else if (service.host != null &&
+                service.host!.isNotEmpty &&
+                !_isLinkLocalAddress(service.host!)) {
+              resolvedHost = service.host!;
+              debugPrint('📚 mDNS: Resolved using host: $resolvedHost');
+            } else {
+              debugPrint(
+                '⚠️ mDNS: Resolved event has no valid IP for "${service.name}"',
+              );
+              return;
+            }
+
             final peerKey = '$resolvedHost:${service.port}';
 
             // Update/add with resolved info (more accurate)
@@ -300,7 +343,7 @@ class MdnsService {
               name: cleanName,
               host: resolvedHost,
               port: service.port,
-              addresses: service.host != null ? [service.host!] : [],
+              addresses: [resolvedHost],
               libraryId: service.attributes['library_id'],
               discoveredAt: DateTime.now(),
             );
@@ -370,9 +413,36 @@ class MdnsService {
       _broadcast = null;
       _peers.clear();
       _isRunning = false;
+      _ownServiceName = null;
+      _ownIp = null;
       debugPrint('📡 mDNS: Service stopped');
     } catch (e) {
       debugPrint('⚠️ mDNS: Error stopping - $e');
     }
+  }
+
+  /// Restart mDNS service (useful after hot reload or network changes)
+  /// Requires the same parameters as startAnnouncing
+  static Future<bool> restart(
+    String libraryName,
+    int port, {
+    String? libraryId,
+  }) async {
+    debugPrint('🔄 mDNS: Restarting service...');
+    await stop();
+    // Small delay to ensure cleanup is complete
+    await Future.delayed(const Duration(milliseconds: 500));
+    final announceResult = await startAnnouncing(
+      libraryName,
+      port,
+      libraryId: libraryId,
+    );
+    if (announceResult) {
+      await startDiscovery();
+      debugPrint('✅ mDNS: Service restarted successfully');
+      return true;
+    }
+    debugPrint('❌ mDNS: Failed to restart service');
+    return false;
   }
 }

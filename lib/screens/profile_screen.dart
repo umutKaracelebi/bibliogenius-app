@@ -1180,45 +1180,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                       ),
                     ],
                     const Divider(),
-                    // Hierarchical Tags Toggle
-                    SwitchListTile(
-                      title: Text(
-                        TranslationService.translate(
-                              context,
-                              'enable_taxonomy',
-                            ) ??
-                            'Hierarchical Tags',
-                      ),
-                      subtitle: Text(
-                        TranslationService.translate(
-                              context,
-                              'enable_taxonomy_subtitle',
-                            ) ??
-                            'Use "Parent > Child" naming to create sub-tags',
-                      ),
-                      value: AppConstants.enableHierarchicalTags,
-                      onChanged: (bool value) async {
-                        setState(() {
-                          AppConstants.enableHierarchicalTags = value;
-                        });
-                        final prefs = await SharedPreferences.getInstance();
-                        await prefs.setBool('enableHierarchicalTags', value);
-                        if (mounted) {
-                          ScaffoldMessenger.of(context).showSnackBar(
-                            SnackBar(
-                              content: Text(
-                                TranslationService.translate(
-                                      context,
-                                      'restart_required_for_changes',
-                                    ) ??
-                                    'Please restart the app for changes to take full effect',
-                              ),
-                            ),
-                          );
-                        }
-                      },
-                    ),
-                    const Divider(),
+
                     ListTile(
                       leading: const Icon(Icons.phonelink_setup),
                       title: Text(
@@ -3099,6 +3061,40 @@ class _ProfileScreenState extends State<ProfileScreen> {
                       onChanged: (val) => theme.setCommerceEnabled(val),
                     ),
                   ],
+                  const Divider(),
+                  // Hierarchical Tags Toggle
+                  SwitchListTile(
+                    title: Text(
+                      TranslationService.translate(
+                            context,
+                            'enable_taxonomy',
+                          ) ??
+                          'Hierarchical Tags',
+                    ),
+                    subtitle: const Text('Gestion de sous-étagères'),
+                    secondary: const Icon(Icons.account_tree),
+                    value: AppConstants.enableHierarchicalTags,
+                    onChanged: (bool value) async {
+                      setState(() {
+                        AppConstants.enableHierarchicalTags = value;
+                      });
+                      final prefs = await SharedPreferences.getInstance();
+                      await prefs.setBool('enableHierarchicalTags', value);
+                      if (mounted) {
+                        ScaffoldMessenger.of(context).showSnackBar(
+                          SnackBar(
+                            content: Text(
+                              TranslationService.translate(
+                                    context,
+                                    'restart_required_for_changes',
+                                  ) ??
+                                  'Please restart the app for changes to take full effect',
+                            ),
+                          ),
+                        );
+                      }
+                    },
+                  ),
                 ],
               ),
             ),

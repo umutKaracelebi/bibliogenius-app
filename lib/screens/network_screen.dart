@@ -9,7 +9,7 @@ import '../models/network_member.dart';
 import '../services/api_service.dart';
 import '../services/auth_service.dart';
 import '../services/translation_service.dart';
-// ThemeProvider import removed - not used in this screen
+import '../providers/theme_provider.dart';
 import 'package:mobile_scanner/mobile_scanner.dart';
 import '../utils/app_constants.dart';
 import 'package:qr_flutter/qr_flutter.dart';
@@ -78,9 +78,16 @@ class _NetworkScreenState extends State<NetworkScreen>
 
   void _handleTabSelection() {
     if (!mounted) return;
+    // Only react when tab animation is complete, not during animation
+    if (_tabController.indexIsChanging) return;
+
     if (_tabController.index == 1) {
-      // Scan tab selected
-      cameraController.start();
+      // Scan tab selected - start camera after frame to ensure widget is built
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        if (mounted && _tabController.index == 1) {
+          cameraController.start();
+        }
+      });
     } else {
       // Navigate away from scan tab
       cameraController.stop();
@@ -299,7 +306,7 @@ class _NetworkScreenState extends State<NetworkScreen>
           _isLoading = false;
         });
         // Check connectivity for network peers in parallel
-        // _checkPeersConnectivity(allMembers); // Reverted
+        _checkPeersConnectivity(allMembers);
         // Check connectivity for mDNS peers
         _checkMdnsPeersConnectivity(localPeers);
       }
@@ -329,6 +336,35 @@ class _NetworkScreenState extends State<NetworkScreen>
     }
   }
 
+  /// Check connectivity for network peers (from database)
+  Future<void> _checkPeersConnectivity(List<NetworkMember> members) async {
+    final api = Provider.of<ApiService>(context, listen: false);
+
+    for (final member in members) {
+      // Only check network peers with valid URLs
+      if (member.source != NetworkMemberSource.network) continue;
+      final url = member.url;
+      if (url == null || url.isEmpty) continue;
+      final memberId = member.id;
+
+      // Check connectivity in parallel (don't await each one)
+      api.checkPeerConnectivity(url, timeoutMs: 4000).then((isOnline) {
+        if (mounted) {
+          setState(() {
+            _peerConnectivity[memberId] = isOnline;
+          });
+        }
+      }).catchError((e) {
+        // On error, mark as offline
+        if (mounted) {
+          setState(() {
+            _peerConnectivity[memberId] = false;
+          });
+        }
+      });
+    }
+  }
+
   /// Check connectivity for mDNS discovered peers
   Future<void> _checkMdnsPeersConnectivity(
     List<Map<String, dynamic>> peers,
@@ -348,6 +384,13 @@ class _NetworkScreenState extends State<NetworkScreen>
         if (mounted) {
           setState(() {
             _mdnsPeerConnectivity[url] = isOnline;
+          });
+        }
+      }).catchError((e) {
+        // On error, mark as offline
+        if (mounted) {
+          setState(() {
+            _mdnsPeerConnectivity[url] = false;
           });
         }
       });
@@ -507,56 +550,84 @@ class _NetworkScreenState extends State<NetworkScreen>
   }
 
   Future<void> _connect(String name, String url) async {
+    // Capture context-dependent objects before async gap
+    // Use rootNavigator: true to match where showDialog pushes
+    final navigator = Navigator.of(context, rootNavigator: true);
+    final messenger = ScaffoldMessenger.of(context);
+    final apiService = Provider.of<ApiService>(context, listen: false);
+    final connectedToText = TranslationService.translate(context, 'connected_to');
+    final connectionFailedText = TranslationService.translate(context, 'connection_failed');
+
+    // Show loading dialog and track if it's showing
+    bool dialogShowing = true;
     showDialog(
       context: context,
       barrierDismissible: false,
-      builder: (ctx) => const Center(child: CircularProgressIndicator()),
+      useRootNavigator: true,
+      builder: (ctx) => PopScope(
+        canPop: false,
+        child: const Center(
+          child: Card(
+            child: Padding(
+              padding: EdgeInsets.all(20),
+              child: CircularProgressIndicator(),
+            ),
+          ),
+        ),
+      ),
     );
 
+    void closeDialog() {
+      if (dialogShowing) {
+        dialogShowing = false;
+        navigator.pop();
+      }
+    }
+
     try {
-      final apiService = Provider.of<ApiService>(context, listen: false);
       await apiService.connectPeer(name, url);
 
-      if (mounted) {
-        Navigator.pop(context); // Close loading dialog
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: Text(
-              "${TranslationService.translate(context, 'connected_to')} $name!",
-            ),
-            duration: const Duration(seconds: 2),
-          ),
-        );
-
-        // Stop camera before navigating to list
-        await cameraController.stop();
-        _tabController.animateTo(0);
-        _loadAllMembers();
-
-        // Reset scanning state after a slight delay to allow navigation
-        Future.delayed(const Duration(seconds: 1), () {
-          if (mounted) {
-            setState(() {
-              _isProcessingScan = false;
-            });
-          }
-        });
+      if (!mounted) {
+        closeDialog();
+        return;
       }
+
+      closeDialog();
+
+      messenger.showSnackBar(
+        SnackBar(
+          content: Text("$connectedToText $name!"),
+          duration: const Duration(seconds: 2),
+        ),
+      );
+
+      // Stop camera before navigating to list
+      await cameraController.stop();
+      _tabController.animateTo(0);
+      _loadAllMembers();
+
+      // Reset scanning state after a slight delay to allow navigation
+      Future.delayed(const Duration(seconds: 1), () {
+        if (mounted) {
+          setState(() {
+            _isProcessingScan = false;
+          });
+        }
+      });
     } catch (e) {
-      if (mounted) {
-        Navigator.pop(context); // Close loading dialog
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: Text(
-              "${TranslationService.translate(context, 'connection_failed')}: $e",
-            ),
-          ),
-        );
-        // Reset state immediately on error so user can retry
-        setState(() {
-          _isProcessingScan = false;
-        });
-      }
+      closeDialog();
+
+      if (!mounted) return;
+
+      messenger.showSnackBar(
+        SnackBar(
+          content: Text("$connectionFailedText: $e"),
+        ),
+      );
+      // Reset state immediately on error so user can retry
+      setState(() {
+        _isProcessingScan = false;
+      });
     }
   }
 
@@ -914,19 +985,81 @@ class _NetworkScreenState extends State<NetworkScreen>
               icon: const Icon(Icons.refresh, size: 20),
               tooltip: 'Rescan',
               onPressed: () async {
+                final messenger = ScaffoldMessenger.of(context);
                 debugPrint('🔄 Manual mDNS rescan triggered');
                 await MdnsService.stopDiscovery();
                 await MdnsService.startDiscovery();
                 await Future.delayed(const Duration(seconds: 2));
-                _loadAllMembers();
-                ScaffoldMessenger.of(context).showSnackBar(
-                  SnackBar(
-                    content: Text(
-                      'Rescanning... ${MdnsService.peers.length} peers found',
+                if (mounted) {
+                  _loadAllMembers();
+                  messenger.showSnackBar(
+                    SnackBar(
+                      content: Text(
+                        'Rescanning... ${MdnsService.peers.length} peers found',
+                      ),
+                      duration: const Duration(seconds: 2),
                     ),
-                    duration: const Duration(seconds: 2),
+                  );
+                }
+              },
+            ),
+            // Full restart button (helps after hot reload)
+            IconButton(
+              icon: const Icon(Icons.restart_alt, size: 20),
+              tooltip: 'Restart mDNS',
+              onPressed: () async {
+                final messenger = ScaffoldMessenger.of(context);
+                final themeProvider = Provider.of<ThemeProvider>(
+                  context,
+                  listen: false,
+                );
+                final authService = Provider.of<AuthService>(
+                  context,
+                  listen: false,
+                );
+
+                debugPrint('🔄 Full mDNS restart triggered');
+                messenger.showSnackBar(
+                  const SnackBar(
+                    content: Text('Restarting mDNS service...'),
+                    duration: Duration(seconds: 1),
                   ),
                 );
+
+                try {
+                  final libraryUuid = await authService.getOrCreateLibraryUuid();
+                  final libraryName = themeProvider.libraryName.isNotEmpty
+                      ? themeProvider.libraryName
+                      : 'BiblioGenius Library';
+                  // Use port 8000 as default (same as main.dart)
+                  await MdnsService.restart(
+                    libraryName,
+                    8000,
+                    libraryId: libraryUuid,
+                  );
+                  await Future.delayed(const Duration(seconds: 2));
+                  if (mounted) {
+                    _loadAllMembers();
+                    messenger.showSnackBar(
+                      SnackBar(
+                        content: Text(
+                          'mDNS restarted - ${MdnsService.peers.length} peers found',
+                        ),
+                        duration: const Duration(seconds: 2),
+                      ),
+                    );
+                  }
+                } catch (e) {
+                  debugPrint('❌ mDNS restart failed: $e');
+                  if (mounted) {
+                    messenger.showSnackBar(
+                      SnackBar(
+                        content: Text('mDNS restart failed: $e'),
+                        duration: const Duration(seconds: 3),
+                      ),
+                    );
+                  }
+                }
               },
             ),
           ],

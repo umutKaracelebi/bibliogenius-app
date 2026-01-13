@@ -12,6 +12,8 @@ import '../providers/theme_provider.dart';
 import 'package:go_router/go_router.dart';
 import '../theme/app_design.dart';
 import '../utils/global_keys.dart';
+import '../utils/book_url_helper.dart';
+import 'web_view_screen.dart';
 
 class ExternalSearchScreen extends StatefulWidget {
   const ExternalSearchScreen({super.key});
@@ -87,6 +89,7 @@ class _ExternalSearchScreenState extends State<ExternalSearchScreen> {
     bool inventaireEnabled = true;
     bool openLibraryEnabled = true;
     bool bnfEnabled = false; // BNF is beta, disabled by default
+    bool googleBooksEnabled = false; // Disabled by default
 
     try {
       // Get user status which contains fallback_preferences
@@ -103,6 +106,18 @@ class _ExternalSearchScreenState extends State<ExternalSearchScreen> {
         }
         if (prefs.containsKey('bnf')) {
           bnfEnabled = prefs['bnf'] == true;
+        }
+
+        // Check enabled modules for Google Books
+        final modules = config['enabled_modules'];
+        // Could be List<String> or comma-separated string
+        if (modules is List) {
+          googleBooksEnabled = modules.contains('enable_google_books');
+        } else if (modules is String) {
+          googleBooksEnabled = modules.contains('enable_google_books');
+        } else if (prefs.containsKey('google_books')) {
+          // Fallback to legacy pref if needed
+          googleBooksEnabled = prefs['google_books'] == true;
         }
       }
     } catch (e) {
@@ -141,7 +156,9 @@ class _ExternalSearchScreenState extends State<ExternalSearchScreen> {
     if (bnfEnabled) {
       options.add({'value': 'bnf', 'label': 'data.bnf.fr'});
     }
-    // Note: Google Books is not supported in unified search endpoint
+    if (googleBooksEnabled) {
+      options.add({'value': 'google_books', 'label': 'Google Books'});
+    }
 
     if (mounted) {
       setState(() {
@@ -430,6 +447,31 @@ class _ExternalSearchScreenState extends State<ExternalSearchScreen> {
     }
   }
 
+  Future<void> _openUrl(Map<String, dynamic> bookData) async {
+    final url = BookUrlHelper.getUrl(bookData);
+    if (url == null) return;
+
+    final isOnline = await BookUrlHelper.isOnline();
+    if (!isOnline && mounted) {
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(const SnackBar(content: Text('No internet connection')));
+      return;
+    }
+
+    if (mounted) {
+      Navigator.push(
+        context,
+        MaterialPageRoute(
+          builder: (context) => WebViewScreen(
+            url: url,
+            title: bookData['title'] ?? 'Book Details',
+          ),
+        ),
+      );
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     final isMobile = MediaQuery.of(context).size.width < 600;
@@ -698,12 +740,29 @@ class _ExternalSearchScreenState extends State<ExternalSearchScreen> {
           author: work['author'] as String?,
           editions: editions,
           onAddBook: _addBook,
+          onOpenUrl: _openUrl,
         );
       },
     );
   }
 
   /// Classic flat list view
+  Color _getSourceColor(String? source) {
+    if (source == null) return Colors.blue;
+    if (source.contains('Inventaire')) return Colors.green;
+    if (source.toLowerCase().contains('bnf')) return Colors.orange;
+    if (source.contains('Google')) return Colors.red;
+    return Colors.blue; // OpenLibrary or default
+  }
+
+  String _getSourceLabel(String? source) {
+    if (source == null) return 'OL';
+    if (source.contains('Inventaire')) return 'INV';
+    if (source.toLowerCase().contains('bnf')) return 'BNF';
+    if (source.contains('Google')) return 'GB';
+    return 'OL';
+  }
+
   Widget _buildFlatListView() {
     return ListView.builder(
       itemCount: _searchResults.length,
@@ -713,7 +772,16 @@ class _ExternalSearchScreenState extends State<ExternalSearchScreen> {
             book['author'] ??
             TranslationService.translate(context, 'unknown_author');
         final language = _getLanguageLabel(book['language'] as String?);
-        final subtitle = language.isNotEmpty ? '$author • $language' : author;
+        final publisher = book['publisher'] as String?;
+
+        final List<String> subtitleParts = [author];
+        if (publisher != null && publisher.isNotEmpty) {
+          subtitleParts.add(publisher);
+        }
+        if (language.isNotEmpty) {
+          subtitleParts.add(language);
+        }
+        final subtitle = subtitleParts.join(' • ');
 
         return ListTile(
           leading: CompactBookCover(imageUrl: book['cover_url'], size: 50),
@@ -726,9 +794,30 @@ class _ExternalSearchScreenState extends State<ExternalSearchScreen> {
             maxLines: 1,
             overflow: TextOverflow.ellipsis,
           ),
-          trailing: IconButton(
-            icon: const Icon(Icons.add),
-            onPressed: () => _addBook(book),
+          trailing: Row(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Container(
+                padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
+                decoration: BoxDecoration(
+                  color: _getSourceColor(book['source']),
+                  borderRadius: BorderRadius.circular(4),
+                ),
+                child: Text(
+                  _getSourceLabel(book['source']),
+                  style: const TextStyle(
+                    color: Colors.white,
+                    fontSize: 10,
+                    fontWeight: FontWeight.bold,
+                  ),
+                ),
+              ),
+              const SizedBox(width: 8),
+              IconButton(
+                icon: const Icon(Icons.add),
+                onPressed: () => _addBook(book),
+              ),
+            ],
           ),
           onTap: () {
             // Show details?

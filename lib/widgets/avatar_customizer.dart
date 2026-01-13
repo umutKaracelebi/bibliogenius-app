@@ -47,7 +47,9 @@ class _AvatarCustomizerState extends State<AvatarCustomizer> {
       'girl',
       'grandfather',
       'grandmother',
+      'nonBinary', // Even though cancelled, keeping for robustness
     ].contains(_config.style);
+    final isRobot = _config.style == 'bottts';
 
     return Column(
       children: [
@@ -129,17 +131,39 @@ class _AvatarCustomizerState extends State<AvatarCustomizer> {
                   (value) => _updateConfig(_config.copyWith(mouth: value)),
                 ),
                 _buildSection(
-                  TranslationService.translate(context, 'avatar_hair'),
+                  TranslationService.translate(context, 'avatar_eyebrows'),
+                  AvatarOptions.getEyebrowStyles(lang),
+                  _config.eyebrows ?? 'default',
+                  (value) => _updateConfig(_config.copyWith(eyebrows: value)),
+                ),
+                _buildSection(
+                  TranslationService.translate(context, 'avatar_hair_style'),
                   AvatarOptions.getHairStyles(lang),
                   _config.hairStyle ?? 'shortFlat',
                   (value) => _updateConfig(_config.copyWith(hairStyle: value)),
                 ),
-                _buildSection(
-                  TranslationService.translate(context, 'avatar_facial_hair'),
-                  AvatarOptions.getFacialHairStyles(lang),
-                  _config.facialHair ?? 'none',
-                  (value) => _updateConfig(_config.copyWith(facialHair: value)),
-                ),
+                if (!['woman', 'girl'].contains(_config.style)) ...[
+                  _buildSection(
+                    TranslationService.translate(context, 'avatar_facial_hair'),
+                    AvatarOptions.getFacialHairStyles(lang),
+                    _config.facialHair ?? 'none',
+                    (value) =>
+                        _updateConfig(_config.copyWith(facialHair: value)),
+                  ),
+                  if (_config.facialHair != null &&
+                      _config.facialHair != 'none')
+                    _buildColorSection(
+                      TranslationService.translate(
+                        context,
+                        'avatar_facial_hair_color',
+                      ),
+                      AvatarOptions.getFacialHairColors(lang),
+                      _config.facialHairColor ?? '000000',
+                      (value) => _updateConfig(
+                        _config.copyWith(facialHairColor: value),
+                      ),
+                    ),
+                ],
                 _buildColorSection(
                   TranslationService.translate(context, 'avatar_skin_color'),
                   AvatarOptions.getSkinColors(lang),
@@ -149,7 +173,7 @@ class _AvatarCustomizerState extends State<AvatarCustomizer> {
                 _buildColorSection(
                   TranslationService.translate(context, 'avatar_hair_color'),
                   AvatarOptions.hairColors,
-                  _config.hairColor ?? '4a312c',
+                  _config.hairColor ?? '000000',
                   (value) => _updateConfig(_config.copyWith(hairColor: value)),
                 ),
                 _buildSection(
@@ -164,6 +188,32 @@ class _AvatarCustomizerState extends State<AvatarCustomizer> {
                   AvatarOptions.getClothingOptions(lang),
                   _config.clothing ?? 'hoodie',
                   (value) => _updateConfig(_config.copyWith(clothing: value)),
+                ),
+              ],
+              if (isRobot) ...[
+                _buildColorSection(
+                  TranslationService.translate(context, 'avatar_skin_color'),
+                  AvatarOptions.robotColors,
+                  _config.skinColor ?? 'grey',
+                  (value) => _updateConfig(_config.copyWith(skinColor: value)),
+                ),
+                _buildSection(
+                  TranslationService.translate(context, 'avatar_hair_style'),
+                  AvatarOptions.getRobotAccessory(lang),
+                  _config.hairStyle ?? 'antenna',
+                  (value) => _updateConfig(_config.copyWith(hairStyle: value)),
+                ),
+                _buildSection(
+                  TranslationService.translate(context, 'avatar_eyes'),
+                  AvatarOptions.getRobotEyes(lang),
+                  _config.eyes ?? 'eva',
+                  (value) => _updateConfig(_config.copyWith(eyes: value)),
+                ),
+                _buildSection(
+                  TranslationService.translate(context, 'avatar_expression'),
+                  AvatarOptions.getRobotMouths(lang),
+                  _config.mouth ?? 'smile01',
+                  (value) => _updateConfig(_config.copyWith(mouth: value)),
                 ),
               ],
             ],
@@ -240,7 +290,7 @@ class _AvatarCustomizerState extends State<AvatarCustomizer> {
                     width: 50,
                     height: 50,
                     decoration: BoxDecoration(
-                      color: Color(int.parse('FF${entry.key}', radix: 16)),
+                      color: _getColor(entry.key),
                       shape: BoxShape.circle,
                       border: Border.all(
                         color: isSelected ? Colors.blue : Colors.grey[300]!,
@@ -258,5 +308,59 @@ class _AvatarCustomizerState extends State<AvatarCustomizer> {
         ),
       ),
     );
+  }
+
+  Color _getColor(String key) {
+    // Try to parse as hex if 6 characters
+    if (key.length == 6) {
+      final hexCode = int.tryParse('FF$key', radix: 16);
+      if (hexCode != null) {
+        return Color(hexCode);
+      }
+    }
+
+    // Map named colors (for robots)
+    switch (key) {
+      case 'amber':
+        return Colors.amber;
+      case 'blue':
+        return Colors.blue;
+      case 'blueGrey':
+        return Colors.blueGrey;
+      case 'brown':
+        return Colors.brown;
+      case 'cyan':
+        return Colors.cyan;
+      case 'deepOrange':
+        return Colors.deepOrange;
+      case 'deepPurple':
+        return Colors.deepPurple;
+      case 'green':
+        return Colors.green;
+      case 'grey':
+        return Colors.grey;
+      case 'indigo':
+        return Colors.indigo;
+      case 'lightBlue':
+        return Colors.lightBlue;
+      case 'lightGreen':
+        return Colors.lightGreen;
+      case 'lime':
+        return Colors.lime;
+      case 'orange':
+        return Colors.orange;
+      case 'pink':
+        return Colors.pink;
+      case 'purple':
+        return Colors.purple;
+      case 'red':
+        return Colors.red;
+      case 'teal':
+        return Colors.teal;
+      case 'yellow':
+        return Colors.yellow;
+      default:
+        return Colors.grey;
+    }
   }
 }

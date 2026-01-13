@@ -563,6 +563,17 @@ jobs:
       - name: Create .env file
         run: cp .env.example .env
 
+      - name: Enforce Podfile Code Signing
+        run: |
+          echo "Enforcing CODE_SIGNING settings in Podfile..."
+          sed -i '' "s/config.build_settings\['CODE_SIGNING_REQUIRED'\] = 'NO'/config.build_settings['CODE_SIGNING_REQUIRED'] = 'YES'/g" ios/Podfile
+          sed -i '' "s/config.build_settings\['CODE_SIGNING_ALLOWED'\] = 'NO'/config.build_settings['CODE_SIGNING_ALLOWED'] = 'YES'/g" ios/Podfile
+          
+          # Verify settings
+          echo "Verifying Podfile settings:"
+          grep "CODE_SIGNING_REQUIRED" ios/Podfile
+          grep "CODE_SIGNING_ALLOWED" ios/Podfile
+
       - name: Get dependencies
         run: flutter pub get
         

@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'dart:math';
+import 'dart:async';
 import 'package:provider/provider.dart';
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:go_router/go_router.dart';
@@ -16,6 +17,7 @@ import '../widgets/cached_book_cover.dart';
 import 'package:cached_network_image/cached_network_image.dart';
 import 'scan_screen.dart';
 import '../widgets/collection_selector.dart';
+import '../widgets/edition_picker_sheet.dart';
 import '../models/collection.dart';
 
 class AddBookScreen extends StatefulWidget {
@@ -59,6 +61,7 @@ class _AddBookScreenState extends State<AddBookScreen> {
   late TextEditingController _tagsController;
   final FocusNode _titleFocusNode = FocusNode();
   List<String> _allAuthors = []; // For autocomplete
+  Timer? _debounce;
 
   @override
   void initState() {
@@ -139,6 +142,7 @@ class _AddBookScreenState extends State<AddBookScreen> {
     _summaryController.dispose();
     _priceController.dispose();
     _titleFocusNode.dispose();
+    _debounce?.cancel();
     // _tagsController is managed by Autocomplete
     super.dispose();
   }
@@ -640,7 +644,8 @@ class _AddBookScreenState extends State<AddBookScreen> {
                   textEditingController: _titleController,
                   focusNode: _titleFocusNode,
                   optionsBuilder: (TextEditingValue textEditingValue) async {
-                    if (textEditingValue.text.isEmpty) {
+                    if (textEditingValue.text.isEmpty ||
+                        textEditingValue.text.length < 3) {
                       return const Iterable<Map<String, dynamic>>.empty();
                     }
 
@@ -650,55 +655,78 @@ class _AddBookScreenState extends State<AddBookScreen> {
                       return cached;
                     }
 
-                    // Use unified search via backend API (respects enabled sources)
-                    final api = Provider.of<ApiService>(context, listen: false);
-                    final results = await api.searchBooks(
-                      query: textEditingValue.text,
-                      lang: Localizations.localeOf(context).languageCode,
-                    );
+                    // Debounce search
+                    if (_debounce?.isActive ?? false) _debounce!.cancel();
 
-                    // Filter out "Independently Published" (POD/self-published reprints)
-                    final filteredResults = results.where((book) {
-                      final publisher = book['publisher'] as String?;
-                      return publisher != 'Independently Published';
-                    }).toList();
+                    final completer =
+                        Completer<Iterable<Map<String, dynamic>>>();
+                    _debounce = Timer(const Duration(milliseconds: 500), () async {
+                      try {
+                        // Use unified search via backend API (respects enabled sources)
+                        final api = Provider.of<ApiService>(
+                          context,
+                          listen: false,
+                        );
+                        final results = await api.searchBooks(
+                          query: textEditingValue.text,
+                          lang: Localizations.localeOf(context).languageCode,
+                          autocomplete: true,
+                        );
 
-                    // Cache the results
-                    _searchCache.set(textEditingValue.text, filteredResults);
+                        // Filter out "Independently Published" (POD/self-published reprints)
+                        final filteredResults = results.where((book) {
+                          final publisher = book['publisher'] as String?;
+                          return publisher != 'Independently Published';
+                        }).toList();
 
-                    return filteredResults;
+                        // Cache the results
+                        _searchCache.set(
+                          textEditingValue.text,
+                          filteredResults,
+                        );
+
+                        if (!completer.isCompleted) {
+                          completer.complete(filteredResults);
+                        }
+                      } catch (e) {
+                        debugPrint('Autocomplete Error: $e');
+                        if (!completer.isCompleted) {
+                          completer.complete(
+                            const Iterable<Map<String, dynamic>>.empty(),
+                          );
+                        }
+                      }
+                    });
+
+                    return completer.future;
                   },
                   displayStringForOption: (option) => option['title'] ?? '',
-                  onSelected: (Map<String, dynamic> selection) {
-                    setState(() {
-                      if (selection['title'] != null)
-                        _titleController.text = selection['title'];
+                  onSelected: (Map<String, dynamic> selection) async {
+                    // Get current search query
+                    final searchQuery = _titleController.text;
 
-                      // Handle authors
-                      if (selection['authors'] != null &&
-                          selection['authors'] is List) {
-                        _authors.clear();
-                        final list = selection['authors'] as List;
-                        _authors.addAll(list.map((e) => e.toString()));
-                        _authorController.text = _authors.join(', ');
-                      } else if (selection['author'] != null) {
-                        _authorController.text = selection['author'];
-                        _authors.clear();
-                        _authors.add(selection['author']);
+                    // Find all editions for this work from cached results
+                    final editions = _findEditionsForWork(
+                      selection,
+                      searchQuery,
+                    );
+
+                    if (editions.length > 1) {
+                      // Multiple editions found - show picker
+                      final selectedEdition = await EditionPickerSheet.show(
+                        context: context,
+                        title: selection['title'] ?? '',
+                        author: selection['author'] as String?,
+                        editions: editions,
+                      );
+
+                      if (selectedEdition != null && mounted) {
+                        _fillFormFromSelection(selectedEdition);
                       }
-
-                      if (selection['isbn'] != null)
-                        _isbnController.text = selection['isbn'];
-                      if (selection['publisher'] != null)
-                        _publisherController.text = selection['publisher'];
-                      if (selection['publication_year'] != null)
-                        _publicationYearController.text =
-                            selection['publication_year'].toString();
-                      if (selection['summary'] != null)
-                        _summaryController.text = selection['summary'];
-                      if (selection['cover_url'] != null)
-                        _coverUrl = selection['cover_url'];
-                    });
+                    } else {
+                      // Single edition - fill form directly
+                      _fillFormFromSelection(selection);
+                    }
                   },
                   fieldViewBuilder:
                       (
@@ -987,7 +1015,10 @@ class _AddBookScreenState extends State<AddBookScreen> {
                 );
               }).toList(),
             ),
-            if (_authorsData != null && _authorsData!.isNotEmpty) ...[
+            if (_authorsData != null &&
+                _authorsData!.isNotEmpty &&
+                (_authors.isNotEmpty ||
+                    _authorController.text.trim().isNotEmpty)) ...[
               const SizedBox(height: 16),
               ..._authorsData!.map((author) {
                 if (author is! Map) return const SizedBox.shrink();
@@ -1422,18 +1453,126 @@ class _AddBookScreenState extends State<AddBookScreen> {
     if (langCode == null || langCode.isEmpty) return '';
     final code = langCode.toLowerCase();
     const langMap = {
-      'fr': 'FR', 'fre': 'FR', 'fra': 'FR', 'french': 'FR',
-      'en': 'EN', 'eng': 'EN', 'english': 'EN',
-      'es': 'ES', 'spa': 'ES', 'spanish': 'ES',
-      'de': 'DE', 'ger': 'DE', 'deu': 'DE', 'german': 'DE',
-      'it': 'IT', 'ita': 'IT', 'italian': 'IT',
-      'pt': 'PT', 'por': 'PT', 'portuguese': 'PT',
-      'nl': 'NL', 'dut': 'NL', 'nld': 'NL', 'dutch': 'NL',
-      'ru': 'RU', 'rus': 'RU', 'russian': 'RU',
-      'ja': 'JA', 'jpn': 'JA', 'japanese': 'JA',
-      'zh': 'ZH', 'chi': 'ZH', 'zho': 'ZH', 'chinese': 'ZH',
+      'fr': 'FR',
+      'fre': 'FR',
+      'fra': 'FR',
+      'french': 'FR',
+      'en': 'EN',
+      'eng': 'EN',
+      'english': 'EN',
+      'es': 'ES',
+      'spa': 'ES',
+      'spanish': 'ES',
+      'de': 'DE',
+      'ger': 'DE',
+      'deu': 'DE',
+      'german': 'DE',
+      'it': 'IT',
+      'ita': 'IT',
+      'italian': 'IT',
+      'pt': 'PT',
+      'por': 'PT',
+      'portuguese': 'PT',
+      'nl': 'NL',
+      'dut': 'NL',
+      'nld': 'NL',
+      'dutch': 'NL',
+      'ru': 'RU',
+      'rus': 'RU',
+      'russian': 'RU',
+      'ja': 'JA',
+      'jpn': 'JA',
+      'japanese': 'JA',
+      'zh': 'ZH',
+      'chi': 'ZH',
+      'zho': 'ZH',
+      'chinese': 'ZH',
     };
-    return langMap[code] ?? code.toUpperCase().substring(0, 2);
+    return langMap[code] ??
+        code.toUpperCase().substring(0, min(2, code.length));
+  }
+
+  /// Normalize a title for grouping by work (title + author)
+  String _normalizeTitle(String title) {
+    return title
+        .toLowerCase()
+        .replaceAll(RegExp(r'[^\w\s]'), '')
+        .replaceAll(RegExp(r'\s+'), ' ')
+        .trim();
+  }
+
+  /// Fill form fields from a selected book/edition
+  void _fillFormFromSelection(Map<String, dynamic> selection) {
+    setState(() {
+      if (selection['title'] != null) {
+        _titleController.text = selection['title'];
+      }
+
+      // Handle authors
+      if (selection['authors'] != null && selection['authors'] is List) {
+        _authors.clear();
+        final list = selection['authors'] as List;
+        _authors.addAll(list.map((e) => e.toString()));
+        _authorController.text = _authors.join(', ');
+      } else if (selection['author'] != null) {
+        _authorController.text = selection['author'];
+        _authors.clear();
+        _authors.add(selection['author']);
+      }
+
+      if (selection['isbn'] != null) {
+        _isbnController.text = selection['isbn'];
+      }
+      if (selection['publisher'] != null) {
+        _publisherController.text = selection['publisher'];
+      }
+      if (selection['publication_year'] != null) {
+        _publicationYearController.text = selection['publication_year']
+            .toString();
+      }
+      if (selection['summary'] != null) {
+        _summaryController.text = selection['summary'];
+      }
+      if (selection['cover_url'] != null) {
+        _coverUrl = selection['cover_url'];
+      }
+    });
+  }
+
+  /// Find all editions for a work from cached results
+  List<Map<String, dynamic>> _findEditionsForWork(
+    Map<String, dynamic> selectedWork,
+    String searchQuery,
+  ) {
+    // Get cached results for this query
+    final cachedResults = _searchCache.get(searchQuery);
+    if (cachedResults == null) return [selectedWork];
+
+    final selectedTitle = _normalizeTitle(selectedWork['title'] ?? '');
+    final selectedAuthor =
+        (selectedWork['author'] as String?)?.toLowerCase().trim() ?? '';
+
+    // Find all editions with matching title and author
+    final editions = cachedResults.where((book) {
+      final bookTitle = _normalizeTitle(book['title'] ?? '');
+      final bookAuthor =
+          (book['author'] as String?)?.toLowerCase().trim() ?? '';
+
+      // Match by normalized title (author can be slightly different)
+      if (bookTitle != selectedTitle) return false;
+
+      // If both have authors, they should be similar
+      if (selectedAuthor.isNotEmpty && bookAuthor.isNotEmpty) {
+        // Check if one contains the other (handles "John Smith" vs "Smith, John")
+        return bookAuthor.contains(selectedAuthor.split(' ').first) ||
+            selectedAuthor.contains(bookAuthor.split(' ').first);
+      }
+
+      return true;
+    }).toList();
+
+    // If no matches found, return just the selected work
+    return editions.isEmpty ? [selectedWork] : editions;
   }
 
   Color _getCoverColor(String title) {

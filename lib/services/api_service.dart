@@ -2663,6 +2663,7 @@ class ApiService {
     lang, // User's preferred language for relevance boost (e.g., "fr", "en")
     String?
     source, // Filter to specific source(s): "inventaire", "bnf", "openlibrary" (comma-separated)
+    bool autocomplete = false,
   }) async {
     try {
       // Ensure embedded HTTP server is running (auto-restart if needed)
@@ -2684,6 +2685,7 @@ class ApiService {
         queryParams['subject'] = subject;
       if (lang != null && lang.isNotEmpty) queryParams['lang'] = lang;
       if (source != null && source.isNotEmpty) queryParams['source'] = source;
+      if (autocomplete) queryParams['autocomplete'] = true;
 
       // Use a new Dio instance with longer timeout for external search
       // External sources (Inventaire, OpenLibrary, BNF) can take 10+ seconds

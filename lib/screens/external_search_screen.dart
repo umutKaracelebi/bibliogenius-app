@@ -186,9 +186,83 @@ class _ExternalSearchScreenState extends State<ExternalSearchScreen> {
         .trim();
   }
 
+  /// Check if a book's language matches the user's preferred language
+  /// Handles various language code formats (2-letter, 3-letter, full names)
+  bool _langMatches(String bookLang, String userLang) {
+    if (bookLang.isEmpty || userLang.isEmpty) return false;
+
+    final b = bookLang.toLowerCase();
+    final u = userLang.toLowerCase();
+
+    if (b == u) return true;
+
+    // Common language code mappings
+    const langMap = {
+      'fr': ['fre', 'fra', 'french', 'français'],
+      'en': ['eng', 'english'],
+      'es': ['spa', 'spanish', 'español'],
+      'de': ['ger', 'deu', 'german', 'deutsch'],
+      'it': ['ita', 'italian', 'italiano'],
+      'pt': ['por', 'portuguese', 'português'],
+      'nl': ['dut', 'nld', 'dutch', 'nederlands'],
+      'ru': ['rus', 'russian'],
+      'ja': ['jpn', 'japanese'],
+      'zh': ['chi', 'zho', 'chinese'],
+    };
+
+    // Check if both codes map to the same language
+    for (final entry in langMap.entries) {
+      final codes = [entry.key, ...entry.value];
+      if (codes.contains(b) && codes.contains(u)) {
+        return true;
+      }
+    }
+
+    return false;
+  }
+
+  /// Calculate title relevance score (how well title matches search query)
+  int _titleRelevanceScore(String title, String searchQuery) {
+    if (searchQuery.isEmpty) return 0;
+
+    final normalizedTitle = _normalizeTitle(title);
+    final normalizedQuery = _normalizeTitle(searchQuery);
+
+    // Exact match
+    if (normalizedTitle == normalizedQuery) return 1000;
+
+    // Title starts with query (e.g., "Martin Eden" starts with "Martin Eden")
+    if (normalizedTitle.startsWith(normalizedQuery)) return 800;
+
+    // Query is contained in title as a complete phrase
+    if (normalizedTitle.contains(normalizedQuery)) return 600;
+
+    // All query words are in title
+    final queryWords = normalizedQuery
+        .split(' ')
+        .where((w) => w.length > 2)
+        .toSet();
+    final titleWords = normalizedTitle.split(' ').toSet();
+    if (queryWords.isNotEmpty &&
+        queryWords.every((w) => titleWords.any((t) => t.contains(w)))) {
+      return 400;
+    }
+
+    // Some query words match
+    final matchingWords = queryWords
+        .where((w) => titleWords.any((t) => t.contains(w)))
+        .length;
+    if (matchingWords > 0) {
+      return (matchingWords * 100) ~/ queryWords.length;
+    }
+
+    return 0;
+  }
+
   /// Group search results by work (title + author combination)
   List<Map<String, dynamic>> _groupResultsByWork(
     List<Map<String, dynamic>> results,
+    String searchQuery,
   ) {
     final Map<String, Map<String, dynamic>> workMap = {};
 
@@ -215,20 +289,59 @@ class _ExternalSearchScreenState extends State<ExternalSearchScreen> {
       }
     }
 
-    // Sort editions within each work by publication year (newest first)
+    // Sort editions within each work using a quality score
+    // Score: language match (100) + cover (30) + publisher (20) + ISBN (10)
+    final userLang = _selectedLanguage?.toLowerCase() ?? '';
+
+    int editionScore(Map<String, dynamic> edition) {
+      int score = 0;
+
+      // Language match is top priority
+      if (userLang.isNotEmpty) {
+        final lang = (edition['language'] as String?)?.toLowerCase() ?? '';
+        if (_langMatches(lang, userLang)) {
+          score += 100;
+        } else if (lang.isNotEmpty) {
+          score -= 50; // Penalty for explicit non-matching language
+        }
+      }
+
+      // Metadata completeness
+      if ((edition['cover_url'] as String?)?.isNotEmpty == true) score += 30;
+      if ((edition['publisher'] as String?)?.isNotEmpty == true) score += 20;
+      if ((edition['isbn'] as String?)?.isNotEmpty == true) score += 10;
+
+      // De-prioritize Google Books (tie-breaker for same quality)
+      if ((edition['source'] as String?) == 'Google') score -= 5;
+
+      return score;
+    }
+
+    // Helper to create a unique key for deduplication
+    String editionKey(Map<String, dynamic> edition) {
+      final title = (edition['title'] as String?)?.toLowerCase().trim() ?? '';
+      final cover = (edition['cover_url'] as String?) ?? '';
+      final publisher =
+          (edition['publisher'] as String?)?.toLowerCase().trim() ?? '';
+      final year = edition['publication_year']?.toString() ?? '';
+      // Deduplicate based on visual attributes (what the user sees)
+      // Ignoring ISBN here ensures that an edition with ISBN and one without
+      // are considered duplicates if they look the same.
+      return '$title|$cover|$publisher|$year';
+    }
+
     for (final work in workMap.values) {
       final editions = (work['editions'] as List).cast<Map<String, dynamic>>();
+
+      // Sort first
       editions.sort((a, b) {
-        // 1. Prioritize editions that HAVE an ISBN
-        final isbnA = a['isbn'] as String?;
-        final isbnB = b['isbn'] as String?;
-        final hasIsbnA = isbnA != null && isbnA.isNotEmpty;
-        final hasIsbnB = isbnB != null && isbnB.isNotEmpty;
+        final scoreA = editionScore(a);
+        final scoreB = editionScore(b);
 
-        if (hasIsbnA && !hasIsbnB) return -1; // a comes first
-        if (!hasIsbnA && hasIsbnB) return 1; // b comes first
+        // Higher score comes first
+        if (scoreA != scoreB) return scoreB.compareTo(scoreA);
 
-        // 2. Then sort by publication year (newest first)
+        // Tie-breaker: publication year (newest first)
         final yearA = a['publication_year'] as int?;
         final yearB = b['publication_year'] as int?;
         if (yearA == null && yearB == null) return 0;
@@ -236,9 +349,56 @@ class _ExternalSearchScreenState extends State<ExternalSearchScreen> {
         if (yearB == null) return -1;
         return yearB.compareTo(yearA);
       });
+
+      // Then deduplicate: keep first occurrence (best quality) of each unique edition
+      final seenKeys = <String>{};
+      editions.removeWhere((edition) {
+        final key = editionKey(edition);
+        if (seenKeys.contains(key)) {
+          return true; // Remove duplicate
+        }
+        seenKeys.add(key);
+        return false; // Keep first occurrence
+      });
     }
 
-    return workMap.values.toList();
+    // Sort works by: 1) title relevance, 2) number of editions (popularity), 3) quality score
+    final worksList = workMap.values.toList();
+    worksList.sort((a, b) {
+      final titleA = a['title'] as String? ?? '';
+      final titleB = b['title'] as String? ?? '';
+      final editionsA = (a['editions'] as List).cast<Map<String, dynamic>>();
+      final editionsB = (b['editions'] as List).cast<Map<String, dynamic>>();
+
+      // FIRST: Title relevance is the most important criterion
+      final titleScoreA = _titleRelevanceScore(titleA, searchQuery);
+      final titleScoreB = _titleRelevanceScore(titleB, searchQuery);
+
+      if (titleScoreA != titleScoreB) {
+        return titleScoreB.compareTo(
+          titleScoreA,
+        ); // Higher title relevance first
+      }
+
+      // SECOND: Number of editions (popularity indicator)
+      // More editions = more popular/important book
+      final editionCountA = editionsA.length;
+      final editionCountB = editionsB.length;
+
+      if (editionCountA != editionCountB) {
+        return editionCountB.compareTo(editionCountA); // More editions first
+      }
+
+      // THIRD: Compare by best edition's quality score (language + metadata)
+      if (editionsA.isEmpty || editionsB.isEmpty) return 0;
+
+      final qualityScoreA = editionScore(editionsA.first);
+      final qualityScoreB = editionScore(editionsB.first);
+
+      return qualityScoreB.compareTo(qualityScoreA); // Higher quality first
+    });
+
+    return worksList;
   }
 
   Future<void> _search() async {
@@ -264,18 +424,18 @@ class _ExternalSearchScreenState extends State<ExternalSearchScreen> {
 
     try {
       final api = Provider.of<ApiService>(context, listen: false);
-      // Use selected language, or fallback to user's locale for boosting
-      final userLang = Localizations.localeOf(context).languageCode;
-      final langForBoost = _selectedLanguage ?? userLang;
+      // Language filter logic:
+      // - If user selected a specific language -> use that (strict filter)
+      // - If user selected "All languages" (null) -> no filter (show all)
+      // - Default on first load: user's language is pre-selected
+      final langFilter = _selectedLanguage; // null means "all languages"
 
       // Use unified search (Inventaire + OpenLibrary + BNF)
-      // Send the main input as 'query' (q) to allow for ISBNs and general search
       final results = await api.searchBooks(
-        query: _titleController.text, // Main input mapped to 'query' (q)
-        // title: _titleController.text, // REMOVED: Don't send as title
+        title: _titleController.text,
         author: _authorController.text,
         subject: _subjectController.text,
-        lang: langForBoost, // Boost results in this language
+        lang: langFilter, // Filter/boost by language (null = no filter)
         source: _upstreamSource, // Filter to specific source(s)
       );
 
@@ -288,7 +448,9 @@ class _ExternalSearchScreenState extends State<ExternalSearchScreen> {
 
       setState(() {
         _searchResults = results;
-        _groupedWorks = _groupResultsByWork(results);
+        // Use title search query for relevance sorting
+        final searchQuery = _titleController.text;
+        _groupedWorks = _groupResultsByWork(results, searchQuery);
         _availableSources = sources;
         // Debug: Print grouping info
         debugPrint('🔍 Search returned ${results.length} results');

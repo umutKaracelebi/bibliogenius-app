@@ -308,8 +308,24 @@ class _ExternalSearchScreenState extends State<ExternalSearchScreen> {
 
       // Metadata completeness
       if ((edition['cover_url'] as String?)?.isNotEmpty == true) score += 30;
-      if ((edition['publisher'] as String?)?.isNotEmpty == true) score += 20;
       if ((edition['isbn'] as String?)?.isNotEmpty == true) score += 10;
+
+      // Publisher scoring: reward good publishers, penalize self-publishing
+      final publisher =
+          (edition['publisher'] as String?)?.toLowerCase().trim() ?? '';
+      if (publisher.isNotEmpty) {
+        // Heavy penalty for self-publishing platforms (low metadata quality)
+        if (publisher.contains('createspace') ||
+            publisher.contains('independently published') ||
+            publisher.contains('autopublié') ||
+            publisher.contains('auto-édition') ||
+            publisher.contains('lulu.com') ||
+            publisher.contains('kindle direct')) {
+          score -= 150; // Strong penalty to push after real publishers
+        } else {
+          score += 20; // Bonus for having a legitimate publisher
+        }
+      }
 
       // De-prioritize Google Books (tie-breaker for same quality)
       if ((edition['source'] as String?) == 'Google') score -= 25;

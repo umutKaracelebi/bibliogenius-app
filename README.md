@@ -1,111 +1,90 @@
 # BiblioGenius App - Flutter
 
-Cross-platform mobile and desktop application for managing your library.
+[![Build Status](https://img.shields.io/badge/build-passing-brightgreen)](https://github.com/bibliogenius/bibliogenius-app/actions)
+[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
+[![Platform](https://img.shields.io/badge/platform-iOS%20|%20Android%20|%20macOS%20|%20Windows%20|%20Linux-blue)](https://flutter.dev)
 
-## Tech Stack
+**Cross-platform mobile and desktop application for managing your personal library.**
 
-- **Framework**: Flutter/Dart
-- **Backend**: Rust (embedded via FFI with Flutter Rust Bridge)
-- **Build System**: Cargokit (automatic Rust compilation)
-- **State Management**: Provider
-- **Local Storage**: SQLite (via Rust backend)
-- **HTTP Client**: Dio
+The official frontend for BiblioGenius, built with Flutter. It embeds the Rust backend for high-performance offline capabilities.
 
-## Platforms
+## 🚀 Features
 
-- Android
-- iOS
-- Windows
-- macOS
-- Linux
-- Web (limited features, HTTP mode only)
+- **Universal App**: Works on phones, tablets, and desktops.
+- **Offline First**: Manage your library without internet.
+- **Scanner**: Barcode scanning for quick book entry.
+- **Beautiful UI**: Modern, responsive design.
 
-## Features
+## 📋 Prerequisites
 
-- **Embedded Rust backend** — No separate server needed!
-- Browse and search books
-- Add/edit books via ISBN scan
-- Barcode scanning (ISBN lookup)
-- Offline-first with local SQLite database
-- P2P sharing with other BiblioGenius users (mDNS discovery)
-- Gamification and achievements
+- **Flutter SDK**: Stable channel ([Install Guide](https://docs.flutter.dev/get-started/install))
+- **Rust**: For compiling the backend (`rustup update stable`)
+- **Xcode / Android Studio**: For mobile development
 
-## 🏗️ Architecture
-
-The Rust backend is **embedded directly** into the Flutter app via FFI (Foreign Function Interface):
-
-```text
-┌────────────────────────────────────┐
-│  BiblioGenius App                  │
-│  ├── Flutter UI (Dart)             │
-│  └── Rust Backend (via FFI)        │
-│      └── SQLite Database           │
-└────────────────────────────────────┘
-```
-
-**Cargokit** (in `rust_builder/cargokit/`) handles automatic Rust compilation when you run `flutter run`.
-
-## Getting Started
-
-### Prerequisites
-
-- [Flutter SDK](https://docs.flutter.dev/get-started/install)
-- [Rust](https://rustup.rs/) (for native builds)
-- Xcode (macOS/iOS) or Android Studio (Android)
-
-### Run the App
+## ⚡ Quick Start
 
 ```bash
+# Clone repository
+git clone https://github.com/bibliogenius/bibliogenius-app.git
+cd bibliogenius-app
+
 # Get dependencies
 flutter pub get
 
-# Run on desktop (Rust compiles automatically!)
-flutter run -d macos
-
-# Run on mobile
-flutter run -d ios
-flutter run -d android
+# Run on connected device or emulator
+flutter run
 ```
 
-> **Note**: You do NOT need to run `cargo run` separately. The Rust backend is compiled automatically by Cargokit when you run `flutter run`.
+> **Note**: The first build may take longer as it compiles the Rust backend.
 
-### Build for Release
+## 🏗️ Architecture
+
+- **Frontend**: Flutter (Dart)
+- **Backend**: Rust (via [flutter_rust_bridge](https://github.com/fzyzcjy/flutter_rust_bridge))
+- **State Management**: Provider
+- **Networking**: Dio (for external APIs) & Rust FFI (for local DB)
+
+## 🛠️ Development Setup
+
+### Code Generation
+
+If you modify the Rust API or Dart models, run:
 
 ```bash
-flutter build apk      # Android
-flutter build ios      # iOS
-flutter build macos    # macOS
+# Generate Freezed models & JSON serialization
+flutter pub run build_runner build --delete-conflicting-outputs
 ```
 
-## Development
+### Platform Specifics
 
-### Modifying Rust Code
+<details>
+<summary>macOS / iOS</summary>
 
-Edit files in `../bibliogenius/src/`, then run `flutter run`. Changes are detected and recompiled automatically.
-
-### Troubleshooting
+Ensure you have CocoaPods installed if deploying to iOS:
 
 ```bash
-# Clean build (if you encounter strange errors)
-flutter clean
-flutter pub get
-flutter run -d macos
-
-# Full clean including Rust cache
-cd ../bibliogenius && cargo clean
-cd ../bibliogenius-app && flutter clean && flutter run -d macos
+sudo gem install cocoapods
 ```
 
-See [DEVELOPMENT_SETUP.md](../bibliogenius-docs/docs/technical/DEVELOPMENT_SETUP.md) for detailed documentation.
+</details>
 
-## 🗺️ Roadmap
+<details>
+<summary>Linux</summary>
 
-| Version | Status | Focus |
-|---------|--------|-------|
-| **In Development** | ✅ Current | Personal library + LAN sync |
-| v1.0.0 | Q1 2026 | Stable P2P on local network |
-| v2.0.0 | Q2-Q3 2026 | Global P2P + Social Features |
+Install build dependencies:
 
-## Repository
+```bash
+sudo apt-get install clang cmake pkg-config libgtk-3-dev
+```
 
-<https://github.com/bibliogenius/bibliogenius-app>
+</details>
+
+## 🔗 Related Repositories
+
+- [**bibliogenius**](https://github.com/bibliogenius/bibliogenius): The embedded Rust backend.
+- [**bibliogenius-docker**](https://github.com/bibliogenius/bibliogenius-docker): Backend development env.
+- [**bibliogenius-docs**](https://github.com/bibliogenius/bibliogenius-docs): Documentation Hub.
+
+## 📄 License
+
+This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.

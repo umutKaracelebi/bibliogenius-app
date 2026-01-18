@@ -1,6 +1,8 @@
 import 'dart:math';
 import 'package:flutter/material.dart';
 
+import '../services/translation_service.dart';
+
 /// A celebratory animation when the user levels up on a gamification track.
 /// Use [LevelUpAnimation.show] to display it.
 class LevelUpAnimation {
@@ -220,8 +222,11 @@ class _LevelUpAnimationWidgetState extends State<_LevelUpAnimationWidget>
                                 widget.trackColor,
                               ],
                             ).createShader(bounds),
-                            child: const Text(
-                              'LEVEL UP!',
+                            child: Text(
+                              TranslationService.translate(
+                                context,
+                                'level_up',
+                              ).toUpperCase(),
                               style: TextStyle(
                                 fontSize: 42,
                                 fontWeight: FontWeight.w900,

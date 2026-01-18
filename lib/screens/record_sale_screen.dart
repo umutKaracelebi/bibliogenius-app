@@ -79,7 +79,7 @@ class _RecordSaleScreenState extends State<RecordSaleScreen> {
     try {
       final response = await apiService.getContacts();
       if (!mounted) return null;
-      Navigator.pop(context); // Close loading
+      Navigator.of(context, rootNavigator: true).pop(); // Close loading dialog
 
       if (response.statusCode != 200) {
         ScaffoldMessenger.of(context).showSnackBar(
@@ -90,7 +90,7 @@ class _RecordSaleScreenState extends State<RecordSaleScreen> {
         return null;
       }
 
-      final List<Contact> contacts = (response.data as List)
+      final List<Contact> contacts = (response.data['contacts'] as List)
           .map((json) => Contact.fromJson(json))
           .toList();
 
@@ -169,7 +169,10 @@ class _RecordSaleScreenState extends State<RecordSaleScreen> {
       );
     } catch (e) {
       if (mounted) {
-        Navigator.pop(context); // Close loading if still open
+        Navigator.of(
+          context,
+          rootNavigator: true,
+        ).pop(); // Close loading if still open
         ScaffoldMessenger.of(
           context,
         ).showSnackBar(SnackBar(content: Text('Error: $e')));

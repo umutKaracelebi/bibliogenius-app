@@ -56,9 +56,6 @@ class _AudioSectionState extends State<AudioSection> {
     _searchTriggered = true;
     // Use addPostFrameCallback to avoid setState during build
     WidgetsBinding.instance.addPostFrameCallback((_) {
-      debugPrint(
-        '[AudioSection] Triggering search for bookId: ${widget.bookId}',
-      );
       provider.searchAudiobook(
         bookId: widget.bookId,
         title: widget.bookTitle,
@@ -88,29 +85,29 @@ class _AudioSectionState extends State<AudioSection> {
   Widget build(BuildContext context) {
     final provider = context.watch<AudioProvider>();
 
-    debugPrint('[AudioSection] build() - bookId: ${widget.bookId}');
-    debugPrint('[AudioSection]   isEnabled: ${provider.isEnabled}');
-    debugPrint('[AudioSection]   isInitialized: ${provider.isInitialized}');
-    debugPrint('[AudioSection]   isWifiConnected: ${provider.isWifiConnected}');
-    debugPrint(
-      '[AudioSection]   isSearching: ${provider.isSearching(widget.bookId)}',
-    );
-    debugPrint(
-      '[AudioSection]   hasSearched: ${provider.hasSearched(widget.bookId)}',
-    );
-    debugPrint(
-      '[AudioSection]   audioResource: ${provider.getAudioResource(widget.bookId)}',
-    );
+    // debugPrint('[AudioSection] build() - bookId: ${widget.bookId}');
+    // debugPrint('[AudioSection]   isEnabled: ${provider.isEnabled}');
+    // debugPrint('[AudioSection]   isInitialized: ${provider.isInitialized}');
+    // debugPrint('[AudioSection]   isWifiConnected: ${provider.isWifiConnected}');
+    // debugPrint(
+    //   '[AudioSection]   isSearching: ${provider.isSearching(widget.bookId)}',
+    // );
+    // debugPrint(
+    //   '[AudioSection]   hasSearched: ${provider.hasSearched(widget.bookId)}',
+    // );
+    // debugPrint(
+    //   '[AudioSection]   audioResource: ${provider.getAudioResource(widget.bookId)}',
+    // );
 
     // Don't show anything if module is disabled
     if (!provider.isEnabled) {
-      debugPrint('[AudioSection] -> Hiding: module disabled');
+      // debugPrint('[AudioSection] -> Hiding: module disabled');
       return const SizedBox.shrink();
     }
 
     // Wait for initialization
     if (!provider.isInitialized) {
-      debugPrint('[AudioSection] -> Hiding: not initialized');
+      // debugPrint('[AudioSection] -> Hiding: not initialized');
       return const SizedBox.shrink();
     }
 
@@ -119,7 +116,7 @@ class _AudioSectionState extends State<AudioSection> {
 
     // Check if searching
     if (provider.isSearching(widget.bookId)) {
-      debugPrint('[AudioSection] -> Showing: searching state');
+      // debugPrint('[AudioSection] -> Showing: searching state');
       return _buildSearchingState(context);
     }
 
@@ -130,21 +127,21 @@ class _AudioSectionState extends State<AudioSection> {
     if (audioResource == null) {
       // Only show "not found" if we've actually searched
       if (provider.hasSearched(widget.bookId)) {
-        debugPrint('[AudioSection] -> Hiding: searched but not found');
+        // debugPrint('[AudioSection] -> Hiding: searched but not found');
         return const SizedBox.shrink(); // Silently hide if not found
       }
-      debugPrint('[AudioSection] -> Hiding: not yet searched');
+      // debugPrint('[AudioSection] -> Hiding: not yet searched');
       return const SizedBox.shrink();
     }
 
     // Check WiFi for streaming
     if (!provider.isWifiConnected) {
-      debugPrint('[AudioSection] -> Showing: WiFi required state');
+      // debugPrint('[AudioSection] -> Showing: WiFi required state');
       return _buildWifiRequiredState(context, audioResource);
     }
 
     // Show player
-    debugPrint('[AudioSection] -> Showing: audio player!');
+    // debugPrint('[AudioSection] -> Showing: audio player!');
     return Padding(
       padding: const EdgeInsets.symmetric(vertical: 8),
       child: GestureDetector(

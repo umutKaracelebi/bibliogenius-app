@@ -69,7 +69,7 @@ class Contact {
   factory Contact.fromJson(Map<String, dynamic> json) {
     return Contact(
       id: json['id'] as int?,
-      type: json['type'] as String,
+      type: (json['type'] ?? json['contact_type'] ?? 'borrower') as String,
       name: json['name'] as String,
       firstName: json['first_name'] as String?,
       email: json['email'] as String?,
@@ -83,7 +83,7 @@ class Contact {
       longitude: (json['longitude'] as num?)?.toDouble(),
       notes: json['notes'] as String?,
       userId: json['user_id'] as int?,
-      libraryOwnerId: json['library_owner_id'] as int,
+      libraryOwnerId: (json['library_owner_id'] as int?) ?? 1,
       isActive: json['is_active'] as bool? ?? true,
     );
   }

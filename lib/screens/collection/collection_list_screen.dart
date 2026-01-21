@@ -5,6 +5,7 @@ import '../../services/api_service.dart';
 import '../../services/translation_service.dart';
 import '../../models/collection.dart';
 import 'import_curated_list_screen.dart' as import_curated;
+import 'import_shared_list_screen.dart';
 import '../../widgets/genie_app_bar.dart';
 
 class CollectionListScreen extends StatefulWidget {
@@ -137,6 +138,23 @@ class _CollectionListScreenState extends State<CollectionListScreen> {
                 MaterialPageRoute(
                   builder: (context) =>
                       const import_curated.ImportCuratedListScreen(),
+                ),
+              );
+              if (result == true) {
+                _refreshCollections();
+              }
+            },
+          ),
+          const SizedBox(width: 4),
+          // Import shared file button
+          IconButton(
+            icon: const Icon(Icons.file_open, color: Colors.white),
+            tooltip: 'Import shared list',
+            onPressed: () async {
+              final result = await Navigator.push(
+                context,
+                MaterialPageRoute(
+                  builder: (context) => const ImportSharedListScreen(),
                 ),
               );
               if (result == true) {

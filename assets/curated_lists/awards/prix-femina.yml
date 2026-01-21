@@ -1,0 +1,40 @@
+# Prix Femina
+# Source officielle : prixfemina.org
+id: prix-femina
+version: 1
+
+title:
+  fr: Prix Femina
+  en: Prix Femina
+  de: Prix Femina
+  es: Premio Femina
+
+description:
+  fr: "Le prix Femina, décerné par un jury exclusivement féminin. Source : prixfemina.org"
+  en: "The Femina Prize, awarded by an all-female jury. Source: prixfemina.org"
+  de: "Der Femina-Preis, von einer rein weiblichen Jury verliehen. Quelle: prixfemina.org"
+  es: "El Premio Femina, otorgado por un jurado exclusivamente femenino. Fuente: prixfemina.org"
+
+source_url: "https://www.prixfemina.org/"
+contributor: BiblioGenius
+tags: [prix, femina, français]
+
+books:
+  - isbn: "9782073010124"
+    note: "Karoline Georges - De synthèse (2024)"
+  - isbn: "9782072985447"
+    note: "Éric Reinhardt - Sarah, Susanne et l'écrivain (2023)"
+  - isbn: "9782072968808"
+    note: "Giuliano da Empoli - Le Mage du Kremlin (2022)"
+  - isbn: "9782072890864"
+    note: "Clara Dupont-Monod - S'adapter (2021)"
+  - isbn: "9782072848018"
+    note: "Serge Joncour - Nature humaine (2020)"
+  - isbn: "9782072801327"
+    note: "Sylvie Germain - Jours de colère (2019)"
+  - isbn: "9782070197712"
+    note: "Philippe Jaenada - La Serpe (2017)"
+  - isbn: "9782070117635"
+    note: "Yanick Lahens - Bain de lune (2014)"
+  - isbn: "9782253134329"
+    note: "Sorj Chalandon - Retour à Killybegs (2011)"

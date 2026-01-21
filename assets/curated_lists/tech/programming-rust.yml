@@ -1,0 +1,30 @@
+# Rust - Systems Programming
+# Sources: Rust-lang.org
+id: programming-rust
+version: 1
+
+title:
+  fr: Rust - Programmation Système
+  en: Rust - Systems Programming
+  de: Rust - Systemprogrammierung
+  es: Rust - Programación de Sistemas
+
+description:
+  fr: "Le langage Rust : sécurité, performance et concurrence."
+  en: "The Rust language: safety, speed, and concurrency."
+  de: "Die Rust-Sprache: Sicherheit, Geschwindigkeit und Nebenläufigkeit."
+  es: "El lenguaje Rust: seguridad, velocidad y concurrencia."
+
+source_url: "https://www.rust-lang.org/"
+contributor: BiblioGenius
+tags: [informatique, rust, système, backend, securité]
+
+books:
+  - isbn: "9781718503106"
+    note: "Steve Klabnik - The Rust Programming Language (2nd Edition)"
+  - isbn: "9781492052593"
+    note: "Jim Blandy - Programming Rust (2nd Edition - O'Reilly)"
+  - isbn: "9781617294556"
+    note: "Tim McNamara - Rust in Action"
+  - isbn: "9781593278410"
+    note: "Jon Gjengset - Rust for Rustaceans"

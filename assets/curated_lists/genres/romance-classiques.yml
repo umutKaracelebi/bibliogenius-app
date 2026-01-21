@@ -1,0 +1,42 @@
+# Romance - Classiques et Contemporains
+# Sources : RWA RITA Awards, Goodreads Romance
+id: romance-classiques
+version: 1
+
+title:
+  fr: Romance - Classiques et Contemporains
+  en: Romance - Classics and Contemporary
+  de: Romantik - Klassiker und Zeitgenössisch
+  es: Romance - Clásicos y Contemporáneos
+
+description:
+  fr: "Les romans romantiques incontournables. Sources : RWA RITA Awards, Goodreads Romance."
+  en: "Must-read romance novels. Sources: RWA RITA Awards, Goodreads Romance."
+  de: "Unverzichtbare Liebesromane. Quellen: RWA RITA Awards, Goodreads Romance."
+  es: "Novelas románticas imprescindibles. Fuentes: RWA RITA Awards, Goodreads Romance."
+
+source_url: "https://www.rwa.org/Online/Awards/Online/Awards.aspx"
+contributor: BiblioGenius
+tags: [romance, amour, contemporain]
+
+books:
+  - isbn: "9782264058249"
+    note: "Jane Austen - Orgueil et Préjugés"
+  - isbn: "9782070446056"
+    note: "Charlotte Brontë - Jane Eyre"
+  - isbn: "9782070464869"
+    note: "Emily Brontë - Les Hauts de Hurlevent"
+  - isbn: "9782266104074"
+    note: "Nicholas Sparks - Les Pages de notre amour"
+  - isbn: "9782290065242"
+    note: "Diana Gabaldon - Outlander (Le chardon et le tartan)"
+  - isbn: "9782755637083"
+    note: "Colleen Hoover - Jamais plus (It Ends with Us)"
+  - isbn: "9782757888124"
+    note: "Sally Rooney - Gens normaux (Normal People)"
+  - isbn: "9782381223551"
+    note: "Taylor Jenkins Reid - Les Sept Maris d'Evelyn Hugo"
+  - isbn: "9782290116029"
+    note: "Julia Quinn - La Chronique des Bridgerton (Tome 1)"
+  - isbn: "9782757889978"
+    note: "Delia Owens - Là où chantent les écrevisses"

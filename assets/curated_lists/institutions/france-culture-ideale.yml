@@ -1,0 +1,46 @@
+# Bibliothèque idéale de France Culture
+# Source officielle : franceculture.fr
+id: france-culture-ideale
+version: 1
+
+title:
+  fr: Bibliothèque idéale - France Culture
+  en: Ideal Library - France Culture
+  de: Ideale Bibliothek - France Culture
+  es: Biblioteca ideal - France Culture
+
+description:
+  fr: "Sélection de France Culture pour constituer sa bibliothèque idéale. Source : franceculture.fr"
+  en: "France Culture's selection to build your ideal library. Source: franceculture.fr"
+  de: "Auswahl von France Culture für Ihre ideale Bibliothek. Quelle: franceculture.fr"
+  es: "Selección de France Culture para construir tu biblioteca ideal. Fuente: franceculture.fr"
+
+source_url: "https://www.radiofrance.fr/franceculture"
+contributor: BiblioGenius
+tags: [français, culture, radio, essentiel]
+
+books:
+  - isbn: "9782070379248"
+    note: "Marcel Proust - Du côté de chez Swann (Folio)"
+  - isbn: "9782070360536"
+    note: "Albert Camus - L'Étranger"
+  - isbn: "9782070360451"
+    note: "Gustave Flaubert - Madame Bovary"
+  - isbn: "9782070411740"
+    note: "Marguerite Duras - L'Amant"
+  - isbn: "9782070368228"
+    note: "Simone de Beauvoir - Le Deuxième Sexe"
+  - isbn: "9782070360536"
+    note: "Jean-Paul Sartre - La Nausée"
+  - isbn: "9782253004226"
+    note: "Stendhal - Le Rouge et le Noir"
+  - isbn: "9782070409907"
+    note: "Patrick Modiano - Dora Bruder"
+  - isbn: "9782070414093"
+    note: "Michel Houellebecq - Les Particules élémentaires"
+  - isbn: "9782070449781"
+    note: "Annie Ernaux - Les Années"
+  - isbn: "9782253096337"
+    note: "Victor Hugo - Les Misérables (Tome 1)"
+  - isbn: "9782070411597"
+    note: "Émile Zola - Germinal"

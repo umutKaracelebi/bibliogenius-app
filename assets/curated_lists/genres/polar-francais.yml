@@ -1,0 +1,33 @@
+# Romans policiers français
+id: polar-francais
+version: 1
+
+title:
+  fr: Romans policiers français
+  en: French Crime Fiction
+  de: Französische Kriminalromane
+  es: Novela policiaca francesa
+
+description:
+  fr: "Les maîtres du polar français : suspense, enquêtes et mystères."
+  en: "Masters of French crime fiction: suspense, investigations and mysteries."
+  de: "Meister des französischen Krimis: Spannung, Ermittlungen und Geheimnisse."
+  es: "Maestros de la novela negra francesa: suspense, investigaciones y misterios."
+
+cover_url: "https://covers.openlibrary.org/b/id/8701830-L.jpg"
+contributor: BiblioGenius
+tags: [polar, thriller, français]
+
+books:
+  - isbn: "9782253168744"
+    note: "Au revoir là-haut - Pierre Lemaitre"
+  - isbn: "9782877068635"
+    note: "La Vérité sur l'Affaire Harry Quebert - Joël Dicker"
+  - isbn: "9782290019344"
+    note: "Dans les bois éternels - Fred Vargas"
+  - isbn: "9782253044901"
+    note: "Le Parfum - Patrick Süskind"
+  - isbn: "9782742778430"
+    note: "Millénium 1 - Les hommes qui n'aimaient pas les femmes - Stieg Larsson"
+  - isbn: "9782714437358"
+    note: "L'Homme qui voulait vivre sa vie - Douglas Kennedy"

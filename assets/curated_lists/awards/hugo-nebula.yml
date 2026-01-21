@@ -1,0 +1,37 @@
+id: hugo-nebula
+version: 1
+title:
+  fr: Prix Hugo (Meilleur Roman)
+  en: Hugo Award (Best Novel)
+  de: Hugo Award (Bester Roman)
+  es: Premio Hugo (Mejor Novela)
+description:
+  fr: Romans de science-fiction et de fantasy ayant remporté le prestigieux prix Hugo.
+  en: Science fiction and fantasy novels that won the prestigious Hugo Award.
+  de: Science-Fiction- und Fantasy-Romane, die den renommierten Hugo Award gewonnen
+    haben.
+  es: Novelas de ciencia ficción y fantasía ganadoras del prestigioso premio Hugo.
+cover_url: https://covers.openlibrary.org/b/id/8259443-L.jpg
+contributor: BiblioGenius
+tags:
+- prix
+- science-fiction
+- fantasy
+- anglophone
+books:
+- isbn: '9782266320481'
+  note: Dune - Frank Herbert (1966)
+- isbn: '9785050040107'
+  note: La Main gauche de la nuit - Ursula K. Le Guin (1970)
+- isbn: '9782290312841'
+  note: Neuromancien - William Gibson (1985)
+- isbn: '9782290349229'
+  note: La Stratégie Ender - Orson Scott Card (1986)
+- isbn: '9782266241915'
+  note: Hypérion - Dan Simmons (1990)
+- isbn: '9782846261562'
+  note: American Gods - Neil Gaiman (2002)
+- isbn: '9782330077020'
+  note: Le Problème à trois corps - Liu Cixin (2015)
+- isbn: '9782290157183'
+  note: La Cinquième Saison - N.K. Jemisin (2016)

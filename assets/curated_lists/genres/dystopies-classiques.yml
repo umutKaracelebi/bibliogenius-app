@@ -1,0 +1,42 @@
+# Dystopies Classiques
+# Curated thématique basée sur canons littéraires
+id: dystopies-classiques
+version: 1
+
+title:
+  fr: Dystopies Classiques
+  en: Classic Dystopias
+  de: Klassische Dystopien
+  es: Distopías Clásicas
+
+description:
+  fr: "Les romans dystopiques fondateurs et incontournables. Sources : compilations universitaires, Goodreads Best Dystopian."
+  en: "Foundational and essential dystopian novels. Sources: university compilations, Goodreads Best Dystopian."
+  de: "Grundlegende und wesentliche dystopische Romane. Quellen: Universitäts-Zusammenstellungen, Goodreads Best Dystopian."
+  es: "Novelas distópicas fundamentales y esenciales. Fuentes: compilaciones universitarias, Goodreads Best Dystopian."
+
+source_url: "https://www.goodreads.com/list/show/47.Best_Dystopian_and_Post_Apocalyptic_Fiction"
+contributor: BiblioGenius
+tags: [dystopie, science-fiction, classiques, anticipation]
+
+books:
+  - isbn: "9782070463695"
+    note: "George Orwell - 1984"
+  - isbn: "9782266283038"
+    note: "Aldous Huxley - Le Meilleur des mondes"
+  - isbn: "9782070415731"
+    note: "Ray Bradbury - Fahrenheit 451"
+  - isbn: "9782221249949"
+    note: "Margaret Atwood - La Servante écarlate"
+  - isbn: "9782330143220"
+    note: "Yevgeny Zamyatin - Nous"
+  - isbn: "9782757811610"
+    note: "Cormac McCarthy - La Route"
+  - isbn: "9782290365311"
+    note: "Philip K. Dick - Le Maître du Haut Château"
+  - isbn: "9782221198360"
+    note: "Anthony Burgess - Orange mécanique"
+  - isbn: "9782266260770"
+    note: "Suzanne Collins - Hunger Games"
+  - isbn: "9782211205825"
+    note: "Lois Lowry - Le Passeur"

@@ -1,0 +1,54 @@
+id: bbc-big-read
+version: 1
+title:
+  fr: BBC Big Read - Top 100
+  en: BBC Big Read - Top 100
+  de: BBC Big Read - Top 100
+  es: BBC Big Read - Top 100
+description:
+  fr: 'Les 100 livres préférés des Britanniques selon le sondage BBC Big Read de 2003.
+    Source : bbc.co.uk'
+  en: 'Britain''s best-loved books according to the 2003 BBC Big Read survey. Source:
+    bbc.co.uk'
+  de: 'Die beliebtesten Bücher Großbritanniens laut der BBC Big Read Umfrage 2003.
+    Quelle: bbc.co.uk'
+  es: 'Los libros favoritos de Gran Bretaña según la encuesta BBC Big Read de 2003.
+    Fuente: bbc.co.uk'
+source_url: https://www.bbc.co.uk/arts/bigread/top100.shtml
+contributor: BiblioGenius
+tags:
+- classiques
+- britannique
+- sondage
+- populaire
+books:
+- isbn: '9782070612758'
+  note: J.R.R. Tolkien - Le Seigneur des Anneaux (#1)
+- isbn: '9782070364992'
+  note: Jane Austen - Orgueil et Préjugés (#2)
+- isbn: '9782070418275'
+  note: Philip Pullman - À la croisée des mondes (#3)
+- isbn: '9780671461492'
+  note: Douglas Adams - Le Guide du voyageur galactique (#4)
+- isbn: '9782070643028'
+  note: J.K. Rowling - Harry Potter et la Coupe de Feu (#5)
+- isbn: '9782253049418'
+  note: J.R.R. Tolkien - Le Hobbit (#8)
+- isbn: '9782070364572'
+  note: William Golding - Sa Majesté des Mouches (#9)
+- isbn: '9782253004356'
+  note: Charlotte Brontë - Jane Eyre (#10)
+- isbn: '9782070368228'
+  note: George Orwell - 1984 (#13)
+- isbn: '9782070360536'
+  note: John Steinbeck - Des souris et des hommes (#16)
+- isbn: '9782070368228'
+  note: Harper Lee - Ne tirez pas sur l'oiseau moqueur (#18)
+- isbn: '9782253004226'
+  note: Daphne du Maurier - Rebecca (#14)
+- isbn: '9782070360703'
+  note: Emily Brontë - Les Hauts de Hurlevent (#12)
+- isbn: '9782264042897'
+  note: Khaled Hosseini - Les Cerfs-volants de Kaboul (#19)
+- isbn: '9782070612758'
+  note: Antoine de Saint-Exupéry - Le Petit Prince (#26)

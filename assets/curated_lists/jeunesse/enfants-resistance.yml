@@ -1,0 +1,79 @@
+id: enfants-resistance
+version: 2
+title:
+  fr: Les Enfants de la Résistance - Série complète
+  en: Children of the Resistance - Complete Series
+description:
+  fr: "Dans un village de France, trois enfants refusent de se soumettre à l'occupant allemand. Une série historique et poignante."
+  en: "In a French village, three children refuse to submit to the German occupier. A touching historical series."
+cover_url: https://covers.openlibrary.org/b/isbn/9782803635580-L.jpg
+contributor: BiblioGenius
+tags:
+- bd-jeunesse
+- histoire
+- guerre
+- serie-complete
+books:
+- isbn: '9782803635580'
+  note: "Tome 1 : Premières actions"
+  title: "Premières actions"
+  publisher: "Le Lombard"
+  published_date: "2015"
+  authors: ["Benoît Ers", "Vincent Dugomier"]
+  description: "1940. L'armée allemande envahit la France. François, Eusèbe et Lisa, malgré leur jeune âge, décident de ne pas baisser les bras et d'entrer en résistance."
+- isbn: '9782803636334'
+  note: "Tome 2 : Premières répressions"
+  title: "Premières répressions"
+  publisher: "Le Lombard"
+  published_date: "2016"
+  authors: ["Benoît Ers", "Vincent Dugomier"]
+  description: "Leurs actions commencent à agacer l'occupant. Mais la répression se durcit, et le danger devient bien réel pour le petit réseau du Lynx."
+- isbn: '9782803670260'
+  note: "Tome 3 : Les Deux géants"
+  title: "Les Deux géants"
+  publisher: "Le Lombard"
+  published_date: "2017"
+  authors: ["Benoît Ers", "Vincent Dugomier"]
+  description: "L'Allemagne envahit l'URSS. L'espoir renait, mais la guerre s'étend. Le réseau doit redoubler de prudence tout en continuant le combat."
+- isbn: '9782803671182'
+  note: "Tome 4 : L'Escalade"
+  title: "L'Escalade"
+  publisher: "Le Lombard"
+  published_date: "2018"
+  authors: ["Benoît Ers", "Vincent Dugomier"]
+  description: "La résistance s'organise et se structure. Les enfants doivent faire face à des choix de plus en plus difficiles et des missions périlleuses."
+- isbn: '9782803672813'
+  note: "Tome 5 : Le Pays divisé"
+  title: "Le Pays divisé"
+  publisher: "Le Lombard"
+  published_date: "2019"
+  authors: ["Benoît Ers", "Vincent Dugomier"]
+  description: "La France est coupée en deux, mais la haine et la délation traversent toutes les frontières. Le groupe doit protéger des aviateurs alliés."
+- isbn: '9782803675579'
+  note: "Tome 6 : Désobéir !"
+  title: "Désobéir !"
+  publisher: "Le Lombard"
+  published_date: "2020"
+  authors: ["Benoît Ers", "Vincent Dugomier"]
+  description: "Désobéir aux ordres injustes, c'est parfois le seul moyen de rester humain. Une leçon de courage au cœur de l'hiver."
+- isbn: '9782808201278'
+  note: "Tome 7 : Tombés du ciel"
+  title: "Tombés du ciel"
+  publisher: "Le Lombard"
+  published_date: "2021"
+  authors: ["Benoît Ers", "Vincent Dugomier"]
+  description: "Des parachutages alliés s'annoncent. Il faut récupérer les armes et les hommes sans se faire prendre par la Gestapo qui veille."
+- isbn: '9782808204880'
+  note: "Tome 8 : Combattre ou mourir"
+  title: "Combattre ou mourir"
+  publisher: "Le Lombard"
+  published_date: "2022"
+  authors: ["Benoît Ers", "Vincent Dugomier"]
+  description: "La fin de la guerre approche, mais les combats sont plus violents que jamais. Le maquis est attaqué. Il faut tenir bon jusqu'à la Libération."
+- isbn: '9782808210966'
+  note: "Tome 9 : Les Jours heureux"
+  title: "Les Jours heureux"
+  publisher: "Le Lombard"
+  published_date: "2023"
+  authors: ["Benoît Ers", "Vincent Dugomier"]
+  description: "La Libération est là ! Mais après la joie, il faut reconstruire et juger. Les enfants découvrent que la paix aussi a ses défis."

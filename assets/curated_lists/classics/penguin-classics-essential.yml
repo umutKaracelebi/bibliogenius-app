@@ -1,0 +1,50 @@
+# Penguin Classics Essential Collection
+# Source officielle : penguinrandomhouse.com
+id: penguin-classics-essential
+version: 1
+
+title:
+  fr: Penguin Classics - Collection Essentielle
+  en: Penguin Classics Essential Collection
+  de: Penguin Classics - Wesentliche Sammlung
+  es: Penguin Classics - Colección Esencial
+
+description:
+  fr: "Les classiques incontournables de la collection Penguin Classics. Source : penguin.co.uk"
+  en: "Essential classics from the Penguin Classics collection. Source: penguin.co.uk"
+  de: "Wesentliche Klassiker aus der Penguin Classics Sammlung. Quelle: penguin.co.uk"
+  es: "Clásicos esenciales de la colección Penguin Classics. Fuente: penguin.co.uk"
+
+source_url: "https://www.penguin.co.uk/penguin-classics"
+contributor: BiblioGenius
+tags: [classiques, canon, littérature-mondiale]
+
+books:
+  - isbn: "9782070364992"
+    note: "Jane Austen - Orgueil et Préjugés"
+  - isbn: "9782253004356"
+    note: "Charlotte Brontë - Jane Eyre"
+  - isbn: "9782070360703"
+    note: "Emily Brontë - Les Hauts de Hurlevent"
+  - isbn: "9782070361526"
+    note: "Charles Dickens - Les Grandes Espérances"
+  - isbn: "9782742767939"
+    note: "Fyodor Dostoïevski - Crime et Châtiment"
+  - isbn: "9782253098386"
+    note: "Léon Tolstoï - Anna Karénine"
+  - isbn: "9782253017264"
+    note: "Léon Tolstoï - Guerre et Paix"
+  - isbn: "9782070360147"
+    note: "Franz Kafka - La Métamorphose"
+  - isbn: "9782070305803"
+    note: "Homère - L'Odyssée"
+  - isbn: "9782080707765"
+    note: "Dante Alighieri - La Divine Comédie"
+  - isbn: "9782070366620"
+    note: "Miguel de Cervantes - Don Quichotte"
+  - isbn: "9782253096337"
+    note: "Victor Hugo - Les Misérables"
+  - isbn: "9782020238113"
+    note: "Gabriel García Márquez - Cent ans de solitude"
+  - isbn: "9782070362370"
+    note: "Virginia Woolf - Mrs Dalloway"

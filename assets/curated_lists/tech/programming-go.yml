@@ -1,0 +1,28 @@
+# Go - Programming Language
+# Sources: Go.dev
+id: programming-go
+version: 1
+
+title:
+  fr: Go - Le Langage (Golang)
+  en: Go - The Language (Golang)
+  de: Go - Die Sprache (Golang)
+  es: Go - El Lenguaje (Golang)
+
+description:
+  fr: "Simplicité et efficacité avec Go."
+  en: "Simplicity and efficiency with Go."
+  de: "Einfachheit und Effizienz mit Go."
+  es: "Simplicidad y eficiencia con Go."
+
+source_url: "https://go.dev/"
+contributor: BiblioGenius
+tags: [informatique, go, golang, backend, google]
+
+books:
+  - isbn: "9780134190440"
+    note: "Alan A. A. Donovan - The Go Programming Language"
+  - isbn: "9781492077183"
+    note: "Jon Bodner - Learning Go (O'Reilly)"
+  - isbn: "9781617291784"
+    note: "William Kennedy - Go in Action"

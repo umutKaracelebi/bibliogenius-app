@@ -1,0 +1,72 @@
+id: lou
+version: 2
+title:
+  fr: Lou ! - Saison 1
+  en: Lou! - Season 1
+description:
+  fr: "La vie d'une jeune fille d'aujourd'hui, pleine d'humour et de tendresse, par Julien Neel."
+  en: "The life of a modern girl, full of humor and tenderness, by Julien Neel."
+cover_url: https://covers.openlibrary.org/b/isbn/9782723442756-L.jpg
+contributor: BiblioGenius
+tags:
+- bd-jeunesse
+- quotidien
+- famille
+- serie-complete
+books:
+- isbn: '9782723442756'
+  note: "Tome 1 : Journal infime"
+  title: "Journal infime"
+  publisher: "Glénat"
+  published_date: "2004"
+  authors: ["Julien Neel"]
+  description: "Lou est une collégienne rêveuse qui vit seule avec sa maman. Elle observe le monde et son voisin Tristan avec curiosité."
+- isbn: '9782723448154'
+  note: "Tome 2 : Mortebouse"
+  title: "Mortebouse"
+  publisher: "Glénat"
+  published_date: "2005"
+  authors: ["Julien Neel"]
+  description: "Les vacances de Lou chez sa grand-mère à Mortebouse, un trou perdu à la campagne. Pas de réseau, mais des souvenirs !"
+- isbn: '9782723452526'
+  note: "Tome 3 : Le cimetière des autobus"
+  title: "Le cimetière des autobus"
+  publisher: "Glénat"
+  published_date: "2006"
+  authors: ["Julien Neel"]
+  description: "L'adolescence approche. Les sentiments se compliquent, et le mystérieux cimetière des autobus cache des secrets."
+- isbn: '9782723458696'
+  note: "Tome 4 : Idylles"
+  title: "Idylles"
+  publisher: "Glénat"
+  published_date: "2007"
+  authors: ["Julien Neel"]
+  description: "Des vacances d'été au soleil, des premiers amours et des rencontres inoubliables pour Lou et sa mère."
+- isbn: '9782723467889'
+  note: "Tome 5 : Laser Ninja"
+  title: "Laser Ninja"
+  publisher: "Glénat"
+  published_date: "2009"
+  authors: ["Julien Neel"]
+  description: "L'immeuble de Lou va être détruit ? Panique à bord ! Et sa mère publie enfin son roman de science-fiction."
+- isbn: '9782723484268'
+  note: "Tome 6 : L'Age de Cristal"
+  title: "L'Age de Cristal"
+  publisher: "Glénat"
+  published_date: "2012"
+  authors: ["Julien Neel"]
+  description: "Lou découvre l'univers étrange et fascinant des cristaux, tandis que le passé de sa famille refait surface."
+- isbn: '9782800164267'
+  note: "Tome 7 : La cabane"
+  title: "La cabane"
+  publisher: "Glénat"
+  published_date: "2016"
+  authors: ["Julien Neel"]
+  description: "Une pause, un retour aux sources, loin de la ville. Lou et ses amis se retrouvent autour d'une mystérieuse cabane."
+- isbn: '9782344023594'
+  note: "Tome 8 : En route vers de nouvelles aventures"
+  title: "En route vers de nouvelles aventures"
+  publisher: "Glénat"
+  published_date: "2018"
+  authors: ["Julien Neel"]
+  description: "La fin d'un cycle. Lou prend la route pour découvrir le monde... et elle-même. Une conclusion poétique à la première saison."

@@ -1,0 +1,42 @@
+# Littérature Allemande - Classiques et Contemporains
+# Sources : Deutscher Buchpreis, Goethe-Institut
+id: litterature-allemande
+version: 1
+
+title:
+  fr: Littérature Allemande - Classiques
+  en: German Literature - Classics
+  de: Deutsche Literatur - Klassiker
+  es: Literatura Alemana - Clásicos
+
+description:
+  fr: "Les grandes œuvres de la littérature allemande. Sources : Deutscher Buchpreis, Goethe-Institut."
+  en: "Great works of German literature. Sources: Deutscher Buchpreis, Goethe-Institut."
+  de: "Große Werke der deutschen Literatur. Quellen: Deutscher Buchpreis, Goethe-Institut."
+  es: "Grandes obras de la literatura alemana. Fuentes: Deutscher Buchpreis, Goethe-Institut."
+
+source_url: "https://www.deutscher-buchpreis.de/"
+contributor: BiblioGenius
+tags: [allemand, classiques, germanophone]
+
+books:
+  - isbn: "9782080702227"
+    note: "Johann Wolfgang von Goethe - Faust"
+  - isbn: "9782253052449"
+    note: "Thomas Mann - La Montagne magique"
+  - isbn: "9782253003298"
+    note: "Hermann Hesse - Le Loup des steppes"
+  - isbn: "9782070360215"
+    note: "Franz Kafka - Le Procès"
+  - isbn: "9782070360147"
+    note: "Franz Kafka - La Métamorphose"
+  - isbn: "9782253044901"
+    note: "Patrick Süskind - Le Parfum"
+  - isbn: "9782070404582"
+    note: "Bernhard Schlink - Le Liseur"
+  - isbn: "9782757884935"
+    note: "Günter Grass - Le Tambour"
+  - isbn: "9782070369409"
+    note: "Heinrich Böll - L'Honneur perdu de Katharina Blum"
+  - isbn: "9782330048860"
+    note: "Daniel Kehlmann - Les Arpenteurs du monde"

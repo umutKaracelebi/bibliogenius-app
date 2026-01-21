@@ -1,0 +1,51 @@
+id: bergeres-guerrieres
+version: 2
+title:
+  fr: Bergères Guerrières - Série complète
+  en: Shepherd Warrior Women - Complete Series
+description:
+  fr: La série BD de Jonathan Garnier et Amélie Fléchais. Dans un monde médiéval fantastique, les hommes sont partis à la guerre et les femmes ont pris leur défense en main.
+  en: The comic series by Jonathan Garnier and Amélie Fléchais. In a medieval fantasy world, men have gone to war and women have taken defense into their own hands.
+cover_url: https://covers.openlibrary.org/b/isbn/9782344016459-L.jpg
+contributor: BiblioGenius
+tags:
+- bd-jeunesse
+- fantasy
+- heroines
+- serie-complete
+books:
+- isbn: '9782344016459'
+  note: "Tome 1 : La Relève"
+  title: "La Relève"
+  publisher: "Glénat"
+  published_date: "2017"
+  authors: ["Jonathan Garnier", "Amélie Fléchais"]
+  description: "Dix ans que les hommes du village sont partis pour la Grande Guerre. Molly est prête à rejoindre l'ordre des Bergères Guerrières pour protéger les siens."
+- isbn: '9782344024096'
+  note: "Tome 2 : La Menace"
+  title: "La Menace"
+  publisher: "Glénat"
+  published_date: "2018"
+  authors: ["Jonathan Garnier", "Amélie Fléchais"]
+  description: "Un mal étrange rôde autour du village. Molly et Liam doivent faire face à des dangers qu'ils n'imaginaient pas."
+- isbn: '9782344034231'
+  note: "Tome 3 : Le Périple"
+  title: "Le Périple"
+  publisher: "Glénat"
+  published_date: "2019"
+  authors: ["Jonathan Garnier", "Amélie Fléchais"]
+  description: "Pour comprendre ce qui arrive à leur monde, les Bergères doivent quitter leur foyer et s'aventurer en terres inconnues."
+- isbn: '9782344042175'
+  note: "Tome 4 : L'Abîme"
+  title: "L'Abîme"
+  publisher: "Glénat"
+  published_date: "2020"
+  authors: ["Jonathan Garnier", "Amélie Fléchais"]
+  description: "Le voyage est périlleux et les révélations sur la guerre passée sont bouleversantes. Molly grandit face à l'adversité."
+- isbn: '9782344061763'
+  note: "Tome 5 : Les Novices"
+  title: "Les Novices"
+  publisher: "Glénat"
+  published_date: "2024"
+  authors: ["Jonathan Garnier", "Amélie Fléchais"]
+  description: "Un préquel ou une conclusion ? L'histoire des Bergères Guerrières continue de nous faire vibrer."

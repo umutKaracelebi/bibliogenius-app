@@ -1,0 +1,42 @@
+# LGBTQ+ - Littérature Essentielle
+# Sources : Lambda Literary Awards, Stonewall Book Awards
+id: lgbtq-litterature
+version: 1
+
+title:
+  fr: LGBTQ+ - Littérature Essentielle
+  en: LGBTQ+ - Essential Literature
+  de: LGBTQ+ - Wesentliche Literatur
+  es: LGBTQ+ - Literatura Esencial
+
+description:
+  fr: "Œuvres essentielles de la littérature LGBTQ+. Sources : Lambda Literary Awards, Stonewall Book Awards."
+  en: "Essential works of LGBTQ+ literature. Sources: Lambda Literary Awards, Stonewall Book Awards."
+  de: "Wesentliche Werke der LGBTQ+-Literatur. Quellen: Lambda Literary Awards, Stonewall Book Awards."
+  es: "Obras esenciales de la literatura LGBTQ+. Fuentes: Lambda Literary Awards, Stonewall Book Awards."
+
+source_url: "https://www.lambdaliterary.org/awards/"
+contributor: BiblioGenius
+tags: [lgbtq+, diversité, contemporain]
+
+books:
+  - isbn: "9782017868736"
+    note: "Becky Albertalli - Love, Simon"
+  - isbn: "9782253100676"
+    note: "André Aciman - Appelle-moi par ton nom"
+  - isbn: "9782072977428"
+    note: "Ocean Vuong - Un bref instant de splendeur"
+  - isbn: "9782253100560"
+    note: "Hanya Yanagihara - Une vie comme les autres"
+  - isbn: "9782264041074"
+    note: "Sarah Waters - Du bout des doigts"
+  - isbn: "9782253250739"
+    note: "James Baldwin - La Chambre de Giovanni"
+  - isbn: "9782253057604"
+    note: "Patricia Highsmith - Carol"
+  - isbn: "9782940116140"
+    note: "Audre Lorde - Zami : une nouvelle façon d'écrire mon nom"
+  - isbn: "9782371022812"
+    note: "Casey McQuiston - My Dear F***ing Prince"
+  - isbn: "9782757892183"
+    note: "Alison Bechdel - Fun Home"

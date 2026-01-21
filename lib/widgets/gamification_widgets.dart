@@ -129,8 +129,7 @@ void showTrackLevelInfo(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Text(
-            TranslationService.translate(context, 'badge_progress_info') ??
-                'Votre progression :',
+            TranslationService.translate(context, 'badge_progress_info'),
             style: Theme.of(
               ctx,
             ).textTheme.bodyMedium?.copyWith(fontWeight: FontWeight.w500),
@@ -148,7 +147,7 @@ void showTrackLevelInfo(
                 Icon(Icons.star, color: color),
                 const SizedBox(width: 8),
                 Text(
-                  '${TranslationService.translate(context, 'current') ?? 'Actuel'}: ${track.current}',
+                  '${TranslationService.translate(context, 'current')}: ${track.current}',
                   style: TextStyle(
                     fontWeight: FontWeight.bold,
                     fontSize: 16,
@@ -160,8 +159,7 @@ void showTrackLevelInfo(
           ),
           const SizedBox(height: 16),
           Text(
-            TranslationService.translate(context, 'badge_levels_title') ??
-                'Niveaux à atteindre :',
+            TranslationService.translate(context, 'badge_levels_title'),
             style: Theme.of(
               ctx,
             ).textTheme.bodyMedium?.copyWith(fontWeight: FontWeight.w500),
@@ -214,7 +212,7 @@ void showTrackLevelInfo(
         TextButton(
           onPressed: () => Navigator.of(ctx).pop(),
           child: Text(
-            TranslationService.translate(context, 'close') ?? 'Fermer',
+            TranslationService.translate(context, 'close'),
             style: TextStyle(color: color),
           ),
         ),
@@ -340,26 +338,52 @@ class BadgeCollectionWidget extends StatelessWidget {
   ) {
     final badgeInfo = getBadgeInfo(index);
     final isUnlocked = currentBadgeIndex >= index;
-    // Flexible sizing based on available space
-    final badgeIconSize = isDesktop ? 72.0 : 60.0;
+    // Match TrackProgressWidget standard size (approx 70-80)
+    final badgeSize = isDesktop ? 80.0 : 70.0;
+    // Icon inside should be smaller relative to the circle
+    final iconSize = badgeSize * 0.5;
 
     return Column(
       mainAxisAlignment: MainAxisAlignment.center,
       children: [
-        // Simplified: just the badge icon without heavy outer circle
         SizedBox(
-          width: badgeIconSize + 20,
-          height: badgeIconSize + 20,
+          width: badgeSize,
+          height: badgeSize,
           child: Stack(
             alignment: Alignment.center,
             children: [
-              // Badge icon (simplified - no outer circle)
+              // Outer Ring (Static)
+              Container(
+                width: badgeSize,
+                height: badgeSize,
+                decoration: BoxDecoration(
+                  shape: BoxShape.circle,
+                  border: Border.all(
+                    color: isUnlocked
+                        ? badgeInfo.color.withValues(alpha: 0.3)
+                        : Colors.grey.withValues(alpha: 0.2),
+                    width: 4,
+                  ),
+                ),
+              ),
+              // Inner Background
+              Container(
+                width: badgeSize - 12, // slightly smaller than ring
+                height: badgeSize - 12,
+                decoration: BoxDecoration(
+                  shape: BoxShape.circle,
+                  color: isUnlocked
+                      ? badgeInfo.color.withValues(alpha: 0.1)
+                      : Colors.grey.withValues(alpha: 0.1),
+                ),
+              ),
+              // Badge Icon
               Opacity(
                 opacity: isUnlocked ? 1.0 : 0.4,
                 child: SvgPicture.asset(
                   badgeInfo.assetPath,
-                  width: badgeIconSize,
-                  height: badgeIconSize,
+                  width: iconSize,
+                  height: iconSize,
                   fit: BoxFit.contain,
                   colorFilter: isUnlocked
                       ? null
@@ -391,20 +415,42 @@ class BadgeCollectionWidget extends StatelessWidget {
               if (!isUnlocked)
                 Positioned(
                   bottom: 0,
-                  right: 4,
+                  right: 0,
                   child: Container(
-                    padding: const EdgeInsets.all(4),
+                    padding: const EdgeInsets.all(5),
                     decoration: BoxDecoration(
                       color: Colors.grey[300],
                       shape: BoxShape.circle,
+                      border: Border.all(color: Colors.white, width: 2),
                     ),
                     child: Icon(Icons.lock, size: 12, color: Colors.grey[600]),
+                  ),
+                ),
+              // Checkmark for unlocked (optional, similar to track widgets having checkmarks/levels?)
+              // Tracks show level numbers. For these static badges, maybe just the visual is enough.
+              // Let's add a small checkmark if it's unlocked for extra "completed" feel
+              if (isUnlocked)
+                Positioned(
+                  top: 0,
+                  right: 0,
+                  child: Container(
+                    padding: const EdgeInsets.all(4),
+                    decoration: BoxDecoration(
+                      color: badgeInfo.color,
+                      shape: BoxShape.circle,
+                      border: Border.all(color: Colors.white, width: 2),
+                    ),
+                    child: const Icon(
+                      Icons.check,
+                      size: 10,
+                      color: Colors.white,
+                    ),
                   ),
                 ),
             ],
           ),
         ),
-        const SizedBox(height: 10),
+        const SizedBox(height: 8),
         Padding(
           padding: const EdgeInsets.symmetric(horizontal: 4.0),
           child: Text(

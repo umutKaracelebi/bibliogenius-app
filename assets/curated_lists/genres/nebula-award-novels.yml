@@ -1,0 +1,46 @@
+id: nebula-award-novels
+version: 1
+title:
+  fr: Prix Nebula - Meilleur Roman
+  en: Nebula Award - Best Novel
+  de: Nebula Award - Bester Roman
+  es: Premio Nebula - Mejor Novela
+description:
+  fr: 'Les romans primés par les écrivains de science-fiction et fantasy (SFWA). Source
+    : nebulas.sfwa.org'
+  en: 'Novels awarded by science fiction and fantasy writers (SFWA). Source: nebulas.sfwa.org'
+  de: 'Von Science-Fiction- und Fantasy-Autoren (SFWA) prämierte Romane. Quelle: nebulas.sfwa.org'
+  es: 'Novelas premiadas por escritores de ciencia ficción y fantasía (SFWA). Fuente:
+    nebulas.sfwa.org'
+source_url: https://nebulas.sfwa.org/award-year/
+contributor: BiblioGenius
+tags:
+- prix
+- nebula
+- science-fiction
+- fantasy
+books:
+- isbn: '9782290157183'
+  note: N.K. Jemisin - La Cinquième Saison (2016)
+- isbn: '9782290349229'
+  note: Ann Leckie - La Justice de l'ancillaire (2014)
+- isbn: '9782253033134'
+  note: Connie Willis - Blackout/All Clear (2011)
+- isbn: '9782070793822'
+  note: Cormac McCarthy - La Route (2007)
+- isbn: '9782846261562'
+  note: Neil Gaiman - American Gods (2002)
+- isbn: '9782266320481'
+  note: Frank Herbert - Dune (1966)
+- isbn: '9785050040107'
+  note: Ursula K. Le Guin - La Main gauche de la nuit (1970)
+- isbn: '9782070419241'
+  note: Isaac Asimov - Les Dieux eux-mêmes (1973)
+- isbn: '9782290312841'
+  note: William Gibson - Neuromancien (1985)
+- isbn: '9782290349229'
+  note: Orson Scott Card - La Stratégie Ender (1986)
+- isbn: '9782253004226'
+  note: Kim Stanley Robinson - Mars la Rouge (1993)
+- isbn: '9782266241915'
+  note: Dan Simmons - Hypérion (non primé mais chef d'œuvre)

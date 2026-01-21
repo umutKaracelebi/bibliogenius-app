@@ -1,0 +1,42 @@
+# Développement Personnel - Classiques
+# Sources : bestsellers internationaux, recommandations professionnelles
+id: dev-personnel-classiques
+version: 1
+
+title:
+  fr: Développement Personnel - Classiques
+  en: Personal Development - Classics
+  de: Persönliche Entwicklung - Klassiker
+  es: Desarrollo Personal - Clásicos
+
+description:
+  fr: "Les livres fondateurs du développement personnel. Sources : bestsellers internationaux."
+  en: "Foundational books of personal development. Sources: international bestsellers."
+  de: "Grundlegende Bücher der persönlichen Entwicklung. Quellen: Internationale Bestseller."
+  es: "Libros fundamentales del desarrollo personal. Fuentes: bestsellers internacionales."
+
+source_url: "https://www.goodreads.com/"
+contributor: BiblioGenius
+tags: [dev-personnel, essai, psychologie, motivation]
+
+books:
+  - isbn: "9782253084204"
+    note: "Dale Carnegie - Comment se faire des amis"
+  - isbn: "9782290000724"
+    note: "Stephen R. Covey - Les 7 habitudes de ceux qui réussissent"
+  - isbn: "9782290135617"
+    note: "Viktor Frankl - Découvrir un sens à sa vie"
+  - isbn: "9782290112168"
+    note: "James Clear - Atomic Habits"
+  - isbn: "9782266241915"
+    note: "Daniel Kahneman - Système 1 / Système 2"
+  - isbn: "9782081515222"
+    note: "Cal Newport - Deep Work"
+  - isbn: "9782804704879"
+    note: "Carol Dweck - Osez réussir ! (Mindset)"
+  - isbn: "9782352948292"
+    note: "Ryan Holiday - L'Obstacle est le chemin"
+  - isbn: "9782290020203"
+    note: "Eckhart Tolle - Le Pouvoir du moment présent (J'ai lu)"
+  - isbn: "9782251451350"
+    note: "Nassim Nicholas Taleb - Antifragile"

@@ -1,0 +1,54 @@
+id: time-100-novels
+version: 1
+title:
+  fr: Time Magazine - 100 Meilleurs Romans
+  en: Time Magazine - 100 Best Novels
+  de: Time Magazine - 100 Beste Romane
+  es: Time Magazine - 100 Mejores Novelas
+description:
+  fr: 'Les 100 meilleurs romans en anglais de 1923 à 2005 selon Time Magazine. Source
+    : time.com'
+  en: 'The 100 best English-language novels from 1923 to 2005 according to Time Magazine.
+    Source: time.com'
+  de: 'Die 100 besten englischsprachigen Romane von 1923 bis 2005 laut Time Magazine.
+    Quelle: time.com'
+  es: 'Las 100 mejores novelas en inglés de 1923 a 2005 según Time Magazine. Fuente:
+    time.com'
+source_url: https://entertainment.time.com/2005/10/16/all-time-100-novels/
+contributor: BiblioGenius
+tags:
+- classiques
+- XXe-siècle
+- anglophone
+- presse
+books:
+- isbn: '9782070368228'
+  note: George Orwell - 1984
+- isbn: '9782070368228'
+  note: George Orwell - La Ferme des animaux
+- isbn: '9782264049216'
+  note: Toni Morrison - Beloved
+- isbn: '9782070360536'
+  note: F. Scott Fitzgerald - Gatsby le Magnifique
+- isbn: '9782070360536'
+  note: John Steinbeck - Les Raisins de la colère
+- isbn: '9782070368228'
+  note: Vladimir Nabokov - Lolita
+- isbn: '9782070793822'
+  note: Cormac McCarthy - La Route
+- isbn: '9782070793822'
+  note: Cormac McCarthy - Méridien de sang
+- isbn: '9782221157480'
+  note: J.D. Salinger - L'Attrape-cœurs
+- isbn: '9782070368631'
+  note: James Joyce - Portrait de l'artiste en jeune homme
+- isbn: '9780671461492'
+  note: Douglas Adams - Le Guide du voyageur galactique
+- isbn: '9782266320481'
+  note: Frank Herbert - Dune
+- isbn: '9782290312841'
+  note: William Gibson - Neuromancien
+- isbn: '9782070498123'
+  note: Raymond Chandler - Le Grand Sommeil
+- isbn: '9782070364572'
+  note: William Golding - Sa Majesté des Mouches

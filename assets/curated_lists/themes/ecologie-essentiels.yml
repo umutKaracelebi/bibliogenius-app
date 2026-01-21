@@ -1,0 +1,42 @@
+# Écologie et Environnement - Lectures Essentielles
+# Sources : WWF, Goodreads Environmental Reading
+id: ecologie-essentiels
+version: 1
+
+title:
+  fr: Écologie et Environnement - Essentiels
+  en: Ecology and Environment - Essentials
+  de: Ökologie und Umwelt - Grundlagen
+  es: Ecología y Medio Ambiente - Esenciales
+
+description:
+  fr: "Livres fondamentaux sur l'écologie et l'environnement. Sources : WWF Reading List, Goodreads Environmental Books."
+  en: "Foundational books on ecology and environment. Sources: WWF Reading List, Goodreads Environmental Books."
+  de: "Grundlegende Bücher über Ökologie und Umwelt. Quellen: WWF Reading List, Goodreads Environmental Books."
+  es: "Libros fundamentales sobre ecología y medio ambiente. Fuentes: WWF Reading List, Goodreads Environmental Books."
+
+source_url: "https://www.wwf.org/"
+contributor: BiblioGenius
+tags: [écologie, environnement, climat, nature]
+
+books:
+  - isbn: "9782352120421"
+    note: "Rachel Carson - Printemps silencieux (Wildproject)"
+  - isbn: "9782253259428"
+    note: "Richard Powers - L'Arbre-Monde (Pulitzer 2019)"
+  - isbn: "9782253186366"
+    note: "Elizabeth Kolbert - La Sixième Extinction"
+  - isbn: "9782330070397"
+    note: "Naomi Klein - Tout peut changer (Capitalisme contre climat)"
+  - isbn: "9782081498631"
+    note: "Aldo Leopold - Almanach d'un comté des sables"
+  - isbn: "9782330144975"
+    note: "Baptiste Morizot - Manières d'être vivant"
+  - isbn: "9782253195221"
+    note: "Peter Wohlleben - La Vie secrète des arbres"
+  - isbn: "9782253101345"
+    note: "Greta Thunberg - La Maison brûle / Rejoignez-nous"
+  - isbn: "9782757868201"
+    note: "Pablo Servigne - Comment tout peut s'effondrer"
+  - isbn: "9782070793822"
+    note: "Edward Abbey - Désert solitaire"

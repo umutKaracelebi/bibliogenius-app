@@ -1,0 +1,42 @@
+# Prix Médicis
+# Source officielle : prixmedicis.com
+id: prix-medicis
+version: 1
+
+title:
+  fr: Prix Médicis
+  en: Prix Médicis
+  de: Prix Médicis
+  es: Premio Médicis
+
+description:
+  fr: "Prix littéraire français récompensant un roman d'un style neuf. Source : prixmedicis.com"
+  en: "French literary prize rewarding novels with a fresh style. Source: prixmedicis.com"
+  de: "Französischer Literaturpreis für Romane mit neuem Stil. Quelle: prixmedicis.com"
+  es: "Premio literario francés que recompensa novelas con estilo fresco. Fuente: prixmedicis.com"
+
+source_url: "https://www.prixmedicis.com/"
+contributor: BiblioGenius
+tags: [prix, médicis, français]
+
+books:
+  - isbn: "9782072987922"
+    note: "Julia Deck - Ann d'Angleterre (2024)"
+  - isbn: "9782073009791"
+    note: "Neige Sinno - Triste Tigre (2023)"
+  - isbn: "9782072985447"
+    note: "Claudie Hunzinger - Un chien à ma table (2022)"
+  - isbn: "9782072973734"
+    note: "Christine Angot - Le Voyage dans l'Est (2021)"
+  - isbn: "9782072890864"
+    note: "Chloé Delaume - Le Cœur synthétique (2020)"
+  - isbn: "9782072848018"
+    note: "Sylvain Prudhomme - Par les routes (2019)"
+  - isbn: "9782072801327"
+    note: "Marie NDiaye - La Vengeance m'appartient (2018)"
+  - isbn: "9782070197712"
+    note: "Yannick Haenel - Tiens ferme ta couronne (2017)"
+  - isbn: "9782070178612"
+    note: "Ivan Jablonka - Laëtitia (2016)"
+  - isbn: "9782070149681"
+    note: "Nathalie Azoulai - Titus n'aimait pas Bérénice (2015)"

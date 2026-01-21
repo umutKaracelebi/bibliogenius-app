@@ -1,0 +1,37 @@
+# Manga essentiels
+id: manga-essentiels
+version: 1
+
+title:
+  fr: Manga essentiels
+  en: Essential Manga
+  de: Essentielle Manga
+  es: Manga esenciales
+
+description:
+  fr: Les séries manga incontournables pour débuter ou enrichir sa collection.
+  en: Must-have manga series to start or enrich your collection.
+  de: Unverzichtbare Manga-Serien für Einsteiger oder Sammler.
+  es: Series de manga imprescindibles para empezar o enriquecer tu colección.
+
+cover_url: "https://covers.openlibrary.org/b/id/10521421-L.jpg"
+contributor: BiblioGenius
+tags: [manga, japonais, shonen, seinen]
+
+books:
+  - isbn: "9782723488525"
+    note: "One Piece - Tome 1 - Eiichiro Oda"
+  - isbn: "9782871294658"
+    note: "Naruto - Tome 1 - Masashi Kishimoto"
+  - isbn: "9782871294948"
+    note: "Death Note - Tome 1 - Tsugumi Ohba, Takeshi Obata"
+  - isbn: "9782811607203"
+    note: "L'Attaque des Titans - Tome 1 - Hajime Isayama"
+  - isbn: "9782351420010"
+    note: "Fullmetal Alchemist - Tome 1 - Hiromu Arakawa"
+  - isbn: "9782723418478"
+    note: "Dragon Ball - Tome 1 - Akira Toriyama"
+  - isbn: "9791032700365"
+    note: "My Hero Academia - Tome 1 - Kohei Horikoshi"
+  - isbn: "9782809465808"
+    note: "Demon Slayer - Tome 1 - Koyoharu Gotouge"

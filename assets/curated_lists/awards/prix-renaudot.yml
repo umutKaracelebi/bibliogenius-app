@@ -1,0 +1,42 @@
+# Prix Renaudot
+# Source officielle : prixrenaudot.fr
+id: prix-renaudot
+version: 1
+
+title:
+  fr: Prix Renaudot
+  en: Prix Renaudot
+  de: Prix Renaudot
+  es: Premio Renaudot
+
+description:
+  fr: "Le prix Renaudot, décerné le même jour que le Goncourt par des journalistes littéraires. Source : prixrenaudot.fr"
+  en: "The Renaudot Prize, awarded on the same day as the Goncourt by literary journalists. Source: prixrenaudot.fr"
+  de: "Der Renaudot-Preis, am selben Tag wie der Goncourt von Literaturjournalisten verliehen. Quelle: prixrenaudot.fr"
+  es: "El Premio Renaudot, otorgado el mismo día que el Goncourt por periodistas literarios. Fuente: prixrenaudot.fr"
+
+source_url: "https://www.prixrenaudot.fr/"
+contributor: BiblioGenius
+tags: [prix, renaudot, français]
+
+books:
+  - isbn: "9782073010124"
+    note: "Gaël Faye - Jacaranda (2024)"
+  - isbn: "9782072973734"
+    note: "Ann Scott - Les Insolents (2023)"
+  - isbn: "9782072968808"
+    note: "Simon Liberati - Performance (2022)"
+  - isbn: "9782072890864"
+    note: "Amélie Nothomb - Premier sang (2021)"
+  - isbn: "9782072848018"
+    note: "Marie-Hélène Lafon - Histoire du fils (2020)"
+  - isbn: "9782072801327"
+    note: "Sylvain Tesson - La Panthère des neiges (2019)"
+  - isbn: "9782070197712"
+    note: "Valérie Manteau - Le Sillon (2018)"
+  - isbn: "9782070117635"
+    note: "Olivier Adam - Les Lisières (2012)"
+  - isbn: "9782070126200"
+    note: "Emmanuel Carrère - Limonov (2011)"
+  - isbn: "9782253134329"
+    note: "Tierno Monénembo - Le Roi de Kahel (2008)"

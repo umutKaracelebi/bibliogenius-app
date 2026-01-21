@@ -1,0 +1,38 @@
+# Grand Prix du Roman de l'Académie Française
+# Source officielle : academie-francaise.fr
+id: grand-prix-academie
+version: 1
+
+title:
+  fr: Grand Prix du Roman - Académie Française
+  en: Grand Prize for Fiction - French Academy
+  de: Großer Romanpreis - Académie Française
+  es: Gran Premio de Novela - Academia Francesa
+
+description:
+  fr: "Le Grand Prix du Roman de l'Académie française récompense l'auteur d'un roman. Source : academie-francaise.fr"
+  en: "The French Academy's Grand Prize for Fiction rewards a novel's author. Source: academie-francaise.fr"
+  de: "Der Große Romanpreis der Französischen Akademie würdigt einen Romanautor. Quelle: academie-francaise.fr"
+  es: "El Gran Premio de Novela de la Academia Francesa premia al autor de una novela. Fuente: academie-francaise.fr"
+
+source_url: "https://www.academie-francaise.fr/les-prix"
+contributor: BiblioGenius
+tags: [prix, académie, français, prestigieux]
+
+books:
+  - isbn: "9782072968808"
+    note: "Abel Quentin - Le Voyant d'Étampes (2024)"
+  - isbn: "9782072951091"
+    note: "Grégoire Bouillier - Le Cœur ne cède pas (2022)"
+  - isbn: "9782072890864"
+    note: "Boualem Sansal - 2084 (2015)"
+  - isbn: "9782072848018"
+    note: "Alice Ferney - Passé sous silence (2010)"
+  - isbn: "9782070126200"
+    note: "Jean-Marie Gustave Le Clézio - Ritournelle de la faim (2008)"
+  - isbn: "9782253134329"
+    note: "Jean Echenoz - Ravel (2006)"
+  - isbn: "9782070409907"
+    note: "Patrick Modiano - Un pedigree (2005)"
+  - isbn: "9782070411740"
+    note: "Pascal Quignard - Terrasse à Rome (2000)"

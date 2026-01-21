@@ -1,0 +1,52 @@
+# Modern Library 100 Best Novels
+# Source officielle : Random House / Modern Library
+id: modern-library-100
+version: 1
+
+title:
+  fr: Modern Library - 100 Meilleurs Romans
+  en: Modern Library 100 Best Novels
+  de: Modern Library - 100 Beste Romane
+  es: Modern Library - 100 Mejores Novelas
+
+description:
+  fr: "Les 100 meilleurs romans en anglais du XXe siècle selon Modern Library (Random House). Source : modernlibrary.com"
+  en: "The 100 best English-language novels of the 20th century according to Modern Library. Source: modernlibrary.com"
+  de: "Die 100 besten englischsprachigen Romane des 20. Jahrhunderts laut Modern Library. Quelle: modernlibrary.com"
+  es: "Las 100 mejores novelas en inglés del siglo XX según Modern Library. Fuente: modernlibrary.com"
+
+source_url: "https://www.modernlibrary.com/top-100/100-best-novels/"
+contributor: BiblioGenius
+tags: [classiques, XXe-siècle, anglophone, canon]
+
+books:
+  - isbn: "9782070368228"
+    note: "James Joyce - Ulysse (#1)"
+  - isbn: "9782070360536"
+    note: "F. Scott Fitzgerald - Gatsby le Magnifique (#2)"
+  - isbn: "9782070368631"
+    note: "James Joyce - Portrait de l'artiste en jeune homme (#3)"
+  - isbn: "9782070368228"
+    note: "Vladimir Nabokov - Lolita (#4)"
+  - isbn: "9782070368228"
+    note: "Aldous Huxley - Le Meilleur des mondes (#5)"
+  - isbn: "9782070360451"
+    note: "William Faulkner - Le Bruit et la Fureur (#6)"
+  - isbn: "9782070360536"
+    note: "Joseph Heller - Catch-22 (#7)"
+  - isbn: "9782070360253"
+    note: "John Steinbeck - Les Raisins de la colère (#8)"
+  - isbn: "9782070368228"
+    note: "George Orwell - 1984 (#13)"
+  - isbn: "9782070368228"
+    note: "D.H. Lawrence - L'Amant de Lady Chatterley (#17)"
+  - isbn: "9782070362219"
+    note: "Ernest Hemingway - Le Soleil se lève aussi (#45)"
+  - isbn: "9782070364572"
+    note: "William Golding - Sa Majesté des Mouches (#41)"
+  - isbn: "9782070368228"
+    note: "Anthony Burgess - Orange mécanique (#65)"
+  - isbn: "9782221083409"
+    note: "Graham Greene - La Puissance et la Gloire (#67)"
+  - isbn: "9782070368228"
+    note: "E.M. Forster - Route des Indes (#25)"

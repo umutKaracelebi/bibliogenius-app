@@ -1,0 +1,42 @@
+# Économie et Business pour Tous
+# Sources : Financial Times Best Business Books, HBR Essential Reading
+id: economie-business
+version: 1
+
+title:
+  fr: Économie et Business - Lectures Essentielles
+  en: Economics and Business - Essential Reading
+  de: Wirtschaft und Business - Wesentliche Lektüre
+  es: Economía y Negocios - Lecturas Esenciales
+
+description:
+  fr: "Ouvrages incontournables sur l'économie et le business. Sources : Financial Times Best Business Books, HBR."
+  en: "Essential books on economics and business. Sources: Financial Times Best Business Books, HBR."
+  de: "Wesentliche Bücher über Wirtschaft und Business. Quellen: Financial Times Best Business Books, HBR."
+  es: "Libros esenciales sobre economía y negocios. Fuentes: Financial Times Best Business Books, HBR."
+
+source_url: "https://www.ft.com/books"
+contributor: BiblioGenius
+tags: [économie, business, entrepreneuriat, essai]
+
+books:
+  - isbn: "9782757884584"
+    note: "Thomas Piketty - Le Capital au XXIe siècle"
+  - isbn: "9782081307827"
+    note: "Daniel Kahneman - Système 1 / Système 2"
+  - isbn: "9782251451367"
+    note: "Nassim Nicholas Taleb - Le Cygne noir"
+  - isbn: "9782757828052"
+    note: "Michael Lewis - Le Casse du siècle"
+  - isbn: "9782709649285"
+    note: "Peter Thiel - De zéro à un"
+  - isbn: "9782744066405"
+    note: "Eric Ries - Lean Startup"
+  - isbn: "9782253168522"
+    note: "Walter Isaacson - Steve Jobs"
+  - isbn: "9782361170295"
+    note: "Ray Dalio - Les Principes du succès"
+  - isbn: "9782100778287"
+    note: "Ben Horowitz - Hard Things"
+  - isbn: "9782744064722"
+    note: "Jim Collins - De la performance à l'excellence"

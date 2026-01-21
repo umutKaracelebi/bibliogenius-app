@@ -1,0 +1,42 @@
+# Bande Dessinée - Prix Angoulême (Grand Prix)
+# Source officielle : bdangouleme.com
+id: prix-angouleme
+version: 1
+
+title:
+  fr: Prix Angoulême - Grands Lauréats
+  en: Angoulême Prize - Grand Laureates
+  de: Angoulême-Preis - Große Preisträger
+  es: Premio Angoulême - Grandes Laureados
+
+description:
+  fr: "Les œuvres primées au Festival International de la Bande Dessinée d'Angoulême. Source : bdangouleme.com"
+  en: "Award-winning works at the Angoulême International Comics Festival. Source: bdangouleme.com"
+  de: "Prämierte Werke beim Internationalen Comic-Festival von Angoulême. Quelle: bdangouleme.com"
+  es: "Obras premiadas en el Festival Internacional del Cómic de Angulema. Fuente: bdangouleme.com"
+
+source_url: "https://www.bdangouleme.com/"
+contributor: BiblioGenius
+tags: [bd, angoulême, prix, comics]
+
+books:
+  - isbn: "9782203001930"
+    note: "Art Spiegelman - Maus (Grand Prix)"
+  - isbn: "9782203399273"
+    note: "Lewis Trondheim - Lapinot (Grand Prix 2006)"
+  - isbn: "9782226186096"
+    note: "Marjane Satrapi - Persepolis (Prix)"
+  - isbn: "9782203053847"
+    note: "Riad Sattouf - L'Arabe du futur"
+  - isbn: "9782505064558"
+    note: "Mathieu Bablet - Shangri-La"
+  - isbn: "9782203053847"
+    note: "Cyril Pedrosa - Portugal"
+  - isbn: "9782203001930"
+    note: "Joann Sfar - Le chat du rabbin"
+  - isbn: "9782203053847"
+    note: "Guy Delisle - Chroniques de Jérusalem"
+  - isbn: "9782226171764"
+    note: "Joe Sacco - Palestine"
+  - isbn: "9782203053847"
+    note: "Émile Bravo - Spirou"

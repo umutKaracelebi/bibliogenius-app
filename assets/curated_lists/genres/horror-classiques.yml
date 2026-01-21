@@ -1,0 +1,42 @@
+# Horror Classiques
+# Sources : Bram Stoker Awards, Shirley Jackson Awards
+id: horror-classiques
+version: 1
+
+title:
+  fr: Horreur - Classiques
+  en: Horror - Classics
+  de: Horror - Klassiker
+  es: Terror - Clásicos
+
+description:
+  fr: "Les classiques du genre horrifique. Sources : Bram Stoker Awards, Shirley Jackson Awards."
+  en: "Classics of the horror genre. Sources: Bram Stoker Awards, Shirley Jackson Awards."
+  de: "Klassiker des Horrorgenres. Quellen: Bram Stoker Awards, Shirley Jackson Awards."
+  es: "Clásicos del género de terror. Fuentes: Bram Stoker Awards, Shirley Jackson Awards."
+
+source_url: "https://www.horror.org/awards/"
+contributor: BiblioGenius
+tags: [horreur, classiques, épouvante]
+
+books:
+  - isbn: "9782253151623"
+    note: "Stephen King - Shining"
+  - isbn: "9782253151340"
+    note: "Stephen King - Ça (Tome 1)"
+  - isbn: "9782253151371"
+    note: "Stephen King - Misery"
+  - isbn: "9782253023388"
+    note: "Bram Stoker - Dracula"
+  - isbn: "9782075094443"
+    note: "Mary Shelley - Frankenstein"
+  - isbn: "9782757890059"
+    note: "H.P. Lovecraft - L'Appel de Cthulhu"
+  - isbn: "9782743637989"
+    note: "Shirley Jackson - Maison hantée"
+  - isbn: "9782290302507"
+    note: "Ira Levin - Un bébé pour Rosemary"
+  - isbn: "9791028116842"
+    note: "Peter Straub - Ghost Story"
+  - isbn: "9782757834770"
+    note: "Robert Bloch - Psychose"

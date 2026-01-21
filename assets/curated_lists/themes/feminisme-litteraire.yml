@@ -1,0 +1,42 @@
+# Féminisme littéraire - Essentiels
+# Sources : librairies féministes (Violette & Co, La Fleur qui Pousse à l'Intérieur)
+id: feminisme-litteraire
+version: 1
+
+title:
+  fr: Féminisme Littéraire - Essentiels
+  en: Literary Feminism - Essentials
+  de: Literarischer Feminismus - Grundlagen
+  es: Feminismo Literario - Esenciales
+
+description:
+  fr: "Œuvres essentielles de la pensée féministe. Sources : librairies féministes et institutions culturelles."
+  en: "Essential works of feminist thought. Sources: feminist bookstores and cultural institutions."
+  de: "Wesentliche Werke feministischen Denkens. Quellen: Feministische Buchhandlungen und Kulturinstitutionen."
+  es: "Obras esenciales del pensamiento feminista. Fuentes: librerías feministas e instituciones culturales."
+
+source_url: "https://www.violetteandco.com/"
+contributor: BiblioGenius
+tags: [féminisme, essai, politique, société]
+
+books:
+  - isbn: "9782070344420"
+    note: "Simone de Beauvoir - Le Deuxième Sexe (Folio)"
+  - isbn: "9782070444656"
+    note: "Virginia Woolf - Une chambre à soi (Folio)"
+  - isbn: "9782366241624"
+    note: "bell hooks - Ne suis-je pas une femme ? (Sorcières)"
+  - isbn: "9782070468805"
+    note: "Chimamanda Ngozi Adichie - Nous sommes tous des féministes"
+  - isbn: "9782823610994"
+    note: "Rebecca Solnit - Ces hommes qui m'expliquent la vie"
+  - isbn: "9782355846984"
+    note: "Mona Chollet - Sorcières"
+  - isbn: "9782721007131"
+    note: "Kate Millett - La Politique du mâle"
+  - isbn: "9782070449781"
+    note: "Annie Ernaux - La Femme gelée"
+  - isbn: "9782721007117"
+    note: "Angela Davis - Femmes, race et classe"
+  - isbn: "9782253122159"
+    note: "Virginie Despentes - King Kong Théorie"

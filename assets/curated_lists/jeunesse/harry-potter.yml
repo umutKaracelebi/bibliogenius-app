@@ -1,0 +1,72 @@
+id: harry-potter
+version: 2
+title:
+  fr: Harry Potter - Série complète
+  en: Harry Potter - Complete Series
+description:
+  fr: La saga incontournable de J.K. Rowling. Suivez la scolarité du célèbre sorcier à Poudlard.
+  en: "The essential saga by J.K. Rowling. Follow the famous wizard's schooling at Hogwarts."
+cover_url: https://covers.openlibrary.org/b/isbn/9782075187541-L.jpg
+contributor: BiblioGenius
+tags:
+- roman-jeunesse
+- fantasy
+- magie
+- serie-complete
+books:
+- isbn: '9782075187541'
+  note: "Tome 1 : Harry Potter à l'école des sorciers"
+  title: "Harry Potter à l'école des sorciers"
+  publisher: "Gallimard Jeunesse"
+  published_date: "2023"
+  authors: ["J.K. Rowling"]
+  description: "Le jour de ses onze ans, Harry Potter, un orphelin élevé par un oncle et une tante qui le détestent, voit son existence bouleversée. Un géant vient le chercher pour l'emmener à Poudlard, une école de sorcellerie !"
+  cover_url: "https://covers.openlibrary.org/b/isbn/9782075187541-L.jpg"
+- isbn: '9782075187596'
+  note: "Tome 2 : Harry Potter et la Chambre des Secrets"
+  title: "Harry Potter et la Chambre des Secrets"
+  publisher: "Gallimard Jeunesse"
+  published_date: "2023"
+  authors: ["J.K. Rowling"]
+  description: "Harry Potter fait une rentrée fracassante en voiture volante à l'école de sorcellerie. Cette deuxième année ne s'annonce pas de tout repos... surtout depuis que d'étranges messages apparaissent sur les murs."
+  cover_url: "https://covers.openlibrary.org/b/isbn/9782075187596-L.jpg"
+- isbn: '9782075187640'
+  note: "Tome 3 : Harry Potter et le prisonnier d'Azkaban"
+  title: "Harry Potter et le prisonnier d'Azkaban"
+  publisher: "Gallimard Jeunesse"
+  published_date: "2023"
+  authors: ["J.K. Rowling"]
+  description: "Sirius Black, le dangereux criminel, s'est échappé de la forteresse d'Azkaban. Et il recherche Harry Potter. C'est donc sous bonne garde que l'apprenti sorcier fait sa troisième rentrée."
+  cover_url: "https://covers.openlibrary.org/b/isbn/9782075187640-L.jpg"
+- isbn: '9782075187695'
+  note: "Tome 4 : Harry Potter et la Coupe de Feu"
+  title: "Harry Potter et la Coupe de Feu"
+  publisher: "Gallimard Jeunesse"
+  published_date: "2023"
+  authors: ["J.K. Rowling"]
+  description: "Harry a quatorze ans et il entre en quatrième année au collège de Poudlard. Une grande nouvelle attend Harry, Ron et Hermione à leur arrivée : la tenue d'un tournoi de magie exceptionnel."
+  cover_url: "https://covers.openlibrary.org/b/isbn/9782075187695-L.jpg"
+- isbn: '9782075187749'
+  note: "Tome 5 : Harry Potter et l'Ordre du Phénix"
+  title: "Harry Potter et l'Ordre du Phénix"
+  publisher: "Gallimard Jeunesse"
+  published_date: "2023"
+  authors: ["J.K. Rowling"]
+  description: "À quinze ans, Harry entre en cinquième année à Poudlard, mais il n'est jamais revenu aussi anxieux. Dumbledore n'a pas donné de nouvelles, et Voldemort semble préparer son retour dans l'ombre."
+  cover_url: "https://covers.openlibrary.org/b/isbn/9782075187749-L.jpg"
+- isbn: '9782075187794'
+  note: "Tome 6 : Harry Potter et le Prince de Sang-Mêlé"
+  title: "Harry Potter et le Prince de Sang-Mêlé"
+  publisher: "Gallimard Jeunesse"
+  published_date: "2023"
+  authors: ["J.K. Rowling"]
+  description: "Harry rentre en sixième année à l'école de sorcellerie Poudlard. Il y découvre un mystérieux livre de potions portant la mention 'Ce livre appartient au Prince de Sang-Mêlé'."
+  cover_url: "https://covers.openlibrary.org/b/isbn/9782075187794-L.jpg"
+- isbn: '9782075187848'
+  note: "Tome 7 : Harry Potter et les Reliques de la Mort"
+  title: "Harry Potter et les Reliques de la Mort"
+  publisher: "Gallimard Jeunesse"
+  published_date: "2023"
+  authors: ["J.K. Rowling"]
+  description: "Cette année, Harry n'ira pas à Poudlard. Il doit accomplir la mission confiée par Dumbledore : trouver et détruire les Horcruxes restants, pour mettre fin au règne de Voldemort."
+  cover_url: "https://covers.openlibrary.org/b/isbn/9782075187848-L.jpg"

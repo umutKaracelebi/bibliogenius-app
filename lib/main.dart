@@ -616,23 +616,7 @@ class _AppRouterState extends State<AppRouter> with WidgetsBindingObserver {
       ],
       scrollBehavior: AppScrollBehavior(),
       builder: (context, child) {
-        return Stack(
-          children: [
-            if (child != null) child,
-            // Watermark / Filigree
-            Positioned.fill(
-              child: IgnorePointer(
-                child: Opacity(
-                  opacity: 0.03, // very subtle watermark
-                  child: Image.asset(
-                    'assets/images/app_background.png',
-                    fit: BoxFit.cover,
-                  ),
-                ),
-              ),
-            ),
-          ],
-        );
+        return child!;
       },
       routerConfig: _router,
     );

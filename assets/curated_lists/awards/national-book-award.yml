@@ -1,0 +1,42 @@
+# National Book Award - Fiction
+# Source officielle : nationalbook.org
+id: national-book-award
+version: 1
+
+title:
+  fr: National Book Award - Fiction
+  en: National Book Award - Fiction
+  de: National Book Award - Belletristik
+  es: National Book Award - Ficción
+
+description:
+  fr: "Le prestigieux prix littéraire américain. Source : nationalbook.org"
+  en: "The prestigious American literary award. Source: nationalbook.org"
+  de: "Der renommierte amerikanische Literaturpreis. Quelle: nationalbook.org"
+  es: "El prestigioso premio literario estadounidense. Fuente: nationalbook.org"
+
+source_url: "https://www.nationalbook.org/"
+contributor: BiblioGenius
+tags: [prix, national-book-award, américain]
+
+books:
+  - isbn: "9782264075413"
+    note: "Jesmyn Ward - Le chant des revenants (Sing, Unburied, Sing)"
+  - isbn: "9782253100744"
+    note: "Colson Whitehead - Underground Railroad"
+  - isbn: "9782080438935"
+    note: "Ta-Nehisi Coates - Entre le monde et moi (Best Non-Fiction 2015)"
+  - isbn: "9782253159117"
+    note: "Phil Klay - Fin de mission"
+  - isbn: "9782351785874"
+    note: "James McBride - L'Oiseau du Bon Dieu (The Good Lord Bird)"
+  - isbn: "9782253087144"
+    note: "Louise Erdrich - Dans le silence du vent (The Round House)"
+  - isbn: "9782264060198"
+    note: "Jesmyn Ward - Bois sauvage (Salvage the Bones)"
+  - isbn: "9782267019988"
+    note: "Jonathan Franzen - Les Corrections"
+  - isbn: "9782020407229"
+    note: "Ha Jin - La Longue Attente (Waiting)"
+  - isbn: "9782710381211"
+    note: "Alice McDermott - Charming Billy"

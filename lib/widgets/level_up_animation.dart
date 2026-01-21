@@ -353,7 +353,7 @@ class _LevelUpAnimationWidgetState extends State<_LevelUpAnimationWidget>
                               ],
                             ),
                             child: Text(
-                              'Level ${_numberAnimation.value.round()}',
+                              '${TranslationService.translate(context, 'level')} ${_numberAnimation.value.round()}',
                               style: const TextStyle(
                                 color: Colors.white,
                                 fontSize: 28,

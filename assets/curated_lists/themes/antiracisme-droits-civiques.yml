@@ -1,0 +1,42 @@
+# Antiracisme et Droits Civiques
+# Sources : NAACP Image Awards, programmes universitaires
+id: antiracisme-droits-civiques
+version: 1
+
+title:
+  fr: Antiracisme et Droits Civiques
+  en: Anti-Racism and Civil Rights
+  de: Antirassismus und Bürgerrechte
+  es: Antirracismo y Derechos Civiles
+
+description:
+  fr: "Œuvres essentielles sur l'antiracisme et les droits civiques. Sources : NAACP Image Awards, universités."
+  en: "Essential works on anti-racism and civil rights. Sources: NAACP Image Awards, universities."
+  de: "Wesentliche Werke über Antirassismus und Bürgerrechte. Quellen: NAACP Image Awards, Universitäten."
+  es: "Obras esenciales sobre antirracismo y derechos civiles. Fuentes: NAACP Image Awards, universidades."
+
+source_url: "https://naacpimageawards.net/"
+contributor: BiblioGenius
+tags: [antiracisme, droits-civiques, politique, société]
+
+books:
+  - isbn: "9782080438935"
+    note: "Ta-Nehisi Coates - Entre le monde et moi"
+  - isbn: "9782849505410"
+    note: "Michelle Alexander - La Couleur de la justice"
+  - isbn: "9782379351105"
+    note: "Ibram X. Kendi - Comment devenir antiraciste"
+  - isbn: "9791037500717"
+    note: "Robin DiAngelo - Fragilité blanche"
+  - isbn: "9782366247619"
+    note: "bell hooks - Ne suis-je pas une femme ?"
+  - isbn: "9782721007117"
+    note: "Angela Davis - Femmes, race et classe"
+  - isbn: "9782070400508"
+    note: "James Baldwin - La Prochaine Fois, le Feu"
+  - isbn: "9782757841686"
+    note: "Frantz Fanon - Peau noire, masques blancs"
+  - isbn: "9782708705319"
+    note: "Aimé Césaire - Discours sur le colonialisme"
+  - isbn: "9782264083999"
+    note: "Toni Morrison - Beloved"

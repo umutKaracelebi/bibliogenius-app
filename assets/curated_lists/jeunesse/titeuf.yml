@@ -1,0 +1,113 @@
+id: titeuf
+version: 2
+title:
+  fr: Titeuf - Sélection Best-Of
+  en: Titeuf - Best-Of Selection
+description:
+  fr: "C'est pô juste ! Retrouvez les aventures hilarantes de Titeuf et sa bande par Zep."
+  en: "It's not fair! Join the hilarious adventures of Titeuf and his gang by Zep."
+cover_url: https://covers.openlibrary.org/b/isbn/9782723477055-L.jpg
+contributor: BiblioGenius
+tags:
+- bd-jeunesse
+- humour
+- ecole
+books:
+- isbn: '9782723477055'
+  note: "Tome 1 : Dieu, le sexe et les bretelles"
+  title: "Dieu, le sexe et les bretelles"
+  publisher: "Glénat"
+  published_date: "2010"
+  authors: ["Zep"]
+  description: "Titeuf découvre la vie, les filles et les mystères de la séduction... avec plus ou moins de succès."
+- isbn: '2723416372'
+  note: "Tome 2 : L'Amour, c'est pô propre..."
+  title: "L'Amour, c'est pô propre..."
+  publisher: "Glénat"
+  published_date: "1993"
+  authors: ["Zep"]
+  description: "Titeuf continue son exploration du monde des adultes, toujours avec sa mèche rebelle et son regard unique."
+- isbn: '2723417433'
+  note: "Tome 3 : Ça épate les filles..."
+  title: "Ça épate les filles..."
+  publisher: "Glénat"
+  published_date: "1994"
+  authors: ["Zep"]
+  description: "Comment séduire Nadia ? Titeuf cherche la méthode infaillible pour épater les filles."
+- isbn: '2723421368'
+  note: "Tome 4 : C'est pô juste..."
+  title: "C'est pô juste..."
+  publisher: "Glénat"
+  published_date: "1995"
+  authors: ["Zep"]
+  description: "La vie est vraiment injuste quand on est petit et qu'on ne comprend rien aux grands !"
+- isbn: '9782723421362'
+  note: "Tome 5 : Le derrière des choses"
+  title: "Le derrière des choses"
+  publisher: "Glénat"
+  published_date: "1996"
+  authors: ["Zep"]
+  description: "Titeuf philosophe sur le sens caché de la vie et le 'derrière' des choses."
+- isbn: '9782723423885'
+  note: "Tome 6 : Tchô, monde cruel"
+  title: "Tchô, monde cruel"
+  publisher: "Glénat"
+  published_date: "1997"
+  authors: ["Zep"]
+  description: "Entre l'école, les copains et les parents, le monde est parfois bien cruel pour Titeuf."
+- isbn: '9782723426541'
+  note: "Tome 7 : Le miracle de la vie"
+  title: "Le miracle de la vie"
+  publisher: "Glénat"
+  published_date: "1998"
+  authors: ["Zep"]
+  description: "La petite sœur de Titeuf arrive ! Comment va-t-il gérer ce 'miracle' qui prend toute la place ?"
+- isbn: '2723423883'
+  note: "Tome 8 : Lâchez-moi le slip !"
+  title: "Lâchez-moi le slip !"
+  publisher: "Glénat"
+  published_date: "2000"
+  authors: ["Zep"]
+  description: "Titeuf en a marre qu'on lui dise quoi faire. Lâchez-lui le slip un peu !"
+- isbn: '9782723434249'
+  note: "Tome 9 : La loi du préau"
+  title: "La loi du préau"
+  publisher: "Glénat"
+  published_date: "2002"
+  authors: ["Zep"]
+  description: "Dans la cour de récré, c'est la loi de la jungle... ou plutôt la loi du préau."
+- isbn: '9782723446648'
+  note: "Tome 10 : Nadia se marie"
+  title: "Nadia se marie"
+  publisher: "Glénat"
+  published_date: "2004"
+  authors: ["Zep"]
+  description: "Le cauchemar absolu : Nadia va se marier ? Titeuf doit empêcher ça à tout prix !"
+- isbn: '9782723454834'
+  note: "Tome 11 : Mes meilleurs copains"
+  title: "Mes meilleurs copains"
+  publisher: "Glénat"
+  published_date: "2006"
+  authors: ["Zep"]
+  description: "Manu, Hugo et les autres... Les copains, c'est sacré, même quand ils sont complètement idiots."
+- isbn: '9782723464482'
+  note: "Tome 12 : Le sens de la vie"
+  title: "Le sens de la vie"
+  publisher: "Glénat"
+  published_date: "2008"
+  authors: ["Zep"]
+  description: "Titeuf s'interroge sur le but de l'existence. Pourquoi on est là ? Et pourquoi Nadia ne l'aime pas ?"
+- isbn: '9782723485227'
+  note: "Tome 13 : À la folie !"
+  title: "À la folie !"
+  publisher: "Glénat"
+  published_date: "2012"
+  authors: ["Zep"]
+  description: "L'amour rend fou, et Titeuf est bien placé pour le savoir."
+- isbn: '9782723498180'
+  note: "Tome 14 : Bienvenue en adolescence !"
+  title: "Bienvenue en adolescence !"
+  publisher: "Glénat"
+  published_date: "2015"
+  authors: ["Zep"]
+  description: "Titeuf grandit... ou presque. L'adolescence guette, avec son lot de nouveaux problèmes."

@@ -1,0 +1,40 @@
+# Newbery Medal - Children's Literature
+# Source officielle : American Library Association (ala.org)
+id: newbery-medal
+version: 1
+
+title:
+  fr: Médaille Newbery - Littérature Jeunesse
+  en: Newbery Medal - Children's Literature
+  de: Newbery-Medaille - Kinderliteratur
+  es: Medalla Newbery - Literatura Infantil
+
+description:
+  fr: "Le prix le plus prestigieux pour la littérature jeunesse américaine. Source : ala.org"
+  en: "The most prestigious award for American children's literature. Source: ala.org"
+  de: "Die renommierteste Auszeichnung für amerikanische Kinderliteratur. Quelle: ala.org"
+  es: "El premio más prestigioso para la literatura infantil estadounidense. Fuente: ala.org"
+
+source_url: "https://www.ala.org/alsc/awardsgrants/bookmedia/newberymedal"
+contributor: BiblioGenius
+tags: [prix, newbery, jeunesse, américain]
+
+books:
+  - isbn: "9782070612758"
+    note: "Neil Gaiman - L'Étrange Vie de Nobody Owens (2009)"
+  - isbn: "9782070643028"
+    note: "Kate DiCamillo - La Quête de Despereaux (2004)"
+  - isbn: "9782070612758"
+    note: "Louis Sachar - Le Passage (1999)"
+  - isbn: "9782070612758"
+    note: "E.L. Konigsburg - Du fond de mon cœur (1997)"
+  - isbn: "9782070643028"
+    note: "Lois Lowry - Le Passeur (1994)"
+  - isbn: "9782070612758"
+    note: "Jerry Spinelli - Maniac Magee (1991)"
+  - isbn: "9782070612758"
+    note: "Cynthia Voigt - Dicey's Song (1983)"
+  - isbn: "9782070612758"
+    note: "Katherine Paterson - Le Royaume de la rivière (1978)"
+  - isbn: "9782070612758"
+    note: "Madeleine L'Engle - Un raccourci dans le temps (1963)"

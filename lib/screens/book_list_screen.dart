@@ -506,7 +506,10 @@ class _BookListScreenState extends State<BookListScreen>
   // _fetchSuggestions is removed as Autocomplete now works directly on _allBooks
 
   Widget _buildSearchField() {
+    // Use a unique key to force complete disposal when search mode changes
+    // This prevents Flutter's Autocomplete async semantics from accessing unmounted state
     return Container(
+      key: const ValueKey('search_autocomplete'),
       margin: const EdgeInsets.symmetric(horizontal: 20, vertical: 10),
       decoration: BoxDecoration(
         color: Colors.white,
@@ -530,6 +533,7 @@ class _BookListScreenState extends State<BookListScreen>
           });
         },
         onSelected: (Book selection) {
+          if (!mounted) return; // Guard against unmounted state
           if (selection.id == null) return;
           context.push('/books/${selection.id}', extra: selection);
         },
@@ -562,6 +566,7 @@ class _BookListScreenState extends State<BookListScreen>
               ),
             ),
             onChanged: (value) {
+              if (!mounted) return; // Guard against unmounted state
               setState(() {
                 _searchQuery = value;
                 _filterBooks(); // Trigger filter on search query change

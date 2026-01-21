@@ -1,0 +1,35 @@
+id: sf-classics
+version: 1
+title:
+  fr: Classiques de la Science-Fiction
+  en: Science Fiction Classics
+  de: Science-Fiction-Klassiker
+  es: Clásicos de la Ciencia Ficción
+description:
+  fr: Les œuvres fondatrices qui ont façonné le genre de la science-fiction.
+  en: The foundational works that shaped the science fiction genre.
+  de: Die grundlegenden Werke, die das Science-Fiction-Genre geprägt haben.
+  es: Las obras fundamentales que dieron forma al género de la ciencia ficción.
+cover_url: https://covers.openlibrary.org/b/id/8259443-L.jpg
+contributor: BiblioGenius
+tags:
+- science-fiction
+- classiques
+- space-opera
+books:
+- isbn: '9782266320481'
+  note: Dune - Frank Herbert
+- isbn: '9785050040107'
+  note: La Main gauche de la nuit - Ursula K. Le Guin
+- isbn: '9782290312841'
+  note: Neuromancien - William Gibson
+- isbn: '9782290349229'
+  note: La Stratégie Ender - Orson Scott Card
+- isbn: '9782266241915'
+  note: Hypérion - Dan Simmons
+- isbn: '9782846261562'
+  note: American Gods - Neil Gaiman
+- isbn: '9782330077020'
+  note: Le Problème à trois corps - Liu Cixin
+- isbn: '9782290157183'
+  note: La Cinquième Saison - N.K. Jemisin

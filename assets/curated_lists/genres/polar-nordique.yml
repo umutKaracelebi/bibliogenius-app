@@ -1,0 +1,42 @@
+# Littérature Scandinave - Polar Nordique
+# Sources : Glass Key Award, Scandinavian Crime Fiction
+id: polar-nordique
+version: 1
+
+title:
+  fr: Polar Nordique
+  en: Nordic Noir
+  de: Skandinavischer Krimi
+  es: Noir Nórdico
+
+description:
+  fr: "Le meilleur du polar scandinave. Sources : Glass Key Award, Scandinavian Crime Fiction."
+  en: "The best of Scandinavian crime fiction. Sources: Glass Key Award, Scandinavian Crime Fiction."
+  de: "Das Beste des skandinavischen Krimis. Quellen: Glass Key Award, Scandinavian Crime Fiction."
+  es: "Lo mejor del noir escandinavo. Fuentes: Glass Key Award, Scandinavian Crime Fiction."
+
+source_url: "https://www.glassnoglen.dk/"
+contributor: BiblioGenius
+tags: [polar, scandinave, nordique, thriller]
+
+books:
+  - isbn: "9782742778430"
+    note: "Stieg Larsson - Millénium (trilogie)"
+  - isbn: "9782072708114"
+    note: "Jo Nesbø - L'Étoile du diable (Harry Hole)"
+  - isbn: "9782757839553"
+    note: "Henning Mankell - Meurtriers sans visage (Wallander)"
+  - isbn: "9782757800232"
+    note: "Arnaldur Indriðason - La Cité des jarres"
+  - isbn: "9782330006563"
+    note: "Camilla Läckberg - La Princesse des glaces"
+  - isbn: "9782253173618"
+    note: "Jussi Adler-Olsen - Miséricorde (Département V)"
+  - isbn: "9782330194499"
+    note: "Yrsa Sigurðardóttir - Le Silence"
+  - isbn: "9782020301091"
+    note: "Peter Høeg - Smilla et l'amour de la neige"
+  - isbn: "9782020413282"
+    note: "Karin Fossum - L'Œil d'Ève"
+  - isbn: "9782330014407"
+    note: "Lars Kepler - L'Hypnotiseur"

@@ -1,0 +1,42 @@
+# Edgar Award - Best Novel
+# Source officielle : Mystery Writers of America (theedgars.com)
+id: edgar-award-novels
+version: 1
+
+title:
+  fr: Prix Edgar - Meilleur Roman
+  en: Edgar Award - Best Novel
+  de: Edgar Award - Bester Roman
+  es: Premio Edgar - Mejor Novela
+
+description:
+  fr: "Les meilleurs romans policiers selon la Mystery Writers of America. Source : theedgars.com"
+  en: "Best mystery novels according to the Mystery Writers of America. Source: theedgars.com"
+  de: "Beste Kriminalromane laut Mystery Writers of America. Quelle: theedgars.com"
+  es: "Mejores novelas de misterio según la Mystery Writers of America. Fuente: theedgars.com"
+
+source_url: "https://mysterywriters.org/the-edgars/"
+contributor: BiblioGenius
+tags: [prix, edgar, polar, thriller, américain]
+
+books:
+  - isbn: "9782266207638"
+    note: "Tana French - Dans les bois (2008)"
+  - isbn: "9782070793822"
+    note: "Cormac McCarthy - No Country for Old Men (2006)"
+  - isbn: "9782253044901"
+    note: "Dennis Lehane - Mystic River (2002)"
+  - isbn: "9780786890033"
+    note: "T. Jefferson Parker - Silent Joe (VO 2002)"
+  - isbn: "9782742778430"
+    note: "Stieg Larsson - Millénium (nominé, phénomène mondial)"
+  - isbn: "9782253004226"
+    note: "James Ellroy - Le Dahlia noir (1988)"
+  - isbn: "9782266208611"
+    note: "Thomas Harris - Le Silence des agneaux (1989)"
+  - isbn: "9782757872802"
+    note: "John le Carré - La Taupe (1975)"
+  - isbn: "9782070498123"
+    note: "Raymond Chandler - Le Grand Sommeil (classique fondateur)"
+  - isbn: "9782253044123"
+    note: "Patricia Highsmith - L'Inconnu du Nord-Express (classique)"

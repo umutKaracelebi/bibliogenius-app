@@ -1,0 +1,28 @@
+# Drupal - CMS Development
+# Sources: Drupal.org
+id: programming-drupal
+version: 1
+
+title:
+  fr: Drupal - Développement & Architecture
+  en: Drupal - Development & Architecture
+  de: Drupal - Entwicklung & Architektur
+  es: Drupal - Desarrollo y Arquitectura
+
+description:
+  fr: "Ressources pour développeurs Drupal (Versions 9/10)."
+  en: "Resources for Drupal developers (Versions 9/10)."
+  de: "Ressourcen für Drupal-Entwickler (Versionen 9/10)."
+  es: "Recursos para desarrolladores Drupal (Versiones 9/10)."
+
+source_url: "https://www.drupal.org/"
+contributor: BiblioGenius
+tags: [informatique, cms, drupal, php, web]
+
+books:
+  - isbn: "9781837631803"
+    note: "Daniel Sipos - Drupal 10 Module Development"
+  - isbn: "9781803234960"
+    note: "Matt Glaman - Drupal 10 Development Cookbook"
+  - isbn: "9781789537965"
+    note: "Daniel Sipos - Drupal 9 Module Development (Reference)"

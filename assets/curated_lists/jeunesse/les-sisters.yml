@@ -1,0 +1,106 @@
+id: les-sisters
+version: 2
+title:
+  fr: Les Sisters - Sélection
+  en: The Sisters - Selection
+description:
+  fr: "Wendy et Marine sont deux sœurs explosives... C'est la guerre à la maison ! Par Cazenove et William."
+  en: "Wendy and Marine are two explosive sisters... It's war at home! By Cazenove and William."
+cover_url: https://covers.openlibrary.org/b/isbn/9782350784953-L.jpg
+contributor: BiblioGenius
+tags:
+- bd-jeunesse
+- humour
+- famille
+books:
+- isbn: '9782350784953'
+  note: "Tome 1 : Un air de famille"
+  title: "Un air de famille"
+  publisher: "Bamboo"
+  published_date: "2008"
+  authors: ["Christophe Cazenove", "William Maury"]
+  description: "Marine et Wendy s'adorent autant qu'elles se détestent. Découvrez le quotidien survolté de ces deux sœurs complices."
+- isbn: '9782350785493'
+  note: "Tome 2 : À la mode de chez nous"
+  title: "BÀ la mode de chez nous"
+  publisher: "Bamboo"
+  published_date: "2009"
+  authors: ["Christophe Cazenove", "William Maury"]
+  description: "Quand la grande sœur ado veut imposer sa mode à sa petite sœur chipie, ça fait des étincelles !"
+- isbn: '9782350786568'
+  note: "Tome 3 : C'est elle qu'a commencé"
+  title: "C'est elle qu'a commencé"
+  publisher: "Bamboo"
+  published_date: "2010"
+  authors: ["Christophe Cazenove", "William Maury"]
+  description: "L'éternelle excuse des disputes... Mais qui a vraiment commencé ? Marine ou Wendy ?"
+- isbn: '9782350787824'
+  note: "Tome 4 : C'est nikol crème !"
+  title: "C'est nikol crème !"
+  publisher: "Bamboo"
+  published_date: "2011"
+  authors: ["Christophe Cazenove", "William Maury"]
+  description: "Tout baigne pour les Sisters ? Pas sûr, entre les caprices de l'une et les crises de l'autre."
+- isbn: '9782818901625'
+  note: "Tome 5 : Quelle chouchoute !"
+  title: "Quelle chouchoute !"
+  publisher: "Bamboo"
+  published_date: "2012"
+  authors: ["Christophe Cazenove", "William Maury"]
+  description: "La jalousie guette : qui est la préférée de papa et maman ? La guerre des chouchoutes est déclarée."
+- isbn: '9782818907900'
+  note: "Tome 6 : Un namour de sister"
+  title: "Un namour de sister"
+  publisher: "Bamboo"
+  published_date: "2013"
+  authors: ["Christophe Cazenove", "William Maury"]
+  description: "Wendy est amoureuse ! Marine va-t-elle laisser sa grande sœur tranquille avec son Maxou ?"
+- isbn: '9782818922026'
+  note: "Tome 7 : Mon coup d'soleil, c'est toi !"
+  title: "Mon coup d'soleil, c'est toi !"
+  publisher: "Bamboo"
+  published_date: "2014"
+  authors: ["Christophe Cazenove", "William Maury"]
+  description: "Les vacances, la plage, le soleil... et les bêtises de Marine qui ne prend jamais de vacances."
+- isbn: '9782818925324'
+  note: "Tome 8 : Tout pour lui plaire !"
+  title: "Tout pour lui plaire !"
+  publisher: "Bamboo"
+  published_date: "2015"
+  authors: ["Christophe Cazenove", "William Maury"]
+  description: "Marine essaie d'être gentille pour une fois. Mais est-ce vraiment naturel ?"
+- isbn: '9782818901625'
+  note: "Tome 9 : Toujours dans les pattes !"
+  title: "Toujours dans les pattes !"
+  publisher: "Bamboo"
+  published_date: "2016"
+  authors: ["Christophe Cazenove", "William Maury"]
+  description: "Impossible d'avoir une minute à soi quand on a une petite sœur pot-de-colle."
+- isbn: '9782818934487'
+  note: "Tome 10 : Survitaminées !"
+  title: "Survitaminées !"
+  publisher: "Bamboo"
+  published_date: "2017"
+  authors: ["Christophe Cazenove", "William Maury"]
+  description: "Elles ont une énergie inépuisable... pour le plus grand malheur (et bonheur) de leurs parents."
+- isbn: '9782818940372'
+  note: "Tome 11 : C'est dans sa nature"
+  title: "C'est dans sa nature"
+  publisher: "Bamboo"
+  published_date: "2018"
+  authors: ["Christophe Cazenove", "William Maury"]
+  description: "Wendy et Marine au grand air. La nature survivra-t-elle à leur passage ?"
+- isbn: '9782818943502'
+  note: "Tome 12 : Attention tornade"
+  title: "Attention tornade"
+  publisher: "Bamboo"
+  published_date: "2019"
+  authors: ["Christophe Cazenove", "William Maury"]
+  description: "Un avis de tempête est annoncé sur la maison. La cause ? Une dispute mémorable !"
+- isbn: '9791041112197'
+  note: "Tome 20 : Moi d'abord !"
+  title: "Moi d'abord !"
+  publisher: "Bamboo"
+  published_date: "2024"
+  authors: ["Christophe Cazenove", "William Maury"]
+  description: "La compétition continue de plus belle. Qui passera la première ? Qui aura le dernier mot ?"

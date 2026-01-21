@@ -1,0 +1,42 @@
+# Spiritualité et Méditation
+# Sources : bestsellers internationaux, communautés spirituelles
+id: spiritualite-meditation
+version: 1
+
+title:
+  fr: Spiritualité et Méditation
+  en: Spirituality and Meditation
+  de: Spiritualität und Meditation
+  es: Espiritualidad y Meditación
+
+description:
+  fr: "Ouvrages essentiels sur la spiritualité et la méditation. Sources : bestsellers internationaux."
+  en: "Essential books on spirituality and meditation. Sources: international bestsellers."
+  de: "Wesentliche Bücher über Spiritualität und Meditation. Quellen: Internationale Bestseller."
+  es: "Libros esenciales sobre espiritualidad y meditación. Fuentes: bestsellers internacionales."
+
+source_url: "https://www.goodreads.com/list/show/1052.Best_Books_on_Meditation"
+contributor: BiblioGenius
+tags: [spiritualité, méditation, bien-être, sagesse]
+
+books:
+  - isbn: "9782290020203"
+    note: "Eckhart Tolle - Le Pouvoir du moment présent"
+  - isbn: "9782290011072"
+    note: "Thich Nhat Hanh - Le Miracle de la pleine conscience"
+  - isbn: "9782266123303"
+    note: "Pema Chödrön - Quand tout s'effondre"
+  - isbn: "9782290068939"
+    note: "Jon Kabat-Zinn - Où tu vas, tu es"
+  - isbn: "9782253008484"
+    note: "Hermann Hesse - Siddhartha"
+  - isbn: "9782266144605"
+    note: "Matthieu Ricard - Plaidoyer pour le bonheur"
+  - isbn: "9782020046558"
+    note: "Aldous Huxley - La Philosophie éternelle"
+  - isbn: "9782290258064"
+    note: "Paulo Coelho - L'Alchimiste"
+  - isbn: "9782070465262"
+    note: "Marc Aurèle - Pensées pour moi-même"
+  - isbn: "9782290234648"
+    note: "Dalai Lama - L'Art du bonheur"

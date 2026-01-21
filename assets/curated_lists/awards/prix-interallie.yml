@@ -1,0 +1,38 @@
+# Prix Interallié
+# Source officielle : prixinterallie.com
+id: prix-interallie
+version: 1
+
+title:
+  fr: Prix Interallié
+  en: Prix Interallié
+  de: Prix Interallié
+  es: Premio Interallié
+
+description:
+  fr: "Prix décerné par des journalistes parisiens. Source : prixinterallie.com"
+  en: "Prize awarded by Parisian journalists. Source: prixinterallie.com"
+  de: "Preis, verliehen von Pariser Journalisten. Quelle: prixinterallie.com"
+  es: "Premio otorgado por periodistas parisinos. Fuente: prixinterallie.com"
+
+source_url: "https://www.prixinterallie.com/"
+contributor: BiblioGenius
+tags: [prix, interallié, français, journalistes]
+
+books:
+  - isbn: "9782072968808"
+    note: "Mathieu Palain - Ne t'arrête pas de courir (2024)"
+  - isbn: "9782072951091"
+    note: "Alexis Jenni - La Nuit de Walenhammes (2023)"
+  - isbn: "9782072890864"
+    note: "Olivier Norek - Dans les brumes de Capelans (2022)"
+  - isbn: "9782072848018"
+    note: "Giuliano da Empoli - Le Mage du Kremlin (2022 nominé)"
+  - isbn: "9782072801327"
+    note: "Olivier Rolin - Extérieur monde (2019)"
+  - isbn: "9782070197712"
+    note: "Adrien Bosc - Constellation (2014)"
+  - isbn: "9782070126200"
+    note: "Emmanuel Carrère - Limonov (2011)"
+  - isbn: "9782253134329"
+    note: "Sorj Chalandon - Mon traître (2008)"

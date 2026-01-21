@@ -1,0 +1,42 @@
+# Fantasy Épique - Classiques
+# Source : Locus Awards, Mythopoeic Awards
+id: fantasy-epique
+version: 1
+
+title:
+  fr: Fantasy Épique - Classiques
+  en: Epic Fantasy - Classics
+  de: Epische Fantasy - Klassiker
+  es: Fantasía Épica - Clásicos
+
+description:
+  fr: "Les œuvres fondatrices de la fantasy épique. Sources : Locus Awards, Mythopoeic Awards."
+  en: "Foundational works of epic fantasy. Sources: Locus Awards, Mythopoeic Awards."
+  de: "Grundlegende Werke der epischen Fantasy. Quellen: Locus Awards, Mythopoeic Awards."
+  es: "Obras fundacionales de la fantasía épica. Fuentes: Locus Awards, Mythopoeic Awards."
+
+source_url: "https://www.sfadb.com/Locus_Awards"
+contributor: BiblioGenius
+tags: [fantasy, épique, classiques]
+
+books:
+  - isbn: "9782070612758"
+    note: "J.R.R. Tolkien - Le Seigneur des Anneaux"
+  - isbn: "9782253049418"
+    note: "J.R.R. Tolkien - Le Hobbit"
+  - isbn: "9782070418275"
+    note: "Ursula K. Le Guin - Terremer"
+  - isbn: "9782253134107"
+    note: "Brandon Sanderson - Fils-des-Brumes (L'Empire Ultime)"
+  - isbn: "9782352943556"
+    note: "Patrick Rothfuss - Le Nom du Vent"
+  - isbn: "9782290135617"
+    note: "George R.R. Martin - Le Trône de fer"
+  - isbn: "9782290352625"
+    note: "Robin Hobb - L'Assassin royal"
+  - isbn: "9782266355582"
+    note: "Terry Pratchett - Les Annales du Disque-Monde (La Huitième Couleur)"
+  - isbn: "9782070418275"
+    note: "Philip Pullman - À la croisée des mondes"
+  - isbn: "9782846261562"
+    note: "Neil Gaiman - American Gods"

@@ -1,0 +1,42 @@
+# Science Populaire - Bestsellers
+# Sources : Royal Society Science Book Prize, New York Times Science
+id: science-populaire
+version: 1
+
+title:
+  fr: Science Populaire - Bestsellers
+  en: Popular Science - Bestsellers
+  de: Populärwissenschaft - Bestseller
+  es: Ciencia Popular - Bestsellers
+
+description:
+  fr: "Les bestsellers de la vulgarisation scientifique. Sources : Royal Society Science Book Prize, New York Times Science."
+  en: "Bestselling popular science books. Sources: Royal Society Science Book Prize, New York Times Science."
+  de: "Bestseller der Populärwissenschaft. Quellen: Royal Society Science Book Prize, New York Times Science."
+  es: "Bestsellers de ciencia popular. Fuentes: Royal Society Science Book Prize, New York Times Science."
+
+source_url: "https://royalsociety.org/grants-schemes-awards/book-prizes/science-book-prize/"
+contributor: BiblioGenius
+tags: [science, vulgarisation, non-fiction]
+
+books:
+  - isbn: "9782081452015"
+    note: "Stephen Hawking - Une brève histoire du temps"
+  - isbn: "9782738112439"
+    note: "Richard Dawkins - Le Gène égoïste"
+  - isbn: "9782863740750"
+    note: "Carl Sagan - Cosmos"
+  - isbn: "9782080488312"
+    note: "Neil deGrasse Tyson - L'Univers expliqué aux gens pressés"
+  - isbn: "9782228906555"
+    note: "Bill Bryson - Une histoire de tout, ou presque"
+  - isbn: "9782738120229"
+    note: "Richard Feynman - Vous voulez rire, Mr. Feynman !"
+  - isbn: "9782738133120"
+    note: "Carlo Rovelli - Sept brèves leçons de physique"
+  - isbn: "9782081375642"
+    note: "Siddhartha Mukherjee - L'Empereur de toutes les maladies"
+  - isbn: "9782081290143"
+    note: "E.O. Wilson - La Conquête sociale de la Terre"
+  - isbn: "9782757840214"
+    note: "Oliver Sacks - L'Homme qui prenait sa femme pour un chapeau"

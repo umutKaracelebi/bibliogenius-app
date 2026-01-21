@@ -1,0 +1,52 @@
+# Prix Nobel de Littérature - Lauréats récents
+# Source officielle : nobelprize.org
+id: nobel-literature-recent
+version: 1
+
+title:
+  fr: Prix Nobel de Littérature (2010-2024)
+  en: Nobel Prize in Literature (2010-2024)
+  de: Nobelpreis für Literatur (2010-2024)
+  es: Premio Nobel de Literatura (2010-2024)
+
+description:
+  fr: "Les lauréats récents du prix Nobel de littérature. Source : nobelprize.org"
+  en: "Recent Nobel Prize in Literature laureates. Source: nobelprize.org"
+  de: "Jüngste Nobelpreisträger für Literatur. Quelle: nobelprize.org"
+  es: "Laureados recientes del Premio Nobel de Literatura. Fuente: nobelprize.org"
+
+source_url: "https://www.nobelprize.org/prizes/literature/"
+contributor: BiblioGenius
+tags: [prix, nobel, contemporain]
+
+books:
+  - isbn: "9782072968808"
+    note: "Han Kang - La Végétarienne (2024)"
+  - isbn: "9782070449781"
+    note: "Jon Fosse - Septologie (2023)"
+  - isbn: "9782070136636"
+    note: "Annie Ernaux - Les Années (2022)"
+  - isbn: "9782072934414"
+    note: "Abdulrazak Gurnah - Paradis (2021)"
+  - isbn: "9782072887598"
+    note: "Louise Glück - Meadowlands (2020)"
+  - isbn: "9782070141319"
+    note: "Peter Handke - La Femme gauchère (2019)"
+  - isbn: "9782070468508"
+    note: "Olga Tokarczuk - Les Pérégrins (2018)"
+  - isbn: "9782070178612"
+    note: "Kazuo Ishiguro - Les Vestiges du jour (2017)"
+  - isbn: "9782070402748"
+    note: "Bob Dylan - Chroniques (2016)"
+  - isbn: "9782070142736"
+    note: "Svetlana Alexievitch - La Supplication (2015)"
+  - isbn: "9782070409907"
+    note: "Patrick Modiano - Dora Bruder (2014)"
+  - isbn: "9782253150718"
+    note: "Alice Munro - Fugitives (2013)"
+  - isbn: "9782267024753"
+    note: "Mo Yan - Le Clan du Sorgho (2012)"
+  - isbn: "9782070424993"
+    note: "Tomas Tranströmer - Baltiques (2011)"
+  - isbn: "9782267019988"
+    note: "Mario Vargas Llosa - La Fête au Bouc (2010)"

@@ -1,0 +1,169 @@
+id: mortelle-adele
+version: 2
+title:
+  fr: Mortelle Adèle - Série complète
+  en: Mortelle Adele - Complete Series
+description:
+  fr: La série BD humoristique de Mr Tan mettant en scène Adèle, une petite fille diabolique aux idées noires.
+  en: The humorous comic series by Mr Tan featuring Adele, a devilish little girl with dark ideas.
+cover_url: https://covers.openlibrary.org/b/isbn/9782848018676-L.jpg
+contributor: BiblioGenius
+tags:
+- bd-jeunesse
+- humour
+- serie-complete
+books:
+- isbn: '9782848018676'
+  note: "Tome 1 : Tout ça finira mal"
+  title: "Tout ça finira mal"
+  publisher: "Tourbillon"
+  published_date: "2012"
+  authors: ["Mr Tan", "Miss Prickly"]
+  description: "Adèle n'est pas une petite fille comme les autres. Elle ne cherche pas à se faire des amis, mais à faire des expériences sur son chat ou ses parents."
+- isbn: '9782848018683'
+  note: "Tome 2 : L'enfer, c'est les autres"
+  title: "L'enfer, c'est les autres"
+  publisher: "Tourbillon"
+  published_date: "2012"
+  authors: ["Mr Tan", "Miss Prickly"]
+  description: "Pour Adèle, les autres sont surtout des cobayes potentiels ou des cibles pour ses bêtises."
+- isbn: '9782848018690'
+  note: "Tome 3 : C'est pas ma faute !"
+  title: "C'est pas ma faute !"
+  publisher: "Tourbillon"
+  published_date: "2012"
+  authors: ["Mr Tan", "Miss Prickly"]
+  description: "Adèle a toujours une bonne excuse. Même quand les dégâts sont considérables."
+- isbn: '9782848018706'
+  note: "Tome 4 : J'aime pas l'amour !"
+  title: "J'aime pas l'amour !"
+  publisher: "Tourbillon"
+  published_date: "2012"
+  authors: ["Mr Tan", "Miss Prickly"]
+  description: "Geoffroy est amoureux d'Adèle. Quelle horreur ! Adèle va tout faire pour le décourager."
+- isbn: '9782848018034'
+  note: "Tome 5 : Poussez-vous, les moches !"
+  title: "Poussez-vous, les moches !"
+  publisher: "Tourbillon"
+  published_date: "2013"
+  authors: ["Mr Tan", "Miss Prickly"]
+  description: "Adèle continue de terroriser son entourage avec son humour noir et ses plans machiavéliques."
+- isbn: '9782848018416'
+  note: "Tome 6 : Un talent monstre !"
+  title: "Un talent monstre !"
+  publisher: "Tourbillon"
+  published_date: "2013"
+  authors: ["Mr Tan", "Miss Prickly"]
+  description: "Adèle a un don pour la catastrophe. Et elle compte bien l'exploiter à fond."
+- isbn: '9782848019727'
+  note: "Tome 7 : Pas de pitié pour les nazebroques !"
+  title: "Pas de pitié pour les nazebroques !"
+  publisher: "Tourbillon"
+  published_date: "2014"
+  authors: ["Mr Tan", "Miss Prickly"]
+  description: "Les 'nazebroques', ce sont tous ceux qui ne comprennent pas le génie maléfique d'Adèle."
+- isbn: '9791027600076'
+  note: "Tome 8 : Parents à vendre"
+  title: "Parents à vendre"
+  publisher: "Tourbillon"
+  published_date: "2014"
+  authors: ["Mr Tan", "Diane Le Feyer"]
+  description: "Adèle en a marre de ses parents. Elle cherche un moyen de s'en débarrasser... ou de les échanger."
+- isbn: '9791027601066'
+  note: "Tome 9 : La rentrée des claques"
+  title: "La rentrée des claques"
+  publisher: "Tourbillon"
+  published_date: "2015"
+  authors: ["Mr Tan", "Diane Le Feyer"]
+  description: "C'est la rentrée ! Une nouvelle année pour embêter la maîtresse et les camarades de classe."
+- isbn: '9791027601073'
+  note: "Tome 10 : Choubidoulove"
+  title: "Choubidoulove"
+  publisher: "Tourbillon"
+  published_date: "2016"
+  authors: ["Mr Tan", "Diane Le Feyer"]
+  description: "L'amour frappe encore à la porte d'Adèle. Mais elle a prévu un accueil... explosif."
+- isbn: '9791027602377'
+  note: "Tome 11 : Ça sent la croquette !"
+  title: "Ça sent la croquette !"
+  publisher: "Tourbillon"
+  published_date: "2017"
+  authors: ["Mr Tan", "Diane Le Feyer"]
+  description: "Ajax, le chat d'Adèle, est sa victime préférée. Mais il a neuf vies..."
+- isbn: '9791027602483'
+  note: "Tome 12 : À la pêche aux nouilles !"
+  title: "À la pêche aux nouilles !"
+  publisher: "Tourbillon"
+  published_date: "2017"
+  authors: ["Mr Tan", "Diane Le Feyer"]
+  description: "Les vacances d'Adèle sont loin d'être reposantes pour ceux qui l'accompagnent."
+- isbn: '9791027605064'
+  note: "Tome 13 : Big bisous baveux"
+  title: "Big bisous baveux"
+  publisher: "Tourbillon"
+  published_date: "2018"
+  authors: ["Mr Tan", "Diane Le Feyer"]
+  description: "Adèle déteste les bisous. Sauf si c'est pour transmettre des microbes."
+- isbn: '9791027604364'
+  note: "Tome 14 : Prout atomique"
+  title: "Prout atomique"
+  publisher: "Tourbillon"
+  published_date: "2018"
+  authors: ["Mr Tan", "Diane Le Feyer"]
+  description: "Adèle explore les limites de la bienséance avec ses expériences gazeuses."
+- isbn: '9791027606023'
+  note: "Tome 15 : Funky Moumoute"
+  title: "Funky Moumoute"
+  publisher: "Tourbillon"
+  published_date: "2019"
+  authors: ["Mr Tan", "Diane Le Feyer"]
+  description: "Adèle et ses expériences capillaires... ou comment changer de tête (littéralement ?)."
+- isbn: '9791027607129'
+  note: "Tome 16 : Jurassic Mamie"
+  title: "Jurassic Mamie"
+  publisher: "Tourbillon"
+  published_date: "2020"
+  authors: ["Mr Tan", "Diane Le Feyer"]
+  description: "Adèle rend visite à sa grand-mère. Le choc des générations est violent !"
+- isbn: '9791027608614'
+  note: "Tome 17 : Karmastrophique !"
+  title: "Karmastrophique !"
+  publisher: "Tourbillon"
+  published_date: "2020"
+  authors: ["Mr Tan", "Diane Le Feyer"]
+  description: "Le karma rattrape-t-il Adèle ? Ou est-ce elle qui rattrape le karma ?"
+- isbn: '9791036333392'
+  note: "Tome 18 : Toi, je te zut !"
+  title: "Toi, je te zut !"
+  publisher: "Tourbillon"
+  published_date: "2021"
+  authors: ["Mr Tan", "Diane Le Feyer"]
+  description: "L'art de la répartie selon Adèle. Court, efficace, et méchant."
+- isbn: '9791036342400'
+  note: "Tome 19 : Face de beurk !"
+  title: "Face de beurk !"
+  publisher: "Tourbillon"
+  published_date: "2022"
+  authors: ["Mr Tan", "Diane Le Feyer"]
+  description: "Adèle continue de juger le monde avec son regard impitoyable."
+- isbn: '9782494678095'
+  note: "Tome 20 : J'apocalypse grave !"
+  title: "J'apocalypse grave !"
+  publisher: "Tourbillon"
+  published_date: "2023"
+  authors: ["Mr Tan", "Diane Le Feyer"]
+  description: "Si c'est la fin du monde, Adèle compte bien être aux premières loges."
+- isbn: '9782494678262'
+  note: "Tome 21 : RécréACTION Générale !"
+  title: "RécréACTION Générale !"
+  publisher: "Tourbillon"
+  published_date: "2023"
+  authors: ["Mr Tan", "Diane Le Feyer"]
+  description: "La récréation, c'est le moment d'agir. Adèle mène la révolution."
+- isbn: '9782494678378'
+  note: "Tome 22 : Bande de Compotes !"
+  title: "Bande de Compotes !"
+  publisher: "Tourbillon"
+  published_date: "2024"
+  authors: ["Mr Tan", "Diane Le Feyer"]
+  description: "Adèle et son club des bizarres... une belle bande de compotes."

@@ -1,0 +1,42 @@
+# Young Adult - Incontournables
+# Sources : YALSA, Carnegie Medal, Alex Awards
+id: young-adult
+version: 1
+
+title:
+  fr: Young Adult - Incontournables
+  en: Young Adult - Must-Reads
+  de: Jugendbücher - Unverzichtbar
+  es: Joven Adulto - Imprescindibles
+
+description:
+  fr: "Les romans jeunes adultes incontournables. Sources : YALSA, Carnegie Medal, Alex Awards."
+  en: "Must-read young adult novels. Sources: YALSA, Carnegie Medal, Alex Awards."
+  de: "Unverzichtbare Jugendbücher. Quellen: YALSA, Carnegie Medal, Alex Awards."
+  es: "Novelas juveniles imprescindibles. Fuentes: YALSA, Carnegie Medal, Alex Awards."
+
+source_url: "https://www.ala.org/yalsa/booklists"
+contributor: BiblioGenius
+tags: [young-adult, jeunesse, adolescent]
+
+books:
+  - isbn: "9782070643028"
+    note: "J.K. Rowling - Harry Potter à l'école des sorciers"
+  - isbn: "9782266260770"
+    note: "Suzanne Collins - Hunger Games"
+  - isbn: "9782266283304"
+    note: "John Green - Nos étoiles contraires"
+  - isbn: "9782092552988"
+    note: "Veronica Roth - Divergente"
+  - isbn: "9782092595855"
+    note: "Angie Thomas - The Hate U Give (Nathan)"
+  - isbn: "9782017868736"
+    note: "Becky Albertalli - Love, Simon (Moi, Simon, 16 ans)"
+  - isbn: "9782016265345"
+    note: "Nicola Yoon - Everything, Everything"
+  - isbn: "9782266300643"
+    note: "Rainbow Rowell - Eleanor & Park"
+  - isbn: "9782266320481"
+    note: "Stephen Chbosky - Le Monde de Charlie"
+  - isbn: "9782070643028"
+    note: "Lois Lowry - Le Passeur"

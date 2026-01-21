@@ -1,0 +1,28 @@
+# Flutter - Mobile Development
+# Sources: Flutter.dev
+id: programming-flutter
+version: 1
+
+title:
+  fr: Flutter - Développement Mobile
+  en: Flutter - Mobile Development
+  de: Flutter - Mobile Entwicklung
+  es: Flutter - Desarrollo Móvil
+
+description:
+  fr: "Créez des applications multiplateformes avec Flutter et Dart."
+  en: "Build cross-platform apps with Flutter and Dart."
+  de: "Erstellen Sie plattformübergreifende Apps mit Flutter und Dart."
+  es: "Cree aplicaciones multiplataforma con Flutter y Dart."
+
+source_url: "https://flutter.dev/"
+contributor: BiblioGenius
+tags: [informatique, mobile, flutter, dart, apps]
+
+books:
+  - isbn: "9781950325740"
+    note: "Mike Katz - Flutter Apprentice (3rd Edition)"
+  - isbn: "9782409025273"
+    note: "Julien Tranié - Flutter : Développez vos applications mobiles (Editions ENI)"
+  - isbn: "9781950325474"
+    note: "Ray Wenderlich - Real-World Flutter by Tutorials"

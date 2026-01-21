@@ -1,0 +1,37 @@
+# Classiques de la littérature jeunesse
+id: jeunesse-classiques
+version: 1
+
+title:
+  fr: Classiques de la littérature jeunesse
+  en: Children's Literature Classics
+  de: Klassiker der Kinder- und Jugendliteratur
+  es: Clásicos de la literatura juvenil
+
+description:
+  fr: Les incontournables pour les jeunes lecteurs, de 8 à 15 ans.
+  en: Must-reads for young readers, ages 8 to 15.
+  de: Unverzichtbare Lektüre für junge Leser von 8 bis 15 Jahren.
+  es: Imprescindibles para jóvenes lectores, de 8 a 15 años.
+
+cover_url: "https://covers.openlibrary.org/b/id/8225138-L.jpg"
+contributor: BiblioGenius
+tags: [jeunesse, classiques, fantasy, aventure]
+
+books:
+  - isbn: "9782070643028"
+    note: "Harry Potter à l'école des sorciers - J.K. Rowling"
+  - isbn: "9782070619023"
+    note: "Le Monde de Narnia - Le Lion, la Sorcière Blanche et l'Armoire Magique - C.S. Lewis"
+  - isbn: "9782070601578"
+    note: "Charlie et la Chocolaterie - Roald Dahl"
+  - isbn: "9782070601561"
+    note: "Matilda - Roald Dahl"
+  - isbn: "9782070409013"
+    note: "L'Île au trésor - Robert Louis Stevenson"
+  - isbn: "9782253049418"
+    note: "Le Hobbit - J.R.R. Tolkien"
+  - isbn: "9782226326249"
+    note: "Percy Jackson - Le Voleur de foudre - Rick Riordan"
+  - isbn: "9782747017510"
+    note: "Eragon - Christopher Paolini"

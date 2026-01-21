@@ -1,0 +1,43 @@
+id: romans-historiques
+version: 1
+title:
+  fr: Romans Historiques - Incontournables
+  en: Historical Fiction - Must-Reads
+  de: Historische Romane - Unverzichtbar
+  es: Novelas Históricas - Imprescindibles
+description:
+  fr: 'Les romans historiques incontournables. Sources : Walter Scott Prize, Historical
+    Novel Society.'
+  en: 'Must-read historical fiction. Sources: Walter Scott Prize, Historical Novel
+    Society.'
+  de: 'Unverzichtbare historische Romane. Quellen: Walter Scott Prize, Historical
+    Novel Society.'
+  es: 'Novelas históricas imprescindibles. Fuentes: Walter Scott Prize, Historical
+    Novel Society.'
+source_url: https://historicalnovelsociety.org/
+contributor: BiblioGenius
+tags:
+- historique
+- fiction
+- roman
+books:
+- isbn: '9782266240369'
+  note: Hilary Mantel - Dans l'ombre des Tudors
+- isbn: '9782253059536'
+  note: Ken Follett - Les Piliers de la terre
+- isbn: '9782253008880'
+  note: Alexandre Dumas - Les Trois Mousquetaires
+- isbn: '9782253009030'
+  note: Victor Hugo - Notre-Dame de Paris
+- isbn: '9782253017264'
+  note: Léon Tolstoï - Guerre et Paix
+- isbn: '9782253033134'
+  note: Umberto Eco - Le Nom de la rose
+- isbn: '9782020928403'
+  note: Arturo Pérez-Reverte - Le Capitaine Alatriste
+- isbn: '9782070409907'
+  note: Patrick Modiano - Dora Bruder
+- isbn: '9782253045281'
+  note: Anthony Doerr - Toute la lumière que nous ne pouvons voir
+- isbn: '9782266175968'
+  note: Markus Zusak - La Voleuse de livres

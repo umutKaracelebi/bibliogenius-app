@@ -1,0 +1,42 @@
+# Théâtre - Classiques Modernes
+# Sources : Prix Molière, Tony Awards
+id: theatre-classiques
+version: 1
+
+title:
+  fr: Théâtre - Classiques Modernes
+  en: Theater - Modern Classics
+  de: Theater - Moderne Klassiker
+  es: Teatro - Clásicos Modernos
+
+description:
+  fr: "Les pièces de théâtre incontournables du XXe siècle. Sources : Prix Molière, Tony Awards."
+  en: "Essential plays of the 20th century. Sources: Molière Awards, Tony Awards."
+  de: "Wesentliche Theaterstücke des 20. Jahrhunderts. Quellen: Prix Molière, Tony Awards."
+  es: "Obras de teatro esenciales del siglo XX. Fuentes: Prix Molière, Tony Awards."
+
+source_url: "https://www.lesmolières.com/"
+contributor: BiblioGenius
+tags: [théâtre, dramatique, classiques]
+
+books:
+  - isbn: "9782707301482"
+    note: "Samuel Beckett - En attendant Godot"
+  - isbn: "9782070386536"
+    note: "Eugène Ionesco - La Cantatrice chauve"
+  - isbn: "9782072790416"
+    note: "Jean-Paul Sartre - Huis clos"
+  - isbn: "9782070386703"
+    note: "Albert Camus - Caligula"
+  - isbn: "9782264037732"
+    note: "Tennessee Williams - Un tramway nommé Désir"
+  - isbn: "9782221264300"
+    note: "Arthur Miller - Mort d'un commis voyageur"
+  - isbn: "9782070136933"
+    note: "Harold Pinter - Le Retour"
+  - isbn: "9782710381419"
+    note: "Jean Anouilh - Antigone"
+  - isbn: "9782070412815"
+    note: "Jean Genet - Les Bonnes"
+  - isbn: "9782330005511"
+    note: "Edward Albee - Qui a peur de Virginia Woolf ?"

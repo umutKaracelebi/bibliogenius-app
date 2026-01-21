@@ -1,0 +1,42 @@
+# Littérature Africaine Contemporaine
+# Sources : Prix des 5 Continents de la Francophonie, African Literature Association
+id: litterature-africaine
+version: 1
+
+title:
+  fr: Littérature Africaine Contemporaine
+  en: Contemporary African Literature
+  de: Zeitgenössische Afrikanische Literatur
+  es: Literatura Africana Contemporánea
+
+description:
+  fr: "Voix contemporaines de la littérature africaine. Sources : Prix des 5 Continents, African Literature Association."
+  en: "Contemporary voices in African literature. Sources: Prix des 5 Continents, African Literature Association."
+  de: "Zeitgenössische Stimmen der afrikanischen Literatur. Quellen: Prix des 5 Continents, African Literature Association."
+  es: "Voces contemporáneas de la literatura africana. Fuentes: Prix des 5 Continents, African Literature Association."
+
+source_url: "https://www.francophonie.org/prix-des-5-continents"
+contributor: BiblioGenius
+tags: [afrique, contemporain, francophonie, anglophone]
+
+books:
+  - isbn: "9782070468805"
+    note: "Chimamanda Ngozi Adichie - Americanah"
+  - isbn: "9782070356508"
+    note: "Chimamanda Ngozi Adichie - L'Hibiscus pourpre"
+  - isbn: "9782253134329"
+    note: "Tierno Monénembo - Le Terroriste noir"
+  - isbn: "9782072973734"
+    note: "Mohamed Mbougar Sarr - La Plus Secrète Mémoire des hommes"
+  - isbn: "9782757832677"
+    note: "Alain Mabanckou - Verre Cassé"
+  - isbn: "9782253123385"
+    note: "Léonora Miano - L'Intérieur de la nuit"
+  - isbn: "9782708709133"
+    note: "Ngugi wa Thiong'o - Enfant, ne pleure pas (ou The River Between/Pétales de sang en substitution)"
+  - isbn: "9782020525657"
+    note: "Ahmadou Kourouma - Allah n'est pas obligé"
+  - isbn: "9782264020925"
+    note: "Ben Okri - La Route de la faim"
+  - isbn: "9782253112440"
+    note: "Fatou Diome - Le Ventre de l'Atlantique"

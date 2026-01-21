@@ -7,7 +7,6 @@ import '../services/api_service.dart';
 import '../services/translation_service.dart';
 import '../services/demo_service.dart';
 import '../services/mdns_service.dart';
-import '../widgets/avatar_customizer.dart';
 import '../themes/base/theme_registry.dart';
 
 class SetupScreen extends StatefulWidget {
@@ -167,12 +166,7 @@ class _SetupScreenState extends State<SetupScreen> {
 
     return Consumer<ThemeProvider>(
       builder: (context, themeProvider, child) {
-        // Safety check for dropdown value
-        final currentTheme = themeProvider.themeStyle;
-        final validTheme = ThemeRegistry.exists(currentTheme)
-            ? currentTheme
-            : 'default';
-
+        // Get locale and step
         final lang = themeProvider.locale.languageCode;
         final strings = _t[lang] ?? _t['en']!;
         final currentStep = themeProvider.setupStep;
@@ -190,7 +184,7 @@ class _SetupScreenState extends State<SetupScreen> {
               debugPrint(
                 'Stepper onStepContinue called - currentStep: $currentStep',
               );
-              if (currentStep < 6) {
+              if (currentStep < 4) {
                 if (currentStep == 1) {
                   // Save library name when leaving step 1
                   themeProvider.setSetupLibraryName(
@@ -198,7 +192,7 @@ class _SetupScreenState extends State<SetupScreen> {
                   );
                 }
                 // Validate password on credentials step
-                if (currentStep == 5) {
+                if (currentStep == 3) {
                   if (_passwordController.text.isNotEmpty &&
                       _passwordController.text !=
                           _confirmPasswordController.text) {
@@ -233,7 +227,7 @@ class _SetupScreenState extends State<SetupScreen> {
               }
             },
             controlsBuilder: (context, details) {
-              final isLastStep = currentStep == 6;
+              final isLastStep = currentStep == 4;
               return Padding(
                 padding: const EdgeInsets.only(top: 24.0, bottom: 12.0),
                 child: Row(
@@ -323,11 +317,19 @@ class _SetupScreenState extends State<SetupScreen> {
                 content: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
+                    Text(
+                      strings['library_name_label']!,
+                      style: TextStyle(
+                        fontSize: 14,
+                        fontWeight: FontWeight.w500,
+                        color: Theme.of(context).colorScheme.primary,
+                      ),
+                    ),
+                    const SizedBox(height: 8),
                     TextField(
                       key: const Key('setupLibraryNameField'),
                       controller: _libraryNameController,
                       decoration: InputDecoration(
-                        labelText: strings['library_name_label'],
                         hintText: strings['library_name_hint'],
                         border: const OutlineInputBorder(),
                       ),
@@ -392,24 +394,7 @@ class _SetupScreenState extends State<SetupScreen> {
                 isActive: currentStep >= 1,
                 state: currentStep > 1 ? StepState.complete : StepState.indexed,
               ),
-              // Step 2: Avatar
-              Step(
-                title: Text(
-                  TranslationService.translate(context, 'customize_avatar'),
-                ),
-                content: SizedBox(
-                  height: 400,
-                  child: AvatarCustomizer(
-                    initialConfig: themeProvider.setupAvatarConfig,
-                    onConfigChanged: (config) {
-                      themeProvider.setSetupAvatarConfig(config);
-                    },
-                  ),
-                ),
-                isActive: currentStep >= 2,
-                state: currentStep > 2 ? StepState.complete : StepState.indexed,
-              ),
-              // Step 3: Demo Content
+              // Step 2: Demo Content (was Step 3)
               Step(
                 title: Text(strings['demo_title']!),
                 content: Column(
@@ -439,171 +424,10 @@ class _SetupScreenState extends State<SetupScreen> {
                     ),
                   ],
                 ),
-                isActive: currentStep >= 3,
-                state: currentStep > 3 ? StepState.complete : StepState.indexed,
+                isActive: currentStep >= 2,
+                state: currentStep > 2 ? StepState.complete : StepState.indexed,
               ),
-              // Step 4: Language & Theme
-              Step(
-                title: Text(strings['lang_title']!),
-                content: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text(strings['lang_label']!),
-                    const SizedBox(height: 10),
-                    DropdownButton<String>(
-                      value: themeProvider.locale.languageCode,
-                      isExpanded: true,
-                      items: [
-                        DropdownMenuItem(
-                          value: 'en',
-                          child: Text(
-                            TranslationService.translate(context, 'lang_en'),
-                          ),
-                        ),
-                        DropdownMenuItem(
-                          value: 'fr',
-                          child: Text(
-                            TranslationService.translate(context, 'lang_fr'),
-                          ),
-                        ),
-                        DropdownMenuItem(
-                          value: 'es',
-                          child: Text(
-                            TranslationService.translate(context, 'lang_es'),
-                          ),
-                        ),
-                        DropdownMenuItem(
-                          value: 'de',
-                          child: Text(
-                            TranslationService.translate(context, 'lang_de'),
-                          ),
-                        ),
-                      ],
-                      onChanged: (String? newValue) {
-                        if (newValue != null) {
-                          themeProvider.setLocale(Locale(newValue));
-                        }
-                      },
-                    ),
-                    const SizedBox(height: 20),
-                    Text(strings['theme_title']!),
-                    const SizedBox(height: 10),
-                    Text(strings['theme_label']!),
-                    const SizedBox(height: 10),
-                    GestureDetector(
-                      onTap: () async {
-                        final selected = await showDialog<String>(
-                          context: context,
-                          builder: (BuildContext context) {
-                            return SimpleDialog(
-                              title: Text(strings['theme_title']!),
-                              children: ThemeRegistry.all.map((theme) {
-                                return SimpleDialogOption(
-                                  onPressed: () {
-                                    Navigator.pop(context, theme.id);
-                                  },
-                                  child: Row(
-                                    children: [
-                                      Container(
-                                        width: 24,
-                                        height: 24,
-                                        margin: const EdgeInsets.only(
-                                          right: 12,
-                                        ),
-                                        decoration: BoxDecoration(
-                                          color: theme.previewColor,
-                                          borderRadius: BorderRadius.circular(
-                                            4,
-                                          ),
-                                          border: Border.all(
-                                            color: Colors.grey.shade300,
-                                          ),
-                                        ),
-                                      ),
-                                      Expanded(
-                                        child: Text(
-                                          TranslationService.translate(
-                                                context,
-                                                'theme_${theme.id}',
-                                              ) ??
-                                              theme.displayName,
-                                        ),
-                                      ),
-                                      if (theme.id == validTheme) ...[
-                                        const SizedBox(width: 8),
-                                        Icon(
-                                          Icons.check,
-                                          color: Theme.of(context).primaryColor,
-                                        ),
-                                      ],
-                                    ],
-                                  ),
-                                );
-                              }).toList(),
-                            );
-                          },
-                        );
-
-                        if (selected != null && context.mounted) {
-                          // Defer theme change using microtask to avoid layout conflicts with Stepper
-                          // This lets the current frame complete fully before triggering theme rebuild
-                          Future.microtask(() async {
-                            if (context.mounted) {
-                              await themeProvider.setThemeStyle(selected);
-                            }
-                          });
-                        }
-                      },
-                      child: Container(
-                        width: double.infinity,
-                        padding: const EdgeInsets.symmetric(
-                          horizontal: 12,
-                          vertical: 16,
-                        ),
-                        decoration: BoxDecoration(
-                          border: Border.all(color: Colors.grey),
-                          borderRadius: BorderRadius.circular(4),
-                        ),
-                        child: Row(
-                          children: [
-                            Container(
-                              width: 24,
-                              height: 24,
-                              margin: const EdgeInsets.only(right: 12),
-                              decoration: BoxDecoration(
-                                color:
-                                    ThemeRegistry.get(
-                                      validTheme,
-                                    )?.previewColor ??
-                                    Colors.grey,
-                                borderRadius: BorderRadius.circular(4),
-                                border: Border.all(color: Colors.grey.shade300),
-                              ),
-                            ),
-                            Expanded(
-                              child: Text(
-                                TranslationService.translate(
-                                      context,
-                                      'theme_$validTheme',
-                                    ) ??
-                                    ThemeRegistry.get(
-                                      validTheme,
-                                    )?.displayName ??
-                                    validTheme,
-                                style: const TextStyle(fontSize: 16),
-                              ),
-                            ),
-                            const Icon(Icons.arrow_drop_down),
-                          ],
-                        ),
-                      ),
-                    ),
-                  ],
-                ),
-                isActive: currentStep >= 4,
-                state: currentStep > 4 ? StepState.complete : StepState.indexed,
-              ),
-              // Step 5: Credentials
+              // Step 3: Credentials
               Step(
                 title: Text(
                   TranslationService.translate(
@@ -679,10 +503,10 @@ class _SetupScreenState extends State<SetupScreen> {
                     ),
                   ],
                 ),
-                isActive: currentStep >= 5,
-                state: currentStep > 5 ? StepState.complete : StepState.indexed,
+                isActive: currentStep >= 3,
+                state: currentStep > 3 ? StepState.complete : StepState.indexed,
               ),
-              // Step 6: Finish
+              // Step 4: Finish
               Step(
                 title: Text(strings['finish_title']!),
                 content: Column(
@@ -699,8 +523,8 @@ class _SetupScreenState extends State<SetupScreen> {
                     Text(strings['finish_body']!),
                   ],
                 ),
-                isActive: currentStep >= 6,
-                state: currentStep == 6
+                isActive: currentStep >= 4,
+                state: currentStep == 4
                     ? StepState.complete
                     : StepState.indexed,
               ),

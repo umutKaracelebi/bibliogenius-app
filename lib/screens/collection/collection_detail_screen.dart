@@ -1,6 +1,7 @@
 import '../../models/collection.dart';
 import '../../models/collection_book.dart';
 import '../../services/api_service.dart';
+import '../../services/collection_export_service.dart';
 import '../../services/translation_service.dart';
 import '../../widgets/cached_book_cover.dart';
 import 'package:flutter/material.dart';
@@ -209,6 +210,30 @@ class _CollectionDetailScreenState extends State<CollectionDetailScreen> {
     }
   }
 
+  Future<void> _shareCollection() async {
+    try {
+      final apiService = Provider.of<ApiService>(context, listen: false);
+      final exportService = CollectionExportService(apiService);
+
+      await exportService.shareCollection(widget.collection);
+
+      if (mounted) {
+        ScaffoldMessenger.of(
+          context,
+        ).showSnackBar(const SnackBar(content: Text('Collection exported!')));
+      }
+    } catch (e) {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text('Error sharing collection: $e'),
+            backgroundColor: Colors.red,
+          ),
+        );
+      }
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -239,6 +264,11 @@ class _CollectionDetailScreenState extends State<CollectionDetailScreen> {
             icon: const Icon(Icons.upload_file, color: Colors.white),
             onPressed: _importBooks,
             tooltip: 'Import Books',
+          ),
+          IconButton(
+            icon: const Icon(Icons.share, color: Colors.white),
+            onPressed: _shareCollection,
+            tooltip: TranslationService.translate(context, 'action_share'),
           ),
           IconButton(
             icon: const Icon(Icons.delete, color: Colors.white),
@@ -513,6 +543,31 @@ class _CollectionDetailScreenState extends State<CollectionDetailScreen> {
                                                       .bodySmall
                                                       ?.copyWith(
                                                         color: Colors.grey,
+                                                      ),
+                                                  maxLines: 1,
+                                                  overflow:
+                                                      TextOverflow.ellipsis,
+                                                ),
+                                              ],
+                                              // Publisher & Year row
+                                              if (book.publisher != null ||
+                                                  book.publicationYear !=
+                                                      null) ...[
+                                                const SizedBox(height: 2),
+                                                Text(
+                                                  [
+                                                    if (book.publisher != null)
+                                                      book.publisher,
+                                                    if (book.publicationYear !=
+                                                        null)
+                                                      '(${book.publicationYear})',
+                                                  ].join(' '),
+                                                  style: Theme.of(context)
+                                                      .textTheme
+                                                      .bodySmall
+                                                      ?.copyWith(
+                                                        color: Colors.grey[500],
+                                                        fontSize: 11,
                                                       ),
                                                   maxLines: 1,
                                                   overflow:

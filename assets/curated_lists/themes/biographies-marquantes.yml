@@ -1,0 +1,42 @@
+# Biographies Marquantes
+# Sources : Goodreads Best Biography, programmes universitaires
+id: biographies-marquantes
+version: 1
+
+title:
+  fr: Biographies Marquantes
+  en: Notable Biographies
+  de: Bemerkenswerte Biografien
+  es: Biografías Notables
+
+description:
+  fr: "Biographies et autobiographies marquantes de personnalités. Sources : Goodreads Best Biography, Babelio."
+  en: "Notable biographies and autobiographies of personalities. Sources: Goodreads Best Biography, Babelio."
+  de: "Bemerkenswerte Biografien und Autobiografien von Persönlichkeiten. Quellen: Goodreads Best Biography, Babelio."
+  es: "Biografías y autobiografías notables de personalidades. Fuentes: Goodreads Best Biography, Babelio."
+
+source_url: "https://www.goodreads.com/list/show/1364.Best_Biographies"
+contributor: BiblioGenius
+tags: [biographie, autobiographie, non-fiction]
+
+books:
+  - isbn: "9782253168522"
+    note: "Walter Isaacson - Steve Jobs"
+  - isbn: "9782253257776"
+    note: "Michelle Obama - Devenir"
+  - isbn: "9782253140634"
+    note: "Nelson Mandela - Un long chemin vers la liberté"
+  - isbn: "9782253001270"
+    note: "Anne Frank - Le Journal d'Anne Frank"
+  - isbn: "9782253194958"
+    note: "Malala Yousafzai - Moi, Malala"
+  - isbn: "9782253107545"
+    note: "Barack Obama - Une Terre promise"
+  - isbn: "9780143034759"
+    note: "Ron Chernow - Alexander Hamilton"
+  - isbn: "9780812966008"
+    note: "Edmund Morris - Theodore Rex"
+  - isbn: "9791022406413"
+    note: "Doris Kearns Goodwin - Abraham Lincoln : L'homme qui rêva l'Amérique"
+  - isbn: "9782253127765"
+    note: "Simone Veil - Une vie"

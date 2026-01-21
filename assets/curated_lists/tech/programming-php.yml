@@ -1,0 +1,30 @@
+# PHP - Web Development
+# Sources: PHP.net, Eyrolles
+id: programming-php
+version: 1
+
+title:
+  fr: PHP - Développement Web
+  en: PHP - Web Development
+  de: PHP - Webentwicklung
+  es: PHP - Desarrollo Web
+
+description:
+  fr: "Guides pour le développement moderne en PHP et MySQL."
+  en: "Guides for modern PHP and MySQL development."
+  de: "Leitfäden für moderne PHP- und MySQL-Entwicklung."
+  es: "Guías para el desarrollo moderno en PHP y MySQL."
+
+source_url: "https://www.php.net/"
+contributor: BiblioGenius
+tags: [informatique, programmation, php, backend, web]
+
+books:
+  - isbn: "9782212674750"
+    note: "Mathieu Nebra - Concevez votre site web avec PHP et MySQL"
+  - isbn: "9781491905012"
+    note: "Josh Lockhart - Modern PHP (New Features and Good Practices)"
+  - isbn: "9781484267905"
+    note: "Matt Zandstra - PHP 8 Objects, Patterns, and Practice"
+  - isbn: "9782409040009"
+    note: "Olivier Heurtel - PHP 8 et MySQL (Editions ENI)"

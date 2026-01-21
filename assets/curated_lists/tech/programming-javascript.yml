@@ -1,0 +1,32 @@
+# JavaScript - The Language of the Web
+# Sources: MDN, O'Reilly
+id: programming-javascript
+version: 1
+
+title:
+  fr: JavaScript - Le langage du Web
+  en: JavaScript - The Language of the Web
+  de: JavaScript - Die Sprache des Webs
+  es: JavaScript - El lenguaje de la Web
+
+description:
+  fr: "Les livres de référence pour le développement JavaScript moderne."
+  en: "Reference books for modern JavaScript development."
+  de: "Referenzbücher für moderne JavaScript-Entwicklung."
+  es: "Libros de referencia para el desarrollo moderno de JavaScript."
+
+source_url: "https://developer.mozilla.org/en-US/docs/Web/JavaScript"
+contributor: BiblioGenius
+tags: [informatique, programmation, javascript, web, frontend]
+
+books:
+  - isbn: "9781593279509"
+    note: "Marijn Haverbeke - Eloquent JavaScript (3rd Edition)"
+  - isbn: "9781491952023"
+    note: "David Flanagan - JavaScript: The Definitive Guide (7th Edition)"
+  - isbn: "9780596517748"
+    note: "Douglas Crockford - JavaScript: The Good Parts"
+  - isbn: "9781491904244"
+    note: "Kyle Simpson - You Don't Know JS: Scope & Closures"
+  - isbn: "9781491904152"
+    note: "Kyle Simpson - You Don't Know JS: Async & Performance"

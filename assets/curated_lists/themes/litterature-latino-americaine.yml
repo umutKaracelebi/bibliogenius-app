@@ -1,0 +1,42 @@
+# Littérature Latino-Américaine - Boom et après
+# Sources : Casa de las Américas, universités hispanophones
+id: litterature-latino-americaine
+version: 1
+
+title:
+  fr: Littérature Latino-Américaine - Le Boom et Après
+  en: Latin American Literature - The Boom and Beyond
+  de: Lateinamerikanische Literatur - Der Boom und danach
+  es: Literatura Latinoamericana - El Boom y Después
+
+description:
+  fr: "Du Boom littéraire aux voix contemporaines d'Amérique latine. Sources : Casa de las Américas, Cervantes Virtual."
+  en: "From the literary Boom to contemporary Latin American voices. Sources: Casa de las Américas, Cervantes Virtual."
+  de: "Vom Boom der Literatur zu zeitgenössischen lateinamerikanischen Stimmen. Quellen: Casa de las Américas, Cervantes Virtual."
+  es: "Del Boom literario a las voces contemporáneas de América Latina. Fuentes: Casa de las Américas, Cervantes Virtual."
+
+source_url: "https://www.casadelasamericas.org/"
+contributor: BiblioGenius
+tags: [amérique-latine, réalisme-magique, boom, hispanique]
+
+books:
+  - isbn: "9782757893272"
+    note: "Gabriel García Márquez - Cent ans de solitude"
+  - isbn: "9782253060543"
+    note: "Gabriel García Márquez - L'Amour aux temps du choléra"
+  - isbn: "9782072798153"
+    note: "Jorge Luis Borges - Fictions"
+  - isbn: "9782070291342"
+    note: "Julio Cortázar - Marelle (Rayuela)"
+  - isbn: "9782072851131"
+    note: "Mario Vargas Llosa - La Fête au Bouc"
+  - isbn: "9782253038047"
+    note: "Isabel Allende - La Maison aux esprits"
+  - isbn: "9782070437139"
+    note: "Roberto Bolaño - 2666"
+  - isbn: "9782070416769"
+    note: "Roberto Bolaño - Les Détectives sauvages"
+  - isbn: "9782070368563"
+    note: "Carlos Fuentes - La Mort d'Artemio Cruz"
+  - isbn: "9782070379538"
+    note: "Juan Rulfo - Pedro Páramo"

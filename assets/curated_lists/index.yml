@@ -1,0 +1,152 @@
+# BiblioGenius Curated Lists Index
+# This file defines available categories and lists
+
+version: 1
+
+categories:
+  - id: awards
+    title:
+      fr: Prix Littéraires
+      en: Literary Awards
+      de: Literaturpreise
+      es: Premios Literarios
+    icon: emoji_events
+    lists:
+      - goncourt
+      - hugo-nebula
+      - nobel-literature-recent
+      - pulitzer-fiction
+      - booker-prize
+      - prix-medicis
+      - prix-renaudot
+      - prix-femina
+      - grand-prix-academie
+      - prix-interallie
+      - national-book-award
+      - newbery-medal
+      - prix-angouleme
+
+  - id: classics
+    title:
+      fr: Classiques & Canons
+      en: Classics & Canons
+      de: Klassiker & Kanons
+      es: Clásicos y Cánones
+    icon: auto_stories
+    lists:
+      - monde-100-livres
+      - jeunesse-classiques
+      - modern-library-100
+      - bbc-big-read
+      - time-100-novels
+      - guardian-100-21st-century
+      - nyt-notable-books
+      - penguin-classics-essential
+
+  - id: genres
+    title:
+      fr: Genres Littéraires
+      en: Literary Genres
+      de: Literarische Genres
+      es: Géneros Literarios
+    icon: category
+    lists:
+      - sf-classics
+      - cyberpunk
+      - polar-francais
+      - hugo-award-novels
+      - nebula-award-novels
+      - edgar-award-novels
+      - dystopies-classiques
+      - fantasy-epique
+      - thriller-psychologique
+      - horror-classiques
+      - romans-historiques
+      - poesie-essentiels
+      - theatre-classiques
+      - young-adult
+      - romance-classiques
+      - polar-nordique
+
+  - id: tech
+    title:
+      fr: Informatique & Tech
+      en: Tech & Programming
+      de: Informatik & Technik
+      es: Informática y Tecnología
+    icon: code
+    lists:
+      - programming-python
+      - programming-javascript
+      - programming-php
+      - programming-drupal
+      - programming-flutter
+      - programming-rust
+      - programming-go
+
+  - id: themes
+    title:
+      fr: Thèmes & Cultures
+      en: Themes & Cultures
+      de: Themen & Kulturen
+      es: Temas y Culturas
+    icon: public
+    lists:
+      - philosophie-debutants
+      - feminisme-litteraire
+      - dev-personnel-classiques
+      - litterature-africaine
+      - litterature-latino-americaine
+      - litterature-japonaise
+      - ecologie-essentiels
+      - histoire-essentiels
+      - biographies-marquantes
+      - science-populaire
+      - litterature-russe
+      - litterature-allemande
+      - antiracisme-droits-civiques
+      - spiritualite-meditation
+      - art-design
+      - lgbtq-litterature
+      - cuisine-gastronomie
+      - economie-business
+
+  - id: institutions
+    title:
+      fr: Recommandations Institutionnelles
+      en: Institutional Recommendations
+      de: Institutionelle Empfehlungen
+      es: Recomendaciones Institucionales
+    icon: account_balance
+    lists:
+      - france-culture-ideale
+      - loc-books-shaped-america
+
+  - id: manga
+    title:
+      fr: Manga & BD Japonaise
+      en: Manga & Japanese Comics
+      de: Manga & Japanische Comics
+      es: Manga y Cómics Japoneses
+    icon: import_contacts
+    lists:
+      - manga-essentiels
+
+  - id: jeunesse
+    title:
+      fr: Jeunesse & BD Franco-Belge
+      en: Youth & French-Belgian Comics
+      de: Jugend & Franko-Belgische Comics
+      es: Juventud y Cómics Franco-Belgas
+    icon: child_care
+    lists:
+      - mortelle-adele
+      - anatole-latuile
+      - bergeres-guerrieres
+      - grimoire-elfie
+      - harry-potter
+      - titeuf
+      - lou
+      - les-sisters
+      - enfants-resistance
+      - ariol

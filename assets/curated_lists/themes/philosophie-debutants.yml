@@ -1,0 +1,42 @@
+# Philosophie pour débutants (thématique)
+# Sources : Bibliothèque nationale, universités, librairies spécialisées
+id: philosophie-debutants
+version: 1
+
+title:
+  fr: Philosophie pour Débutants
+  en: Philosophy for Beginners
+  de: Philosophie für Anfänger
+  es: Filosofía para Principiantes
+
+description:
+  fr: "Une sélection de livres accessibles pour découvrir la philosophie. Sources : recommandations universitaires et libraires spécialisés."
+  en: "A selection of accessible books to discover philosophy. Sources: university recommendations and specialized bookstores."
+  de: "Eine Auswahl zugänglicher Bücher zur Entdeckung der Philosophie. Quellen: Universitätsempfehlungen und Fachbuchhandlungen."
+  es: "Una selección de libros accesibles para descubrir la filosofía. Fuentes: recomendaciones universitarias y librerías especializadas."
+
+source_url: "https://www.bnf.fr/"
+contributor: BiblioGenius
+tags: [philosophie, débutant, essai, introduction]
+
+books:
+  - isbn: "9782070325054"
+    note: "Jostein Gaarder - Le Monde de Sophie"
+  - isbn: "9782253942764"
+    note: "Frédéric Lenoir - Du bonheur, un voyage philosophique"
+  - isbn: "9782070368228"
+    note: "Platon - Le Banquet (Flammarion GF)"
+  - isbn: "9782253004226"
+    note: "Albert Camus - Le Mythe de Sisyphe"
+  - isbn: "9782070329137"
+    note: "Jean-Paul Sartre - L'Existentialisme est un humanisme"
+  - isbn: "9782253257523"
+    note: "André Comte-Sponville - Petit traité des grandes vertus"
+  - isbn: "9782081366633"
+    note: "Épictète - Manuel"
+  - isbn: "9782070465262"
+    note: "Marc Aurèle - Pensées pour moi-même"
+  - isbn: "9782070322855"
+    note: "Friedrich Nietzsche - Ainsi parlait Zarathoustra"
+  - isbn: "9782266033992"
+    note: "Sénèque - De la brièveté de la vie"

@@ -1,0 +1,86 @@
+id: anatole-latuile
+version: 2
+title:
+  fr: Anatole Latuile - Série complète
+  en: Anatole Latuile - Complete Series
+description:
+  fr: La série BD humoristique d'Anne Didier et Olivier Muller. Les aventures d'Anatole, un écolier turbulent aux idées farfelues.
+  en: The humorous comic series by Anne Didier and Olivier Muller. The adventures of Anatole, a turbulent schoolboy with wacky ideas.
+cover_url: https://covers.openlibrary.org/b/isbn/9782747088398-L.jpg
+contributor: BiblioGenius
+tags:
+- bd-jeunesse
+- humour
+- ecole
+- serie-complete
+books:
+- isbn: '9782747088398'
+  note: "Tome 1 : Bravo, Anatole !"
+  title: "Bravo, Anatole !"
+  publisher: "BD Kids"
+  published_date: "2005"
+  authors: ["Anne Didier", "Olivier Muller", "Clément Devaux"]
+  description: "Anatole a toujours des idées de génie... qui finissent souvent en catastrophe."
+- isbn: '9782747037686'
+  note: "Tome 2 : Oohiohioo !"
+  title: "Oohiohioo !"
+  publisher: "BD Kids"
+  published_date: "2006"
+  authors: ["Anne Didier", "Olivier Muller", "Clément Devaux"]
+  description: "Anatole et son copain Jason ne manquent pas d'imagination pour éviter les ennuis."
+- isbn: '9782747037723'
+  note: "Tome 3 : Personne en vue !"
+  title: "Personne en vue !"
+  publisher: "BD Kids"
+  published_date: "2007"
+  authors: ["Anne Didier", "Olivier Muller", "Clément Devaux"]
+  description: "Se cacher, inventer des excuses... Anatole est le roi de la dissimulation."
+- isbn: '9782747037730'
+  note: "Tome 4 : Record battu !"
+  title: "Record battu !"
+  publisher: "BD Kids"
+  published_date: "2008"
+  authors: ["Anne Didier", "Olivier Muller", "Clément Devaux"]
+  description: "Si on donnait une médaille pour les bêtises, Anatole serait champion olympique."
+- isbn: '9782747039048'
+  note: "Tome 5 : Ultra top secret !"
+  title: "Ultra top secret !"
+  publisher: "BD Kids"
+  published_date: "2009"
+  authors: ["Anne Didier", "Olivier Muller", "Clément Devaux"]
+  description: "Des missions secrètes dans la cour de récré. Chut, ne le dites à personne !"
+- isbn: '9782747044639'
+  note: "Tome 6 : Pas de panique !"
+  title: "Pas de panique !"
+  publisher: "BD Kids"
+  published_date: "2010"
+  authors: ["Anne Didier", "Olivier Muller", "Clément Devaux"]
+  description: "Même dans les situations les plus critiques, Anatole garde son sang-froid (et son imagination)."
+- isbn: '9782747049634'
+  note: "Tome 7 : Ça va dégominer !"
+  title: "Ça va dégominer !"
+  publisher: "BD Kids"
+  published_date: "2011"
+  authors: ["Anne Didier", "Olivier Muller", "Clément Devaux"]
+  description: "Attention, quand Anatole passe à l'action, ça déménage !"
+- isbn: '9782747055543'
+  note: "Tome 8 : Le roi du chahut"
+  title: "Le roi du chahut"
+  publisher: "BD Kids"
+  published_date: "2012"
+  authors: ["Anne Didier", "Olivier Muller", "Clément Devaux"]
+  description: "La classe tremble... de rire ! Anatole est en forme."
+- isbn: '9782747059244'
+  note: "Tome 9 : Ça déménage !"
+  title: "Ça déménage !"
+  publisher: "BD Kids"
+  published_date: "2013"
+  authors: ["Anne Didier", "Olivier Muller", "Clément Devaux"]
+  description: "Rien ne résiste à la tornade Anatole. Ni les meubles, ni les nerfs de la maîtresse."
+- isbn: '9782747072366'
+  note: "Tome 10 : Sauve qui peut !"
+  title: "Sauve qui peut !"
+  publisher: "BD Kids"
+  published_date: "2014"
+  authors: ["Anne Didier", "Olivier Muller", "Clément Devaux"]
+  description: "Parfois, la fuite est la meilleure solution quand une bêtise tourne mal."

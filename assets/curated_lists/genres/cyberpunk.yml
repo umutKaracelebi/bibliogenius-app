@@ -1,0 +1,29 @@
+# Classiques du Cyberpunk
+id: cyberpunk
+version: 1
+
+title:
+  fr: Classiques du Cyberpunk
+  en: Cyberpunk Classics
+  de: Cyberpunk-Klassiker
+  es: Clásicos del Cyberpunk
+
+description:
+  fr: High tech, low life. Les textes fondateurs du genre cyberpunk.
+  en: High tech, low life. The foundational texts of cyberpunk.
+  de: High tech, low life. Die Grundlagentexte des Cyberpunk-Genres.
+  es: High tech, low life. Los textos fundacionales del género cyberpunk.
+
+cover_url: "https://covers.openlibrary.org/b/id/12556533-L.jpg"
+contributor: BiblioGenius
+tags: [science-fiction, cyberpunk, dystopie]
+
+books:
+  - isbn: "9782290312841"
+    note: "Neuromancien - William Gibson"
+  - isbn: "9782253076889"
+    note: "Le Samouraï virtuel - Neal Stephenson"
+  - isbn: "9782290349229"
+    note: "Les androïdes rêvent-ils de moutons électriques ? - Philip K. Dick"
+  - isbn: "9782290004081"
+    note: "Carbone modifié - Richard K. Morgan"

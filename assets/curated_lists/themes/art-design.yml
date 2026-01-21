@@ -1,0 +1,42 @@
+# Art et Design - Lectures Essentielles
+# Sources : MoMA, Design Museum
+id: art-design
+version: 1
+
+title:
+  fr: Art et Design - Lectures Essentielles
+  en: Art and Design - Essential Reading
+  de: Kunst und Design - Wesentliche Lektüre
+  es: Arte y Diseño - Lecturas Esenciales
+
+description:
+  fr: "Ouvrages essentiels sur l'art et le design. Sources : MoMA, Design Museum."
+  en: "Essential books on art and design. Sources: MoMA, Design Museum."
+  de: "Wesentliche Bücher über Kunst und Design. Quellen: MoMA, Design Museum."
+  es: "Libros esenciales sobre arte y diseño. Fuentes: MoMA, Design Museum."
+
+source_url: "https://www.moma.org/"
+contributor: BiblioGenius
+tags: [art, design, créativité, visuel]
+
+books:
+  - isbn: "9782917855508"
+    note: "John Berger - Voir le voir"
+  - isbn: "9781838666699"
+    note: "Ernst Gombrich - Histoire de l'art"
+  - isbn: "9782267044812"
+    note: "Susan Sontag - Sur la photographie"
+  - isbn: "9782212678833"
+    note: "Don Norman - Le Design des objets du quotidien"
+  - isbn: "9782761941143"
+    note: "Austin Kleon - Volez comme un artiste"
+  - isbn: "9782290355084"
+    note: "Julia Cameron - Libérez votre créativité"
+  - isbn: "9782070324323"
+    note: "Wassily Kandinsky - Du spirituel dans l'art"
+  - isbn: "9782070326976"
+    note: "Paul Klee - Théorie de l'art moderne"
+  - isbn: "9782350172675"
+    note: "Bruno Munari - L'Art du design"
+  - isbn: "9783037784501"
+    note: "Kenya Hara - Designing Design"

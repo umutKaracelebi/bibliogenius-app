@@ -348,20 +348,23 @@ class _NetworkScreenState extends State<NetworkScreen>
       final memberId = member.id;
 
       // Check connectivity in parallel (don't await each one)
-      api.checkPeerConnectivity(url, timeoutMs: 4000).then((isOnline) {
-        if (mounted) {
-          setState(() {
-            _peerConnectivity[memberId] = isOnline;
+      api
+          .checkPeerConnectivity(url, timeoutMs: 4000)
+          .then((isOnline) {
+            if (mounted) {
+              setState(() {
+                _peerConnectivity[memberId] = isOnline;
+              });
+            }
+          })
+          .catchError((e) {
+            // On error, mark as offline
+            if (mounted) {
+              setState(() {
+                _peerConnectivity[memberId] = false;
+              });
+            }
           });
-        }
-      }).catchError((e) {
-        // On error, mark as offline
-        if (mounted) {
-          setState(() {
-            _peerConnectivity[memberId] = false;
-          });
-        }
-      });
     }
   }
 
@@ -380,20 +383,23 @@ class _NetworkScreenState extends State<NetworkScreen>
       final url = 'http://${addresses.first}:$port';
 
       // Check connectivity in parallel (don't await each one)
-      api.checkPeerConnectivity(url, timeoutMs: 4000).then((isOnline) {
-        if (mounted) {
-          setState(() {
-            _mdnsPeerConnectivity[url] = isOnline;
+      api
+          .checkPeerConnectivity(url, timeoutMs: 4000)
+          .then((isOnline) {
+            if (mounted) {
+              setState(() {
+                _mdnsPeerConnectivity[url] = isOnline;
+              });
+            }
+          })
+          .catchError((e) {
+            // On error, mark as offline
+            if (mounted) {
+              setState(() {
+                _mdnsPeerConnectivity[url] = false;
+              });
+            }
           });
-        }
-      }).catchError((e) {
-        // On error, mark as offline
-        if (mounted) {
-          setState(() {
-            _mdnsPeerConnectivity[url] = false;
-          });
-        }
-      });
     }
   }
 
@@ -555,8 +561,14 @@ class _NetworkScreenState extends State<NetworkScreen>
     final navigator = Navigator.of(context, rootNavigator: true);
     final messenger = ScaffoldMessenger.of(context);
     final apiService = Provider.of<ApiService>(context, listen: false);
-    final connectedToText = TranslationService.translate(context, 'connected_to');
-    final connectionFailedText = TranslationService.translate(context, 'connection_failed');
+    final connectedToText = TranslationService.translate(
+      context,
+      'connected_to',
+    );
+    final connectionFailedText = TranslationService.translate(
+      context,
+      'connection_failed',
+    );
 
     // Show loading dialog and track if it's showing
     bool dialogShowing = true;
@@ -620,9 +632,7 @@ class _NetworkScreenState extends State<NetworkScreen>
       if (!mounted) return;
 
       messenger.showSnackBar(
-        SnackBar(
-          content: Text("$connectionFailedText: $e"),
-        ),
+        SnackBar(content: Text("$connectionFailedText: $e")),
       );
       // Reset state immediately on error so user can retry
       setState(() {
@@ -888,8 +898,13 @@ class _NetworkScreenState extends State<NetworkScreen>
     return Column(
       children: [
         _buildFilterChips(),
-        // Local Network Discovery Section (mDNS) - only show when P2P enabled
-        if (AppConstants.enableP2PFeatures) _buildLocalNetworkSection(),
+        // Local Network Discovery Section (mDNS) - only show when P2P enabled AND module enabled
+        if (AppConstants.enableP2PFeatures &&
+            Provider.of<ThemeProvider>(
+              context,
+              listen: false,
+            ).networkDiscoveryEnabled)
+          _buildLocalNetworkSection(),
         if (filtered.isEmpty && _localPeers.isEmpty)
           Expanded(
             child: Center(
@@ -1027,7 +1042,8 @@ class _NetworkScreenState extends State<NetworkScreen>
                 );
 
                 try {
-                  final libraryUuid = await authService.getOrCreateLibraryUuid();
+                  final libraryUuid = await authService
+                      .getOrCreateLibraryUuid();
                   final libraryName = themeProvider.libraryName.isNotEmpty
                       ? themeProvider.libraryName
                       : 'BiblioGenius Library';

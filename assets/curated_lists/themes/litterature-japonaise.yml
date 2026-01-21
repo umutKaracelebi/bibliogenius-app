@@ -1,0 +1,42 @@
+# Littérature Japonaise - Classiques et Contemporains
+# Sources : Japan Foundation, Bunkamura
+id: litterature-japonaise
+version: 1
+
+title:
+  fr: Littérature Japonaise - Classiques et Contemporains
+  en: Japanese Literature - Classics and Contemporary
+  de: Japanische Literatur - Klassiker und Zeitgenossen
+  es: Literatura Japonesa - Clásicos y Contemporáneos
+
+description:
+  fr: "Des classiques Meiji aux auteurs contemporains japonais. Sources : Japan Foundation, éditions Philippe Picquier."
+  en: "From Meiji classics to contemporary Japanese authors. Sources: Japan Foundation, Philippe Picquier editions."
+  de: "Von Meiji-Klassikern zu zeitgenössischen japanischen Autoren. Quellen: Japan Foundation, Philippe Picquier."
+  es: "De los clásicos Meiji a los autores japoneses contemporáneos. Fuentes: Japan Foundation, Philippe Picquier."
+
+source_url: "https://www.jpf.go.jp/"
+contributor: BiblioGenius
+tags: [japon, asie, classiques, contemporain]
+
+books:
+  - isbn: "9782073012722"
+    note: "Kazuo Ishiguro - Les Vestiges du jour (Nobel 2017 - Auteur d'origine japonaise)"
+  - isbn: "9782264056160"
+    note: "Haruki Murakami - Kafka sur le rivage"
+  - isbn: "9782264085139"
+    note: "Haruki Murakami - 1Q84 (Livre 1)"
+  - isbn: "9782264056009"
+    note: "Haruki Murakami - La Ballade de l'impossible (Norwegian Wood)"
+  - isbn: "9782253030737"
+    note: "Yasunari Kawabata - Pays de neige (Nobel 1968)"
+  - isbn: "9782070792306"
+    note: "Kenzaburo Oe - Une affaire personnelle (Nobel 1994)"
+  - isbn: "9782070366491"
+    note: "Yukio Mishima - Le Pavillon d'or"
+  - isbn: "9782330026493"
+    note: "Yoko Ogawa - Cristallisation secrète (The Memory Police)"
+  - isbn: "9782070394869"
+    note: "Banana Yoshimoto - Kitchen"
+  - isbn: "9782070706341"
+    note: "Natsume Sōseki - Je suis un chat"

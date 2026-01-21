@@ -1,0 +1,48 @@
+id: guardian-100-21st-century
+version: 1
+title:
+  fr: The Guardian - 100 Meilleurs Livres du XXIe Siècle
+  en: The Guardian - 100 Best Books of the 21st Century
+  de: The Guardian - 100 Beste Bücher des 21. Jahrhunderts
+  es: The Guardian - 100 Mejores Libros del Siglo XXI
+description:
+  fr: 'Les 100 meilleurs livres depuis 2000 selon The Guardian. Source : theguardian.com'
+  en: 'The 100 best books since 2000 according to The Guardian. Source: theguardian.com'
+  de: 'Die 100 besten Bücher seit 2000 laut The Guardian. Quelle: theguardian.com'
+  es: 'Los 100 mejores libros desde 2000 según The Guardian. Fuente: theguardian.com'
+source_url: https://www.theguardian.com/books/2019/sep/21/best-books-of-the-21st-century
+contributor: BiblioGenius
+tags:
+- contemporain
+- XXIe-siècle
+- britannique
+- presse
+books:
+- isbn: '9782070466375'
+  note: Elena Ferrante - L'Amie prodigieuse (#1)
+- isbn: '9782742778430'
+  note: Stieg Larsson - Millénium (#2)
+- isbn: '9782266240369'
+  note: Hilary Mantel - Dans l'ombre des Tudors (#3)
+- isbn: '9782070468805'
+  note: Chimamanda Ngozi Adichie - Americanah (#4)
+- isbn: '9782253237594'
+  note: Hanya Yanagihara - Une vie comme les autres (#5)
+- isbn: '9782070793822'
+  note: Cormac McCarthy - La Route (#6)
+- isbn: '9782253934158'
+  note: Colson Whitehead - Underground Railroad (#7)
+- isbn: '9782070449781'
+  note: Annie Ernaux - Les Années (#8)
+- isbn: '9782070179053'
+  note: Richard Powers - L'Arbre-Monde (#9)
+- isbn: '9782021430032'
+  note: Sally Rooney - Normal People (#10)
+- isbn: '9782070425023'
+  note: Zadie Smith - White Teeth (#11)
+- isbn: '9782846261562'
+  note: Neil Gaiman - American Gods (#15)
+- isbn: '9782264042897'
+  note: Khaled Hosseini - Les Cerfs-volants de Kaboul (#18)
+- isbn: '9782072951091'
+  note: Douglas Stuart - Shuggie Bain (#20)

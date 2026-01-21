@@ -1,0 +1,100 @@
+id: ariol
+version: 2
+title:
+  fr: Ariol - Sélection
+  en: Ariol - Selection
+description:
+  fr: "Ariol est un petit âne bleu à lunettes qui vit comme vous et moi. Une série drôle et sensible par Emmanuel Guibert et Marc Boutavant."
+  en: "Ariol is a little blue donkey with glasses who lives just like you and me. A funny and sensitive series."
+cover_url: https://covers.openlibrary.org/b/isbn/9782747024402-L.jpg
+contributor: BiblioGenius
+tags:
+- bd-jeunesse
+- humour
+- animaux
+- quotidien
+books:
+- isbn: '9782747024402'
+  note: "Tome 1 : Un petit âne comme vous et moi"
+  title: "Un petit âne comme vous et moi"
+  publisher: "BD Kids"
+  published_date: "2000"
+  authors: ["Emmanuel Guibert", "Marc Boutavant"]
+  description: "Faites la connaissance d'Ariol, de son meilleur copain Ramono le cochon, et de Pétula, la jolie vache dont il est secrètement amoureux."
+- isbn: '9781597074124'
+  note: "Tome 2 : Le Chevalier Cheval"
+  title: "Le Chevalier Cheval"
+  publisher: "BD Kids"
+  published_date: "2002"
+  authors: ["Emmanuel Guibert", "Marc Boutavant"]
+  description: "Le héros préféré d'Ariol, c'est le Chevalier Cheval. Il rêve d'être aussi courageux que lui !"
+- isbn: '9781597074872'
+  note: "Tome 3 : Copains pour toujours"
+  title: "Copains pour toujours"
+  publisher: "BD Kids"
+  published_date: "2003"
+  authors: ["Emmanuel Guibert", "Marc Boutavant"]
+  description: "L'amitié, c'est ce qu'il y a de plus important. Même quand Ramono fait des bêtises (c'est-à-dire tout le temps)."
+- isbn: '9782747037822'
+  note: "Tome 4 : Une jolie vache"
+  title: "Une jolie vache"
+  publisher: "BD Kids"
+  published_date: "2004"
+  authors: ["Emmanuel Guibert", "Marc Boutavant"]
+  description: "Ah, Pétula... Ariol ferait n'importe quoi pour un regard de la jolie vache à taches."
+- isbn: '9781597077354'
+  note: "Tome 5 : Bisbille, l'as des as"
+  title: "Bisbille, l'as des as"
+  publisher: "BD Kids"
+  published_date: "2005"
+  authors: ["Emmanuel Guibert", "Marc Boutavant"]
+  description: "Bisbille la mouche est amoureuse d'Ariol... qui est amoureux de Pétula. C'est compliqué l'amour !"
+- isbn: '9782747030694'
+  note: "Tome 6 : Chat méchant"
+  title: "Chat méchant"
+  publisher: "BD Kids"
+  published_date: "2006"
+  authors: ["Emmanuel Guibert", "Marc Boutavant"]
+  description: "Tiburce le chat n'est pas toujours commode. Attention aux coups de griffe !"
+- isbn: '9782747039079'
+  note: "Tome 7 : Le maître chien"
+  title: "Le maître chien"
+  publisher: "BD Kids"
+  published_date: "2007"
+  authors: ["Emmanuel Guibert", "Marc Boutavant"]
+  description: "Monsieur Le Blount, le professeur de sport, est un chien sévère mais juste. Allez, on court !"
+- isbn: '9782747044622'
+  note: "Tome 8 : Les trois baudets"
+  title: "Les trois baudets"
+  publisher: "BD Kids"
+  published_date: "2008"
+  authors: ["Emmanuel Guibert", "Marc Boutavant"]
+  description: "Ariol et ses parents partent en vacances. L'occasion de découvrir que papa et maman aussi ont été petits."
+- isbn: '9782747049597'
+  note: "Tome 9 : Les dents du lapin"
+  title: "Les dents du lapin"
+  publisher: "BD Kids"
+  published_date: "2009"
+  authors: ["Emmanuel Guibert", "Marc Boutavant"]
+  description: "Une visite chez le dentiste ? Même pas peur ! Enfin, peut-être juste un tout petit peu..."
+- isbn: '9782747052993'
+  note: "Tome 10 : Les petits rats de l'opéra"
+  title: "Les petits rats de l'opéra"
+  publisher: "BD Kids"
+  published_date: "2010"
+  authors: ["Emmanuel Guibert", "Marc Boutavant"]
+  description: "La classe d'Ariol assiste à un spectacle de danse. La culture, c'est toute une aventure."
+- isbn: '9782747059374'
+  note: "Tome 11 : La fête à la grenouille"
+  title: "La fête à la grenouille"
+  publisher: "BD Kids"
+  published_date: "2011"
+  authors: ["Emmanuel Guibert", "Marc Boutavant"]
+  description: "Il pleut, il mouille, c'est la fête à la grenouille... et aux bêtises d'Ariol et Ramono."
+- isbn: '9782747072533'
+  note: "Tome 12 : Le coq sportif"
+  title: "Le coq sportif"
+  publisher: "BD Kids"
+  published_date: "2012"
+  authors: ["Emmanuel Guibert", "Marc Boutavant"]
+  description: "Le sport, c'est la santé ! Surtout quand c'est pour impressionner Pétula."

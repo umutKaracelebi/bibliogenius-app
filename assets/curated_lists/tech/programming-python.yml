@@ -1,0 +1,34 @@
+# Python Programming - Learning & Reference
+# Sources: Python.org, O'Reilly, Eyrolles
+id: programming-python
+version: 1
+
+title:
+  fr: Python - Apprentissage & Référence
+  en: Python - Learning & Reference
+  de: Python - Lernen & Referenz
+  es: Python - Aprendizaje y Referencia
+
+description:
+  fr: "Ressources essentielles pour maîtriser Python, du débutant à l'expert. (Éditions récentes)"
+  en: "Essential resources for mastering Python, from beginner to expert. (Recent Editions)"
+  de: "Wesentliche Ressourcen zur Beherrschung von Python, vom Anfänger bis zum Experten."
+  es: "Recursos esenciales para dominar Python, de principiante a experto."
+
+source_url: "https://www.python.org/"
+contributor: BiblioGenius
+tags: [informatique, programmation, python, backend, data-science]
+
+books:
+  - isbn: "9782212134346"
+    note: "Gérard Swinnen - Apprendre à programmer avec Python 3"
+  - isbn: "9781491946008"
+    note: "Luciano Ramalho - Fluent Python (English - Definitive Guide)"
+  - isbn: "9781593279288"
+    note: "Eric Matthes - Python Crash Course (2nd Edition)"
+  - isbn: "9781593279929"
+    note: "Al Sweigart - Automate the Boring Stuff with Python (2nd Edition)"
+  - isbn: "9781718501126"
+    note: "Justin Seitz - Black Hat Python (2nd Edition - Security)"
+  - isbn: "9780134853987"
+    note: "Brett Slatkin - Effective Python (2nd Edition)"

@@ -1,0 +1,41 @@
+# Les 100 livres du siècle (Le Monde)
+id: monde-100-livres
+version: 1
+
+title:
+  fr: Les 100 livres du siècle (Le Monde)
+  en: The 100 Books of the Century (Le Monde)
+  de: Die 100 Bücher des Jahrhunderts (Le Monde)
+  es: Los 100 libros del siglo (Le Monde)
+
+description:
+  fr: Les 100 meilleurs livres du 20ème siècle, selon un sondage réalisé au printemps 1999 par la Fnac et le journal Le Monde.
+  en: The 100 best books of the 20th century, according to a 1999 survey by Fnac and Le Monde newspaper.
+  de: Die 100 besten Bücher des 20. Jahrhunderts, laut einer Umfrage von 1999 durch Fnac und Le Monde.
+  es: Los 100 mejores libros del siglo XX, según una encuesta de 1999 realizada por Fnac y Le Monde.
+
+cover_url: "https://covers.openlibrary.org/b/id/10520666-L.jpg"
+contributor: BiblioGenius
+tags: [classiques, XXe-siècle, français, international]
+
+books:
+  - isbn: "9782070360024"
+    note: "L'Étranger - Albert Camus"
+  - isbn: "9782070379248"
+    note: "À la recherche du temps perdu - Marcel Proust"
+  - isbn: "9782070368228"
+    note: "Le Procès - Franz Kafka"
+  - isbn: "9782070612758"
+    note: "Le Petit Prince - Antoine de Saint-Exupéry"
+  - isbn: "9782070360017"
+    note: "La Condition humaine - André Malraux"
+  - isbn: "9782070364886"
+    note: "Voyage au bout de la nuit - Louis-Ferdinand Céline"
+  - isbn: "9782070360536"
+    note: "Les Raisins de la colère - John Steinbeck"
+  - isbn: "9782070362219"
+    note: "Pour qui sonne le glas - Ernest Hemingway"
+  - isbn: "9782070360451"
+    note: "Gatsby le Magnifique - F. Scott Fitzgerald"
+  - isbn: "9782070368228"
+    note: "1984 - George Orwell"

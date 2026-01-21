@@ -1,0 +1,42 @@
+# Poésie - Anthologie Essentielle
+# Sources : Académie française, Pléiade
+id: poesie-essentiels
+version: 2
+
+title:
+  fr: Poésie - Anthologie Essentielle
+  en: Poetry - Essential Anthology
+  de: Poesie - Wesentliche Anthologie
+  es: Poesía - Antología Esencial
+
+description:
+  fr: "Les recueils de poésie incontournables. Sources : Académie française, collections de la Pléiade."
+  en: "Essential poetry collections. Sources: French Academy, Pléiade collections."
+  de: "Wesentliche Gedichtsammlungen. Quellen: Académie française, Pléiade-Sammlungen."
+  es: "Colecciones de poesía esenciales. Fuentes: Academia Francesa, colecciones de la Pléiade."
+
+source_url: "https://www.academie-francaise.fr/"
+contributor: BiblioGenius
+tags: [poésie, classiques, vers]
+
+books:
+  - isbn: "9782266168540"
+    note: "Charles Baudelaire - Les Fleurs du mal"
+  - isbn: "9782253096351"
+    note: "Arthur Rimbaud - Poésies complètes"
+  - isbn: "9782070321520"
+    note: "Paul Verlaine - Sagesse (Poésie Gallimard)"
+  - isbn: "9782070300082"
+    note: "Guillaume Apollinaire - Alcools"
+  - isbn: "9782073022769"
+    note: "Paul Éluard - Capitale de la douleur"
+  - isbn: "9782070367627"
+    note: "Jacques Prévert - Paroles"
+  - isbn: "9782070300655"
+    note: "René Char - Feuillets d'Hypnos"
+  - isbn: "9782708704206"
+    note: "Aimé Césaire - Cahier d'un retour au pays natal"
+  - isbn: "9782070404216"
+    note: "Pablo Neruda - Vingt poèmes d'amour"
+  - isbn: "9782070305889"
+    note: "Federico García Lorca - Romancero gitano (Poésie Gallimard)"

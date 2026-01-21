@@ -1,0 +1,58 @@
+id: grimoire-elfie
+version: 2
+title:
+  fr: Le Grimoire d'Elfie - Série complète
+  en: Elfie's Spellbook - Complete Series
+description:
+  fr: La série BD fantastique publiée chez Drakoo. Elfie, une jeune sorcière en herbe, vit des aventures magiques à travers la France.
+  en: The fantasy comic series published by Drakoo. Elfie, a young apprentice witch, experiences magical adventures throughout France.
+cover_url: https://covers.openlibrary.org/b/isbn/9782490735105-L.jpg
+contributor: BiblioGenius
+tags:
+- bd-jeunesse
+- fantasy
+- magie
+- serie-complete
+books:
+- isbn: '9782490735105'
+  note: "Tome 1 : L'île presque"
+  title: "L'île presque"
+  publisher: "Drakoo"
+  published_date: "2021"
+  authors: ["Audrey Alwett", "Christophe Arleston", "Mini Ludvin"]
+  description: "Elfie hérite d'un bus-librairie et découvre qu'elle a des pouvoirs magiques. Première escale : une île bretonne mystérieuse."
+- isbn: '9782382330050'
+  note: "Tome 2 : Le Dit des cigales"
+  title: "Le Dit des cigales"
+  publisher: "Drakoo"
+  published_date: "2021"
+  authors: ["Audrey Alwett", "Christophe Arleston", "Mini Ludvin"]
+  description: "Direction la Provence ! Elfie doit aider un village menacé par une sécheresse magique."
+- isbn: '9782382330951'
+  note: "Tome 3 : Malaventure en pain d'épices"
+  title: "Malaventure en pain d'épices"
+  publisher: "Drakoo"
+  published_date: "2022"
+  authors: ["Audrey Alwett", "Christophe Arleston", "Mini Ludvin"]
+  description: "Noël en Alsace. Mais la magie de Noël est perturbée par un sortilège gourmand et dangereux."
+- isbn: '9782382331071'
+  note: "Tome 4 : Le Trésor de la tricomancienne"
+  title: "Le Trésor de la tricomancienne"
+  publisher: "Drakoo"
+  published_date: "2023"
+  authors: ["Audrey Alwett", "Christophe Arleston", "Mini Ludvin"]
+  description: "Elfie découvre les secrets de la magie des tricots... et un trésor caché."
+- isbn: '9782382332481'
+  note: "Tome 5 : Les reflets de Walpurgis"
+  title: "Les reflets de Walpurgis"
+  publisher: "Drakoo"
+  published_date: "2023"
+  authors: ["Audrey Alwett", "Christophe Arleston", "Mini Ludvin"]
+  description: "Une aventure effrayante pour la nuit de Walpurgis. Elfie devra affronter ses peurs."
+- isbn: '9782382333105'
+  note: "Tome 6 : Le sortilège corse"
+  title: "Le sortilège corse"
+  publisher: "Drakoo"
+  published_date: "2024"
+  authors: ["Audrey Alwett", "Christophe Arleston", "Mini Ludvin"]
+  description: "Voyage en Corse pour Elfie et ses sœurs. La magie de l'île de Beauté est puissante et ancienne."

@@ -5,11 +5,13 @@ import '../services/translation_service.dart';
 class QuickActionsSheet extends StatelessWidget {
   final List<Widget>? contextualActions;
   final bool hideGenericActions;
+  final VoidCallback? onBookAdded; // Callback when a book is added
 
   const QuickActionsSheet({
     super.key,
     this.contextualActions,
     this.hideGenericActions = false,
+    this.onBookAdded,
   });
 
   @override
@@ -126,7 +128,13 @@ class QuickActionsSheet extends StatelessWidget {
                   Navigator.pop(context);
                   final isbn = await context.push<String>('/scan');
                   if (isbn != null && context.mounted) {
-                    context.push('/books/add', extra: {'isbn': isbn});
+                    final result = await context.push(
+                      '/books/add',
+                      extra: {'isbn': isbn},
+                    );
+                    if (result == true && onBookAdded != null) {
+                      onBookAdded!();
+                    }
                   }
                 },
               ),

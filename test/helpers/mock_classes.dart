@@ -6,8 +6,19 @@ import 'package:flutter/material.dart';
 import 'package:mobile_scanner/mobile_scanner.dart';
 
 class MockAuthService extends AuthService {
+  int? mockLibraryId = 1;
+  bool shouldThrowOnGetLibraryId = false;
+
   @override
   Future<String?> getToken() async => 'mock_token';
+
+  @override
+  Future<int?> getLibraryId() async {
+    if (shouldThrowOnGetLibraryId) {
+      throw Exception('Mock AuthService error');
+    }
+    return mockLibraryId;
+  }
 }
 
 class MockApiService extends ApiService {
@@ -16,10 +27,12 @@ class MockApiService extends ApiService {
   // Track calls
   final List<String> lookups = [];
   final List<String> createdBooks = [];
+  final List<Map<String, dynamic>> createdCopies = [];
 
   // Mock Data
   Book? existingBook;
   Map<String, dynamic>? lookupResult;
+  List<Map<String, dynamic>> mockCopies = [];
 
   @override
   Future<Book?> findBookByIsbn(String isbn) async {
@@ -49,6 +62,26 @@ class MockApiService extends ApiService {
   @override
   Future<void> addBookToCollection(String collectionId, int bookId) async {
     lookups.add('addBookToCollection:$collectionId:$bookId');
+  }
+
+  @override
+  Future<Response> createCopy(Map<String, dynamic> copyData) async {
+    createdCopies.add(Map<String, dynamic>.from(copyData));
+    return Response(
+      requestOptions: RequestOptions(path: '/api/copies'),
+      statusCode: 201,
+      data: {'copy': {'id': 456, ...copyData}, 'message': 'Copy created'},
+    );
+  }
+
+  @override
+  Future<Response> getBookCopies(int bookId) async {
+    lookups.add('getBookCopies:$bookId');
+    return Response(
+      requestOptions: RequestOptions(path: '/api/books/$bookId/copies'),
+      statusCode: 200,
+      data: {'copies': mockCopies, 'total': mockCopies.length},
+    );
   }
 }
 

@@ -371,18 +371,37 @@ class ApiService {
 
   // Copy management - createCopy with FFI support
   Future<Response> createCopy(Map<String, dynamic> copyData) async {
+    // Ensure required fields have defaults
+    final enrichedData = Map<String, dynamic>.from(copyData);
+
+    // Add library_id if not provided (get from auth service or default to 1)
+    if (!enrichedData.containsKey('library_id')) {
+      int libraryId = 1; // Default fallback
+      try {
+        libraryId = await AuthService().getLibraryId() ?? 1;
+      } catch (e) {
+        debugPrint('⚠️ Failed to get library_id from AuthService, using default: $e');
+      }
+      enrichedData['library_id'] = libraryId;
+    }
+
+    // Add is_temporary if not provided (default to false)
+    if (!enrichedData.containsKey('is_temporary')) {
+      enrichedData['is_temporary'] = false;
+    }
+
     if (useFfi) {
       try {
         final localDio = Dio(
           BaseOptions(baseUrl: 'http://127.0.0.1:$httpPort'),
         );
-        return await localDio.post('/api/copies', data: copyData);
+        return await localDio.post('/api/copies', data: enrichedData);
       } catch (e) {
         debugPrint('❌ createCopy error: $e');
         rethrow;
       }
     }
-    return await _dio.post('/api/copies', data: copyData);
+    return await _dio.post('/api/copies', data: enrichedData);
   }
 
   // Loan methods

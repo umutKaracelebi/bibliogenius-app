@@ -145,6 +145,7 @@ class _LibraryScreenState extends State<LibraryScreen>
           ],
         ),
         contextualQuickActions: _buildQuickActions(context),
+        onBookAdded: () => _refreshNotifier.value++,
       ),
       body: IndexedStack(
         index: _tabController.index,

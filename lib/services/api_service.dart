@@ -212,6 +212,10 @@ class ApiService {
   Future<Response> createBook(Map<String, dynamic> bookData) async {
     if (useFfi) {
       try {
+        // Native FFI Call
+        // WORKAROUND: Force owned=false to prevent backend from trying to create a copy internally
+        // (which fails with NotFound likely due to missing Library Context in the native struct).
+        // We will manually create the copy using the working HTTP endpoint below.
         final frbBookInput = frb.FrbBook(
           title: bookData['title'] ?? 'Untitled',
           author: bookData['author'],
@@ -227,13 +231,26 @@ class ApiService {
               ? jsonEncode(bookData['subjects'])
               : null,
           readingStatus: bookData['reading_status'],
-          owned: bookData['owned'] ?? true, // Default to owned
+          owned: false, // FORCE FALSE to bypass native bug
           price: bookData['price'] is num
               ? (bookData['price'] as num).toDouble()
               : null,
         );
 
         final createdBook = await FfiService().createBook(frbBookInput);
+
+        // If the user wanted it owned, manually create the copy using the reliable HTTP endpoint
+        if (bookData['owned'] != false) {
+          if (createdBook.id == null) {
+            throw Exception('Native createBook returned null ID');
+          }
+          await createCopy({
+            'book_id': createdBook.id,
+            'is_temporary': false,
+            'status': 'available',
+            // library_id handled by createCopy default
+          });
+        }
 
         return Response(
           requestOptions: RequestOptions(path: '/api/books'),
@@ -376,13 +393,33 @@ class ApiService {
 
     // Add library_id if not provided (get from auth service or default to 1)
     if (!enrichedData.containsKey('library_id')) {
-      int libraryId = 1; // Default fallback
+      int? libraryId;
       try {
-        libraryId = await AuthService().getLibraryId() ?? 1;
+        libraryId = await AuthService().getLibraryId();
       } catch (e) {
-        debugPrint('⚠️ Failed to get library_id from AuthService, using default: $e');
+        debugPrint('⚠️ Failed to get library_id from AuthService: $e');
       }
-      enrichedData['library_id'] = libraryId;
+
+      // If AuthService didn't have it (e.g. storage cleared), try to find it from existing data
+      if (libraryId == null && useFfi) {
+        try {
+          final contacts = await FfiService().getContacts();
+          if (contacts.isNotEmpty) {
+            libraryId = contacts.first.libraryOwnerId;
+            debugPrint(
+              '🔍 Recovered library_id $libraryId from local contacts',
+            );
+            // Also save it back to AuthService to fix future calls
+            if (libraryId != null) {
+              await AuthService().saveLibraryId(libraryId);
+            }
+          }
+        } catch (e) {
+          debugPrint('⚠️ Failed to recover library_id from contacts: $e');
+        }
+      }
+
+      enrichedData['library_id'] = libraryId ?? 1; // Final fallback to 1
     }
 
     // Add is_temporary if not provided (default to false)
@@ -390,18 +427,56 @@ class ApiService {
       enrichedData['is_temporary'] = false;
     }
 
-    if (useFfi) {
-      try {
+    Future<Response> attemptCreate(int libId) async {
+      enrichedData['library_id'] = libId;
+      if (useFfi) {
         final localDio = Dio(
           BaseOptions(baseUrl: 'http://127.0.0.1:$httpPort'),
         );
         return await localDio.post('/api/copies', data: enrichedData);
-      } catch (e) {
-        debugPrint('❌ createCopy error: $e');
-        rethrow;
       }
+      return await _dio.post('/api/copies', data: enrichedData);
     }
-    return await _dio.post('/api/copies', data: enrichedData);
+
+    try {
+      return await attemptCreate(enrichedData['library_id']);
+    } catch (e) {
+      // Brute force recovery failed - DB is likely uninitialized (fresh install with skipped setup)
+      if (e is DioException &&
+          e.response?.statusCode == 500 &&
+          e.response?.data.toString().contains('FOREIGN KEY') == true) {
+        debugPrint('❌ Db Uninitialized Error: Missing Default Library (ID 1).');
+        debugPrint('🛠️ Attempting Self-Healing: Running Auto-Setup...');
+
+        try {
+          // Lazy Initialization: Run setup with defaults since it wasn't run at startup
+          await setup(libraryName: 'My Library', profileType: 'individual');
+
+          // After setup, library_id should be saved in AuthService (by setup method)
+          // But let's verify and retry the copy creation
+          int? newLibId = await AuthService().getLibraryId();
+          if (newLibId != null) {
+            debugPrint(
+              '✅ Auto-Setup Successful! Retrying createCopy with new Library ID: $newLibId',
+            );
+            return await attemptCreate(newLibId);
+          }
+        } catch (setupError) {
+          debugPrint('❌ Auto-Setup Failed: $setupError');
+        }
+
+        throw Exception(
+          'Database corrupted and Auto-Repair failed. Please go to Settings -> Reset App.',
+        );
+      }
+
+      // If recovery failed or not applicable, log and rethrow original
+      if (e is DioException && e.response?.data != null) {
+        debugPrint('❌ createCopy error details: ${e.response?.data}');
+      }
+      debugPrint('❌ createCopy error: $e');
+      rethrow;
+    }
   }
 
   // Loan methods

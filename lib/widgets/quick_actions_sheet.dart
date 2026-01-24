@@ -125,10 +125,15 @@ class QuickActionsSheet extends StatelessWidget {
                 color: Colors.orange,
                 label: 'quick_scan_barcode',
                 onTap: () async {
+                  // Capture the router BEFORE popping the sheet
+                  // This failsafe ensures we have a valid navigator even after the widget is disposed
+                  final router = GoRouter.of(context);
                   Navigator.pop(context);
-                  final isbn = await context.push<String>('/scan');
-                  if (isbn != null && context.mounted) {
-                    final result = await context.push(
+
+                  // Use the captured router for the async sequence
+                  final isbn = await router.push<String>('/scan');
+                  if (isbn != null) {
+                    final result = await router.push(
                       '/books/add',
                       extra: {'isbn': isbn},
                     );
@@ -145,8 +150,9 @@ class QuickActionsSheet extends StatelessWidget {
                 color: Colors.blue,
                 label: 'quick_search_online',
                 onTap: () {
+                  final router = GoRouter.of(context);
                   Navigator.pop(context);
-                  context.push('/search/external');
+                  router.push('/search/external');
                 },
               ),
               const SizedBox(width: 12),
@@ -156,8 +162,9 @@ class QuickActionsSheet extends StatelessWidget {
                 color: Colors.purple,
                 label: 'quick_borrow_book',
                 onTap: () {
+                  final router = GoRouter.of(context);
                   Navigator.pop(context);
-                  context.push('/requests');
+                  router.push('/requests');
                 },
               ),
             ],

@@ -51,10 +51,19 @@ class _ScanScreenState extends State<ScanScreen> {
     controller =
         widget.controller ??
         MobileScannerController(
+          autoStart: false,
           detectionSpeed: DetectionSpeed.normal,
           facing: CameraFacing.back,
           torchEnabled: false,
         );
+
+    // Start camera when view is visible only after frame is rendered
+    // to avoid immediate permission denial errors on some platforms
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (mounted) {
+        controller.start();
+      }
+    });
   }
 
   bool _isScanning = true;
@@ -66,7 +75,6 @@ class _ScanScreenState extends State<ScanScreen> {
   String? _lastAddedTitle;
   bool _isProcessingBatch = false;
 
-  @override
   @override
   void dispose() {
     // Only dispose if we created it (or just dispose always if the controller handles multiple disposes gracefully?
@@ -120,7 +128,9 @@ class _ScanScreenState extends State<ScanScreen> {
           setState(() {
             _isScanning = false;
           });
-          context.pop(rawValue);
+          if (mounted) {
+            context.pop(rawValue);
+          }
         }
         return;
       }
@@ -245,10 +255,7 @@ class _ScanScreenState extends State<ScanScreen> {
       // For existing books, we create an additional copy only if book is owned
       // (user may have multiple physical copies of books they own).
       if (existingBook != null && existingBook.owned) {
-        await api.createCopy({
-          'book_id': bookId,
-          'status': 'available',
-        });
+        await api.createCopy({'book_id': bookId, 'status': 'available'});
       }
 
       setState(() {

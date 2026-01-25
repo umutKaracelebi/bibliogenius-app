@@ -572,9 +572,7 @@ class ApiService {
   Future<Response> getBorrowedCopies() async {
     // Use local HTTP server since FFI doesn't have this endpoint yet
     if (useFfi) {
-      final localDio = Dio(
-        BaseOptions(baseUrl: 'http://127.0.0.1:$httpPort'),
-      );
+      final localDio = Dio(BaseOptions(baseUrl: 'http://127.0.0.1:$httpPort'));
       return await localDio.get('/api/copies/borrowed');
     }
     return await _dio.get('/api/copies/borrowed');
@@ -793,6 +791,22 @@ class ApiService {
       }
     }
     return await _dio.get('/api/books/$bookId/copies');
+  }
+
+  /// Get a single copy by ID
+  Future<Response> getCopy(int copyId) async {
+    if (useFfi) {
+      try {
+        final localDio = Dio(
+          BaseOptions(baseUrl: 'http://127.0.0.1:$httpPort'),
+        );
+        return await localDio.get('/api/copies/$copyId');
+      } catch (e) {
+        debugPrint('❌ getCopy error: $e');
+        rethrow;
+      }
+    }
+    return await _dio.get('/api/copies/$copyId');
   }
 
   /// Update a copy
@@ -1224,7 +1238,9 @@ class ApiService {
         final activeLoans = await FfiService().countActiveLoans();
         final prefs = await SharedPreferences.getInstance();
         final totalBooks = books.length;
-        final totalBooksRead = books.where((b) => b.readingStatus == 'read').length;
+        final totalBooksRead = books
+            .where((b) => b.readingStatus == 'read')
+            .length;
         final booksReading = books
             .where((b) => b.readingStatus == 'reading')
             .length;
@@ -1327,7 +1343,9 @@ class ApiService {
         double collectorProgress = collectorLevel >= 6
             ? 1.0
             : totalBooks / collectorNext;
-        double readerProgress = readerLevel >= 6 ? 1.0 : totalBooksRead / readerNext;
+        double readerProgress = readerLevel >= 6
+            ? 1.0
+            : totalBooksRead / readerNext;
 
         // Calculate lender progress (thresholds: 5, 20, 50)
         int totalLoans = 0;
@@ -1433,8 +1451,9 @@ class ApiService {
               'achievements_style': 'minimal',
               'reading_goal_yearly': readingGoalYearly,
               'reading_goal_monthly': readingGoalMonthly,
-              'reading_goal_progress': booksReadThisYear, // Books finished THIS YEAR
-              'total_books_read': totalBooksRead,         // All-time read count
+              'reading_goal_progress':
+                  booksReadThisYear, // Books finished THIS YEAR
+              'total_books_read': totalBooksRead, // All-time read count
               'fallback_preferences':
                   prefs.getString('ffi_fallback_preferences') != null
                   ? jsonDecode(prefs.getString('ffi_fallback_preferences')!)

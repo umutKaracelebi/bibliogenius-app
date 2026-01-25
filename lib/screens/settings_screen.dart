@@ -493,14 +493,12 @@ class _SettingsScreenState extends State<SettingsScreen> {
                 ),
                 value: theme.mcpEnabled,
                 onChanged: (val) => theme.setMcpEnabled(val),
-                activeColor: Colors.deepPurple,
               ),
               if (theme.mcpEnabled && !kIsWeb) ...[
                 const SizedBox(height: 16),
                 const Divider(),
-                const SizedBox(height: 12),
-                SizedBox(
-                  width: double.infinity,
+                const SizedBox(height: 16),
+                Center(
                   child: ElevatedButton.icon(
                     onPressed: () => _copyMcpConfig(),
                     icon: const Icon(Icons.copy, size: 18),
@@ -512,19 +510,26 @@ class _SettingsScreenState extends State<SettingsScreen> {
                           'Copy MCP Config',
                     ),
                     style: ElevatedButton.styleFrom(
-                      backgroundColor: Colors.deepPurple,
+                      backgroundColor: Theme.of(context).primaryColor,
                       foregroundColor: Colors.white,
-                      padding: const EdgeInsets.symmetric(vertical: 12),
+                      padding: const EdgeInsets.symmetric(
+                        vertical: 12,
+                        horizontal: 24,
+                      ),
                     ),
                   ),
                 ),
-                const SizedBox(height: 8),
-                Text(
-                  TranslationService.translate(context, 'mcp_instructions') ??
-                      'Paste this configuration into your AI assistant\'s settings file',
-                  style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                    color: Colors.grey[500],
-                    fontStyle: FontStyle.italic,
+                const SizedBox(height: 12),
+                Padding(
+                  padding: const EdgeInsets.fromLTRB(16, 0, 16, 20),
+                  child: Text(
+                    TranslationService.translate(context, 'mcp_instructions') ??
+                        'Paste this configuration into your AI assistant\'s settings file',
+                    style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                      color: Colors.grey[500],
+                      fontStyle: FontStyle.italic,
+                    ),
+                    textAlign: TextAlign.center,
                   ),
                 ),
               ],
@@ -639,7 +644,8 @@ class _SettingsScreenState extends State<SettingsScreen> {
       final api = Provider.of<ApiService>(context, listen: false);
 
       // Get profile type from config or ThemeProvider
-      final profileType = _config?['profile_type'] ??
+      final profileType =
+          _config?['profile_type'] ??
           Provider.of<ThemeProvider>(context, listen: false).profileType;
 
       // Use updateProfile which properly syncs to enabled_modules in database

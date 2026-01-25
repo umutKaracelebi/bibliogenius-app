@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import '../widgets/genie_app_bar.dart';
 import 'package:provider/provider.dart';
+import 'package:go_router/go_router.dart';
 import 'package:dio/dio.dart';
 import 'dart:async';
 import '../services/api_service.dart';
@@ -14,6 +15,7 @@ import '../providers/theme_provider.dart';
 /// - Empruntés (Borrowed): Books you borrowed from others (hidden if canBorrowBooks=false)
 class LoansScreen extends StatefulWidget {
   final bool isTabView;
+
   /// Initial tab to show: 'requests', 'lent', or 'borrowed'
   final String? initialTab;
 
@@ -56,14 +58,19 @@ class _LoansScreenState extends State<LoansScreen>
       if (widget.initialTab == 'lent') {
         // Lent is after Requests (if enabled), otherwise first
         initialIndex = themeProvider.networkEnabled ? 1 : 0;
-      } else if (widget.initialTab == 'borrowed' && themeProvider.canBorrowBooks) {
+      } else if (widget.initialTab == 'borrowed' &&
+          themeProvider.canBorrowBooks) {
         // Borrowed is last tab
         initialIndex = tabCount - 1;
       }
       // 'requests' stays at 0 (default)
     }
 
-    _mainTabController = TabController(length: tabCount, vsync: this, initialIndex: initialIndex);
+    _mainTabController = TabController(
+      length: tabCount,
+      vsync: this,
+      initialIndex: initialIndex,
+    );
     _requestsTabController = TabController(length: 3, vsync: this);
     _fetchAllData();
     _refreshTimer = Timer.periodic(const Duration(seconds: 30), (_) {
@@ -357,6 +364,7 @@ class _LoansScreenState extends State<LoansScreen>
     final loanDate = loan['loan_date'] ?? '';
     final dueDate = loan['due_date'] ?? '';
     final loanId = loan['id'] as int;
+    final bookId = loan['book_id'] as int?;
 
     final isOverdue =
         dueDate.isNotEmpty &&
@@ -365,6 +373,13 @@ class _LoansScreenState extends State<LoansScreen>
     return Card(
       margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
       child: ListTile(
+        onTap: () {
+          if (bookId != null) {
+            GoRouter.of(context).push('/books/$bookId');
+          } else {
+            _navigateToLoanBook(loan);
+          }
+        },
         leading: CircleAvatar(
           backgroundColor: isOverdue ? Colors.red : Colors.green,
           child: Icon(
@@ -412,6 +427,50 @@ class _LoansScreenState extends State<LoansScreen>
     );
   }
 
+  Future<void> _navigateToLoanBook(Map<String, dynamic> loan) async {
+    final bookTitle = loan['book_title'] as String?;
+    if (bookTitle == null || bookTitle.isEmpty) {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+          content:
+              Text(TranslationService.translate(context, 'book_not_found')),
+        ));
+      }
+      return;
+    }
+
+    setState(() => _isLoading = true);
+    try {
+      final api = Provider.of<ApiService>(context, listen: false);
+      final books = await api.getBooks(title: bookTitle);
+      final ownedBooks = books.where((b) => b.owned).toList();
+
+      if (ownedBooks.length == 1) {
+        final bookId = ownedBooks.first.id;
+        if (mounted) {
+          GoRouter.of(context).push('/books/$bookId');
+        }
+      } else {
+        if (mounted) {
+          ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+            content: Text(
+              '${TranslationService.translate(context, 'book_not_found')}: ${ownedBooks.length} books found with this title.',
+            ),
+          ));
+        }
+      }
+    } catch (e) {
+      debugPrint('Error navigating to loan book by title: $e');
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+          content: Text(TranslationService.translate(context, 'book_not_found')),
+        ));
+      }
+    } finally {
+      if (mounted) setState(() => _isLoading = false);
+    }
+  }
+
   String _formatDate(String dateStr) {
     try {
       final date = DateTime.parse(dateStr);
@@ -445,11 +504,14 @@ class _LoansScreenState extends State<LoansScreen>
     final notes = book['notes'] as String? ?? '';
     final acquisitionDate = book['acquisition_date'] ?? '';
     final cover = book['cover'] as String?;
+    final bookId = book['book_id'] as int? ?? book['id'] as int?;
 
     // Extract contact name from notes (format: "Borrowed from: Name (ID: x)")
     String borrowedFrom = '';
     if (notes.isNotEmpty) {
-      final match = RegExp(r'(?:Emprunté de|Borrowed from|Emprunté à)[:\s]*([^(]+)').firstMatch(notes);
+      final match = RegExp(
+        r'(?:Emprunté de|Borrowed from|Emprunté à)[:\s]*([^(]+)',
+      ).firstMatch(notes);
       if (match != null) {
         borrowedFrom = match.group(1)?.trim() ?? '';
       }
@@ -458,6 +520,8 @@ class _LoansScreenState extends State<LoansScreen>
     return Card(
       margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
       child: ListTile(
+        onTap: () =>
+            bookId != null ? GoRouter.of(context).push('/books/$bookId') : null,
         leading: cover != null && cover.isNotEmpty
             ? ClipRRect(
                 borderRadius: BorderRadius.circular(4),
@@ -476,10 +540,7 @@ class _LoansScreenState extends State<LoansScreen>
                 backgroundColor: Colors.blue,
                 child: const Icon(Icons.book, color: Colors.white),
               ),
-        title: Text(
-          title,
-          style: const TextStyle(fontWeight: FontWeight.bold),
-        ),
+        title: Text(title, style: const TextStyle(fontWeight: FontWeight.bold)),
         subtitle: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
@@ -512,8 +573,12 @@ class _LoansScreenState extends State<LoansScreen>
     final confirmed = await showDialog<bool>(
       context: context,
       builder: (ctx) => AlertDialog(
-        title: Text(TranslationService.translate(context, 'confirm_return_title')),
-        content: Text(TranslationService.translate(context, 'confirm_return_borrowed')),
+        title: Text(
+          TranslationService.translate(context, 'confirm_return_title'),
+        ),
+        content: Text(
+          TranslationService.translate(context, 'confirm_return_borrowed'),
+        ),
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(ctx, false),
@@ -536,16 +601,18 @@ class _LoansScreenState extends State<LoansScreen>
         if (mounted) {
           ScaffoldMessenger.of(context).showSnackBar(
             SnackBar(
-              content: Text(TranslationService.translate(context, 'book_returned_success')),
+              content: Text(
+                TranslationService.translate(context, 'book_returned_success'),
+              ),
               backgroundColor: Colors.green,
             ),
           );
         }
       } catch (e) {
         if (mounted) {
-          ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(content: Text(_getFriendlyErrorMessage(e))),
-          );
+          ScaffoldMessenger.of(
+            context,
+          ).showSnackBar(SnackBar(content: Text(_getFriendlyErrorMessage(e))));
         }
       }
     }

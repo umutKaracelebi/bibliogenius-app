@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:fl_chart/fl_chart.dart';
 import 'package:go_router/go_router.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import '../services/api_service.dart';
 import '../services/translation_service.dart';
 import '../models/book.dart';
@@ -9,6 +10,7 @@ import '../models/contact.dart';
 import '../models/tag.dart';
 import '../models/collection.dart';
 import '../widgets/genie_app_bar.dart';
+import '../widgets/goal_reached_animation.dart';
 import '../theme/app_design.dart';
 import '../providers/theme_provider.dart';
 import 'package:intl/intl.dart';
@@ -28,6 +30,10 @@ class _StatisticsScreenState extends State<StatisticsScreen>
   List<Tag> _tags = [];
   List<Collection> _collections = [];
   Map<String, dynamic>? _salesStats;
+  // Yearly reading goal
+  int _yearlyGoal = 12;
+  int _booksReadThisYear = 0;
+  bool _goalAnimationShown = false;
   bool _isLoading = true;
   late AnimationController _animController;
   late Animation<double> _fadeAnim;
@@ -55,6 +61,41 @@ class _StatisticsScreenState extends State<StatisticsScreen>
     _animController.dispose();
     // _pulseController.dispose() removed
     super.dispose();
+  }
+
+  /// Check if the yearly goal was just reached and show celebration animation
+  Future<void> _checkAndShowGoalAnimation() async {
+    if (_goalAnimationShown) return;
+    if (_yearlyGoal <= 0) return;
+    if (_booksReadThisYear < _yearlyGoal) return;
+
+    // Check if we already showed the animation for this year
+    final prefs = await SharedPreferences.getInstance();
+    final currentYear = DateTime.now().year;
+    final lastCelebratedYear = prefs.getInt('yearly_goal_celebrated_year') ?? 0;
+
+    if (lastCelebratedYear < currentYear) {
+      // Goal reached for the first time this year - show celebration!
+      await prefs.setInt('yearly_goal_celebrated_year', currentYear);
+      _goalAnimationShown = true;
+
+      if (mounted) {
+        // Delay slightly to let the UI render first
+        Future.delayed(const Duration(milliseconds: 500), () {
+          if (mounted) {
+            GoalReachedAnimation.show(
+              context,
+              goalType: 'yearly',
+              booksRead: _booksReadThisYear,
+              customMessage: TranslationService.translate(
+                context,
+                'yearly_goal_reached',
+              ),
+            );
+          }
+        });
+      }
+    }
   }
 
   Future<void> _fetchData() async {
@@ -104,6 +145,20 @@ class _StatisticsScreenState extends State<StatisticsScreen>
         debugPrint('Error fetching collections: $e');
       }
 
+      // Fetch yearly reading goal data
+      int yearlyGoal = 12;
+      int booksReadThisYear = 0;
+      try {
+        final statusRes = await api.getUserStatus();
+        if (statusRes.statusCode == 200) {
+          final config = statusRes.data['config'] ?? {};
+          yearlyGoal = config['reading_goal_yearly'] ?? 12;
+          booksReadThisYear = config['reading_goal_progress'] ?? 0;
+        }
+      } catch (e) {
+        debugPrint('Error fetching user status: $e');
+      }
+
       Map<String, dynamic>? salesStats;
       if (Provider.of<ThemeProvider>(context, listen: false).isBookseller) {
         try {
@@ -123,10 +178,15 @@ class _StatisticsScreenState extends State<StatisticsScreen>
           _contactsMap = contactsMap;
           _tags = tags;
           _collections = collections;
+          _yearlyGoal = yearlyGoal;
+          _booksReadThisYear = booksReadThisYear;
           _salesStats = salesStats;
           _isLoading = false;
         });
         _animController.forward();
+
+        // Check if yearly goal was just reached and show animation
+        _checkAndShowGoalAnimation();
       }
     } catch (e) {
       if (mounted) {
@@ -173,6 +233,15 @@ class _StatisticsScreenState extends State<StatisticsScreen>
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     _buildSummaryCards(),
+                    // Yearly Reading Goal Section
+                    const SizedBox(height: 32),
+                    _buildSectionTitle(
+                      TranslationService.translate(context, 'yearly_goal'),
+                      Icons.emoji_events,
+                      AppDesign.warningGradient,
+                    ),
+                    const SizedBox(height: 16),
+                    _buildYearlyGoalSection(),
                     if (_salesStats != null) ...[
                       const SizedBox(height: 32),
                       _buildSectionTitle(
@@ -320,6 +389,197 @@ class _StatisticsScreenState extends State<StatisticsScreen>
         ),
       ],
     );
+  }
+
+  Widget _buildYearlyGoalSection() {
+    final progress = _yearlyGoal > 0
+        ? (_booksReadThisYear / _yearlyGoal).clamp(0.0, 1.0)
+        : 0.0;
+    final isGoalReached = _booksReadThisYear >= _yearlyGoal && _yearlyGoal > 0;
+    final currentYear = DateTime.now().year;
+
+    return Container(
+      padding: const EdgeInsets.all(24),
+      decoration: BoxDecoration(
+        gradient: isGoalReached
+            ? const LinearGradient(
+                colors: [Color(0xFFFFD700), Color(0xFFFFA500)],
+                begin: Alignment.topLeft,
+                end: Alignment.bottomRight,
+              )
+            : null,
+        color: isGoalReached ? null : Theme.of(context).cardColor,
+        borderRadius: BorderRadius.circular(AppDesign.radiusLarge),
+        boxShadow: isGoalReached
+            ? [
+                BoxShadow(
+                  color: Colors.orange.withValues(alpha: 0.4),
+                  blurRadius: 20,
+                  offset: const Offset(0, 8),
+                ),
+              ]
+            : AppDesign.cardShadow,
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          // Header row with year and trophy
+          Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              Row(
+                children: [
+                  Icon(
+                    isGoalReached ? Icons.emoji_events : Icons.track_changes,
+                    color: isGoalReached ? Colors.white : const Color(0xFFF59E0B),
+                    size: 28,
+                  ),
+                  const SizedBox(width: 12),
+                  Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        '$currentYear',
+                        style: TextStyle(
+                          fontSize: 14,
+                          fontWeight: FontWeight.w500,
+                          color: isGoalReached
+                              ? Colors.white.withValues(alpha: 0.8)
+                              : Colors.grey[600],
+                        ),
+                      ),
+                      Text(
+                        TranslationService.translate(context, 'reading_challenge'),
+                        style: TextStyle(
+                          fontSize: 18,
+                          fontWeight: FontWeight.bold,
+                          color: isGoalReached ? Colors.white : null,
+                        ),
+                      ),
+                    ],
+                  ),
+                ],
+              ),
+              if (isGoalReached)
+                Container(
+                  padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+                  decoration: BoxDecoration(
+                    color: Colors.white.withValues(alpha: 0.2),
+                    borderRadius: BorderRadius.circular(20),
+                  ),
+                  child: Text(
+                    TranslationService.translate(context, 'goal_completed'),
+                    style: const TextStyle(
+                      color: Colors.white,
+                      fontWeight: FontWeight.bold,
+                      fontSize: 12,
+                    ),
+                  ),
+                ),
+            ],
+          ),
+          const SizedBox(height: 24),
+
+          // Progress indicator
+          Row(
+            children: [
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    // Progress bar
+                    Stack(
+                      children: [
+                        Container(
+                          height: 12,
+                          decoration: BoxDecoration(
+                            color: isGoalReached
+                                ? Colors.white.withValues(alpha: 0.3)
+                                : Colors.grey[200],
+                            borderRadius: BorderRadius.circular(6),
+                          ),
+                        ),
+                        FractionallySizedBox(
+                          widthFactor: progress,
+                          child: Container(
+                            height: 12,
+                            decoration: BoxDecoration(
+                              gradient: isGoalReached
+                                  ? const LinearGradient(
+                                      colors: [Colors.white, Color(0xFFFFF8DC)],
+                                    )
+                                  : const LinearGradient(
+                                      colors: [Color(0xFFF59E0B), Color(0xFFD97706)],
+                                    ),
+                              borderRadius: BorderRadius.circular(6),
+                              boxShadow: [
+                                BoxShadow(
+                                  color: (isGoalReached ? Colors.white : const Color(0xFFF59E0B))
+                                      .withValues(alpha: 0.4),
+                                  blurRadius: 4,
+                                ),
+                              ],
+                            ),
+                          ),
+                        ),
+                      ],
+                    ),
+                    const SizedBox(height: 12),
+
+                    // Count text
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: [
+                        Text(
+                          '$_booksReadThisYear / $_yearlyGoal ${TranslationService.translate(context, 'books')}',
+                          style: TextStyle(
+                            fontSize: 16,
+                            fontWeight: FontWeight.w600,
+                            color: isGoalReached ? Colors.white : null,
+                          ),
+                        ),
+                        Text(
+                          '${(progress * 100).toInt()}%',
+                          style: TextStyle(
+                            fontSize: 16,
+                            fontWeight: FontWeight.bold,
+                            color: isGoalReached
+                                ? Colors.white
+                                : const Color(0xFFF59E0B),
+                          ),
+                        ),
+                      ],
+                    ),
+                  ],
+                ),
+              ),
+            ],
+          ),
+
+          // Motivational message
+          if (!isGoalReached && _yearlyGoal > 0) ...[
+            const SizedBox(height: 16),
+            Text(
+              _getBooksRemainingMessage(),
+              style: TextStyle(
+                fontSize: 13,
+                color: Colors.grey[600],
+                fontStyle: FontStyle.italic,
+              ),
+            ),
+          ],
+        ],
+      ),
+    );
+  }
+
+  String _getBooksRemainingMessage() {
+    final remaining = _yearlyGoal - _booksReadThisYear;
+    if (remaining <= 0) return '';
+    final booksWord = remaining == 1
+        ? TranslationService.translate(context, 'book')
+        : TranslationService.translate(context, 'books');
+    return '$remaining $booksWord ${TranslationService.translate(context, 'remaining_to_goal')}';
   }
 
   Widget _buildSummaryCards() {

@@ -67,12 +67,14 @@ class StreakInfo {
 class GamificationConfig {
   final String achievementsStyle; // 'minimal', 'fun', 'professional'
   final int readingGoalYearly;
-  final int readingGoalProgress;
+  final int readingGoalProgress; // Books finished THIS YEAR
+  final int totalBooksRead;      // All-time books with reading_status='read'
 
   const GamificationConfig({
     required this.achievementsStyle,
     required this.readingGoalYearly,
     required this.readingGoalProgress,
+    this.totalBooksRead = 0,
   });
 
   factory GamificationConfig.fromJson(Map<String, dynamic> json) {
@@ -80,6 +82,7 @@ class GamificationConfig {
       achievementsStyle: json['achievements_style'] as String? ?? 'minimal',
       readingGoalYearly: json['reading_goal_yearly'] as int? ?? 12,
       readingGoalProgress: json['reading_goal_progress'] as int? ?? 0,
+      totalBooksRead: json['total_books_read'] as int? ?? 0,
     );
   }
 
@@ -88,6 +91,9 @@ class GamificationConfig {
     if (readingGoalYearly <= 0) return 0.0;
     return (readingGoalProgress / readingGoalYearly).clamp(0.0, 1.0);
   }
+
+  /// Returns true if yearly goal has been reached.
+  bool get goalReached => readingGoalProgress >= readingGoalYearly;
 }
 
 /// Complete gamification status for a user.

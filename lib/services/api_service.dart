@@ -1224,10 +1224,17 @@ class ApiService {
         final activeLoans = await FfiService().countActiveLoans();
         final prefs = await SharedPreferences.getInstance();
         final totalBooks = books.length;
-        final booksRead = books.where((b) => b.readingStatus == 'read').length;
+        final totalBooksRead = books.where((b) => b.readingStatus == 'read').length;
         final booksReading = books
             .where((b) => b.readingStatus == 'reading')
             .length;
+
+        // Count books finished THIS YEAR (based on finishedReadingAt)
+        final currentYear = DateTime.now().year;
+        final booksReadThisYear = books.where((b) {
+          if (b.finishedReadingAt == null) return false;
+          return b.finishedReadingAt!.year == currentYear;
+        }).length;
 
         // Read goals from SharedPreferences
         final readingGoalYearly = prefs.getInt('ffi_reading_goal_yearly') ?? 12;
@@ -1294,24 +1301,25 @@ class ApiService {
         }
 
         // Calculate reader progress (6 levels: 25, 50, 100, 250, 500, 1000)
+        // Uses all-time read count, not just this year
         int readerLevel = 0;
         int readerNext = 25;
-        if (booksRead >= 1000) {
+        if (totalBooksRead >= 1000) {
           readerLevel = 6;
           readerNext = 1000;
-        } else if (booksRead >= 500) {
+        } else if (totalBooksRead >= 500) {
           readerLevel = 5;
           readerNext = 1000;
-        } else if (booksRead >= 250) {
+        } else if (totalBooksRead >= 250) {
           readerLevel = 4;
           readerNext = 500;
-        } else if (booksRead >= 100) {
+        } else if (totalBooksRead >= 100) {
           readerLevel = 3;
           readerNext = 250;
-        } else if (booksRead >= 50) {
+        } else if (totalBooksRead >= 50) {
           readerLevel = 2;
           readerNext = 100;
-        } else if (booksRead >= 25) {
+        } else if (totalBooksRead >= 25) {
           readerLevel = 1;
           readerNext = 50;
         }
@@ -1319,7 +1327,7 @@ class ApiService {
         double collectorProgress = collectorLevel >= 6
             ? 1.0
             : totalBooks / collectorNext;
-        double readerProgress = readerLevel >= 6 ? 1.0 : booksRead / readerNext;
+        double readerProgress = readerLevel >= 6 ? 1.0 : totalBooksRead / readerNext;
 
         // Calculate lender progress (thresholds: 5, 20, 50)
         int totalLoans = 0;
@@ -1403,7 +1411,7 @@ class ApiService {
               'reader': {
                 'level': readerLevel,
                 'progress': readerProgress.clamp(0.0, 1.0),
-                'current': booksRead,
+                'current': totalBooksRead,
                 'next_threshold': readerNext,
               },
               'lender': {
@@ -1425,7 +1433,8 @@ class ApiService {
               'achievements_style': 'minimal',
               'reading_goal_yearly': readingGoalYearly,
               'reading_goal_monthly': readingGoalMonthly,
-              'reading_goal_progress': booksRead,
+              'reading_goal_progress': booksReadThisYear, // Books finished THIS YEAR
+              'total_books_read': totalBooksRead,         // All-time read count
               'fallback_preferences':
                   prefs.getString('ffi_fallback_preferences') != null
                   ? jsonDecode(prefs.getString('ffi_fallback_preferences')!)
@@ -1477,6 +1486,7 @@ class ApiService {
             'achievements_style': 'minimal',
             'reading_goal_yearly': 12,
             'reading_goal_progress': 0,
+            'total_books_read': 0,
             'fallback_preferences': <String, dynamic>{},
           },
           'level': 'Member',

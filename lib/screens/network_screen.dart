@@ -8,8 +8,10 @@ import 'dart:async';
 import 'dart:convert';
 import '../models/contact.dart';
 import '../models/network_member.dart';
+import '../providers/theme_provider.dart';
 import '../services/api_service.dart';
 import '../services/auth_service.dart';
+import '../services/mdns_service.dart';
 import '../services/translation_service.dart';
 import '../utils/app_constants.dart';
 import 'package:qr_flutter/qr_flutter.dart';
@@ -222,9 +224,11 @@ class ContactsListView extends StatefulWidget {
 class _ContactsListViewState extends State<ContactsListView> {
   // Logic from original NetworkScreen for loading/displaying list
   List<NetworkMember> _members = [];
+  List<DiscoveredPeer> _localPeers = []; // mDNS discovered peers
   bool _isLoading = true;
   NetworkFilter _filter = NetworkFilter.all;
   Map<int, bool> _peerConnectivity = {};
+  Map<String, bool> _localPeerConnectivity = {}; // connectivity for mDNS peers
 
   @override
   void initState() {
@@ -315,12 +319,24 @@ class _ContactsListViewState extends State<ContactsListView> {
         return a.name.toLowerCase().compareTo(b.name.toLowerCase());
       });
 
+      // Load mDNS discovered peers if network discovery is enabled
+      List<DiscoveredPeer> localPeers = [];
+      final themeProvider = Provider.of<ThemeProvider>(context, listen: false);
+      if (themeProvider.networkDiscoveryEnabled && MdnsService.isActive) {
+        localPeers = MdnsService.peers;
+        debugPrint(
+          '🔍 NetworkScreen: Found ${localPeers.length} mDNS peers',
+        );
+      }
+
       if (mounted) {
         setState(() {
           _members = allMembers;
+          _localPeers = localPeers;
           _isLoading = false;
         });
         _checkPeersConnectivity(allMembers);
+        _checkLocalPeersConnectivity(localPeers);
       }
     } catch (e) {
       debugPrint('Error loading members: $e');
@@ -348,6 +364,31 @@ class _ContactsListViewState extends State<ContactsListView> {
             if (mounted) {
               setState(() {
                 _peerConnectivity[member.id] = false;
+              });
+            }
+          });
+    }
+  }
+
+  Future<void> _checkLocalPeersConnectivity(List<DiscoveredPeer> peers) async {
+    final api = Provider.of<ApiService>(context, listen: false);
+    for (final peer in peers) {
+      final url = 'http://${peer.host}:${peer.port}';
+      final peerKey = '${peer.host}:${peer.port}';
+
+      api
+          .checkPeerConnectivity(url, timeoutMs: 4000)
+          .then((isOnline) {
+            if (mounted) {
+              setState(() {
+                _localPeerConnectivity[peerKey] = isOnline;
+              });
+            }
+          })
+          .catchError((_) {
+            if (mounted) {
+              setState(() {
+                _localPeerConnectivity[peerKey] = false;
               });
             }
           });
@@ -461,92 +502,30 @@ class _ContactsListViewState extends State<ContactsListView> {
         Expanded(
           child: _isLoading
               ? const Center(child: CircularProgressIndicator())
-              : _filteredMembers.isEmpty
+              : (_filteredMembers.isEmpty && _localPeers.isEmpty)
               ? _buildEmptyState(context)
-              : ListView.builder(
-                  itemCount: _filteredMembers.length,
-                  itemBuilder: (context, index) {
-                    final member = _filteredMembers[index];
-                    final isOnline = _peerConnectivity[member.id] ?? false;
-                    return ListTile(
-                      leading: CircleAvatar(
-                        backgroundColor:
-                            member.source == NetworkMemberSource.network
-                            ? Theme.of(context).primaryColor
-                            : Colors.orange,
-                        child: Icon(
-                          member.source == NetworkMemberSource.network
-                              ? Icons.store
-                              : Icons.person,
-                          color: Colors.white,
-                        ),
+              : ListView(
+                  children: [
+                    // Local Network section (mDNS discovered peers)
+                    if (_localPeers.isNotEmpty &&
+                        _filter != NetworkFilter.contacts) ...[
+                      _buildSectionHeader(
+                        context,
+                        TranslationService.translate(
+                              context,
+                              'local_network_title',
+                            ) ??
+                            'Réseau local',
+                        Icons.wifi,
                       ),
-                      title: Text(member.name),
-                      subtitle: Text(
-                        member.source == NetworkMemberSource.network
-                            ? (isOnline
-                                  ? TranslationService.translate(
-                                      context,
-                                      'status_active',
-                                    )
-                                  : TranslationService.translate(
-                                      context,
-                                      'status_offline',
-                                    ))
-                            : member.email ??
-                                  TranslationService.translate(
-                                    context,
-                                    'contact_type_borrower',
-                                  ),
-                      ),
-                      trailing: Row(
-                        mainAxisSize: MainAxisSize.min,
-                        children: [
-                          if (member.source == NetworkMemberSource.network)
-                            IconButton(
-                              icon: const Icon(Icons.sync),
-                              tooltip: TranslationService.translate(
-                                context,
-                                'tooltip_sync',
-                              ),
-                              onPressed: () async {
-                                final api = Provider.of<ApiService>(
-                                  context,
-                                  listen: false,
-                                );
-                                if (member.url != null) {
-                                  await api.syncPeer(member.url!);
-                                  if (mounted) {
-                                    ScaffoldMessenger.of(context).showSnackBar(
-                                      SnackBar(
-                                        content: Text(
-                                          TranslationService.translate(
-                                            context,
-                                            'sync_started',
-                                          ),
-                                        ),
-                                      ),
-                                    );
-                                  }
-                                }
-                              },
-                            ),
-                          IconButton(
-                            icon: const Icon(Icons.delete, color: Colors.grey),
-                            onPressed: () => _deleteMember(member),
-                          ),
-                        ],
-                      ),
-                      onTap: AppConstants.enableP2PFeatures
-                          ? () {
-                              context.push(
-                                '/contacts/${member.id}?isNetwork=${member.source == NetworkMemberSource.network}',
-                                extra: member.toContact(),
-                              );
-                            }
-                          : null,
-                    );
-                  },
+                      ..._localPeers.map((peer) => _buildLocalPeerTile(peer)),
+                    ],
+                    // Regular members section
+                    ..._filteredMembers.map((member) {
+                      final isOnline = _peerConnectivity[member.id] ?? false;
+                      return _buildMemberTile(member, isOnline);
+                    }),
+                  ],
                 ),
         ),
       ],
@@ -763,6 +742,218 @@ class _ContactsListViewState extends State<ContactsListView> {
       onSelected: (selected) {
         setState(() => _filter = filter);
       },
+    );
+  }
+
+  Widget _buildSectionHeader(BuildContext context, String title, IconData icon) {
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+      color: Theme.of(context).colorScheme.surfaceContainerHighest.withValues(alpha: 0.5),
+      child: Row(
+        children: [
+          Icon(icon, size: 20, color: Theme.of(context).colorScheme.primary),
+          const SizedBox(width: 8),
+          Text(
+            title,
+            style: TextStyle(
+              fontWeight: FontWeight.bold,
+              color: Theme.of(context).colorScheme.primary,
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildLocalPeerTile(DiscoveredPeer peer) {
+    final peerKey = '${peer.host}:${peer.port}';
+    final isOnline = _localPeerConnectivity[peerKey] ?? true; // Assume online until checked
+    final url = 'http://${peer.host}:${peer.port}';
+
+    return ListTile(
+      leading: CircleAvatar(
+        backgroundColor: Colors.green,
+        child: const Icon(Icons.wifi, color: Colors.white),
+      ),
+      title: Text(peer.name),
+      subtitle: Text(
+        isOnline
+            ? TranslationService.translate(context, 'status_active')
+            : TranslationService.translate(context, 'status_offline'),
+      ),
+      trailing: Row(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          // Browse library button
+          IconButton(
+            icon: const Icon(Icons.menu_book),
+            tooltip: TranslationService.translate(context, 'browse_library'),
+            onPressed: isOnline
+                ? () {
+                    context.push(
+                      '/peers/0/books', // Use 0 as placeholder ID for mDNS peers
+                      extra: {
+                        'id': 0,
+                        'name': peer.name,
+                        'url': url,
+                      },
+                    );
+                  }
+                : null,
+          ),
+          // Connect button
+          IconButton(
+            icon: const Icon(Icons.add_circle_outline),
+            tooltip: TranslationService.translate(context, 'connect'),
+            onPressed: () async {
+              final api = Provider.of<ApiService>(context, listen: false);
+              try {
+                await api.connectPeer(peer.name, url);
+                if (mounted) {
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    SnackBar(
+                      content: Text(
+                        '${TranslationService.translate(context, 'request_sent_to')} ${peer.name}',
+                      ),
+                    ),
+                  );
+                  _loadAllMembers(); // Reload to show the new peer
+                }
+              } catch (e) {
+                if (mounted) {
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    SnackBar(
+                      content: Text(
+                        '${TranslationService.translate(context, 'connection_error')}: $e',
+                      ),
+                    ),
+                  );
+                }
+              }
+            },
+          ),
+        ],
+      ),
+      // Tap to browse library
+      onTap: isOnline
+          ? () {
+              context.push(
+                '/peers/0/books',
+                extra: {
+                  'id': 0,
+                  'name': peer.name,
+                  'url': url,
+                },
+              );
+            }
+          : null,
+    );
+  }
+
+  Widget _buildMemberTile(NetworkMember member, bool isOnline) {
+    return ListTile(
+      leading: CircleAvatar(
+        backgroundColor: member.source == NetworkMemberSource.network
+            ? Theme.of(context).primaryColor
+            : Colors.orange,
+        child: Icon(
+          member.source == NetworkMemberSource.network
+              ? Icons.store
+              : Icons.person,
+          color: Colors.white,
+        ),
+      ),
+      title: Text(member.name),
+      subtitle: Text(
+        member.source == NetworkMemberSource.network
+            ? (isOnline
+                ? TranslationService.translate(context, 'status_active')
+                : TranslationService.translate(context, 'status_offline'))
+            : member.email ??
+                TranslationService.translate(context, 'contact_type_borrower'),
+      ),
+      trailing: Row(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          if (member.source == NetworkMemberSource.network) ...[
+            // Browse library button
+            IconButton(
+              icon: const Icon(Icons.menu_book),
+              tooltip: TranslationService.translate(context, 'browse_library'),
+              onPressed: member.url != null
+                  ? () {
+                      context.push(
+                        '/peers/${member.id}/books',
+                        extra: {
+                          'id': member.id,
+                          'name': member.name,
+                          'url': member.url,
+                        },
+                      );
+                    }
+                  : null,
+            ),
+            // Sync button
+            IconButton(
+              icon: const Icon(Icons.sync),
+              tooltip: TranslationService.translate(context, 'tooltip_sync'),
+              onPressed: () async {
+                final api = Provider.of<ApiService>(context, listen: false);
+                if (member.url != null) {
+                  await api.syncPeer(member.url!);
+                  if (mounted) {
+                    ScaffoldMessenger.of(context).showSnackBar(
+                      SnackBar(
+                        content: Text(
+                          TranslationService.translate(context, 'sync_started'),
+                        ),
+                      ),
+                    );
+                  }
+                }
+              },
+            ),
+            // Edit contact button
+            IconButton(
+              icon: const Icon(Icons.edit_outlined),
+              tooltip: TranslationService.translate(context, 'edit_contact'),
+              onPressed: () {
+                context.push(
+                  '/contacts/${member.id}?isNetwork=true',
+                  extra: member.toContact(),
+                );
+              },
+            ),
+          ],
+          IconButton(
+            icon: const Icon(Icons.delete, color: Colors.grey),
+            onPressed: () => _deleteMember(member),
+          ),
+        ],
+      ),
+      // Tap to browse library for network peers, edit form for contacts
+      onTap: AppConstants.enableP2PFeatures
+          ? () {
+              if (member.source == NetworkMemberSource.network &&
+                  member.url != null) {
+                // Browse library for network peers
+                context.push(
+                  '/peers/${member.id}/books',
+                  extra: {
+                    'id': member.id,
+                    'name': member.name,
+                    'url': member.url,
+                  },
+                );
+              } else {
+                // Edit form for local contacts
+                context.push(
+                  '/contacts/${member.id}?isNetwork=false',
+                  extra: member.toContact(),
+                );
+              }
+            }
+          : null,
     );
   }
 }

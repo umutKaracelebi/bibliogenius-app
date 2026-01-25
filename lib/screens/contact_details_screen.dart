@@ -6,7 +6,7 @@ import '../services/translation_service.dart';
 import '../services/api_service.dart';
 import '../providers/theme_provider.dart';
 import 'add_contact_screen.dart';
-import 'scan_screen.dart';
+import 'borrow_book_screen.dart';
 
 class ContactDetailsScreen extends StatefulWidget {
   final Contact contact;
@@ -103,7 +103,7 @@ class _ContactDetailsScreenState extends State<ContactDetailsScreen> {
           // Action buttons
           Row(
             children: [
-              if (!Provider.of<ThemeProvider>(context).isLibrarian) ...[
+              if (!Provider.of<ThemeProvider>(context, listen: false).isLibrarian) ...[
                 Expanded(
                   child: FilledButton.icon(
                     onPressed: () => _borrowFromContact(context),
@@ -231,178 +231,23 @@ class _ContactDetailsScreenState extends State<ContactDetailsScreen> {
   }
 
   Future<void> _borrowFromContact(BuildContext context) async {
-    // Show dialog to add a book that was borrowed from this contact
-    final result = await showDialog<Map<String, dynamic>>(
-      context: context,
-      builder: (context) => _BorrowBookDialog(contact: _contact),
+    debugPrint('🔧 ContactDetails: _borrowFromContact() called');
+    // Navigate to the borrow book screen
+    final result = await Navigator.push<bool>(
+      context,
+      MaterialPageRoute(
+        builder: (context) => BorrowBookScreen(contact: _contact),
+      ),
     );
 
-    if (result == null || !context.mounted) return;
-
-    final apiService = Provider.of<ApiService>(context, listen: false);
-
-    try {
-      // Create the book with borrowed status
-      final bookData = {
-        'title': result['title'],
-        'author': result['author'],
-        'isbn': result['isbn'],
-        'reading_status': 'borrowed',
-      };
-
-      final response = await apiService.createBook(bookData);
-
-      if (context.mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: Text(
-              '${TranslationService.translate(context, 'book_borrowed_from') ?? 'Book borrowed from'} ${_contact.displayName}',
-            ),
-          ),
-        );
-      }
-    } catch (e) {
-      if (context.mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: Text(
-              '${TranslationService.translate(context, 'error')}: $e',
-            ),
-          ),
-        );
-      }
+    // Refresh if a book was borrowed
+    if (result == true && mounted) {
+      setState(() {}); // Trigger rebuild to show updated loans
     }
   }
 
   Future<void> _lendToContact(BuildContext context) async {
     // Navigate to book list to select a book to lend
     context.push('/books?action=select_for_loan&contact_id=${_contact.id}');
-  }
-}
-
-class _BorrowBookDialog extends StatefulWidget {
-  final Contact contact;
-
-  const _BorrowBookDialog({required this.contact});
-
-  @override
-  State<_BorrowBookDialog> createState() => _BorrowBookDialogState();
-}
-
-class _BorrowBookDialogState extends State<_BorrowBookDialog> {
-  final _formKey = GlobalKey<FormState>();
-  final _titleController = TextEditingController();
-  final _authorController = TextEditingController();
-  final _isbnController = TextEditingController();
-
-  @override
-  void dispose() {
-    _titleController.dispose();
-    _authorController.dispose();
-    _isbnController.dispose();
-    super.dispose();
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    return AlertDialog(
-      title: Text(
-        TranslationService.translate(context, 'borrow_book_title') ??
-            'Borrow a Book',
-      ),
-      content: Form(
-        key: _formKey,
-        child: SingleChildScrollView(
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              Text(
-                '${TranslationService.translate(context, 'borrowing_from') ?? 'Borrowing from'} ${widget.contact.displayName}',
-                style: TextStyle(color: Colors.grey[600]),
-              ),
-              const SizedBox(height: 16),
-              TextFormField(
-                controller: _titleController,
-                decoration: InputDecoration(
-                  labelText:
-                      TranslationService.translate(context, 'title_label') ??
-                      'Title',
-                  border: const OutlineInputBorder(),
-                ),
-                validator: (value) {
-                  if (value == null || value.isEmpty) {
-                    return TranslationService.translate(
-                          context,
-                          'title_required',
-                        ) ??
-                        'Title is required';
-                  }
-                  return null;
-                },
-              ),
-              const SizedBox(height: 12),
-              TextFormField(
-                controller: _authorController,
-                decoration: InputDecoration(
-                  labelText:
-                      TranslationService.translate(context, 'author_label') ??
-                      'Author',
-                  border: const OutlineInputBorder(),
-                ),
-              ),
-              const SizedBox(height: 12),
-              TextFormField(
-                controller: _isbnController,
-                decoration: InputDecoration(
-                  labelText: 'ISBN',
-                  border: const OutlineInputBorder(),
-                  suffixIcon: IconButton(
-                    icon: const Icon(Icons.qr_code_scanner),
-                    onPressed: () async {
-                      // Navigate to scan screen and get result
-                      final result = await Navigator.push<String>(
-                        context,
-                        MaterialPageRoute(
-                          builder: (context) => const ScanScreen(),
-                        ),
-                      );
-                      if (result != null && result.isNotEmpty) {
-                        _isbnController.text = result;
-                      }
-                    },
-                  ),
-                ),
-              ),
-            ],
-          ),
-        ),
-      ),
-      actions: [
-        TextButton(
-          onPressed: () => Navigator.of(context).pop(),
-          child: Text(
-            TranslationService.translate(context, 'cancel') ?? 'Cancel',
-          ),
-        ),
-        FilledButton(
-          onPressed: () {
-            if (_formKey.currentState!.validate()) {
-              Navigator.of(context).pop({
-                'title': _titleController.text,
-                'author': _authorController.text.isEmpty
-                    ? null
-                    : _authorController.text,
-                'isbn': _isbnController.text.isEmpty
-                    ? null
-                    : _isbnController.text,
-              });
-            }
-          },
-          child: Text(
-            TranslationService.translate(context, 'borrow_btn') ?? 'Borrow',
-          ),
-        ),
-      ],
-    );
   }
 }

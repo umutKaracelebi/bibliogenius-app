@@ -4,6 +4,7 @@ import 'dart:convert';
 import '../utils/avatars.dart';
 import '../models/avatar_config.dart';
 import '../services/api_service.dart';
+import '../services/auth_service.dart';
 import '../services/mdns_service.dart';
 import '../themes/base/theme_registry.dart';
 
@@ -584,9 +585,26 @@ class ThemeProvider with ChangeNotifier {
     notifyListeners();
   }
 
-  // Alias for UI consistency
+  // Alias for UI consistency - fetches required parameters for mDNS
   Future<void> setNetworkEnabled(bool enabled) async {
-    // For simple toggle, we don't pass libraryId/port, assuming they are set elsewhere or used defaults
-    await setNetworkDiscoveryEnabled(enabled);
+    if (enabled) {
+      // Fetch libraryId required for mDNS announcing
+      try {
+        final authService = AuthService();
+        final libraryUuid = await authService.getOrCreateLibraryUuid();
+        await setNetworkDiscoveryEnabled(
+          enabled,
+          libraryId: libraryUuid,
+          port: ApiService.httpPort,
+        );
+      } catch (e) {
+        debugPrint('Error enabling network module: $e');
+        // Still save the preference so UI stays in sync
+        await setNetworkDiscoveryEnabled(enabled);
+      }
+    } else {
+      // Disabling doesn't need parameters
+      await setNetworkDiscoveryEnabled(enabled);
+    }
   }
 }

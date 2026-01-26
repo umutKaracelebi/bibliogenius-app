@@ -26,12 +26,16 @@ class BookListScreen extends StatefulWidget {
   final String? initialSearchQuery;
   final bool isTabView;
   final ValueNotifier<int>? refreshNotifier;
+  final String? initialTagFilter;
+  final bool showBackToShelves;
 
   const BookListScreen({
     super.key,
     this.initialSearchQuery,
     this.isTabView = false,
     this.refreshNotifier,
+    this.initialTagFilter,
+    this.showBackToShelves = false,
   });
 
   @override
@@ -73,6 +77,11 @@ class _BookListScreenState extends State<BookListScreen>
       _isSearching = true;
     }
 
+    // Initialize tag filter from widget parameter if provided
+    if (widget.initialTagFilter != null) {
+      _tagFilter = widget.initialTagFilter;
+    }
+
     // Listen to refresh trigger
     widget.refreshNotifier?.addListener(_handleRefreshTrigger);
 
@@ -84,9 +93,10 @@ class _BookListScreenState extends State<BookListScreen>
       Provider.of<SyncService>(context, listen: false).syncAllPeers();
       _checkWizard();
 
-      // Initialize filters from query params
+      // Initialize filters from query params (only if not already set by widget)
       final state = GoRouterState.of(context);
-      if (state.uri.queryParameters.containsKey('tag')) {
+      if (widget.initialTagFilter == null &&
+          state.uri.queryParameters.containsKey('tag')) {
         _tagFilter = state.uri.queryParameters['tag'];
       }
       if (state.uri.queryParameters.containsKey('status')) {
@@ -438,8 +448,11 @@ class _BookListScreenState extends State<BookListScreen>
                       'shelfId': shelfId, // Pass shelf context
                     },
                   );
-                  if (result == true && mounted) {
+                  if (result != null && mounted) {
                     _fetchBooks();
+                    if (result is int) {
+                      context.push('/books/$result');
+                    }
                   }
                 }
               },
@@ -462,6 +475,17 @@ class _BookListScreenState extends State<BookListScreen>
             ),
             const Divider(),
           ],
+          ListTile(
+            leading: const Icon(Icons.folder_special, color: Colors.blue),
+            title: Text(
+              TranslationService.translate(context, 'manage_shelves') ??
+                  'Manage Shelves',
+            ),
+            onTap: () {
+              Navigator.pop(context);
+              context.push('/shelves-management');
+            },
+          ),
           ListTile(
             leading: const Icon(Icons.filter_list),
             title: Text(
@@ -517,8 +541,11 @@ class _BookListScreenState extends State<BookListScreen>
       '/books/add',
       extra: {'shelfId': _currentShelf?.name ?? _tagFilter},
     );
-    if (result == true) {
+    if (result != null) {
       _handleRefreshTrigger(); // Use central refresh trigger
+      if (result is int) {
+        context.push('/books/$result');
+      }
     }
   }
 
@@ -1327,6 +1354,11 @@ class _BookListScreenState extends State<BookListScreen>
   }
 
   void _resetAllFilters() {
+    if (widget.showBackToShelves) {
+      // Navigate back to shelves grid when resetting filters from shelf view
+      context.go('/shelves');
+      return;
+    }
     setState(() {
       _selectedStatus = null;
       _tagFilter = null;
@@ -1396,10 +1428,15 @@ class _BookListScreenState extends State<BookListScreen>
       child: ScaleOnTap(
         onTap: () {
           if (isClearAction) {
-            setState(() {
-              _tagFilter = null;
-              _filterBooks();
-            });
+            if (widget.showBackToShelves) {
+              // Navigate back to shelves grid when clearing filter from shelf view
+              context.go('/shelves');
+            } else {
+              setState(() {
+                _tagFilter = null;
+                _filterBooks();
+              });
+            }
           } else {
             setState(() {
               _selectedStatus = isSelected ? null : status;

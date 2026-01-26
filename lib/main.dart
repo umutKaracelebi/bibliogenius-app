@@ -43,6 +43,8 @@ import 'screens/network_screen.dart';
 import 'screens/library_screen.dart';
 import 'screens/feedback_screen.dart';
 import 'screens/settings_screen.dart';
+import 'screens/gleeph_import_screen.dart';
+import 'screens/migration_wizard_screen.dart';
 
 import 'screens/link_device_screen.dart';
 import 'screens/external_search_screen.dart';
@@ -440,7 +442,10 @@ class _AppRouterState extends State<AppRouter> with WidgetsBindingObserver {
                 final loansTab = state.uri.queryParameters['tab'];
                 // If a loans tab is specified, go to Loans tab (index 1)
                 final initialIndex = loansTab != null ? 1 : 0;
-                return NetworkScreen(initialIndex: initialIndex, initialLoansTab: loansTab);
+                return NetworkScreen(
+                  initialIndex: initialIndex,
+                  initialLoansTab: loansTab,
+                );
               },
               routes: [
                 GoRoute(
@@ -571,6 +576,16 @@ class _AppRouterState extends State<AppRouter> with WidgetsBindingObserver {
             GoRoute(
               path: '/settings',
               builder: (context, state) => const SettingsScreen(),
+              routes: [
+                GoRoute(
+                  path: 'migration-wizard',
+                  builder: (context, state) => const MigrationWizardScreen(),
+                ),
+                GoRoute(
+                  path: 'gleeph-import',
+                  builder: (context, state) => const GleephImportScreen(),
+                ),
+              ],
             ),
             GoRoute(
               path: '/help',
@@ -582,8 +597,15 @@ class _AppRouterState extends State<AppRouter> with WidgetsBindingObserver {
             ),
             GoRoute(
               path: '/shelves',
-              pageBuilder: (context, state) =>
-                  const NoTransitionPage(child: LibraryScreen(initialIndex: 1)),
+              pageBuilder: (context, state) {
+                final tagFilter = state.uri.queryParameters['tag'];
+                return NoTransitionPage(
+                  child: LibraryScreen(
+                    initialIndex: 1,
+                    shelfTagFilter: tagFilter,
+                  ),
+                );
+              },
             ),
             GoRoute(
               path: '/feedback',

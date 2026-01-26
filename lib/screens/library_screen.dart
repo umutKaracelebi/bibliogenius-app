@@ -13,8 +13,9 @@ import 'collection/import_shared_list_screen.dart';
 
 class LibraryScreen extends StatefulWidget {
   final int initialIndex;
+  final String? shelfTagFilter;
 
-  const LibraryScreen({super.key, this.initialIndex = 0});
+  const LibraryScreen({super.key, this.initialIndex = 0, this.shelfTagFilter});
 
   @override
   State<LibraryScreen> createState() => _LibraryScreenState();
@@ -46,6 +47,10 @@ class _LibraryScreenState extends State<LibraryScreen>
     super.didUpdateWidget(oldWidget);
     if (widget.initialIndex != oldWidget.initialIndex) {
       _tabController.animateTo(widget.initialIndex, duration: Duration.zero);
+    }
+    // Trigger rebuild when shelfTagFilter changes
+    if (widget.shelfTagFilter != oldWidget.shelfTagFilter) {
+      setState(() {});
     }
   }
 
@@ -155,7 +160,16 @@ class _LibraryScreenState extends State<LibraryScreen>
             isTabView: true,
             refreshNotifier: _refreshNotifier,
           ),
-          const ShelvesScreen(isTabView: true),
+          // Show filtered books when a shelf tag is selected, otherwise show shelves grid
+          widget.shelfTagFilter != null
+              ? BookListScreen(
+                  key: ValueKey('shelf_${widget.shelfTagFilter}'),
+                  isTabView: true,
+                  refreshNotifier: _refreshNotifier,
+                  initialTagFilter: widget.shelfTagFilter,
+                  showBackToShelves: true,
+                )
+              : const ShelvesScreen(isTabView: true),
           if (themeProvider.collectionsEnabled)
             const CollectionListScreen(isTabView: true),
         ],
@@ -166,8 +180,11 @@ class _LibraryScreenState extends State<LibraryScreen>
               key: const Key('addBookButton'),
               onPressed: () async {
                 final result = await context.push('/books/add');
-                if (result == true) {
+                if (result != null) {
                   _refreshNotifier.value++;
+                  if (result is int) {
+                    context.push('/books/$result');
+                  }
                 }
               },
               child: const Icon(Icons.add),

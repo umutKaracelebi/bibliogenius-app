@@ -484,7 +484,8 @@ class _DashboardScreenState extends State<DashboardScreen>
                                 ),
                                 (_stats['borrowed_count'] ?? 0).toString(),
                                 Icons.arrow_downward,
-                                onTap: () => context.push('/network?tab=borrowed'),
+                                onTap: () =>
+                                    context.push('/network?tab=borrowed'),
                               ),
                             if (!isKid)
                               _buildStatCard(
@@ -711,188 +712,195 @@ class _DashboardScreenState extends State<DashboardScreen>
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         const SizedBox(height: 16),
-        GestureDetector(
-          onTap: isLongQuote
-              ? () => setState(() => _quoteExpanded = !_quoteExpanded)
-              : null,
-          child: AnimatedContainer(
-            duration: const Duration(milliseconds: 300),
-            curve: Curves.easeInOut,
-            width: double.infinity,
-            decoration: BoxDecoration(
-              gradient: LinearGradient(
-                begin: Alignment.topLeft,
-                end: Alignment.bottomRight,
-                colors: gradientColors,
+        MouseRegion(
+          cursor: isLongQuote ? SystemMouseCursors.click : MouseCursor.defer,
+          child: GestureDetector(
+            onTap: isLongQuote
+                ? () => setState(() => _quoteExpanded = !_quoteExpanded)
+                : null,
+            child: AnimatedContainer(
+              duration: const Duration(milliseconds: 300),
+              curve: Curves.easeInOut,
+              width: double.infinity,
+              decoration: BoxDecoration(
+                gradient: LinearGradient(
+                  begin: Alignment.topLeft,
+                  end: Alignment.bottomRight,
+                  colors: gradientColors,
+                ),
+                borderRadius: BorderRadius.circular(AppDesign.radiusLarge),
+                border: isDark
+                    ? Border.all(color: const Color(0xFF5D3A1A), width: 1)
+                    : Border.all(color: const Color(0xFFE8D4C4), width: 1),
+                boxShadow: [
+                  BoxShadow(
+                    color: Colors.black.withValues(alpha: isDark ? 0.3 : 0.08),
+                    blurRadius: 12,
+                    offset: const Offset(0, 4),
+                  ),
+                ],
               ),
-              borderRadius: BorderRadius.circular(AppDesign.radiusLarge),
-              border: isDark
-                  ? Border.all(color: const Color(0xFF5D3A1A), width: 1)
-                  : Border.all(color: const Color(0xFFE8D4C4), width: 1),
-              boxShadow: [
-                BoxShadow(
-                  color: Colors.black.withValues(alpha: isDark ? 0.3 : 0.08),
-                  blurRadius: 12,
-                  offset: const Offset(0, 4),
-                ),
-              ],
-            ),
-            child: Stack(
-              clipBehavior: Clip.hardEdge,
-              children: [
-                // Decorative background icon
-                Positioned(
-                  right: -20,
-                  top: -16,
-                  child: Icon(
-                    Icons.format_quote_rounded,
-                    size: 120,
-                    color: textColor.withValues(alpha: 0.08),
+              child: Stack(
+                clipBehavior: Clip.hardEdge,
+                children: [
+                  // Decorative background icon
+                  Positioned(
+                    right: -20,
+                    top: -16,
+                    child: Icon(
+                      Icons.format_quote_rounded,
+                      size: 120,
+                      color: textColor.withValues(alpha: 0.08),
+                    ),
                   ),
-                ),
-                // Content
-                Padding(
-                  padding: const EdgeInsets.symmetric(
-                    horizontal: 20,
-                    vertical: 16,
-                  ),
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      AnimatedCrossFade(
-                        duration: const Duration(milliseconds: 200),
-                        crossFadeState: _quoteExpanded || !isLongQuote
-                            ? CrossFadeState.showSecond
-                            : CrossFadeState.showFirst,
-                        firstChild: Text(
-                          _dailyQuote!.text,
-                          style: TextStyle(
-                            fontSize: 16,
-                            height: 1.4,
-                            fontStyle: FontStyle.italic,
-                            color: textColor,
-                            fontWeight: FontWeight.w500,
+                  // Content
+                  Padding(
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: 20,
+                      vertical: 16,
+                    ),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        AnimatedCrossFade(
+                          duration: const Duration(milliseconds: 200),
+                          crossFadeState: _quoteExpanded || !isLongQuote
+                              ? CrossFadeState.showSecond
+                              : CrossFadeState.showFirst,
+                          firstChild: Text(
+                            _dailyQuote!.text,
+                            style: TextStyle(
+                              fontSize: 16,
+                              height: 1.4,
+                              fontStyle: FontStyle.italic,
+                              color: textColor,
+                              fontWeight: FontWeight.w500,
+                            ),
+                            maxLines: 3,
+                            overflow: TextOverflow.ellipsis,
                           ),
-                          maxLines: 3,
-                          overflow: TextOverflow.ellipsis,
-                        ),
-                        secondChild: Text(
-                          _dailyQuote!.text,
-                          style: TextStyle(
-                            fontSize: 16,
-                            height: 1.4,
-                            fontStyle: FontStyle.italic,
-                            color: textColor,
-                            fontWeight: FontWeight.w500,
-                          ),
-                        ),
-                      ),
-                      const SizedBox(height: 12),
-                      Row(
-                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                        children: [
-                          // Expand/collapse indicator for long quotes
-                          if (isLongQuote)
-                            AnimatedRotation(
-                              duration: const Duration(milliseconds: 200),
-                              turns: _quoteExpanded ? 0.5 : 0,
-                              child: Icon(
-                                Icons.keyboard_arrow_down,
-                                size: 20,
-                                color: textColor.withValues(alpha: 0.6),
-                              ),
-                            )
-                          else
-                            const SizedBox.shrink(),
-                          // Author attribution (Clickable)
-                          Expanded(
-                            child: Builder(
-                              builder: (context) {
-                                // Smart Search Logic
-                                final rawSource = _dailyQuote!.source;
-                                final rawAuthor = _dailyQuote!.author;
-                                final source = rawSource == 'Wikiquote'
-                                    ? ''
-                                    : rawSource;
-                                final author = rawAuthor == 'Wikiquote'
-                                    ? ''
-                                    : rawAuthor;
-
-                                if (author.isEmpty && source.isEmpty)
-                                  return const SizedBox.shrink();
-
-                                final localBook = (source.isNotEmpty)
-                                    ? _allBooks.cast<Book?>().firstWhere(
-                                        (b) =>
-                                            b!.title.toLowerCase().contains(
-                                              source.toLowerCase(),
-                                            ) ||
-                                            source.toLowerCase().contains(
-                                              b.title.toLowerCase(),
-                                            ),
-                                        orElse: () => null,
-                                      )
-                                    : null;
-
-                                return InkWell(
-                                  onTap: () {
-                                    if (localBook != null) {
-                                      context.push('/books/${localBook.id}');
-                                    } else {
-                                      final searchQuery = source.isNotEmpty
-                                          ? "$author $source"
-                                          : author;
-                                      context.push(
-                                        '/search/external?q=${Uri.encodeComponent(searchQuery)}',
-                                      );
-                                    }
-                                  },
-                                  child: Row(
-                                    mainAxisSize: MainAxisSize.min,
-                                    mainAxisAlignment: MainAxisAlignment.end,
-                                    children: [
-                                      Container(
-                                        width: 16,
-                                        height: 1,
-                                        color: textColor.withValues(alpha: 0.3),
-                                      ),
-                                      const SizedBox(width: 8),
-                                      Flexible(
-                                        child: Text(
-                                          _dailyQuote!.author,
-                                          style: TextStyle(
-                                            fontSize: 13,
-                                            fontWeight: FontWeight.w600,
-                                            color: textColor,
-                                            letterSpacing: 0.3,
-                                            decoration:
-                                                TextDecoration.underline,
-                                            decorationColor: textColor
-                                                .withValues(alpha: 0.3),
-                                          ),
-                                          overflow: TextOverflow.ellipsis,
-                                        ),
-                                      ),
-                                      const SizedBox(width: 4),
-                                      Icon(
-                                        localBook != null
-                                            ? Icons.arrow_forward
-                                            : Icons.search,
-                                        size: 14,
-                                        color: textColor.withValues(alpha: 0.5),
-                                      ),
-                                    ],
-                                  ),
-                                );
-                              },
+                          secondChild: Text(
+                            _dailyQuote!.text,
+                            style: TextStyle(
+                              fontSize: 16,
+                              height: 1.4,
+                              fontStyle: FontStyle.italic,
+                              color: textColor,
+                              fontWeight: FontWeight.w500,
                             ),
                           ),
-                        ],
-                      ),
-                    ],
+                        ),
+                        const SizedBox(height: 12),
+                        Row(
+                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                          children: [
+                            // Expand/collapse indicator for long quotes
+                            if (isLongQuote)
+                              AnimatedRotation(
+                                duration: const Duration(milliseconds: 200),
+                                turns: _quoteExpanded ? 0.5 : 0,
+                                child: Icon(
+                                  Icons.keyboard_arrow_down,
+                                  size: 20,
+                                  color: textColor.withValues(alpha: 0.6),
+                                ),
+                              )
+                            else
+                              const SizedBox.shrink(),
+                            // Author attribution (Clickable)
+                            Expanded(
+                              child: Builder(
+                                builder: (context) {
+                                  // Smart Search Logic
+                                  final rawSource = _dailyQuote!.source;
+                                  final rawAuthor = _dailyQuote!.author;
+                                  final source = rawSource == 'Wikiquote'
+                                      ? ''
+                                      : rawSource;
+                                  final author = rawAuthor == 'Wikiquote'
+                                      ? ''
+                                      : rawAuthor;
+
+                                  if (author.isEmpty && source.isEmpty)
+                                    return const SizedBox.shrink();
+
+                                  final localBook = (source.isNotEmpty)
+                                      ? _allBooks.cast<Book?>().firstWhere(
+                                          (b) =>
+                                              b!.title.toLowerCase().contains(
+                                                source.toLowerCase(),
+                                              ) ||
+                                              source.toLowerCase().contains(
+                                                b.title.toLowerCase(),
+                                              ),
+                                          orElse: () => null,
+                                        )
+                                      : null;
+
+                                  return InkWell(
+                                    onTap: () {
+                                      if (localBook != null) {
+                                        context.push('/books/${localBook.id}');
+                                      } else {
+                                        final searchQuery = source.isNotEmpty
+                                            ? "$author $source"
+                                            : author;
+                                        context.push(
+                                          '/search/external?q=${Uri.encodeComponent(searchQuery)}',
+                                        );
+                                      }
+                                    },
+                                    child: Row(
+                                      mainAxisSize: MainAxisSize.min,
+                                      mainAxisAlignment: MainAxisAlignment.end,
+                                      children: [
+                                        Container(
+                                          width: 16,
+                                          height: 1,
+                                          color: textColor.withValues(
+                                            alpha: 0.3,
+                                          ),
+                                        ),
+                                        const SizedBox(width: 8),
+                                        Flexible(
+                                          child: Text(
+                                            _dailyQuote!.author,
+                                            style: TextStyle(
+                                              fontSize: 13,
+                                              fontWeight: FontWeight.w600,
+                                              color: textColor,
+                                              letterSpacing: 0.3,
+                                              decoration:
+                                                  TextDecoration.underline,
+                                              decorationColor: textColor
+                                                  .withValues(alpha: 0.3),
+                                            ),
+                                            overflow: TextOverflow.ellipsis,
+                                          ),
+                                        ),
+                                        const SizedBox(width: 4),
+                                        Icon(
+                                          localBook != null
+                                              ? Icons.arrow_forward
+                                              : Icons.search,
+                                          size: 14,
+                                          color: textColor.withValues(
+                                            alpha: 0.5,
+                                          ),
+                                        ),
+                                      ],
+                                    ),
+                                  );
+                                },
+                              ),
+                            ),
+                          ],
+                        ),
+                      ],
+                    ),
                   ),
-                ),
-              ],
+                ],
+              ),
             ),
           ),
         ),
@@ -1139,15 +1147,33 @@ class _DashboardScreenState extends State<DashboardScreen>
   Widget _buildHeroBook(BuildContext context, Book book) {
     return Padding(
       padding: const EdgeInsets.only(bottom: 32),
-      child: SizedBox(
-        width: double.infinity,
-        height: 300,
-        child: PremiumBookCard(
-          book: book,
-          isHero: true,
-          width: double.infinity,
-          height: 300,
-        ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          SizedBox(
+            width: double.infinity,
+            height: 300,
+            child: PremiumBookCard(
+              book: book,
+              isHero: true,
+              width: double.infinity,
+              height: 300,
+            ),
+          ),
+          Center(
+            child: TextButton.icon(
+              onPressed: () => context.push('/books?status=reading'),
+              icon: const Icon(Icons.arrow_forward, size: 16),
+              label: Text(
+                TranslationService.translate(context, 'see_all_reading'),
+                style: const TextStyle(fontWeight: FontWeight.bold),
+              ),
+              style: TextButton.styleFrom(
+                foregroundColor: Theme.of(context).primaryColor,
+              ),
+            ),
+          ),
+        ],
       ),
     );
   }

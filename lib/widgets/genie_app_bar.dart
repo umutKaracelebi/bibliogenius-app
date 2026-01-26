@@ -266,8 +266,11 @@ class GenieAppBar extends StatelessWidget implements PreferredSizeWidget {
                   '/books/add',
                   extra: {'isbn': isbn},
                 );
-                if (result == true && onBookAdded != null) {
-                  onBookAdded!();
+                if (result != null && context.mounted) {
+                  if (onBookAdded != null) onBookAdded!();
+                  if (result is int) {
+                    context.push('/books/$result');
+                  }
                 }
               }
             },

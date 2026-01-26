@@ -61,7 +61,7 @@ class _ShelvesScreenState extends State<ShelvesScreen> {
       });
     } else {
       // No children, navigate to books filtered by this tag
-      context.go('/books?tag=${tag.name}');
+      context.go('/shelves?tag=${tag.name}');
     }
   }
 
@@ -115,7 +115,7 @@ class _ShelvesScreenState extends State<ShelvesScreen> {
                 if (visibleTags.isEmpty && _currentParent != null) {
                   // Navigate logic handled in post frame
                   WidgetsBinding.instance.addPostFrameCallback((_) {
-                    context.go('/books?tag=${_currentParent!.name}');
+                    context.go('/shelves?tag=${_currentParent!.name}');
                   });
                   return const Center(child: CircularProgressIndicator());
                 }
@@ -243,7 +243,7 @@ class _ShelvesScreenState extends State<ShelvesScreen> {
             if (visibleTags.isEmpty && _currentParent != null) {
               // Current level has no children - show books for this tag
               WidgetsBinding.instance.addPostFrameCallback((_) {
-                context.go('/books?tag=${_currentParent!.name}');
+                context.go('/shelves?tag=${_currentParent!.name}');
               });
               return const Center(child: CircularProgressIndicator());
             }
@@ -612,7 +612,7 @@ class _ShelvesScreenState extends State<ShelvesScreen> {
                   child: Material(
                     color: Colors.transparent,
                     child: InkWell(
-                      onTap: () => context.go('/books?tag=${tag.name}'),
+                      onTap: () => context.go('/shelves?tag=${tag.name}'),
                       borderRadius: BorderRadius.circular(30),
                       child: Container(
                         padding: const EdgeInsets.symmetric(

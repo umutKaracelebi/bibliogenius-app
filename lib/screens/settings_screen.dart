@@ -1,8 +1,11 @@
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart'; // For Clipboard
+import 'package:flutter/services.dart';
 import 'package:provider/provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:go_router/go_router.dart';
+import 'dart:convert';
+import 'package:flutter/foundation.dart' show kIsWeb;
+
 import '../widgets/genie_app_bar.dart';
 import '../widgets/contextual_help_sheet.dart';
 import '../services/api_service.dart';
@@ -11,15 +14,6 @@ import '../providers/theme_provider.dart';
 import '../services/auth_service.dart';
 import '../theme/app_design.dart';
 import '../utils/app_constants.dart';
-
-import 'package:flutter/foundation.dart' show kIsWeb;
-import 'package:path_provider/path_provider.dart';
-import 'package:share_plus/share_plus.dart';
-import 'package:file_picker/file_picker.dart';
-import 'package:universal_html/html.dart' as html;
-import 'dart:io' as io;
-import 'package:dio/dio.dart' show Response;
-import 'dart:convert';
 
 class SettingsScreen extends StatefulWidget {
   const SettingsScreen({super.key});
@@ -406,41 +400,16 @@ class _SettingsScreenState extends State<SettingsScreen> {
             const SizedBox(height: 24),
 
             // Data Management
-            Text(
-              TranslationService.translate(context, 'data_management') ??
-                  'Data Management',
-              style: const TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
-            ),
-            const SizedBox(height: 16),
-            Wrap(
-              spacing: 16,
-              runSpacing: 16,
-              children: [
-                ElevatedButton.icon(
-                  onPressed: _exportData,
-                  icon: const Icon(Icons.download),
-                  label: Text(
-                    TranslationService.translate(context, 'export_backup') ??
-                        'Export Backup',
-                  ),
+            Card(
+              child: ListTile(
+                leading: const Icon(Icons.swap_calls, color: Colors.blue),
+                title: const Text('Gestion de la bibliothèque & Migration'),
+                subtitle: const Text(
+                  'Importer, exporter ou fusionner vos livres',
                 ),
-                ElevatedButton.icon(
-                  onPressed: _importBackup,
-                  icon: const Icon(Icons.upload),
-                  label: Text(
-                    TranslationService.translate(context, 'import_backup') ??
-                        'Import Backup',
-                  ),
-                ),
-                ElevatedButton.icon(
-                  onPressed: () => context.push('/shelves-management'),
-                  icon: const Icon(Icons.folder_special),
-                  label: Text(
-                    TranslationService.translate(context, 'manage_shelves') ??
-                        'Manage Shelves',
-                  ),
-                ),
-              ],
+                trailing: const Icon(Icons.chevron_right),
+                onTap: () => context.push('/settings/migration-wizard'),
+              ),
             ),
 
             const SizedBox(height: 24),
@@ -708,178 +677,6 @@ class _SettingsScreenState extends State<SettingsScreen> {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
             content: Text('Error fetching configuration: $e'),
-            backgroundColor: Colors.red,
-          ),
-        );
-      }
-    }
-  }
-
-  Future<void> _exportData() async {
-    try {
-      if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: Text(
-              TranslationService.translate(context, 'preparing_backup'),
-            ),
-          ),
-        );
-      }
-
-      final apiService = Provider.of<ApiService>(context, listen: false);
-      final response = await apiService.exportData();
-
-      if (kIsWeb) {
-        final blob = html.Blob([response.data]);
-        final url = html.Url.createObjectUrlFromBlob(blob);
-        final anchor = html.AnchorElement(href: url)
-          ..setAttribute(
-            'download',
-            'bibliogenius_backup_${DateTime.now().toIso8601String().split('T')[0]}.json',
-          )
-          ..click();
-        html.Url.revokeObjectUrl(url);
-
-        if (mounted) {
-          ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(
-              content: Text(
-                TranslationService.translate(context, 'backup_downloaded'),
-              ),
-            ),
-          );
-        }
-      } else {
-        final directory = await getTemporaryDirectory();
-        final filename =
-            'bibliogenius_backup_${DateTime.now().toIso8601String().split('T')[0]}.json';
-        final file = io.File('${directory.path}/$filename');
-        await file.writeAsBytes(response.data);
-
-        await Share.shareXFiles([
-          XFile(file.path),
-        ], text: 'My BiblioGenius Backup');
-      }
-    } catch (e) {
-      if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: Text(
-              '${TranslationService.translate(context, 'export_fail')}: $e',
-            ),
-          ),
-        );
-      }
-    }
-  }
-
-  Future<void> _importBackup() async {
-    try {
-      final result = await FilePicker.platform.pickFiles(
-        type: FileType.custom,
-        allowedExtensions: ['json', 'csv', 'txt'],
-        withData: kIsWeb,
-      );
-
-      if (result == null || result.files.isEmpty) {
-        return;
-      }
-
-      final file = result.files.first;
-      final extension = file.extension?.toLowerCase();
-
-      if (extension == 'csv' || extension == 'txt') {
-        if (mounted) {
-          ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(
-              content: Text(
-                TranslationService.translate(context, 'importing_books'),
-              ),
-            ),
-          );
-        }
-
-        final apiService = Provider.of<ApiService>(context, listen: false);
-        late final Response response;
-
-        if (kIsWeb) {
-          if (file.bytes == null) throw Exception('No file data');
-          response = await apiService.importBooks(
-            file.bytes!,
-            filename: file.name,
-          );
-        } else {
-          if (file.path == null) throw Exception('No file path');
-          response = await apiService.importBooks(file.path!);
-        }
-
-        if (mounted) {
-          if (response.statusCode == 200) {
-            final imported = response.data['imported'];
-            ScaffoldMessenger.of(context).showSnackBar(
-              SnackBar(
-                content: Text(
-                  '${TranslationService.translate(context, 'import_success')} $imported ${TranslationService.translate(context, 'books')}',
-                ),
-                backgroundColor: Colors.green,
-              ),
-            );
-          } else {
-            throw Exception(response.data['error'] ?? 'Import failed');
-          }
-        }
-        return;
-      }
-
-      List<int> bytes;
-      if (kIsWeb) {
-        if (file.bytes == null) throw Exception('Could not read file');
-        bytes = file.bytes!;
-      } else {
-        if (file.path == null) throw Exception('File path is null');
-        final ioFile = io.File(file.path!);
-        bytes = await ioFile.readAsBytes();
-      }
-
-      if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: Text(
-              TranslationService.translate(context, 'importing_backup'),
-            ),
-          ),
-        );
-      }
-
-      final apiService = Provider.of<ApiService>(context, listen: false);
-      final response = await apiService.importBackup(bytes);
-
-      if (response.statusCode == 200) {
-        final data = response.data;
-        final booksCount = data['books_imported'] ?? 0;
-        final message = data['message'] ?? 'Import successful';
-
-        if (mounted) {
-          ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(
-              content: Text(
-                '$message - $booksCount ${TranslationService.translate(context, 'books_imported')}',
-              ),
-              backgroundColor: Colors.green,
-            ),
-          );
-        }
-      } else {
-        throw Exception(response.data['error'] ?? 'Import failed');
-      }
-    } catch (e) {
-      if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: Text(
-              '${TranslationService.translate(context, 'import_fail')}: $e',
-            ),
             backgroundColor: Colors.red,
           ),
         );

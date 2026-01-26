@@ -140,6 +140,7 @@ class _PremiumBookCardState extends State<PremiumBookCard>
     return GestureDetector(
       onTap: () => context.push('/books/${widget.book.id}', extra: widget.book),
       child: MouseRegion(
+        cursor: SystemMouseCursors.click,
         onEnter: (_) => setState(() => _isHovering = true),
         onExit: (_) => setState(() => _isHovering = false),
         child: AnimatedContainer(
@@ -323,6 +324,7 @@ class _PremiumBookCardState extends State<PremiumBookCard>
     return GestureDetector(
       onTap: () => context.push('/books/${widget.book.id}', extra: widget.book),
       child: MouseRegion(
+        cursor: SystemMouseCursors.click,
         onEnter: (_) {
           _controller.forward();
           setState(() => _isHovering = true);

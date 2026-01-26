@@ -93,9 +93,13 @@ class QuickActionsSheet extends StatelessWidget {
             SizedBox(
               height: 50,
               child: ElevatedButton(
-                onPressed: () {
+                onPressed: () async {
+                  final router = GoRouter.of(context);
                   Navigator.pop(context);
-                  context.push('/books/add');
+                  final result = await router.push('/books/add');
+                  if (result is int) {
+                    router.push('/books/$result');
+                  }
                 },
                 style: ElevatedButton.styleFrom(
                   padding: EdgeInsets.zero,
@@ -164,8 +168,11 @@ class QuickActionsSheet extends StatelessWidget {
                       '/books/add',
                       extra: {'isbn': isbn},
                     );
-                    if (result == true && onBookAdded != null) {
-                      onBookAdded!();
+                    if (result != null) {
+                      if (onBookAdded != null) onBookAdded!();
+                      if (result is int) {
+                        router.push('/books/$result');
+                      }
                     }
                   }
                 },

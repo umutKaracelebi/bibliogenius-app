@@ -389,7 +389,7 @@ class _AddBookScreenState extends State<AddBookScreen> {
         // Small delay to let animation be visible before navigation
         await Future.delayed(const Duration(milliseconds: 400));
         if (mounted) {
-          context.pop(true); // Return true to indicate success
+          context.pop(newBookId); // Return the new book ID
         }
       }
     } catch (e) {
@@ -644,7 +644,7 @@ class _AddBookScreenState extends State<AddBookScreen> {
                                       backgroundColor: Colors.green,
                                     ),
                                   );
-                                  context.pop(true);
+                                  context.pop(_duplicateBook!.id);
                                 }
                               } catch (e) {
                                 if (mounted) {

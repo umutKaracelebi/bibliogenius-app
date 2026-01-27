@@ -2675,25 +2675,14 @@ class ApiService {
     );
   }
 
-  Future<Response> updateProfile({
-    required String profileType,
-    Map<String, dynamic>? avatarConfig,
-    Map<String, bool>? fallbackPreferences,
-  }) async {
-    final Map<String, dynamic> data = {'profile_type': profileType};
-    if (avatarConfig != null) {
-      data['avatar_config'] = avatarConfig;
-    }
-    if (fallbackPreferences != null) {
-      data['fallback_preferences'] = fallbackPreferences;
-    }
+  Future<Response> updateProfile({required Map<String, dynamic> data}) async {
     // In FFI/offline mode, profile is stored locally only
     if (useFfi) {
-      if (fallbackPreferences != null) {
+      if (data['fallback_preferences'] != null) {
         final prefs = await SharedPreferences.getInstance();
         await prefs.setString(
           'ffi_fallback_preferences',
-          jsonEncode(fallbackPreferences),
+          jsonEncode(data['fallback_preferences']),
         );
       }
       // Ensure server is running before making HTTP request

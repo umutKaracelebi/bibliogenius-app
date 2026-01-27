@@ -185,6 +185,7 @@ class ThemeProvider with ChangeNotifier {
     // Default to false (opt-in) for privacy - caches peer's library locally
     _peerOfflineCachingEnabled =
         prefs.getBool('peerOfflineCachingEnabled') ?? false;
+    _allowLibraryCaching = prefs.getBool('allowLibraryCaching') ?? false;
     _collectionsEnabled = prefs.getBool('collectionsEnabled') ?? true;
     _quotesEnabled = prefs.getBool('quotesEnabled') ?? true;
     _editionBrowserEnabled = prefs.getBool('editionBrowserEnabled') ?? true;
@@ -254,6 +255,7 @@ class ThemeProvider with ChangeNotifier {
     _gamificationEnabled = enabled;
     final prefs = await SharedPreferences.getInstance();
     await prefs.setBool('gamificationEnabled', enabled);
+    await _updateEnabledModules();
     notifyListeners();
   }
 
@@ -261,6 +263,7 @@ class ThemeProvider with ChangeNotifier {
     _editionBrowserEnabled = enabled;
     final prefs = await SharedPreferences.getInstance();
     await prefs.setBool('editionBrowserEnabled', enabled);
+    await _updateEnabledModules();
     notifyListeners();
   }
 
@@ -293,10 +296,10 @@ class ThemeProvider with ChangeNotifier {
 
     if (apiService != null) {
       try {
-        await apiService.updateProfile(
-          profileType: type,
-          avatarConfig: _avatarConfig?.toJson(),
-        );
+        await apiService.updateProfile(data: {
+          'profile_type': type,
+          'avatar_config': _avatarConfig?.toJson(),
+        });
       } catch (e) {
         debugPrint('Error syncing profile type: $e');
       }
@@ -314,10 +317,10 @@ class ThemeProvider with ChangeNotifier {
 
     if (apiService != null) {
       try {
-        await apiService.updateProfile(
-          profileType: _profileType,
-          avatarConfig: config.toJson(),
-        );
+        await apiService.updateProfile(data: {
+          'profile_type': _profileType,
+          'avatar_config': config.toJson(),
+        });
       } catch (e) {
         debugPrint('Error syncing avatar config: $e');
       }
@@ -378,10 +381,10 @@ class ThemeProvider with ChangeNotifier {
     // Sync with backend if ApiService provided
     if (apiService != null) {
       try {
-        await apiService.updateProfile(
-          profileType: profileType,
-          avatarConfig: avatarConfig.toJson(),
-        );
+        await apiService.updateProfile(data: {
+          'profile_type': profileType,
+          'avatar_config': avatarConfig.toJson(),
+        });
       } catch (e) {
         debugPrint('Error syncing profile during setup: $e');
       }
@@ -516,6 +519,7 @@ class ThemeProvider with ChangeNotifier {
     _commerceEnabled = enabled;
     final prefs = await SharedPreferences.getInstance();
     await prefs.setBool('commerceEnabled', enabled);
+    await _updateEnabledModules();
     notifyListeners();
   }
 
@@ -565,6 +569,17 @@ class ThemeProvider with ChangeNotifier {
     notifyListeners();
   }
 
+  /// Enable/disable others caching your library
+  /// When enabled, your library catalog can be cached by your peers
+  /// Privacy note: This allows your book list to be stored on your peers' devices
+  Future<void> setAllowLibraryCaching(bool enabled) async {
+    _allowLibraryCaching = enabled;
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.setBool('allowLibraryCaching', enabled);
+    await _updateEnabledModules();
+    notifyListeners();
+  }
+
   // Collections Module
   bool _collectionsEnabled = true;
   bool get collectionsEnabled => _collectionsEnabled;
@@ -573,6 +588,7 @@ class ThemeProvider with ChangeNotifier {
     _collectionsEnabled = enabled;
     final prefs = await SharedPreferences.getInstance();
     await prefs.setBool('collectionsEnabled', enabled);
+    await _updateEnabledModules();
     notifyListeners();
   }
 
@@ -584,6 +600,7 @@ class ThemeProvider with ChangeNotifier {
     _quotesEnabled = enabled;
     final prefs = await SharedPreferences.getInstance();
     await prefs.setBool('quotesEnabled', enabled);
+    await _updateEnabledModules();
     notifyListeners();
   }
 
@@ -591,6 +608,7 @@ class ThemeProvider with ChangeNotifier {
     _digitalFormatsEnabled = enabled;
     final prefs = await SharedPreferences.getInstance();
     await prefs.setBool('digitalFormatsEnabled', enabled);
+    await _updateEnabledModules();
     notifyListeners();
   }
 
@@ -598,6 +616,7 @@ class ThemeProvider with ChangeNotifier {
     _audioEnabled = enabled;
     final prefs = await SharedPreferences.getInstance();
     await prefs.setBool('audioEnabled', enabled);
+    await _updateEnabledModules();
     notifyListeners();
   }
 
@@ -605,6 +624,7 @@ class ThemeProvider with ChangeNotifier {
     _mcpEnabled = enabled;
     final prefs = await SharedPreferences.getInstance();
     await prefs.setBool('mcpEnabled', enabled);
+    await _updateEnabledModules();
     notifyListeners();
   }
 
@@ -628,6 +648,32 @@ class ThemeProvider with ChangeNotifier {
     } else {
       // Disabling doesn't need parameters
       await setNetworkDiscoveryEnabled(enabled);
+    }
+    await _updateEnabledModules();
+  }
+
+  /// Collects all module states and syncs with the backend
+  Future<void> _updateEnabledModules() async {
+    final apiService = ApiService(AuthService());
+    final List<String> enabledModules = [];
+
+    if (networkEnabled) enabledModules.add('network');
+    if (gamificationEnabled) enabledModules.add('gamification');
+    if (collectionsEnabled) enabledModules.add('collections');
+    if (quotesEnabled) enabledModules.add('quotes');
+    if (editionBrowserEnabled) enabledModules.add('edition_browser');
+    if (digitalFormatsEnabled) enabledModules.add('digital_formats');
+    if (audioEnabled) enabledModules.add('audio');
+    if (mcpEnabled) enabledModules.add('mcp');
+    if (peerOfflineCachingEnabled) enabledModules.add('peer_offline_caching');
+    if (allowLibraryCaching) enabledModules.add('allow_library_caching');
+    if (commerceEnabled) enabledModules.add('commerce');
+
+    try {
+      await apiService.updateProfile(data: {'enabled_modules': enabledModules});
+      debugPrint('✅ Synced enabled modules: $enabledModules');
+    } catch (e) {
+      debugPrint('Error syncing enabled modules: $e');
     }
   }
 }

@@ -1302,6 +1302,8 @@ class TranslationService {
       'peer_offline_caching': 'Offline Library Cache',
       'peer_offline_caching_desc':
           'Cache contact libraries locally for offline viewing. Their book list will be stored on your device.',
+      'allow_library_caching': 'Allow Library Caching',
+      'allow_library_caching_desc': 'Allow others to cache YOUR library for offline viewing. Your book list will be stored on their devices.',
       'module_collections': 'Collections',
       'module_collections_desc':
           'Enable or disable collection management features.',
@@ -2287,8 +2289,10 @@ class TranslationService {
           'Affiche une citation inspirante sur le tableau de bord.',
       'module_network': 'Découverte Réseau (mDNS)',
       'module_network_desc':
-          'Rend votre bibliothèque visible par les autres utilisateurs sur le réseau local.',
-      'module_gamification': 'Ludification',
+          'Rendez votre bibliothèque visible aux autres utilisateurs sur le réseau local.',
+      'allow_library_caching': 'Autoriser la mise en cache de ma bibliothèque',
+      'allow_library_caching_desc': 'Autoriser les autres à mettre en cache VOTRE bibliothèque pour une consultation hors ligne. Votre liste de livres sera stockée sur leurs appareils.',
+      'module_gamification': 'Gamification',
       'module_gamification_desc':
           'Activez les badges, niveaux et le suivi de progression.',
       'module_edition_browser': "Navigateur d'éditions",

@@ -273,6 +273,18 @@ class _SettingsScreenState extends State<SettingsScreen> {
                       (value) => themeProvider.setPeerOfflineCachingEnabled(value),
                     ),
                   ),
+                  // Sub-option for network module: allow own library caching
+                  Padding(
+                    padding: const EdgeInsets.only(left: 16.0),
+                    child: _buildModuleToggle(
+                      context,
+                      'allow_library_caching',
+                      'allow_library_caching_desc',
+                      Icons.share,
+                      themeProvider.allowLibraryCaching,
+                      (value) => themeProvider.setAllowLibraryCaching(value),
+                    ),
+                  ),
                 _buildModuleToggle(
                   context,
                   'module_edition_browser',
@@ -632,10 +644,10 @@ class _SettingsScreenState extends State<SettingsScreen> {
 
       // Use updateProfile which properly syncs to enabled_modules in database
       // This ensures Google Books and other module toggles persist correctly
-      await api.updateProfile(
-        profileType: profileType,
-        fallbackPreferences: _searchPrefs,
-      );
+      await api.updateProfile(data: {
+        'profile_type': profileType,
+        'fallback_preferences': _searchPrefs,
+      });
 
       if (_userStatus != null) {
         if (_userStatus!['config'] == null) {

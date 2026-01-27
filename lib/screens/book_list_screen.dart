@@ -961,6 +961,8 @@ class _BookListScreenState extends State<BookListScreen>
               label: '#$_tagFilter',
               isClearAction: true,
             ),
+            // Reorder button - only visible when viewing a shelf (tag filter active)
+            if (!_isReordering) _buildReorderButton(context),
           ] else
             // Otherwise show "Shelves" button
             Padding(
@@ -1348,6 +1350,42 @@ class _BookListScreenState extends State<BookListScreen>
               ),
             ),
           ],
+
+          // 5. Books Count Badge - always visible when books are displayed
+          if (_filteredBooks.isNotEmpty) ...[
+            const SizedBox(width: 8),
+            Container(
+              height: 36,
+              padding: const EdgeInsets.symmetric(horizontal: 12),
+              decoration: BoxDecoration(
+                color: theme.primaryColor.withOpacity(0.1),
+                borderRadius: BorderRadius.circular(18),
+              ),
+              child: Row(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  Icon(Icons.menu_book, size: 16, color: theme.primaryColor),
+                  const SizedBox(width: 6),
+                  Text(
+                    _filteredBooks.length == 1
+                        ? (TranslationService.translate(
+                                context, 'displayed_books_count') ??
+                            '%d book')
+                            .replaceAll('%d', '${_filteredBooks.length}')
+                        : (TranslationService.translate(
+                                context, 'displayed_books_count_plural') ??
+                            '%d books')
+                            .replaceAll('%d', '${_filteredBooks.length}'),
+                    style: TextStyle(
+                      color: theme.primaryColor,
+                      fontWeight: FontWeight.w600,
+                      fontSize: 13,
+                    ),
+                  ),
+                ],
+              ),
+            ),
+          ],
         ],
       ),
     );
@@ -1499,6 +1537,104 @@ class _BookListScreenState extends State<BookListScreen>
                   fontWeight: isSelected ? FontWeight.bold : FontWeight.w500,
                   fontSize: 13,
                 ),
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+
+  Widget _buildReorderButton(BuildContext context) {
+    final theme = Theme.of(context);
+    final isDark = theme.brightness == Brightness.dark;
+
+    return Padding(
+      padding: const EdgeInsets.only(left: 8),
+      child: PopupMenuButton<String>(
+        onSelected: (value) {
+          if (value == 'manual') {
+            setState(() {
+              _isReordering = true;
+              _viewMode = ViewMode.list;
+            });
+          } else if (value == 'sort_az') {
+            _autoSortByAuthor(descending: false);
+          } else if (value == 'sort_za') {
+            _autoSortByAuthor(descending: true);
+          }
+        },
+        offset: const Offset(0, 40),
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+        itemBuilder: (context) => [
+          PopupMenuItem(
+            value: 'manual',
+            child: Row(
+              children: [
+                Icon(Icons.drag_handle, color: theme.primaryColor, size: 20),
+                const SizedBox(width: 12),
+                Text(
+                  TranslationService.translate(context, 'reorder_manual') ??
+                      'Manual reorder',
+                ),
+              ],
+            ),
+          ),
+          const PopupMenuDivider(),
+          PopupMenuItem(
+            value: 'sort_az',
+            child: Row(
+              children: [
+                const Icon(Icons.arrow_downward, color: Colors.green, size: 20),
+                const SizedBox(width: 12),
+                Text(
+                  TranslationService.translate(context, 'sort_by_author_az') ??
+                      'Sort A→Z by author',
+                ),
+              ],
+            ),
+          ),
+          PopupMenuItem(
+            value: 'sort_za',
+            child: Row(
+              children: [
+                const Icon(Icons.arrow_upward, color: Colors.orange, size: 20),
+                const SizedBox(width: 12),
+                Text(
+                  TranslationService.translate(context, 'sort_by_author_za') ??
+                      'Sort Z→A by author',
+                ),
+              ],
+            ),
+          ),
+        ],
+        child: Container(
+          height: 36,
+          padding: const EdgeInsets.symmetric(horizontal: 12),
+          decoration: BoxDecoration(
+            color: isDark ? theme.cardColor : Colors.white,
+            borderRadius: BorderRadius.circular(18),
+            border: Border.all(
+              color: isDark ? Colors.white24 : Colors.grey.withOpacity(0.3),
+            ),
+          ),
+          child: Row(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Icon(Icons.sort, size: 18, color: theme.primaryColor),
+              const SizedBox(width: 6),
+              Text(
+                TranslationService.translate(context, 'organize') ?? 'Organize',
+                style: TextStyle(
+                  color: isDark ? Colors.white : Colors.black87,
+                  fontWeight: FontWeight.w500,
+                ),
+              ),
+              const SizedBox(width: 4),
+              Icon(
+                Icons.arrow_drop_down,
+                size: 20,
+                color: theme.iconTheme.color?.withOpacity(0.5),
               ),
             ],
           ),
@@ -1832,21 +1968,41 @@ class _BookListScreenState extends State<BookListScreen>
     }
   }
 
-  void _autoSortByAuthor() {
+  void _autoSortByAuthor({bool descending = false}) {
+    // Helper to extract surname (last word) from author name
+    String getSurname(String? author) {
+      if (author == null || author.isEmpty) return '';
+      final parts = author.trim().split(RegExp(r'\s+'));
+      return parts.last.toLowerCase();
+    }
+
     setState(() {
       _filteredBooks.sort((a, b) {
-        // Sort by author (null-safe), then by title if same author
+        // Sort by author surname (last word), then full name, then title
+        final surnameA = getSurname(a.author);
+        final surnameB = getSurname(b.author);
+        var surnameCompare = surnameA.compareTo(surnameB);
+        if (descending) surnameCompare = -surnameCompare;
+        if (surnameCompare != 0) return surnameCompare;
+        // If same surname, compare full author name
         final authorA = (a.author ?? '').toLowerCase();
         final authorB = (b.author ?? '').toLowerCase();
-        final authorCompare = authorA.compareTo(authorB);
+        var authorCompare = authorA.compareTo(authorB);
+        if (descending) authorCompare = -authorCompare;
         if (authorCompare != 0) return authorCompare;
-        return a.title.toLowerCase().compareTo(b.title.toLowerCase());
+        var titleCompare = a.title.toLowerCase().compareTo(b.title.toLowerCase());
+        if (descending) titleCompare = -titleCompare;
+        return titleCompare;
       });
     });
     ScaffoldMessenger.of(context).showSnackBar(
       SnackBar(
         content: Text(
-          TranslationService.translate(context, 'sorted_by_author'),
+          descending
+              ? (TranslationService.translate(context, 'sorted_by_author_za') ??
+                  'Sorted Z→A by author')
+              : (TranslationService.translate(context, 'sorted_by_author_az') ??
+                  'Sorted A→Z by author'),
         ),
         duration: const Duration(seconds: 2),
       ),

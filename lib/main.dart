@@ -242,6 +242,10 @@ class MyApp extends StatelessWidget {
       useFfi: useFfi,
     );
 
+    // Run TTL cleanup for peer_books cache (privacy: auto-delete entries older than 30 days)
+    // Run async, don't block app startup
+    apiService.cleanupStalePeerBooksCache();
+
     Widget app = MultiProvider(
       providers: [
         ChangeNotifierProvider<ThemeProvider>.value(value: themeProvider),

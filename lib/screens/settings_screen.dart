@@ -260,6 +260,19 @@ class _SettingsScreenState extends State<SettingsScreen> {
                   themeProvider.networkEnabled,
                   (value) => themeProvider.setNetworkEnabled(value),
                 ),
+                // Sub-option for network module: peer offline caching
+                if (themeProvider.networkEnabled)
+                  Padding(
+                    padding: const EdgeInsets.only(left: 16.0),
+                    child: _buildModuleToggle(
+                      context,
+                      'peer_offline_caching',
+                      'peer_offline_caching_desc',
+                      Icons.cloud_off,
+                      themeProvider.peerOfflineCachingEnabled,
+                      (value) => themeProvider.setPeerOfflineCachingEnabled(value),
+                    ),
+                  ),
                 _buildModuleToggle(
                   context,
                   'module_edition_browser',

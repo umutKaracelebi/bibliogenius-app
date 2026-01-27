@@ -2014,6 +2014,49 @@ class ApiService {
     }
   }
 
+  /// Get cached peer books with staleness metadata from local backend
+  /// This does NOT contact the peer directly - it reads from local cache
+  /// Returns: { books, peer_name, peer_id, last_synced, last_seen, cached }
+  Future<Response> getCachedPeerBooks(String peerUrl) async {
+    try {
+      final localDio = Dio(
+        BaseOptions(
+          baseUrl: 'http://localhost:$httpPort',
+          connectTimeout: const Duration(seconds: 5),
+          receiveTimeout: const Duration(seconds: 5),
+        ),
+      );
+      return await localDio.post(
+        '/api/peers/cached_books_by_url',
+        data: {'url': peerUrl},
+      );
+    } catch (e) {
+      debugPrint('Error fetching cached peer books: $e');
+      rethrow;
+    }
+  }
+
+  /// Cleanup peer_books cache entries older than 30 days (privacy TTL)
+  /// Call this on app startup to auto-purge stale caches
+  Future<void> cleanupStalePeerBooksCache() async {
+    try {
+      final localDio = Dio(
+        BaseOptions(
+          baseUrl: 'http://localhost:$httpPort',
+          connectTimeout: const Duration(seconds: 10),
+        ),
+      );
+      final response = await localDio.post('/api/peers/cleanup_stale_cache');
+      final deleted = response.data['deleted'] ?? 0;
+      if (deleted > 0) {
+        debugPrint('🧹 TTL cleanup: removed $deleted stale peer book cache entries');
+      }
+    } catch (e) {
+      debugPrint('⚠️ Peer cache cleanup failed: $e');
+      // Silent failure - cleanup is not critical
+    }
+  }
+
   Future<Response> requestBook(int peerId, String isbn, String title) async {
     if (useFfi) {
       return Response(

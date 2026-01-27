@@ -68,7 +68,7 @@ class GamificationConfig {
   final String achievementsStyle; // 'minimal', 'fun', 'professional'
   final int readingGoalYearly;
   final int readingGoalProgress; // Books finished THIS YEAR
-  final int totalBooksRead;      // All-time books with reading_status='read'
+  final int totalBooksRead; // All-time books with reading_status='read'
 
   const GamificationConfig({
     required this.achievementsStyle,

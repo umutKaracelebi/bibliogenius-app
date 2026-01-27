@@ -84,6 +84,16 @@ class ThemeProvider with ChangeNotifier {
   // Network Module (Alias for network discovery for UI consistency)
   bool get networkEnabled => _networkDiscoveryEnabled;
 
+  // Peer Offline Caching: allows viewing cached peer libraries when they're offline
+  // Disabled by default for privacy (peer's books are cached locally)
+  bool _peerOfflineCachingEnabled = false;
+  bool get peerOfflineCachingEnabled => _peerOfflineCachingEnabled;
+
+  // Allow Library Caching: allows others to cache YOUR library for offline viewing
+  // Disabled by default for privacy (your book list stored on others' devices)
+  bool _allowLibraryCaching = false;
+  bool get allowLibraryCaching => _allowLibraryCaching;
+
   ThemeData get themeData {
     // Initialize registry if needed
     ThemeRegistry.initialize();
@@ -172,6 +182,9 @@ class ThemeProvider with ChangeNotifier {
     // Default to false (opt-in) for privacy
     _networkDiscoveryEnabled =
         prefs.getBool('networkDiscoveryEnabled') ?? false;
+    // Default to false (opt-in) for privacy - caches peer's library locally
+    _peerOfflineCachingEnabled =
+        prefs.getBool('peerOfflineCachingEnabled') ?? false;
     _collectionsEnabled = prefs.getBool('collectionsEnabled') ?? true;
     _quotesEnabled = prefs.getBool('quotesEnabled') ?? true;
     _editionBrowserEnabled = prefs.getBool('editionBrowserEnabled') ?? true;
@@ -540,6 +553,16 @@ class ThemeProvider with ChangeNotifier {
         debugPrint('Error stopping mDNS: $e');
       }
     }
+  }
+
+  /// Enable/disable peer offline caching
+  /// When enabled, peer library catalogs are cached locally for offline viewing
+  /// Privacy note: This stores the peer's book list on the user's device
+  Future<void> setPeerOfflineCachingEnabled(bool enabled) async {
+    _peerOfflineCachingEnabled = enabled;
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.setBool('peerOfflineCachingEnabled', enabled);
+    notifyListeners();
   }
 
   // Collections Module

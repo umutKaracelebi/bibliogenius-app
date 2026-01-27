@@ -128,6 +128,10 @@ class _ShelvesScreenState extends State<ShelvesScreen> {
                       // Original code only showed if _currentParent != null
                       if (_currentParent != null) _buildBreadcrumb(context),
 
+                      // Shelves count badge
+                      if (visibleTags.isNotEmpty)
+                        _buildShelvesCountBadge(context, visibleTags.length),
+
                       Expanded(
                         child: Padding(
                           padding: const EdgeInsets.all(16),
@@ -255,6 +259,10 @@ class _ShelvesScreenState extends State<ShelvesScreen> {
                   // Breadcrumb navigation
                   if (_currentParent != null) _buildBreadcrumb(context),
 
+                  // Shelves count badge
+                  if (visibleTags.isNotEmpty)
+                    _buildShelvesCountBadge(context, visibleTags.length),
+
                   // Grid of shelves
                   Expanded(
                     child: Padding(
@@ -350,6 +358,47 @@ class _ShelvesScreenState extends State<ShelvesScreen> {
               style: const TextStyle(fontWeight: FontWeight.bold),
             ),
           ],
+        ],
+      ),
+    );
+  }
+
+  Widget _buildShelvesCountBadge(BuildContext context, int count) {
+    final theme = Theme.of(context);
+    return Padding(
+      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+      child: Row(
+        children: [
+          Container(
+            padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+            decoration: BoxDecoration(
+              color: theme.primaryColor.withOpacity(0.1),
+              borderRadius: BorderRadius.circular(16),
+            ),
+            child: Row(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                Icon(Icons.shelves, size: 16, color: theme.primaryColor),
+                const SizedBox(width: 6),
+                Text(
+                  count == 1
+                      ? (TranslationService.translate(
+                              context, 'displayed_shelves_count') ??
+                          '%d shelf')
+                          .replaceAll('%d', '$count')
+                      : (TranslationService.translate(
+                              context, 'displayed_shelves_count_plural') ??
+                          '%d shelves')
+                          .replaceAll('%d', '$count'),
+                  style: TextStyle(
+                    color: theme.primaryColor,
+                    fontWeight: FontWeight.w600,
+                    fontSize: 13,
+                  ),
+                ),
+              ],
+            ),
+          ),
         ],
       ),
     );

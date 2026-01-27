@@ -379,11 +379,17 @@ class _CollectionListScreenState extends State<CollectionListScreen> {
           final topPadding = widget.isTabView
               ? 8.0
               : MediaQuery.of(context).padding.top + kToolbarHeight;
-          return ListView.builder(
-            padding: EdgeInsets.only(top: topPadding + 8, bottom: 80),
-            itemCount: collections.length,
-            itemBuilder: (context, index) {
-              final collection = collections[index];
+          return Column(
+            children: [
+              // Collections count badge
+              if (collections.isNotEmpty)
+                _buildCollectionsCountBadge(context, collections.length),
+              Expanded(
+                child: ListView.builder(
+                  padding: EdgeInsets.only(top: topPadding, bottom: 80),
+                  itemCount: collections.length,
+                  itemBuilder: (context, index) {
+                    final collection = collections[index];
               return Container(
                 margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
                 decoration: BoxDecoration(
@@ -592,7 +598,10 @@ class _CollectionListScreenState extends State<CollectionListScreen> {
                   ),
                 ),
               );
-            },
+                  },
+                ),
+              ),
+            ],
           );
         },
       ),
@@ -600,6 +609,54 @@ class _CollectionListScreenState extends State<CollectionListScreen> {
         heroTag: 'collection_add_fab',
         onPressed: _createCollection,
         child: const Icon(Icons.add),
+      ),
+    );
+  }
+
+  Widget _buildCollectionsCountBadge(BuildContext context, int count) {
+    final theme = Theme.of(context);
+    final topPadding = widget.isTabView
+        ? 8.0
+        : MediaQuery.of(context).padding.top + kToolbarHeight + 8;
+    return Padding(
+      padding: EdgeInsets.only(left: 16, right: 16, top: topPadding, bottom: 8),
+      child: Row(
+        children: [
+          Container(
+            padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+            decoration: BoxDecoration(
+              color: theme.primaryColor.withOpacity(0.1),
+              borderRadius: BorderRadius.circular(16),
+            ),
+            child: Row(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                Icon(
+                  Icons.collections_bookmark,
+                  size: 16,
+                  color: theme.primaryColor,
+                ),
+                const SizedBox(width: 6),
+                Text(
+                  count == 1
+                      ? (TranslationService.translate(
+                              context, 'displayed_collections_count') ??
+                          '%d collection')
+                          .replaceAll('%d', '$count')
+                      : (TranslationService.translate(
+                              context, 'displayed_collections_count_plural') ??
+                          '%d collections')
+                          .replaceAll('%d', '$count'),
+                  style: TextStyle(
+                    color: theme.primaryColor,
+                    fontWeight: FontWeight.w600,
+                    fontSize: 13,
+                  ),
+                ),
+              ],
+            ),
+          ),
+        ],
       ),
     );
   }

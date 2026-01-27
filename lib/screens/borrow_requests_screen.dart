@@ -371,6 +371,8 @@ class _LoansScreenState extends State<LoansScreen>
         DateTime.tryParse(dueDate)?.isBefore(DateTime.now()) == true;
 
     return Card(
+      color: Colors.white,
+      surfaceTintColor: Colors.transparent,
       margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
       child: ListTile(
         onTap: () {
@@ -431,10 +433,13 @@ class _LoansScreenState extends State<LoansScreen>
     final bookTitle = loan['book_title'] as String?;
     if (bookTitle == null || bookTitle.isEmpty) {
       if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(SnackBar(
-          content:
-              Text(TranslationService.translate(context, 'book_not_found')),
-        ));
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text(
+              TranslationService.translate(context, 'book_not_found'),
+            ),
+          ),
+        );
       }
       return;
     }
@@ -452,19 +457,25 @@ class _LoansScreenState extends State<LoansScreen>
         }
       } else {
         if (mounted) {
-          ScaffoldMessenger.of(context).showSnackBar(SnackBar(
-            content: Text(
-              '${TranslationService.translate(context, 'book_not_found')}: ${ownedBooks.length} books found with this title.',
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(
+              content: Text(
+                '${TranslationService.translate(context, 'book_not_found')}: ${ownedBooks.length} books found with this title.',
+              ),
             ),
-          ));
+          );
         }
       }
     } catch (e) {
       debugPrint('Error navigating to loan book by title: $e');
       if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(SnackBar(
-          content: Text(TranslationService.translate(context, 'book_not_found')),
-        ));
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text(
+              TranslationService.translate(context, 'book_not_found'),
+            ),
+          ),
+        );
       }
     } finally {
       if (mounted) setState(() => _isLoading = false);
@@ -518,6 +529,8 @@ class _LoansScreenState extends State<LoansScreen>
     }
 
     return Card(
+      color: Colors.white,
+      surfaceTintColor: Colors.transparent,
       margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
       child: ListTile(
         onTap: () =>
@@ -706,6 +719,8 @@ class _LoansScreenState extends State<LoansScreen>
     final status = req['status'] ?? 'pending';
 
     return Card(
+      color: Colors.white,
+      surfaceTintColor: Colors.transparent,
       margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
       child: ListTile(
         leading: CircleAvatar(
@@ -729,6 +744,8 @@ class _LoansScreenState extends State<LoansScreen>
     final url = peer['url'] ?? '';
 
     return Card(
+      color: Colors.white,
+      surfaceTintColor: Colors.transparent,
       margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
       child: ListTile(
         leading: const CircleAvatar(child: Icon(Icons.person_add)),

@@ -24,6 +24,7 @@ enum NetworkFilter { all, libraries, contacts }
 /// Unified screen displaying Contacts and Loans tabs
 class NetworkScreen extends StatefulWidget {
   final int initialIndex;
+
   /// Initial sub-tab for LoansScreen: 'requests', 'lent', or 'borrowed'
   final String? initialLoansTab;
 
@@ -326,9 +327,7 @@ class _ContactsListViewState extends State<ContactsListView> {
       final themeProvider = Provider.of<ThemeProvider>(context, listen: false);
       if (themeProvider.networkDiscoveryEnabled && MdnsService.isActive) {
         localPeers = MdnsService.peers;
-        debugPrint(
-          '🔍 NetworkScreen: Found ${localPeers.length} mDNS peers',
-        );
+        debugPrint('🔍 NetworkScreen: Found ${localPeers.length} mDNS peers');
       }
 
       if (mounted) {
@@ -747,10 +746,16 @@ class _ContactsListViewState extends State<ContactsListView> {
     );
   }
 
-  Widget _buildSectionHeader(BuildContext context, String title, IconData icon) {
+  Widget _buildSectionHeader(
+    BuildContext context,
+    String title,
+    IconData icon,
+  ) {
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
-      color: Theme.of(context).colorScheme.surfaceContainerHighest.withValues(alpha: 0.5),
+      color: Theme.of(
+        context,
+      ).colorScheme.surfaceContainerHighest.withValues(alpha: 0.5),
       child: Row(
         children: [
           Icon(icon, size: 20, color: Theme.of(context).colorScheme.primary),
@@ -769,17 +774,14 @@ class _ContactsListViewState extends State<ContactsListView> {
 
   Widget _buildLocalPeerTile(DiscoveredPeer peer) {
     final peerKey = '${peer.host}:${peer.port}';
-    final isOnline = _localPeerConnectivity[peerKey] ?? true; // Assume online until checked
+    final isOnline =
+        _localPeerConnectivity[peerKey] ?? true; // Assume online until checked
     final url = 'http://${peer.host}:${peer.port}';
 
-    return Container(
-      margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 4),
-      decoration: BoxDecoration(
-        border: Border.all(
-          color: Theme.of(context).dividerColor.withValues(alpha: 0.3),
-        ),
-        borderRadius: BorderRadius.circular(12),
-      ),
+    return Card(
+      color: Colors.white,
+      surfaceTintColor: Colors.transparent,
+      margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
       child: ListTile(
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
         leading: CircleAvatar(
@@ -803,11 +805,7 @@ class _ContactsListViewState extends State<ContactsListView> {
                   ? () {
                       context.push(
                         '/peers/0/books', // Use 0 as placeholder ID for mDNS peers
-                        extra: {
-                          'id': 0,
-                          'name': peer.name,
-                          'url': url,
-                        },
+                        extra: {'id': 0, 'name': peer.name, 'url': url},
                       );
                     }
                   : null,
@@ -850,11 +848,7 @@ class _ContactsListViewState extends State<ContactsListView> {
             ? () {
                 context.push(
                   '/peers/0/books',
-                  extra: {
-                    'id': 0,
-                    'name': peer.name,
-                    'url': url,
-                  },
+                  extra: {'id': 0, 'name': peer.name, 'url': url},
                 );
               }
             : null,
@@ -863,14 +857,10 @@ class _ContactsListViewState extends State<ContactsListView> {
   }
 
   Widget _buildMemberTile(NetworkMember member, bool isOnline) {
-    return Container(
-      margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 4),
-      decoration: BoxDecoration(
-        border: Border.all(
-          color: Theme.of(context).dividerColor.withValues(alpha: 0.3),
-        ),
-        borderRadius: BorderRadius.circular(12),
-      ),
+    return Card(
+      color: Colors.white,
+      surfaceTintColor: Colors.transparent,
+      margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
       child: ListTile(
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
         leading: CircleAvatar(
@@ -888,10 +878,13 @@ class _ContactsListViewState extends State<ContactsListView> {
         subtitle: Text(
           member.source == NetworkMemberSource.network
               ? (isOnline
-                  ? TranslationService.translate(context, 'status_active')
-                  : TranslationService.translate(context, 'status_offline'))
+                    ? TranslationService.translate(context, 'status_active')
+                    : TranslationService.translate(context, 'status_offline'))
               : member.email ??
-                  TranslationService.translate(context, 'contact_type_borrower'),
+                    TranslationService.translate(
+                      context,
+                      'contact_type_borrower',
+                    ),
         ),
         trailing: Row(
           mainAxisSize: MainAxisSize.min,
@@ -900,7 +893,10 @@ class _ContactsListViewState extends State<ContactsListView> {
               // Browse library button
               IconButton(
                 icon: const Icon(Icons.menu_book),
-                tooltip: TranslationService.translate(context, 'browse_library'),
+                tooltip: TranslationService.translate(
+                  context,
+                  'browse_library',
+                ),
                 onPressed: member.url != null
                     ? () {
                         context.push(
@@ -926,7 +922,10 @@ class _ContactsListViewState extends State<ContactsListView> {
                       ScaffoldMessenger.of(context).showSnackBar(
                         SnackBar(
                           content: Text(
-                            TranslationService.translate(context, 'sync_started'),
+                            TranslationService.translate(
+                              context,
+                              'sync_started',
+                            ),
                           ),
                         ),
                       );

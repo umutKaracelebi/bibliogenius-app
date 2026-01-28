@@ -27,34 +27,42 @@ class ThemeProvider with ChangeNotifier {
   AvatarConfig? get avatarConfig => _avatarConfig;
 
   // Currency
+  // Currency
   String _currency = 'EUR';
   String get currency => _currency;
 
-  // Profile type: 'librarian', 'individual', 'kid', 'bookseller'
+  // Username
+  String _username = 'Lecteur';
+  String get username => _username;
+
+  // Profile type: kept for backend compatibility, but no longer used for UI decisions
   String _profileType = 'individual';
   String get profileType => _profileType;
+
+  // Simplified mode: replaces the old 'kid' profile type
+  // When enabled, shows a simplified UI for young readers
+  bool _simplifiedMode = false;
+  bool get simplifiedMode => _simplifiedMode;
+
+  // Computed getters - now based on modules, not profile type
   bool get isLibrarian =>
       _profileType == 'librarian' || _profileType == 'professional';
-  bool get isBookseller =>
-      _profileType == 'bookseller'; // New Bookseller profile
-  bool get isKid => _profileType == 'kid';
-  bool get hasReadingStatus =>
-      _profileType == 'individual' || _profileType == 'kid';
+  bool get isBookseller => _commerceEnabled; // Now based on commerce module
+  bool get isKid => _simplifiedMode; // Now based on simplified mode toggle
+  bool get hasReadingStatus => !_commerceEnabled; // Readers have reading status
 
-  // New: Bookseller-specific modules
-  bool _commerceEnabled = false; // Commerce module toggle
+  // Commerce module (bookseller features: pricing, sales, inventory)
+  bool _commerceEnabled = false;
   bool get commerceEnabled => _commerceEnabled;
-  bool get hasCommerce =>
-      isBookseller && _commerceEnabled; // Commerce module (pricing) active
-  bool get hasSales =>
-      isBookseller && _commerceEnabled; // Sales/transactions module active
+  bool get hasCommerce => _commerceEnabled; // Commerce module (pricing) active
+  bool get hasSales => _commerceEnabled; // Sales/transactions module active
 
   // Network Discovery (mDNS): allows user to disable local network visibility
   // Disabled by default for privacy (opt-in)
   bool _networkDiscoveryEnabled = false;
   bool get networkDiscoveryEnabled => _networkDiscoveryEnabled;
   bool get hasLoans =>
-      !isBookseller; // Loans disabled by default for booksellers
+      !_commerceEnabled; // Loans disabled when commerce is enabled
 
   // Borrowing capability: disabled by default for librarians (they lend, not borrow)
   // Also disabled for booksellers (they sell, not borrow)
@@ -139,6 +147,20 @@ class ThemeProvider with ChangeNotifier {
     _isSetupComplete = prefs.getBool('isSetupComplete') ?? false;
     _themeStyle = prefs.getString('themeStyle') ?? 'default';
 
+    // Load username
+    String? storedUsername = prefs.getString('username');
+    if (storedUsername == null) {
+      // Try fallback from AuthService if not in Prefs
+      storedUsername = await AuthService().getUsername();
+    }
+
+    // Default to 'Lecteur' if missing or 'offline_user'
+    if (storedUsername == null || storedUsername == 'offline_user') {
+      _username = 'Lecteur';
+    } else {
+      _username = storedUsername;
+    }
+
     final languageCode = prefs.getString('languageCode');
     if (languageCode != null) {
       _locale = Locale(languageCode);
@@ -186,12 +208,13 @@ class ThemeProvider with ChangeNotifier {
     _peerOfflineCachingEnabled =
         prefs.getBool('peerOfflineCachingEnabled') ?? false;
     _allowLibraryCaching = prefs.getBool('allowLibraryCaching') ?? false;
-    _collectionsEnabled = prefs.getBool('collectionsEnabled') ?? true;
+    _collectionsEnabled = prefs.getBool('collectionsEnabled') ?? false;
     _quotesEnabled = prefs.getBool('quotesEnabled') ?? true;
     _editionBrowserEnabled = prefs.getBool('editionBrowserEnabled') ?? true;
     _digitalFormatsEnabled = prefs.getBool('digitalFormatsEnabled') ?? false;
     _audioEnabled = prefs.getBool('audioEnabled') ?? false;
     _mcpEnabled = prefs.getBool('mcpEnabled') ?? false;
+    _simplifiedMode = prefs.getBool('simplifiedMode') ?? false;
 
     // Load gamification setting (default based on profile type)
     final savedGamification = prefs.getBool('gamificationEnabled');
@@ -228,6 +251,29 @@ class ThemeProvider with ChangeNotifier {
       }
     }
     notifyListeners();
+  }
+
+  Future<void> setUsername(String name, {ApiService? apiService}) async {
+    if (_username == name) return;
+    _username = name;
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.setString('username', name);
+    notifyListeners();
+
+    // Persist to AuthService for security/auth purposes
+    try {
+      await AuthService().saveUsername(name);
+    } catch (e) {
+      debugPrint('Error saving username to AuthService: $e');
+    }
+
+    if (apiService != null) {
+      try {
+        await apiService.updateProfile(data: {'username': name});
+      } catch (e) {
+        debugPrint('Error syncing username: $e');
+      }
+    }
   }
 
   Future<void> setBannerColor(Color color) async {
@@ -296,10 +342,12 @@ class ThemeProvider with ChangeNotifier {
 
     if (apiService != null) {
       try {
-        await apiService.updateProfile(data: {
-          'profile_type': type,
-          'avatar_config': _avatarConfig?.toJson(),
-        });
+        await apiService.updateProfile(
+          data: {
+            'profile_type': type,
+            'avatar_config': _avatarConfig?.toJson(),
+          },
+        );
       } catch (e) {
         debugPrint('Error syncing profile type: $e');
       }
@@ -317,10 +365,12 @@ class ThemeProvider with ChangeNotifier {
 
     if (apiService != null) {
       try {
-        await apiService.updateProfile(data: {
-          'profile_type': _profileType,
-          'avatar_config': config.toJson(),
-        });
+        await apiService.updateProfile(
+          data: {
+            'profile_type': _profileType,
+            'avatar_config': config.toJson(),
+          },
+        );
       } catch (e) {
         debugPrint('Error syncing avatar config: $e');
       }
@@ -381,10 +431,12 @@ class ThemeProvider with ChangeNotifier {
     // Sync with backend if ApiService provided
     if (apiService != null) {
       try {
-        await apiService.updateProfile(data: {
-          'profile_type': profileType,
-          'avatar_config': avatarConfig.toJson(),
-        });
+        await apiService.updateProfile(
+          data: {
+            'profile_type': profileType,
+            'avatar_config': avatarConfig.toJson(),
+          },
+        );
       } catch (e) {
         debugPrint('Error syncing profile during setup: $e');
       }
@@ -523,6 +575,44 @@ class ThemeProvider with ChangeNotifier {
     notifyListeners();
   }
 
+  Future<void> setSimplifiedMode(bool enabled) async {
+    _simplifiedMode = enabled;
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.setBool('simplifiedMode', enabled);
+    notifyListeners();
+  }
+
+  /// Apply a preset configuration that enables/disables multiple modules at once
+  Future<void> applyPreset(String presetName) async {
+    switch (presetName) {
+      case 'reader':
+        // Reader preset: gamification, quotes, collections, audio
+        await setGamificationEnabled(true);
+        await setQuotesEnabled(true);
+        await setCollectionsEnabled(true);
+        await setAudioEnabled(true);
+        await setCommerceEnabled(false);
+        break;
+      case 'librarian':
+        // Librarian preset: collections, network, no gamification
+        await setGamificationEnabled(false);
+        await setQuotesEnabled(false);
+        await setCollectionsEnabled(true);
+        await setNetworkEnabled(true);
+        await setCommerceEnabled(false);
+        break;
+      case 'bookseller':
+        // Bookseller preset: commerce, collections, no gamification
+        await setCommerceEnabled(true);
+        await setCollectionsEnabled(true);
+        await setGamificationEnabled(false);
+        await setQuotesEnabled(false);
+        await setAudioEnabled(false);
+        break;
+    }
+    notifyListeners();
+  }
+
   Future<void> setNetworkDiscoveryEnabled(
     bool enabled, {
     String? libraryId,
@@ -581,7 +671,7 @@ class ThemeProvider with ChangeNotifier {
   }
 
   // Collections Module
-  bool _collectionsEnabled = true;
+  bool _collectionsEnabled = false;
   bool get collectionsEnabled => _collectionsEnabled;
 
   Future<void> setCollectionsEnabled(bool enabled) async {

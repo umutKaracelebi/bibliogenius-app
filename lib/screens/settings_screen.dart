@@ -189,16 +189,67 @@ class _SettingsScreenState extends State<SettingsScreen> {
                       // TODO: Implement rename dialog if needed
                     },
                   ),
-                  ListTile(
-                    leading: const Icon(Icons.person),
-                    title: Text(
-                      TranslationService.translate(context, 'profile_type') ??
-                          'Profile Type',
-                    ),
-                    subtitle: Text(themeProvider.profileType.toUpperCase()),
-                  ),
                 ],
               ),
+            ),
+            const SizedBox(height: 24),
+            const Divider(),
+            const SizedBox(height: 24),
+
+            // Quick Presets Section
+            Text(
+              TranslationService.translate(context, 'quick_presets') ??
+                  'Quick Presets',
+              style: const TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
+            ),
+            const SizedBox(height: 8),
+            Text(
+              TranslationService.translate(context, 'quick_presets_desc') ??
+                  'Apply a configuration adapted to your usage:',
+              style: TextStyle(
+                fontSize: 14,
+                color: Colors.grey[600],
+              ),
+            ),
+            const SizedBox(height: 16),
+            Row(
+              children: [
+                Expanded(
+                  child: _buildPresetButton(
+                    context,
+                    'reader',
+                    TranslationService.translate(context, 'preset_reader') ??
+                        'Reader',
+                    Icons.menu_book,
+                    Colors.teal,
+                    themeProvider,
+                  ),
+                ),
+                const SizedBox(width: 8),
+                Expanded(
+                  child: _buildPresetButton(
+                    context,
+                    'librarian',
+                    TranslationService.translate(context, 'preset_librarian') ??
+                        'Librarian',
+                    Icons.local_library,
+                    Colors.indigo,
+                    themeProvider,
+                  ),
+                ),
+                const SizedBox(width: 8),
+                Expanded(
+                  child: _buildPresetButton(
+                    context,
+                    'bookseller',
+                    TranslationService.translate(context, 'preset_bookseller') ??
+                        'Bookseller',
+                    Icons.storefront,
+                    Colors.orange,
+                    themeProvider,
+                  ),
+                ),
+              ],
             ),
             const SizedBox(height: 24),
             const Divider(),
@@ -212,6 +263,15 @@ class _SettingsScreenState extends State<SettingsScreen> {
             const SizedBox(height: 16),
             Column(
               children: [
+                // Simplified Mode toggle (replaces kid profile)
+                _buildModuleToggle(
+                  context,
+                  'simplified_mode',
+                  'simplified_mode_desc',
+                  Icons.child_care,
+                  themeProvider.simplifiedMode,
+                  (value) => themeProvider.setSimplifiedMode(value),
+                ),
                 _buildModuleToggle(
                   context,
                   'quotes_module',
@@ -531,6 +591,55 @@ class _SettingsScreenState extends State<SettingsScreen> {
           ),
         );
       },
+    );
+  }
+
+  Widget _buildPresetButton(
+    BuildContext context,
+    String presetName,
+    String label,
+    IconData icon,
+    Color color,
+    ThemeProvider themeProvider,
+  ) {
+    return Material(
+      color: color.withValues(alpha: 0.1),
+      borderRadius: BorderRadius.circular(12),
+      child: InkWell(
+        borderRadius: BorderRadius.circular(12),
+        onTap: () async {
+          await themeProvider.applyPreset(presetName);
+          if (context.mounted) {
+            ScaffoldMessenger.of(context).showSnackBar(
+              SnackBar(
+                content: Text(
+                  '${TranslationService.translate(context, 'preset_applied') ?? 'Configuration applied'}: $label',
+                ),
+                duration: const Duration(seconds: 2),
+              ),
+            );
+          }
+        },
+        child: Container(
+          padding: const EdgeInsets.symmetric(vertical: 16, horizontal: 8),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Icon(icon, color: color, size: 32),
+              const SizedBox(height: 8),
+              Text(
+                label,
+                style: TextStyle(
+                  color: color,
+                  fontWeight: FontWeight.w600,
+                  fontSize: 12,
+                ),
+                textAlign: TextAlign.center,
+              ),
+            ],
+          ),
+        ),
+      ),
     );
   }
 

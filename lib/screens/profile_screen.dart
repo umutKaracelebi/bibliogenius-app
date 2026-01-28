@@ -1,22 +1,15 @@
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart'; // For Clipboard
 import 'package:cached_network_image/cached_network_image.dart';
-import '../widgets/genie_app_bar.dart';
 import 'package:provider/provider.dart';
 
-import '../providers/theme_provider.dart';
-import 'package:go_router/go_router.dart';
-
-import '../widgets/avatar_customizer.dart';
 import '../models/avatar_config.dart';
-import '../services/translation_service.dart';
-import '../services/demo_service.dart';
 import '../models/gamification_status.dart';
-import '../widgets/gamification_widgets.dart';
-import 'package:flutter/foundation.dart' show kIsWeb;
+import '../providers/theme_provider.dart';
 import '../services/api_service.dart';
-import '../widgets/status_badge.dart';
-import '../themes/base/theme_registry.dart';
+import '../services/translation_service.dart';
+import '../widgets/avatar_customizer.dart';
+import '../widgets/gamification_widgets.dart';
+import '../widgets/genie_app_bar.dart';
 
 class ProfileScreen extends StatefulWidget {
   final String? initialAction;
@@ -30,8 +23,6 @@ class ProfileScreen extends StatefulWidget {
 class _ProfileScreenState extends State<ProfileScreen> {
   bool _isLoading = true;
   Map<String, dynamic>? _userStatus;
-  Map<String, dynamic>? _config;
-  Map<String, dynamic>? _userInfo;
   String? _error;
 
   @override
@@ -45,7 +36,6 @@ class _ProfileScreenState extends State<ProfileScreen> {
       final apiService = Provider.of<ApiService>(context, listen: false);
       final statusRes = await apiService.getUserStatus();
       final configRes = await apiService.getLibraryConfig();
-      final meRes = await apiService.getMe();
 
       if (mounted) {
         // Sync library name
@@ -68,8 +58,6 @@ class _ProfileScreenState extends State<ProfileScreen> {
 
         setState(() {
           _userStatus = statusRes.data;
-          _config = configRes.data;
-          _userInfo = meRes.data;
           _isLoading = false;
         });
       }
@@ -117,8 +105,6 @@ class _ProfileScreenState extends State<ProfileScreen> {
         child: Text(TranslationService.translate(context, 'no_data')),
       );
     }
-
-    final level = _userStatus!['level'] as String;
 
     return RefreshIndicator(
       onRefresh: _fetchStatus,
@@ -212,27 +198,6 @@ class _ProfileScreenState extends State<ProfileScreen> {
                     );
                   },
                 ),
-                const SizedBox(height: 16),
-                Consumer<ThemeProvider>(
-                  builder: (context, themeProvider, _) {
-                    return Text(
-                      TranslationService.translate(
-                        context,
-                        themeProvider.profileType,
-                      ),
-                      style: Theme.of(context).textTheme.headlineMedium,
-                    );
-                  },
-                ),
-                const SizedBox(height: 8),
-                Consumer<ThemeProvider>(
-                  builder: (context, themeProvider, _) {
-                    if (!themeProvider.gamificationEnabled) {
-                      return const SizedBox.shrink();
-                    }
-                    return StatusBadge(level: level, size: 32);
-                  },
-                ),
                 const SizedBox(height: 32),
 
                 // Gamification Card
@@ -250,157 +215,6 @@ class _ProfileScreenState extends State<ProfileScreen> {
 
                 // Reading Goals
                 _buildReadingGoalsSection(),
-                const SizedBox(height: 32),
-
-                // Profile Summary
-                _buildProfileTypeSummary(),
-
-                const SizedBox(height: 32),
-
-                // Profile Settings
-                Text(
-                  TranslationService.translate(context, 'profile_settings'),
-                  style: Theme.of(context).textTheme.titleMedium,
-                ),
-                const SizedBox(height: 16),
-                Card(
-                  child: Column(
-                    children: [
-                      ListTile(
-                        contentPadding: const EdgeInsets.symmetric(
-                          horizontal: 16,
-                          vertical: 8,
-                        ),
-                        title: Text(
-                          TranslationService.translate(context, 'profile_type'),
-                          style: const TextStyle(fontWeight: FontWeight.bold),
-                        ),
-                        subtitle: Consumer<ThemeProvider>(
-                          builder: (context, themeProvider, _) {
-                            return Text(
-                              TranslationService.translate(
-                                    context,
-                                    themeProvider.profileType == 'kid'
-                                        ? 'profile_individual'
-                                        : themeProvider.profileType,
-                                  ) ??
-                                  themeProvider.profileType,
-                              style: TextStyle(
-                                color: Theme.of(context).primaryColor,
-                                fontSize: 16,
-                              ),
-                            );
-                          },
-                        ),
-                        trailing: const Icon(Icons.arrow_forward_ios, size: 16),
-                        onTap: () => _showProfileTypeSelector(context),
-                      ),
-                      Consumer<ThemeProvider>(
-                        builder: (context, themeProvider, _) {
-                          if (themeProvider.profileType != 'individual' &&
-                              themeProvider.profileType != 'kid') {
-                            return const SizedBox.shrink();
-                          }
-                          return Column(
-                            children: [
-                              const Divider(),
-                              SwitchListTile(
-                                secondary: Icon(
-                                  Icons.child_care,
-                                  color: themeProvider.profileType == 'kid'
-                                      ? Colors.orange
-                                      : Colors.grey,
-                                ),
-                                title: Text(
-                                  TranslationService.translate(
-                                    context,
-                                    'young_reader_mode',
-                                  ),
-                                ),
-                                subtitle: Text(
-                                  TranslationService.translate(
-                                    context,
-                                    'young_reader_mode_desc',
-                                  ),
-                                ),
-                                value: themeProvider.profileType == 'kid',
-                                onChanged: (bool value) async {
-                                  try {
-                                    final api = Provider.of<ApiService>(
-                                      context,
-                                      listen: false,
-                                    );
-                                    final newType = value
-                                        ? 'kid'
-                                        : 'individual';
-
-                                    // 1. Update Provider
-                                    await themeProvider.setProfileType(
-                                      newType,
-                                      apiService: api,
-                                    );
-
-                                    // 2. Update Backend Config
-                                    if (_config != null) {
-                                      await api.updateLibraryConfig(
-                                        name:
-                                            _config!['library_name'] ??
-                                            _config!['name'] ??
-                                            'My Library',
-                                        description: _config?['description'],
-                                        profileType: newType,
-                                        tags: _config?['tags'] != null
-                                            ? List<String>.from(
-                                                _config!['tags'],
-                                              )
-                                            : [],
-                                        latitude: _config?['latitude'],
-                                        longitude: _config?['longitude'],
-                                        showBorrowedBooks:
-                                            _config?['show_borrowed_books'],
-                                        shareLocation:
-                                            _config?['share_location'],
-                                      );
-                                    }
-
-                                    _fetchStatus();
-
-                                    if (mounted) {
-                                      ScaffoldMessenger.of(
-                                        context,
-                                      ).showSnackBar(
-                                        SnackBar(
-                                          content: Text(
-                                            TranslationService.translate(
-                                              context,
-                                              'profile_updated',
-                                            ),
-                                          ),
-                                        ),
-                                      );
-                                    }
-                                  } catch (e) {
-                                    if (mounted) {
-                                      ScaffoldMessenger.of(
-                                        context,
-                                      ).showSnackBar(
-                                        SnackBar(
-                                          content: Text(
-                                            '${TranslationService.translate(context, 'error_updating_profile')}: $e',
-                                          ),
-                                        ),
-                                      );
-                                    }
-                                  }
-                                },
-                              ),
-                            ],
-                          );
-                        },
-                      ),
-                    ],
-                  ),
-                ),
 
                 const SizedBox(height: 100),
               ],
@@ -787,159 +601,6 @@ class _ProfileScreenState extends State<ProfileScreen> {
     }
   }
 
-  Widget _buildProfileTypeSummary() {
-    return Consumer<ThemeProvider>(
-      builder: (context, themeProvider, _) {
-        final profileType = themeProvider.profileType;
-
-        // Define features and restrictions for each profile type
-        Map<String, List<String>> advantages = {};
-        Map<String, List<String>> restrictions = {};
-
-        switch (profileType) {
-          case 'individual':
-          case 'individual_reader':
-            advantages = {
-              'profile_advantage_borrow': ['✓'],
-              'profile_advantage_lend': ['✓'],
-              'profile_advantage_wishlist': ['✓'],
-            };
-            restrictions = {};
-            break;
-          case 'professional':
-          case 'librarian':
-            advantages = {
-              'profile_advantage_lending': ['✓'],
-              'profile_advantage_contacts': ['✓'],
-              'profile_advantage_statistics': ['✓'],
-            };
-            restrictions = {
-              'profile_restriction_no_borrow': ['✗'],
-            };
-            break;
-          case 'kid':
-            advantages = {
-              'profile_advantage_simple_ui': ['✓'],
-              'profile_advantage_borrow': ['✓'],
-              'profile_advantage_lend': ['✓'],
-              'profile_advantage_wishlist': ['✓'],
-            };
-            restrictions = {
-              // No specific restrictions for now, just simplified UI
-            };
-            break;
-          case 'bookseller':
-            advantages = {
-              'profile_advantage_pricing': ['✓'],
-              'profile_advantage_sales': ['✓'],
-              'profile_advantage_inventory': ['✓'],
-              'profile_advantage_statistics': ['✓'],
-            };
-            restrictions = {
-              'profile_restriction_no_loans': ['✗'],
-              'profile_restriction_no_gamification': ['✗'],
-            };
-            break;
-        }
-
-        return Container(
-          padding: const EdgeInsets.all(16),
-          decoration: BoxDecoration(
-            color: Theme.of(
-              context,
-            ).colorScheme.surfaceContainerHighest.withValues(alpha: 0.3),
-            borderRadius: BorderRadius.circular(12),
-            border: Border.all(
-              color: Theme.of(
-                context,
-              ).colorScheme.outline.withValues(alpha: 0.2),
-            ),
-          ),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Row(
-                children: [
-                  Icon(
-                    Icons.info_outline,
-                    size: 18,
-                    color: Theme.of(context).colorScheme.primary,
-                  ),
-                  const SizedBox(width: 8),
-                  Text(
-                    TranslationService.translate(context, 'profile_summary'),
-                    style: TextStyle(
-                      fontWeight: FontWeight.w600,
-                      color: Theme.of(context).colorScheme.primary,
-                    ),
-                  ),
-                  const SizedBox(width: 6),
-                  Text(
-                    TranslationService.translate(context, profileType),
-                    style: TextStyle(
-                      fontWeight: FontWeight.w600,
-                      color: Theme.of(context).colorScheme.secondary,
-                    ),
-                  ),
-                ],
-              ),
-              const SizedBox(height: 12),
-              // Advantages
-              if (advantages.isNotEmpty) ...[
-                ...advantages.keys.map(
-                  (key) => Padding(
-                    padding: const EdgeInsets.only(bottom: 4),
-                    child: Row(
-                      children: [
-                        const Icon(
-                          Icons.check_circle,
-                          size: 16,
-                          color: Colors.green,
-                        ),
-                        const SizedBox(width: 8),
-                        Expanded(
-                          child: Text(
-                            TranslationService.translate(context, key),
-                            style: const TextStyle(fontSize: 13),
-                          ),
-                        ),
-                      ],
-                    ),
-                  ),
-                ),
-              ],
-              // Restrictions
-              if (restrictions.isNotEmpty) ...[
-                const SizedBox(height: 8),
-                ...restrictions.keys.map(
-                  (key) => Padding(
-                    padding: const EdgeInsets.only(bottom: 4),
-                    child: Row(
-                      children: [
-                        const Icon(
-                          Icons.remove_circle,
-                          size: 16,
-                          color: Colors.orange,
-                        ),
-                        const SizedBox(width: 8),
-                        Expanded(
-                          child: Text(
-                            TranslationService.translate(context, key),
-                            style: const TextStyle(fontSize: 13),
-                          ),
-                        ),
-                      ],
-                    ),
-                  ),
-                ),
-              ],
-            ],
-          ),
-        );
-      },
-    );
-  }
-
   void _showAvatarPicker(BuildContext context, ThemeProvider themeProvider) {
     // Create a local copy of the config to avoid updating the provider immediately
     // This allows the user to cancel changes
@@ -1039,193 +700,6 @@ class _ProfileScreenState extends State<ProfileScreen> {
                           ),
                         ),
                       ),
-                    ),
-                  ),
-                ],
-              ),
-            );
-          },
-        );
-      },
-    );
-  }
-
-  void _showProfileTypeSelector(BuildContext context) {
-    showModalBottomSheet(
-      context: context,
-      shape: const RoundedRectangleBorder(
-        borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
-      ),
-      builder: (context) {
-        return Consumer<ThemeProvider>(
-          builder: (context, themeProvider, _) {
-            final currentType = themeProvider.profileType;
-            final types = ['individual', 'librarian', 'bookseller'];
-
-            return Container(
-              padding: const EdgeInsets.symmetric(vertical: 24),
-              child: Column(
-                mainAxisSize: MainAxisSize.min,
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Padding(
-                    padding: const EdgeInsets.symmetric(horizontal: 24),
-                    child: Text(
-                      TranslationService.translate(
-                        context,
-                        'select_profile_type',
-                      ),
-                      style: Theme.of(context).textTheme.titleLarge?.copyWith(
-                        fontWeight: FontWeight.bold,
-                      ),
-                    ),
-                  ),
-                  const SizedBox(height: 16),
-                  Flexible(
-                    child: ListView.separated(
-                      shrinkWrap: true,
-                      itemCount: types.length,
-                      separatorBuilder: (context, index) =>
-                          const Divider(indent: 72),
-                      itemBuilder: (context, index) {
-                        final type = types[index];
-                        final isSelected =
-                            currentType == type ||
-                            (currentType == 'individual_reader' &&
-                                type == 'individual') ||
-                            (currentType == 'kid' && type == 'individual') ||
-                            (currentType == 'professional' &&
-                                type == 'librarian');
-
-                        IconData icon;
-                        switch (type) {
-                          case 'librarian':
-                            icon = Icons.local_library;
-                            break;
-                          case 'bookseller':
-                            icon = Icons.storefront;
-                            break;
-
-                          case 'individual':
-                          default:
-                            icon = Icons.person;
-                            break;
-                        }
-
-                        return ListTile(
-                          contentPadding: const EdgeInsets.symmetric(
-                            horizontal: 24,
-                            vertical: 8,
-                          ),
-                          leading: Container(
-                            padding: const EdgeInsets.all(8),
-                            decoration: BoxDecoration(
-                              color: isSelected
-                                  ? Theme.of(
-                                      context,
-                                    ).primaryColor.withValues(alpha: 0.1)
-                                  : Colors.grey.withValues(alpha: 0.1),
-                              shape: BoxShape.circle,
-                            ),
-                            child: Icon(
-                              icon,
-                              color: isSelected
-                                  ? Theme.of(context).primaryColor
-                                  : Colors.grey,
-                            ),
-                          ),
-                          title: Text(
-                            TranslationService.translate(
-                              context,
-                              'profile_$type',
-                            ),
-                            style: TextStyle(
-                              fontWeight: isSelected
-                                  ? FontWeight.bold
-                                  : FontWeight.normal,
-                              color: isSelected
-                                  ? Theme.of(context).primaryColor
-                                  : null,
-                            ),
-                          ),
-                          subtitle: Text(
-                            TranslationService.translate(
-                                  context,
-                                  'profile_${type}_desc',
-                                ) ??
-                                '',
-                            style: const TextStyle(fontSize: 12),
-                          ),
-                          trailing: isSelected
-                              ? Icon(
-                                  Icons.check_circle,
-                                  color: Theme.of(context).primaryColor,
-                                )
-                              : null,
-                          onTap: () async {
-                            Navigator.pop(context);
-                            if (isSelected) return;
-
-                            try {
-                              final api = Provider.of<ApiService>(
-                                context,
-                                listen: false,
-                              );
-
-                              // 1. Update Provider
-                              await themeProvider.setProfileType(
-                                type,
-                                apiService: api,
-                              );
-
-                              // 2. Update Backend Config
-                              if (_config != null) {
-                                await api.updateLibraryConfig(
-                                  name:
-                                      _config!['library_name'] ??
-                                      _config!['name'] ??
-                                      'My Library',
-                                  description: _config?['description'],
-                                  profileType: type,
-                                  tags: _config?['tags'] != null
-                                      ? List<String>.from(_config!['tags'])
-                                      : [],
-                                  latitude: _config?['latitude'],
-                                  longitude: _config?['longitude'],
-                                  showBorrowedBooks:
-                                      _config?['show_borrowed_books'],
-                                  shareLocation: _config?['share_location'],
-                                );
-                              }
-
-                              _fetchStatus();
-
-                              if (context.mounted) {
-                                ScaffoldMessenger.of(context).showSnackBar(
-                                  SnackBar(
-                                    content: Text(
-                                      TranslationService.translate(
-                                        context,
-                                        'profile_updated',
-                                      ),
-                                    ),
-                                  ),
-                                );
-                              }
-                            } catch (e) {
-                              if (context.mounted) {
-                                ScaffoldMessenger.of(context).showSnackBar(
-                                  SnackBar(
-                                    content: Text(
-                                      '${TranslationService.translate(context, 'error_updating_profile')}: $e',
-                                    ),
-                                  ),
-                                );
-                              }
-                            }
-                          },
-                        );
-                      },
                     ),
                   ),
                 ],

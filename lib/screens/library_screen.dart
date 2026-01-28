@@ -59,12 +59,15 @@ class _LibraryScreenState extends State<LibraryScreen>
   }
 
   final ValueNotifier<int> _refreshNotifier = ValueNotifier<int>(0);
+  final ValueNotifier<int> _shelvesRefreshNotifier = ValueNotifier<int>(0);
+  int _collectionsRefreshKey = 0;
 
   @override
   void dispose() {
     _tabController.removeListener(_handleTabSelection);
     _tabController.dispose();
     _refreshNotifier.dispose();
+    _shelvesRefreshNotifier.dispose();
     super.dispose();
   }
 
@@ -151,6 +154,7 @@ class _LibraryScreenState extends State<LibraryScreen>
         ),
         contextualQuickActions: _buildQuickActions(context),
         onBookAdded: () => _refreshNotifier.value++,
+        onShelfCreated: () => _shelvesRefreshNotifier.value++,
       ),
       body: IndexedStack(
         index: _tabController.index,
@@ -169,9 +173,15 @@ class _LibraryScreenState extends State<LibraryScreen>
                   initialTagFilter: widget.shelfTagFilter,
                   showBackToShelves: true,
                 )
-              : const ShelvesScreen(isTabView: true),
+              : ShelvesScreen(
+                  isTabView: true,
+                  refreshNotifier: _shelvesRefreshNotifier,
+                ),
           if (themeProvider.collectionsEnabled)
-            const CollectionListScreen(isTabView: true),
+            CollectionListScreen(
+              key: ValueKey('collections_$_collectionsRefreshKey'),
+              isTabView: true,
+            ),
         ],
       ),
       floatingActionButton: _tabController.index == 0
@@ -207,13 +217,18 @@ class _LibraryScreenState extends State<LibraryScreen>
           ),
           onTap: () async {
             Navigator.pop(context);
-            await Navigator.push(
+            final result = await Navigator.push(
               context,
               MaterialPageRoute(
                 builder: (context) =>
                     const import_curated.ImportCuratedListScreen(),
               ),
             );
+            if (result == true && mounted) {
+              setState(() {
+                _collectionsRefreshKey++;
+              });
+            }
           },
         ),
         ListTile(
@@ -224,12 +239,17 @@ class _LibraryScreenState extends State<LibraryScreen>
           ),
           onTap: () async {
             Navigator.pop(context);
-            await Navigator.push(
+            final result = await Navigator.push(
               context,
               MaterialPageRoute(
                 builder: (context) => const ImportSharedListScreen(),
               ),
             );
+            if (result == true && mounted) {
+              setState(() {
+                _collectionsRefreshKey++;
+              });
+            }
           },
         ),
       ];

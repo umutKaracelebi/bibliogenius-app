@@ -11,8 +11,9 @@ import '../providers/theme_provider.dart';
 
 class ShelvesScreen extends StatefulWidget {
   final bool isTabView;
+  final ValueNotifier<int>? refreshNotifier;
 
-  const ShelvesScreen({super.key, this.isTabView = false});
+  const ShelvesScreen({super.key, this.isTabView = false, this.refreshNotifier});
 
   @override
   State<ShelvesScreen> createState() => _ShelvesScreenState();
@@ -28,6 +29,17 @@ class _ShelvesScreenState extends State<ShelvesScreen> {
   void initState() {
     super.initState();
     _tagsFuture = Provider.of<ApiService>(context, listen: false).getTags();
+    widget.refreshNotifier?.addListener(_onRefreshRequested);
+  }
+
+  void _onRefreshRequested() {
+    _refreshTags();
+  }
+
+  @override
+  void dispose() {
+    widget.refreshNotifier?.removeListener(_onRefreshRequested);
+    super.dispose();
   }
 
   void _refreshTags() {

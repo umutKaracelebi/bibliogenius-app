@@ -1,17 +1,22 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
+import 'package:provider/provider.dart';
+import '../models/tag.dart';
+import '../services/api_service.dart';
 import '../services/translation_service.dart';
 
 class QuickActionsSheet extends StatelessWidget {
   final List<Widget>? contextualActions;
   final bool hideGenericActions;
   final VoidCallback? onBookAdded; // Callback when a book is added
+  final VoidCallback? onShelfCreated; // Callback when a shelf is created
 
   const QuickActionsSheet({
     super.key,
     this.contextualActions,
     this.hideGenericActions = false,
     this.onBookAdded,
+    this.onShelfCreated,
   });
 
   @override
@@ -201,6 +206,14 @@ class QuickActionsSheet extends StatelessWidget {
                   router.push('/requests');
                 },
               ),
+              const SizedBox(width: 12),
+              _buildQuickActionCard(
+                context,
+                icon: Icons.create_new_folder_outlined,
+                color: Colors.teal,
+                label: 'quick_create_shelf',
+                onTap: () => _showCreateShelfDialog(context),
+              ),
             ],
           ),
 
@@ -276,5 +289,155 @@ class QuickActionsSheet extends StatelessWidget {
         ),
       ),
     );
+  }
+
+  void _showCreateShelfDialog(BuildContext context) {
+    final controller = TextEditingController();
+    final formKey = GlobalKey<FormState>();
+    final api = Provider.of<ApiService>(context, listen: false);
+    int? selectedParentId;
+
+    showDialog(
+      context: context,
+      builder: (dialogContext) {
+        return FutureBuilder<List<Tag>>(
+          future: api.getTags(),
+          builder: (futureContext, snapshot) {
+            final shelves = snapshot.data ?? <Tag>[];
+
+            return StatefulBuilder(
+              builder: (stateContext, setDialogState) {
+                return AlertDialog(
+                  title: Text(
+                    TranslationService.translate(stateContext, 'create_shelf') ??
+                        'Create Shelf',
+                  ),
+                  content: Form(
+                    key: formKey,
+                    child: Column(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        TextFormField(
+                          controller: controller,
+                          autofocus: true,
+                          decoration: InputDecoration(
+                            labelText: TranslationService.translate(
+                                    stateContext, 'shelf_name') ??
+                                'Shelf Name',
+                            hintText: TranslationService.translate(
+                                    stateContext, 'shelf_name_hint') ??
+                                'e.g. Science Fiction',
+                            border: const OutlineInputBorder(),
+                          ),
+                          validator: (value) {
+                            if (value == null || value.trim().isEmpty) {
+                              return TranslationService.translate(
+                                    stateContext,
+                                    'field_required',
+                                  ) ??
+                                  'This field is required';
+                            }
+                            return null;
+                          },
+                        ),
+                        if (shelves.isNotEmpty) ...[
+                          const SizedBox(height: 16),
+                          DropdownButtonFormField<int?>(
+                            value: selectedParentId,
+                            decoration: InputDecoration(
+                              labelText: TranslationService.translate(
+                                      stateContext, 'parent_shelf') ??
+                                  'Parent Shelf (optional)',
+                              border: const OutlineInputBorder(),
+                            ),
+                            items: [
+                              DropdownMenuItem<int?>(
+                                value: null,
+                                child: Text(
+                                  TranslationService.translate(
+                                          stateContext, 'none') ??
+                                      'None (root level)',
+                                ),
+                              ),
+                              ...shelves.map((shelf) {
+                                final name = shelf.fullPath ?? shelf.name;
+                                return DropdownMenuItem<int?>(
+                                  value: shelf.id,
+                                  child: Text(
+                                    name,
+                                    overflow: TextOverflow.ellipsis,
+                                  ),
+                                );
+                              }),
+                            ],
+                            onChanged: (value) {
+                              setDialogState(() {
+                                selectedParentId = value;
+                              });
+                            },
+                          ),
+                        ],
+                      ],
+                    ),
+                  ),
+                  actions: [
+                    TextButton(
+                      onPressed: () => Navigator.pop(dialogContext),
+                      child: Text(
+                        TranslationService.translate(stateContext, 'cancel') ??
+                            'Cancel',
+                      ),
+                    ),
+                    ElevatedButton(
+                      onPressed: () async {
+                        if (formKey.currentState!.validate()) {
+                          Navigator.pop(dialogContext);
+                          Navigator.pop(context); // Close the quick actions sheet
+                          await _createShelf(
+                            context,
+                            controller.text.trim(),
+                            parentId: selectedParentId,
+                          );
+                        }
+                      },
+                      child: Text(
+                        TranslationService.translate(stateContext, 'create') ??
+                            'Create',
+                      ),
+                    ),
+                  ],
+                );
+              },
+            );
+          },
+        );
+      },
+    );
+  }
+
+  Future<void> _createShelf(BuildContext context, String name,
+      {int? parentId}) async {
+    try {
+      final api = Provider.of<ApiService>(context, listen: false);
+      await api.createTag(name, parentId: parentId);
+      if (context.mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text(
+              TranslationService.translate(context, 'shelf_created') ??
+                  'Shelf created',
+            ),
+            backgroundColor: Colors.green,
+          ),
+        );
+        onShelfCreated?.call();
+      }
+    } catch (e) {
+      if (context.mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text(e.toString()), backgroundColor: Colors.red),
+        );
+      }
+    }
   }
 }

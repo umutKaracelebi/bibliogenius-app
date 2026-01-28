@@ -203,6 +203,11 @@ class GamificationStatus {
   /// Returns true if user has any achievements.
   bool get hasAchievements => recentAchievements.isNotEmpty;
 
+  // Convenience getters for UI Quick Stats
+  int get totalBooks => collector.current;
+  int get booksRead => config.totalBooksRead;
+  int get currentStreak => streak.current;
+
   /// Default empty status for initial state.
   static GamificationStatus get empty => const GamificationStatus(
     collector: TrackProgress(

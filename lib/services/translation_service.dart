@@ -96,6 +96,8 @@ class TranslationService {
       'add_sub_shelf': 'Add Sub-Shelf',
       'shelf_name': 'Shelf Name',
       'shelf_name_hint': 'e.g. Science Fiction',
+      'parent_shelf': 'Parent Shelf (optional)',
+      'none': 'None (root level)',
 
       'create_first_shelf': 'Create your first shelf to organize your books',
       'scan_first_book': 'Scan my first book',
@@ -462,7 +464,6 @@ class TranslationService {
       // Hierarchical Shelf Navigation
       'all_shelves': 'All Shelves',
       'shelf_books_count': '%d books',
-      'no_sub_shelves': 'No sub-shelves',
       'browse_shelf': 'Browse',
       'back_to_all': 'Back to All',
       'sub_categories': 'Sub-categories',
@@ -1144,6 +1145,15 @@ class TranslationService {
       'congratulations': 'Congratulations!',
       'keep_it_up': 'Keep it up!',
       // Reading Goals
+      'stat_total_books': 'Total Books',
+      'stat_books_read': 'Books Read',
+      'stat_streak': 'Day Streak',
+      'edit_profile': 'Edit Profile',
+      'edit_profile_title': 'Edit Profile',
+      'username_label': 'Username',
+      'library_name_label': 'Library Name',
+      'cancel': 'Cancel',
+      'save': 'Save',
       'reading_goals_title': 'Reading Goals',
       'yearly_goal': 'Yearly Goal',
       'monthly_goal': 'Monthly Goal',
@@ -1293,6 +1303,16 @@ class TranslationService {
       // Borrowing Module
       'enable_borrowing_module': 'Enable Borrowing',
       'borrowing_module_desc': 'Lend and borrow books with friends',
+      // Quick Presets Section
+      'quick_presets': 'Quick Presets',
+      'quick_presets_desc': 'Apply a configuration adapted to your usage:',
+      'preset_reader': 'Reader',
+      'preset_librarian': 'Librarian',
+      'preset_bookseller': 'Bookseller',
+      'preset_applied': 'Configuration applied',
+      // Simplified Mode
+      'simplified_mode': 'Simplified Mode',
+      'simplified_mode_desc': 'Simplified interface for young readers',
       // Modules Section
       'modules': 'Modules',
       'audio_module': 'Audio Module',
@@ -1303,7 +1323,8 @@ class TranslationService {
       'peer_offline_caching_desc':
           'Cache contact libraries locally for offline viewing. Their book list will be stored on your device.',
       'allow_library_caching': 'Allow Library Caching',
-      'allow_library_caching_desc': 'Allow others to cache YOUR library for offline viewing. Your book list will be stored on their devices.',
+      'allow_library_caching_desc':
+          'Allow others to cache YOUR library for offline viewing. Your book list will be stored on their devices.',
       'module_collections': 'Collections',
       'module_collections_desc':
           'Enable or disable collection management features.',
@@ -1435,6 +1456,31 @@ class TranslationService {
       // Statistics
       'add_books_for_stats': 'Add books to see your reading statistics',
       'no_author_data': 'No author data available',
+      // Contextual Stats Help
+      'help_ctx_stats_reading_habits':
+          'Analyze your reading status distribution. "Read" means finished books, "Reading" are currently in progress.',
+      'help_ctx_stats_top_authors':
+          'Your most collected authors. Tap bars to see exact counts.',
+      'help_ctx_stats_publication_year':
+          'Distribution of books by publication decade.',
+      'help_ctx_stats_loan_stats':
+          'Overview of your lending history. Track active loans and return rates.',
+      'help_ctx_stats_monthly_progress':
+          'Number of books finished each month over the last year.',
+      'help_ctx_stats_unique_stats':
+          'Fun facts about your reading speed and preferences.',
+      'help_ctx_stats_genre_diversity':
+          'Breakdown of genres in your library. A higher diversity score means broader reading interests.',
+      'help_ctx_stats_sales': 'Revenue and sales data for your book sales.',
+
+      // Profile Header Stats
+      'stat_total_books': 'Books',
+      'stat_books_read': 'Read',
+      'stat_streak': 'Streak',
+      'edit_profile': 'Edit Profile',
+      'enter_username': 'Enter your username',
+      'enter_library_name': 'Name of your library',
+
       // Peer/Network
       'library_synced': 'Library synced successfully',
       'sync_failed': 'Sync failed',
@@ -1453,6 +1499,10 @@ class TranslationService {
       'synced_hours_ago': 'Synced %dh ago',
       'synced_days_ago': 'Synced %d days ago',
       // Profile
+      'level_curious': 'Curious',
+      'level_initiate': 'Initiate',
+      'level_bibliophile': 'Bibliophile',
+      'level_scholar': 'Scholar',
       'backup_downloaded': 'Backup downloaded successfully',
       'reset_failed': 'Reset failed',
       'error_fetching_config': 'Error fetching configuration',
@@ -1504,6 +1554,7 @@ class TranslationService {
       'external_search_empty_hint':
           'Search for a book reference on the web to add it to your library',
       'quick_borrow_book': 'Borrow a book',
+      'quick_create_shelf': 'Create shelf',
       'filter_books': 'Filter Books',
       'create_shelf': 'Create Shelf',
       'shelf_empty_desc': 'Add books to this shelf to organize your library.',
@@ -1541,8 +1592,8 @@ class TranslationService {
       'profile': 'Mon Profil',
       'librarian': 'Bibliothécaire',
       'bookseller': 'Libraire', // New profile
-      'individual': 'Particulier',
-      'individual_reader': 'Lecteur individuel',
+      'individual': 'Lecteur',
+      'individual_reader': 'Lecteur',
       'professional': 'Professionnel',
       // Security / MFA
       'security_settings': 'Paramètres de sécurité',
@@ -1638,6 +1689,8 @@ class TranslationService {
       'add_sub_shelf': 'Ajouter une sous-étagère',
       'shelf_name': 'Nom de l\'étagère',
       'shelf_name_hint': 'ex. Science Fiction',
+      'parent_shelf': 'Étagère parente (optionnel)',
+      'none': 'Aucune (niveau racine)',
 
       'create_first_shelf':
           'Créez votre première étagère pour organiser vos livres',
@@ -1830,6 +1883,7 @@ class TranslationService {
       'quick_scan_barcode': 'Scanner code-barres',
       'quick_search_online': 'Recherche en ligne',
       'quick_borrow_book': 'Emprunter un livre',
+      'quick_create_shelf': 'Créer étagère',
       // Owned checkbox
       'own_this_book': 'Je possède ce livre',
       'help_import_app': 'Importer depuis une autre app',
@@ -2101,7 +2155,6 @@ class TranslationService {
       // Hierarchical Shelf Navigation
       'all_shelves': 'Toutes les étagères',
       'shelf_books_count': '%d livres',
-      'no_sub_shelves': 'Pas de sous-catégories',
       'browse_shelf': 'Parcourir',
       'back_to_all': 'Retour',
       'sub_categories': 'Sous-catégories',
@@ -2208,7 +2261,7 @@ class TranslationService {
       // Setup Screen
       'choose_profile_type': 'Choisir le type de profil',
       'profile_usage_question': 'Comment allez-vous utiliser BiblioGenius ?',
-      'customize_avatar': 'Personnaliser l\'avatar',
+      'customize_avatar': 'Personnaliser',
       'setup_failed': 'Échec de la configuration',
       'setup_credentials_title': 'Identifiants',
       'setup_username_label': 'Nom d\'utilisateur',
@@ -2252,7 +2305,7 @@ class TranslationService {
       'profile_librarian': 'Bibliothécaire',
       'profile_librarian_desc':
           'Catalogage professionnel, gestion des prêts et organisation stricte.',
-      'profile_individual': 'Lecteur Individuel',
+      'profile_individual': 'Lecteur',
       'profile_individual_desc':
           'Suivez vos lectures, listes de souhaits et collection personnelle.',
       'profile_kid': 'Jeune Lecteur',
@@ -2261,6 +2314,28 @@ class TranslationService {
       'profile_bookseller': 'Libraire',
       'profile_bookseller_desc':
           'Gérez votre inventaire, prix et ventes pour votre librairie.',
+      // Gamification Levels
+      'level_curious': 'Curieux',
+      'level_initiate': 'Initié',
+      'level_bibliophile': 'Bibliophile',
+      'level_scholar': 'Érudit',
+      // Contextual Stats Help
+      'help_ctx_stats_reading_habits':
+          'Analysez la répartition de vos statuts de lecture. "Lu" signifie terminé, "En lecture" est en cours.',
+      'help_ctx_stats_top_authors':
+          'Vos auteurs les plus collectionnés. Touchez les barres pour voir les détails.',
+      'help_ctx_stats_publication_year':
+          'Distribution de vos livres par décennie de publication.',
+      'help_ctx_stats_loan_stats':
+          'Aperçu de votre historique de prêts. Suivez les prêts actifs et les taux de retour.',
+      'help_ctx_stats_monthly_progress':
+          'Nombre de livres terminés chaque mois sur la dernière année.',
+      'help_ctx_stats_unique_stats':
+          'Faits amusants sur votre vitesse de lecture et vos préférences.',
+      'help_ctx_stats_genre_diversity':
+          'Répartition des genres de votre bibliothèque. Une meilleure diversité indique des goûts variés.',
+      'help_ctx_stats_sales': 'Revenus et données de vente de votre librairie.',
+
       // Avatars
       'avatar_junior_reader': 'Jeune Lecteur',
       'avatar_bookworm': 'Rat de bibliothèque',
@@ -2271,6 +2346,17 @@ class TranslationService {
       'avatar_professional_librarian': 'Bibliothécaire Pro',
       'avatar_robot': 'Robot',
 
+      // Quick Presets Section
+      'quick_presets': 'Préconfigurations rapides',
+      'quick_presets_desc':
+          'Appliquer une configuration adaptée à votre usage :',
+      'preset_reader': 'Lecteur',
+      'preset_librarian': 'Bibliothécaire',
+      'preset_bookseller': 'Libraire',
+      'preset_applied': 'Configuration appliquée',
+      // Simplified Mode
+      'simplified_mode': 'Mode simplifié',
+      'simplified_mode_desc': 'Interface allégée pour les jeunes lecteurs',
       // Modules
       'modules': 'Modules',
       'audio_module': 'Module Audio',
@@ -2291,7 +2377,8 @@ class TranslationService {
       'module_network_desc':
           'Rendez votre bibliothèque visible aux autres utilisateurs sur le réseau local.',
       'allow_library_caching': 'Autoriser la mise en cache de ma bibliothèque',
-      'allow_library_caching_desc': 'Autoriser les autres à mettre en cache VOTRE bibliothèque pour une consultation hors ligne. Votre liste de livres sera stockée sur leurs appareils.',
+      'allow_library_caching_desc':
+          'Autoriser les autres à mettre en cache VOTRE bibliothèque pour une consultation hors ligne. Votre liste de livres sera stockée sur leurs appareils.',
       'module_gamification': 'Gamification',
       'module_gamification_desc':
           'Activez les badges, niveaux et le suivi de progression.',
@@ -2950,6 +3037,15 @@ class TranslationService {
       'source_google_desc':
           'Base de données internationale avec un fort accent sur les métadonnées et les couvertures',
       'min_one_source_error': 'Au moins une source de recherche est requise',
+
+      // Profile Header Stats
+      'stat_total_books': 'Livres',
+      'stat_books_read': 'Lus',
+      'stat_streak': 'Série',
+      'edit_profile': 'Modifier le profil',
+      'enter_username': 'Entrez votre pseudo',
+      'enter_library_name': 'Nom de votre bibliothèque',
+
       // Collection screens
       'delete_collection_title': 'Supprimer la collection ?',
       'delete_collection_warning':
@@ -3015,7 +3111,8 @@ class TranslationService {
       'error_loading_library': 'Erreur lors du chargement de la bibliothèque',
       'peer_offline': 'Hors ligne',
       'peer_online': 'En ligne',
-      'peer_offline_cannot_sync': 'Contact hors ligne, synchronisation impossible',
+      'peer_offline_cannot_sync':
+          'Contact hors ligne, synchronisation impossible',
       'peer_offline_library_unavailable':
           'Cette bibliothèque est actuellement indisponible. Le contact doit être en ligne pour consulter ses livres.',
       'showing_cached': 'Affichage en cache',
@@ -3431,6 +3528,13 @@ class TranslationService {
       'congratulations': '¡Felicitaciones!',
       'keep_it_up': '¡Sigue así!',
       // Reading Goals
+      'stat_total_books': 'Libros Totales',
+      'stat_books_read': 'Libros Leídos',
+      'stat_streak': 'Racha de Días',
+      'edit_profile': 'Editar Perfil',
+      'edit_profile_title': 'Editar Perfil',
+      'username_label': 'Nombre de Usuario',
+      'library_name_label': 'Nombre de la Biblioteca',
       'reading_goals_title': 'Metas de lectura',
       'yearly_goal': 'Meta anual',
       'monthly_goal': 'Meta mensual',
@@ -4589,6 +4693,14 @@ class TranslationService {
       'genres_explored': 'erkundete Genres',
       'diversity_encouragement':
           'Entdecke neue Genres, um deine Lektüre zu diversifizieren!',
+      'stat_total_books': 'Gesamtbücher',
+      'stat_books_read': 'Gelesene Bücher',
+      'stat_streak': 'Tagessträhne',
+      'edit_profile': 'Profil bearbeiten',
+      'edit_profile_title': 'Profil bearbeiten',
+      'username_label': 'Benutzername',
+      'library_name_label': 'Bibliotheksname',
+      'reading_goals_title': 'Leseziele',
     },
   };
 

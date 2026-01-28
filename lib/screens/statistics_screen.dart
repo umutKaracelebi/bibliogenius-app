@@ -1944,6 +1944,10 @@ class _StatisticsContentState extends State<StatisticsContent>
                   TranslationService.translate(context, 'monthly_progress'),
                   Icons.show_chart,
                   AppDesign.successGradient,
+                  helpText: TranslationService.translate(
+                    context,
+                    'help_ctx_stats_monthly_progress',
+                  ),
                 ),
                 const SizedBox(height: 16),
                 _buildMonthlyProgressChart(),
@@ -1954,6 +1958,10 @@ class _StatisticsContentState extends State<StatisticsContent>
                 TranslationService.translate(context, 'reading_insights'),
                 Icons.insights,
                 AppDesign.primaryGradient,
+                helpText: TranslationService.translate(
+                  context,
+                  'help_ctx_stats_unique_stats',
+                ),
               ),
               const SizedBox(height: 16),
               _buildReadingInsightsSection(),
@@ -1965,6 +1973,10 @@ class _StatisticsContentState extends State<StatisticsContent>
                       'Diversité des Genres',
                   Icons.category,
                   AppDesign.warningGradient,
+                  helpText: TranslationService.translate(
+                    context,
+                    'help_ctx_stats_genre_diversity',
+                  ),
                 ),
                 const SizedBox(height: 16),
                 _buildGenreDiversitySection(),
@@ -1976,6 +1988,10 @@ class _StatisticsContentState extends State<StatisticsContent>
                   TranslationService.translate(context, 'sales_statistics'),
                   Icons.monetization_on,
                   AppDesign.successGradient,
+                  helpText: TranslationService.translate(
+                    context,
+                    'help_ctx_stats_sales',
+                  ),
                 ),
                 const SizedBox(height: 16),
                 _buildSalesStatisticsSection(),
@@ -1986,6 +2002,10 @@ class _StatisticsContentState extends State<StatisticsContent>
                 TranslationService.translate(context, 'reading_habits'),
                 Icons.pie_chart,
                 AppDesign.primaryGradient,
+                helpText: TranslationService.translate(
+                  context,
+                  'help_ctx_stats_reading_habits',
+                ),
               ),
               const SizedBox(height: 16),
               _buildStatusPieChart(),
@@ -1995,6 +2015,10 @@ class _StatisticsContentState extends State<StatisticsContent>
                 TranslationService.translate(context, 'top_authors'),
                 Icons.person,
                 AppDesign.successGradient,
+                helpText: TranslationService.translate(
+                  context,
+                  'help_ctx_stats_top_authors',
+                ),
               ),
               const SizedBox(height: 16),
               _buildTopAuthorsChart(),
@@ -2004,6 +2028,10 @@ class _StatisticsContentState extends State<StatisticsContent>
                 TranslationService.translate(context, 'publication_timeline'),
                 Icons.timeline,
                 AppDesign.oceanGradient,
+                helpText: TranslationService.translate(
+                  context,
+                  'help_ctx_stats_publication_year',
+                ),
               ),
               const SizedBox(height: 16),
               _buildPublicationYearChart(),
@@ -2013,6 +2041,10 @@ class _StatisticsContentState extends State<StatisticsContent>
                 TranslationService.translate(context, 'loan_statistics'),
                 Icons.swap_horiz,
                 AppDesign.accentGradient,
+                helpText: TranslationService.translate(
+                  context,
+                  'help_ctx_stats_loan_stats',
+                ),
               ),
               const SizedBox(height: 16),
               _buildLoanStatisticsSection(),
@@ -2063,7 +2095,12 @@ class _StatisticsContentState extends State<StatisticsContent>
     );
   }
 
-  Widget _buildSectionTitle(String title, IconData icon, Gradient gradient) {
+  Widget _buildSectionTitle(
+    String title,
+    IconData icon,
+    Gradient gradient, {
+    String? helpText,
+  }) {
     return Row(
       children: [
         Container(
@@ -2081,6 +2118,27 @@ class _StatisticsContentState extends State<StatisticsContent>
             context,
           ).textTheme.headlineSmall?.copyWith(fontWeight: FontWeight.bold),
         ),
+        if (helpText != null) ...[
+          const SizedBox(width: 8),
+          Tooltip(
+            message: helpText,
+            margin: const EdgeInsets.symmetric(horizontal: 20),
+            padding: const EdgeInsets.all(12),
+            decoration: BoxDecoration(
+              color: const Color(0xFF1E293B),
+              borderRadius: BorderRadius.circular(8),
+            ),
+            textStyle: const TextStyle(color: Colors.white, fontSize: 13),
+            triggerMode: TooltipTriggerMode.tap,
+            child: Icon(
+              Icons.info_outline,
+              size: 18,
+              color: Theme.of(
+                context,
+              ).colorScheme.onSurface.withValues(alpha: 0.4),
+            ),
+          ),
+        ],
       ],
     );
   }
@@ -2972,6 +3030,7 @@ class _StatisticsContentState extends State<StatisticsContent>
     String suffix,
     Color color, {
     bool useStarDisplay = false,
+    String? helpText,
   }) {
     final double? ratingValue = double.tryParse(value);
     final double starRating = useStarDisplay && ratingValue != null
@@ -2985,56 +3044,86 @@ class _StatisticsContentState extends State<StatisticsContent>
         borderRadius: BorderRadius.circular(12),
         border: Border.all(color: color.withValues(alpha: 0.2)),
       ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
+      child: Stack(
         children: [
-          Icon(icon, color: color, size: 24),
-          const SizedBox(height: 12),
-          if (useStarDisplay && ratingValue != null)
-            Row(
-              children: List.generate(5, (index) {
-                final starIndex = index + 1;
-                IconData iconData;
-                if (starIndex <= starRating) {
-                  iconData = Icons.star;
-                } else if (starIndex - 0.5 <= starRating) {
-                  iconData = Icons.star_half;
-                } else {
-                  iconData = Icons.star_outline;
-                }
-                return Icon(iconData, size: 16, color: color);
-              }),
-            )
-          else
-            Row(
-              crossAxisAlignment: CrossAxisAlignment.baseline,
-              textBaseline: TextBaseline.alphabetic,
-              children: [
-                Text(
-                  value,
-                  style: TextStyle(
-                    fontSize: 28,
-                    fontWeight: FontWeight.bold,
-                    color: color,
-                  ),
+          Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Icon(icon, color: color, size: 24),
+              const SizedBox(height: 12),
+              if (useStarDisplay && ratingValue != null)
+                Row(
+                  children: List.generate(5, (index) {
+                    final starIndex = index + 1;
+                    IconData iconData;
+                    if (starIndex <= starRating) {
+                      iconData = Icons.star;
+                    } else if (starIndex - 0.5 <= starRating) {
+                      iconData = Icons.star_half;
+                    } else {
+                      iconData = Icons.star_outline;
+                    }
+                    return Icon(iconData, size: 16, color: color);
+                  }),
+                )
+              else
+                Row(
+                  crossAxisAlignment: CrossAxisAlignment.end,
+                  children: [
+                    Flexible(
+                      child: Text(
+                        value,
+                        style: TextStyle(
+                          fontSize: 28,
+                          fontWeight: FontWeight.bold,
+                          color: color,
+                          height: 1.0,
+                        ),
+                      ),
+                    ),
+                    const SizedBox(width: 4),
+                    Padding(
+                      padding: const EdgeInsets.only(bottom: 4),
+                      child: Text(
+                        suffix,
+                        style: TextStyle(
+                          fontSize: 14,
+                          color: color.withValues(alpha: 0.7),
+                        ),
+                      ),
+                    ),
+                  ],
                 ),
-                const SizedBox(width: 4),
-                Text(
-                  suffix,
-                  style: TextStyle(
-                    fontSize: 14,
-                    color: color.withValues(alpha: 0.7),
-                  ),
-                ),
-              ],
-            ),
-          const SizedBox(height: 4),
-          Text(
-            label,
-            style: TextStyle(fontSize: 12, color: Colors.grey[600]),
-            maxLines: 1,
-            overflow: TextOverflow.ellipsis,
+              const SizedBox(height: 4),
+              Text(
+                label,
+                style: TextStyle(fontSize: 12, color: Colors.grey[600]),
+                maxLines: 1,
+                overflow: TextOverflow.ellipsis,
+              ),
+            ],
           ),
+          if (helpText != null)
+            Positioned(
+              right: 0,
+              top: 0,
+              child: Tooltip(
+                message: helpText,
+                padding: const EdgeInsets.all(12),
+                margin: const EdgeInsets.symmetric(horizontal: 20),
+                decoration: BoxDecoration(
+                  color: const Color(0xFF1E293B),
+                  borderRadius: BorderRadius.circular(8),
+                ),
+                textStyle: const TextStyle(color: Colors.white, fontSize: 12),
+                triggerMode: TooltipTriggerMode.tap,
+                child: Icon(
+                  Icons.info_outline,
+                  color: color.withValues(alpha: 0.5),
+                  size: 16,
+                ),
+              ),
+            ),
         ],
       ),
     );

@@ -18,8 +18,8 @@ class GenieAppBar extends StatelessWidget implements PreferredSizeWidget {
   final bool showQuickActions; // Legacy direct buttons
   final List<Widget>? contextualQuickActions; // For the new Quick Actions menu
   final bool showBackButton;
-  final VoidCallback?
-  onBookAdded; // Callback when a book is added via quick actions
+  final VoidCallback? onBookAdded; // Callback when a book is added via quick actions
+  final VoidCallback? onShelfCreated; // Callback when a shelf is created via quick actions
 
   const GenieAppBar({
     super.key,
@@ -34,6 +34,7 @@ class GenieAppBar extends StatelessWidget implements PreferredSizeWidget {
     this.contextualQuickActions,
     this.showBackButton = true,
     this.onBookAdded,
+    this.onShelfCreated,
   });
 
   final bool transparent;
@@ -222,6 +223,7 @@ class GenieAppBar extends StatelessWidget implements PreferredSizeWidget {
                     contextualActions: contextualQuickActions,
                     hideGenericActions: hideGenericActions,
                     onBookAdded: onBookAdded,
+                    onShelfCreated: onShelfCreated,
                   ),
                 );
               },

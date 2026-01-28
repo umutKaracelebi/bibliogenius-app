@@ -232,61 +232,6 @@ class _SetupScreenState extends State<SetupScreen> {
                         border: const OutlineInputBorder(),
                       ),
                     ),
-                    const SizedBox(height: 20),
-                    Text(
-                      TranslationService.translate(
-                        context,
-                        'profile_usage_question',
-                      ),
-                    ),
-                    const SizedBox(height: 10),
-                    _buildProfileOption(
-                      'librarian',
-                      TranslationService.translate(
-                        context,
-                        'profile_librarian',
-                      ),
-                      TranslationService.translate(
-                        context,
-                        'profile_librarian_desc',
-                      ),
-                      Icons.local_library,
-                      themeProvider,
-                    ),
-                    _buildProfileOption(
-                      'bookseller', // New Bookseller profile
-                      TranslationService.translate(
-                        context,
-                        'profile_bookseller',
-                      ),
-                      TranslationService.translate(
-                        context,
-                        'profile_bookseller_desc',
-                      ),
-                      Icons.storefront, // Store icon
-                      themeProvider,
-                    ),
-                    _buildProfileOption(
-                      'individual',
-                      TranslationService.translate(
-                        context,
-                        'profile_individual',
-                      ),
-                      TranslationService.translate(
-                        context,
-                        'profile_individual_desc',
-                      ),
-                      Icons.person,
-                      themeProvider,
-                      key: const Key('setupProfileIndividual'),
-                    ),
-                    _buildProfileOption(
-                      'kid',
-                      TranslationService.translate(context, 'profile_kid'),
-                      TranslationService.translate(context, 'profile_kid_desc'),
-                      Icons.child_care,
-                      themeProvider,
-                    ),
                   ],
                 ),
                 isActive: currentStep >= 1,
@@ -453,7 +398,7 @@ class _SetupScreenState extends State<SetupScreen> {
       debugPrint('_finishSetup: Calling apiService.setup...');
       await apiService.setup(
         libraryName: themeProvider.setupLibraryName,
-        profileType: themeProvider.setupProfileType,
+        profileType: 'individual',
         theme: themeProvider.themeStyle,
       );
       debugPrint('_finishSetup: apiService.setup completed');
@@ -488,7 +433,7 @@ class _SetupScreenState extends State<SetupScreen> {
         // This is done AFTER dialog is fully closed to prevent dirty widget errors
         debugPrint('_finishSetup: Calling completeSetupWithSettings...');
         await themeProvider.completeSetupWithSettings(
-          profileType: themeProvider.setupProfileType,
+          profileType: 'individual',
           avatarConfig: themeProvider.setupAvatarConfig,
           libraryName: themeProvider.setupLibraryName,
           apiService: apiService,
@@ -563,59 +508,5 @@ class _SetupScreenState extends State<SetupScreen> {
         );
       }
     }
-  }
-
-  Widget _buildProfileOption(
-    String value,
-    String title,
-    String description,
-    IconData icon,
-    ThemeProvider themeProvider, {
-    Key? key,
-  }) {
-    final isSelected = themeProvider.setupProfileType == value;
-    return GestureDetector(
-      key: key,
-      onTap: () => themeProvider.setSetupProfileType(value),
-      child: Container(
-        margin: const EdgeInsets.only(bottom: 12),
-        padding: const EdgeInsets.all(16),
-        decoration: BoxDecoration(
-          color: isSelected ? Colors.blue.withValues(alpha: 0.1) : Colors.white,
-          border: Border.all(
-            color: isSelected ? Colors.blue : Colors.grey.shade300,
-            width: isSelected ? 2 : 1,
-          ),
-          borderRadius: BorderRadius.circular(12),
-        ),
-        child: Row(
-          children: [
-            Icon(icon, size: 32, color: isSelected ? Colors.blue : Colors.grey),
-            const SizedBox(width: 16),
-            Expanded(
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text(
-                    title,
-                    style: TextStyle(
-                      fontSize: 16,
-                      fontWeight: FontWeight.bold,
-                      color: isSelected ? Colors.blue : Colors.black87,
-                    ),
-                  ),
-                  const SizedBox(height: 4),
-                  Text(
-                    description,
-                    style: TextStyle(fontSize: 12, color: Colors.grey[600]),
-                  ),
-                ],
-              ),
-            ),
-            if (isSelected) const Icon(Icons.check_circle, color: Colors.blue),
-          ],
-        ),
-      ),
-    );
   }
 }

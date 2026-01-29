@@ -206,6 +206,28 @@ class _LibraryScreenState extends State<LibraryScreen>
   List<Widget> _buildQuickActions(BuildContext context) {
     // Books Tab (Index 0) -> Standard Quick Actions (Scan, Search) are already in the sheet.
 
+    // Shelves Tab (Index 1)
+    if (_tabController.index == 1) {
+      return [
+        ListTile(
+          leading: const Icon(Icons.settings, color: Colors.blueGrey),
+          title: Text(
+            TranslationService.translate(context, 'manage_shelves') ??
+                'Manage Shelves',
+          ),
+          subtitle: Text(
+            TranslationService.translate(context, 'manage_shelves_desc') ??
+                'Rename, delete or reorganize shelves',
+            style: TextStyle(fontSize: 12, color: Colors.grey[600]),
+          ),
+          onTap: () {
+            Navigator.pop(context);
+            context.push('/shelves-management');
+          },
+        ),
+      ];
+    }
+
     // Collections Tab (Index 2 if enabled)
     final themeProvider = Provider.of<ThemeProvider>(context, listen: false);
     if (themeProvider.collectionsEnabled && _tabController.index == 2) {

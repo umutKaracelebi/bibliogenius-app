@@ -1008,12 +1008,8 @@ class _BookListScreenState extends State<BookListScreen>
             onSelected: (value) {
               setState(() {
                 if (value == 'clear') {
-                  _showAllBooks = false;
                   _selectedStatus = null;
-                } else if (value == 'toggle_borrowed') {
-                  _showAllBooks = !_showAllBooks;
                 } else {
-                  _showAllBooks = false;
                   _selectedStatus = value;
                 }
                 _filterBooks();
@@ -1170,7 +1166,7 @@ class _BookListScreenState extends State<BookListScreen>
                     ],
                   ),
                 ),
-                // Non classés (Owned)
+                // Sans statut (books without reading status)
                 PopupMenuItem(
                   value: 'owned',
                   child: Row(
@@ -1233,38 +1229,6 @@ class _BookListScreenState extends State<BookListScreen>
                   ),
                 ),
 
-                const PopupMenuDivider(),
-
-                // TOGGLE: Include Borrowed
-                PopupMenuItem(
-                  value: 'toggle_borrowed',
-                  child: Row(
-                    children: [
-                      Icon(
-                        _showAllBooks ? Icons.visibility : Icons.visibility_off,
-                        color: theme.iconTheme.color?.withOpacity(0.7),
-                        size: 20,
-                      ),
-                      const SizedBox(width: 12),
-                      Expanded(
-                        child: Text(
-                          TranslationService.translate(
-                                context,
-                                'include_borrowed_books',
-                              ) ??
-                              'Afficher les livres empruntés',
-                        ),
-                      ),
-                      Switch(
-                        value: _showAllBooks,
-                        onChanged: (val) {
-                          Navigator.pop(context, 'toggle_borrowed');
-                        },
-                        activeColor: theme.primaryColor,
-                      ),
-                    ],
-                  ),
-                ),
               ];
             },
             child: Container(
@@ -1315,7 +1279,87 @@ class _BookListScreenState extends State<BookListScreen>
             ),
           ),
 
-          // 4. Reset Filters Button - visible when any filter is active
+          // 4. Ownership Toggle "J'ai" / "Tous"
+          const SizedBox(width: 8),
+          Container(
+            height: 36,
+            decoration: BoxDecoration(
+              color: isDark ? theme.cardColor : Colors.white,
+              borderRadius: BorderRadius.circular(18),
+              border: Border.all(
+                color: isDark ? Colors.white24 : Colors.grey.withOpacity(0.3),
+              ),
+            ),
+            child: Row(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                // "J'ai" option
+                GestureDetector(
+                  onTap: () {
+                    if (_showAllBooks) {
+                      setState(() {
+                        _showAllBooks = false;
+                        _filterBooks();
+                      });
+                    }
+                  },
+                  child: Container(
+                    padding: const EdgeInsets.symmetric(horizontal: 14),
+                    decoration: BoxDecoration(
+                      color: !_showAllBooks
+                          ? theme.primaryColor
+                          : Colors.transparent,
+                      borderRadius: BorderRadius.circular(18),
+                    ),
+                    alignment: Alignment.center,
+                    child: Text(
+                      TranslationService.translate(context, 'filter_owned') ?? "J'ai",
+                      style: TextStyle(
+                        color: !_showAllBooks
+                            ? Colors.white
+                            : (isDark ? Colors.white70 : Colors.black54),
+                        fontWeight: FontWeight.w600,
+                        fontSize: 13,
+                      ),
+                    ),
+                  ),
+                ),
+                // "Tous" option
+                GestureDetector(
+                  onTap: () {
+                    if (!_showAllBooks) {
+                      setState(() {
+                        _showAllBooks = true;
+                        _filterBooks();
+                      });
+                    }
+                  },
+                  child: Container(
+                    padding: const EdgeInsets.symmetric(horizontal: 14),
+                    decoration: BoxDecoration(
+                      color: _showAllBooks
+                          ? theme.primaryColor
+                          : Colors.transparent,
+                      borderRadius: BorderRadius.circular(18),
+                    ),
+                    alignment: Alignment.center,
+                    child: Text(
+                      TranslationService.translate(context, 'filter_all') ?? 'Tous',
+                      style: TextStyle(
+                        color: _showAllBooks
+                            ? Colors.white
+                            : (isDark ? Colors.white70 : Colors.black54),
+                        fontWeight: FontWeight.w600,
+                        fontSize: 13,
+                      ),
+                    ),
+                  ),
+                ),
+              ],
+            ),
+          ),
+
+          // 5. Reset Filters Button - visible when any filter is active
           if (_selectedStatus != null ||
               _tagFilter != null ||
               _searchQuery.isNotEmpty ||

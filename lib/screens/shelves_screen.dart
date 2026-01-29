@@ -8,6 +8,7 @@ import '../widgets/contextual_help_sheet.dart';
 import '../services/translation_service.dart';
 import '../theme/app_design.dart';
 import '../providers/theme_provider.dart';
+import '../utils/app_constants.dart';
 
 class ShelvesScreen extends StatefulWidget {
   final bool isTabView;
@@ -105,6 +106,11 @@ class _ShelvesScreenState extends State<ShelvesScreen> {
     if (widget.isTabView) {
       return Scaffold(
         backgroundColor: Colors.transparent,
+        floatingActionButton: FloatingActionButton(
+          heroTag: 'shelf_add_fab_tab',
+          onPressed: _showCreateShelfDialog,
+          child: const Icon(Icons.add),
+        ),
         body: Container(
           decoration: BoxDecoration(
             gradient: AppDesign.pageGradientForTheme(themeStyle),
@@ -174,6 +180,11 @@ class _ShelvesScreenState extends State<ShelvesScreen> {
     }
 
     return Scaffold(
+      floatingActionButton: FloatingActionButton(
+        heroTag: 'shelf_add_fab',
+        onPressed: _showCreateShelfDialog,
+        child: const Icon(Icons.add),
+      ),
       appBar: GenieAppBar(
         title:
             _currentParent?.name ??
@@ -718,10 +729,10 @@ class _ShelvesScreenState extends State<ShelvesScreen> {
   }
 
   // Methods for direct shelf creation (copied/adapted from ShelfManagementScreen)
-  Future<void> _createShelf(String name) async {
+  Future<void> _createShelf(String name, {int? parentId}) async {
     try {
       final api = Provider.of<ApiService>(context, listen: false);
-      await api.createTag(name, parentId: _currentParent?.id);
+      await api.createTag(name, parentId: parentId);
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
@@ -746,79 +757,114 @@ class _ShelvesScreenState extends State<ShelvesScreen> {
   void _showCreateShelfDialog() {
     final controller = TextEditingController();
     final formKey = GlobalKey<FormState>();
+    // Pre-select current parent if navigating within a sub-shelf
+    Tag? selectedParent = _currentParent;
 
     showDialog(
       context: context,
-      builder: (context) {
-        return AlertDialog(
-          title: Text(
-            TranslationService.translate(context, 'create_shelf') ??
-                'Create Shelf',
-          ),
-          content: Form(
-            key: formKey,
-            child: Column(
-              mainAxisSize: MainAxisSize.min,
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                if (_currentParent != null) ...[
-                  Text(
-                    '${TranslationService.translate(context, 'parent') ?? 'Parent'}: ${_currentParent!.name}',
-                    style: TextStyle(
-                      color: Theme.of(context).colorScheme.primary,
-                      fontWeight: FontWeight.w500,
+      builder: (dialogContext) {
+        return StatefulBuilder(
+          builder: (context, setDialogState) {
+            return AlertDialog(
+              title: Text(
+                TranslationService.translate(context, 'create_shelf') ??
+                    'Create Shelf',
+              ),
+              content: Form(
+                key: formKey,
+                child: Column(
+                  mainAxisSize: MainAxisSize.min,
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    TextFormField(
+                      controller: controller,
+                      autofocus: true,
+                      decoration: InputDecoration(
+                        labelText:
+                            TranslationService.translate(context, 'shelf_name') ??
+                            'Shelf Name',
+                        hintText:
+                            TranslationService.translate(
+                              context,
+                              'shelf_name_hint',
+                            ) ??
+                            'e.g. Science Fiction',
+                        border: const OutlineInputBorder(),
+                      ),
+                      validator: (value) {
+                        if (value == null || value.trim().isEmpty) {
+                          return TranslationService.translate(
+                                context,
+                                'field_required',
+                              ) ??
+                              'This field is required';
+                        }
+                        return null;
+                      },
                     ),
+                    // Parent shelf selector (only if hierarchical tags enabled and shelves exist)
+                    if (AppConstants.enableHierarchicalTags && _allTags.isNotEmpty) ...[
+                      const SizedBox(height: 16),
+                      DropdownButtonFormField<Tag?>(
+                        value: selectedParent,
+                        decoration: InputDecoration(
+                          labelText:
+                              TranslationService.translate(context, 'parent_shelf') ??
+                              'Parent Shelf (optional)',
+                          border: const OutlineInputBorder(),
+                        ),
+                        isExpanded: true,
+                        items: [
+                          DropdownMenuItem<Tag?>(
+                            value: null,
+                            child: Text(
+                              TranslationService.translate(context, 'none') ??
+                                  'None (root level)',
+                              style: TextStyle(
+                                color: Colors.grey[600],
+                                fontStyle: FontStyle.italic,
+                              ),
+                            ),
+                          ),
+                          ..._allTags.map((tag) => DropdownMenuItem<Tag?>(
+                            value: tag,
+                            child: Text(tag.name),
+                          )),
+                        ],
+                        onChanged: (Tag? value) {
+                          setDialogState(() {
+                            selectedParent = value;
+                          });
+                        },
+                      ),
+                    ],
+                  ],
+                ),
+              ),
+              actions: [
+                TextButton(
+                  onPressed: () => Navigator.pop(context),
+                  child: Text(
+                    TranslationService.translate(context, 'cancel') ?? 'Cancel',
                   ),
-                  const SizedBox(height: 16),
-                ],
-                TextFormField(
-                  controller: controller,
-                  autofocus: true,
-                  decoration: InputDecoration(
-                    labelText:
-                        TranslationService.translate(context, 'shelf_name') ??
-                        'Shelf Name',
-                    hintText:
-                        TranslationService.translate(
-                          context,
-                          'shelf_name_hint',
-                        ) ??
-                        'e.g. Science Fiction',
-                    border: const OutlineInputBorder(),
-                  ),
-                  validator: (value) {
-                    if (value == null || value.trim().isEmpty) {
-                      return TranslationService.translate(
-                            context,
-                            'field_required',
-                          ) ??
-                          'This field is required';
+                ),
+                ElevatedButton(
+                  onPressed: () async {
+                    if (formKey.currentState!.validate()) {
+                      Navigator.pop(context);
+                      await _createShelf(
+                        controller.text.trim(),
+                        parentId: selectedParent?.id,
+                      );
                     }
-                    return null;
                   },
+                  child: Text(
+                    TranslationService.translate(context, 'create') ?? 'Create',
+                  ),
                 ),
               ],
-            ),
-          ),
-          actions: [
-            TextButton(
-              onPressed: () => Navigator.pop(context),
-              child: Text(
-                TranslationService.translate(context, 'cancel') ?? 'Cancel',
-              ),
-            ),
-            ElevatedButton(
-              onPressed: () async {
-                if (formKey.currentState!.validate()) {
-                  Navigator.pop(context);
-                  await _createShelf(controller.text.trim());
-                }
-              },
-              child: Text(
-                TranslationService.translate(context, 'create') ?? 'Create',
-              ),
-            ),
-          ],
+            );
+          },
         );
       },
     );

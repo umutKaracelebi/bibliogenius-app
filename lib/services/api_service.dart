@@ -5,6 +5,7 @@ import 'package:dio/dio.dart';
 import 'package:flutter/foundation.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:network_info_plus/network_info_plus.dart';
+import 'package:excel/excel.dart' as xlsx;
 
 import '../models/book.dart';
 import '../models/genie.dart';
@@ -1683,11 +1684,23 @@ class ApiService {
   }
 
   Future<Response> importBooks(dynamic fileSource, {String? filename}) async {
-    // FFI mode: Parse CSV and create books locally
+    // FFI mode: Parse CSV/XLSX and create books locally
     if (useFfi) {
       try {
+        // Check if file is XLSX based on filename or content
+        final isXlsx = filename?.toLowerCase().endsWith('.xlsx') == true ||
+            (fileSource is List<int> && _isXlsxBytes(fileSource));
+
+        if (isXlsx) {
+          return await _importFromXlsx(fileSource, filename);
+        }
+
         String csvContent;
         if (fileSource is String) {
+          // Native: Check if path ends with .xlsx
+          if (fileSource.toLowerCase().endsWith('.xlsx')) {
+            return await _importFromXlsx(fileSource, filename);
+          }
           // Native: Read file from path
           final file = File(fileSource);
           csvContent = await file.readAsString();
@@ -1857,6 +1870,184 @@ class ApiService {
     }
     result.add(current.toString());
     return result;
+  }
+
+  /// Check if bytes represent an XLSX file (ZIP with PK signature)
+  bool _isXlsxBytes(List<int> bytes) {
+    if (bytes.length < 4) return false;
+    // XLSX files are ZIP files, which start with PK (0x50, 0x4B)
+    return bytes[0] == 0x50 && bytes[1] == 0x4B;
+  }
+
+  /// Import books from an XLSX file (supports Gleeph export format)
+  Future<Response> _importFromXlsx(dynamic fileSource, String? filename) async {
+    try {
+      List<int> bytes;
+      if (fileSource is String) {
+        // File path
+        final file = File(fileSource);
+        bytes = await file.readAsBytes();
+      } else if (fileSource is List<int>) {
+        bytes = fileSource;
+      } else {
+        throw Exception("Unsupported file source type for XLSX");
+      }
+
+      final excel = xlsx.Excel.decodeBytes(bytes);
+      final sheet = excel.tables[excel.tables.keys.first];
+      if (sheet == null || sheet.rows.isEmpty) {
+        return Response(
+          requestOptions: RequestOptions(path: '/api/import'),
+          statusCode: 400,
+          data: {'error': 'Empty XLSX file or no sheets found'},
+        );
+      }
+
+      // Get headers from first row
+      final headerRow = sheet.rows.first;
+      final headers = headerRow
+          .map((cell) => cell?.value?.toString().toLowerCase().trim() ?? '')
+          .toList();
+
+      // Find column indices - support Gleeph format
+      final titleIdx = headers.indexWhere(
+        (h) => h == 'book_title' || h.contains('title') || h.contains('titre'),
+      );
+      final isbnIdx = headers.indexWhere((h) => h.contains('isbn'));
+      final wishIdx = headers.indexWhere((h) => h == 'wish');
+      final ownIdx = headers.indexWhere((h) => h == 'own');
+      final readingIdx = headers.indexWhere((h) => h == 'reading');
+      final readIdx = headers.indexWhere((h) => h == 'read');
+      // Note: favorite and shelves columns are parsed but not yet used
+
+      if (titleIdx == -1) {
+        return Response(
+          requestOptions: RequestOptions(path: '/api/import'),
+          statusCode: 400,
+          data: {
+            'error':
+                'Title column not found. Expected "book_title" or "Title" column.',
+          },
+        );
+      }
+
+      int imported = 0;
+      int skipped = 0;
+
+      // Process data rows (skip header)
+      for (int i = 1; i < sheet.rows.length; i++) {
+        final row = sheet.rows[i];
+        if (row.isEmpty) continue;
+
+        try {
+          // Get cell value safely - handles xlsx CellValue types
+          String? getCellValue(int idx) {
+            if (idx < 0 || idx >= row.length) return null;
+            final cell = row[idx];
+            if (cell == null || cell.value == null) return null;
+            final cellValue = cell.value;
+            String value;
+            // Handle different CellValue types from excel package
+            if (cellValue is xlsx.TextCellValue) {
+              value = cellValue.value.text ?? '';
+            } else if (cellValue is xlsx.IntCellValue) {
+              value = cellValue.value.toString();
+            } else if (cellValue is xlsx.DoubleCellValue) {
+              value = cellValue.value.toString();
+            } else if (cellValue is xlsx.BoolCellValue) {
+              value = cellValue.value.toString();
+            } else {
+              value = cellValue.toString();
+            }
+            value = value.trim();
+            if (value.isEmpty || value == 'null') return null;
+            return value;
+          }
+
+          // Get boolean value from cell
+          bool getBoolValue(int idx) {
+            if (idx < 0 || idx >= row.length) return false;
+            final cell = row[idx];
+            if (cell == null || cell.value == null) return false;
+            final cellValue = cell.value;
+            if (cellValue is xlsx.BoolCellValue) return cellValue.value;
+            if (cellValue is xlsx.IntCellValue) return cellValue.value == 1;
+            if (cellValue is xlsx.DoubleCellValue) return cellValue.value == 1.0;
+            final strValue = cellValue.toString().toLowerCase().trim();
+            return strValue == 'true' || strValue == '1' || strValue == 'yes';
+          }
+
+          final title = getCellValue(titleIdx);
+          if (title == null || title.isEmpty) {
+            skipped++;
+            continue;
+          }
+
+          // Parse ISBN - may be in scientific notation (e.g., 9.782253140191E12)
+          String? isbn = getCellValue(isbnIdx);
+          if (isbn != null && isbn.isNotEmpty) {
+            // Handle scientific notation
+            if (isbn.contains('E') || isbn.contains('e')) {
+              try {
+                final numValue = double.parse(isbn);
+                isbn = numValue.toStringAsFixed(0);
+              } catch (_) {
+                // Keep original value if parsing fails
+              }
+            }
+            // Remove any non-digit characters except X (for ISBN-10)
+            if (isbn != null) {
+              isbn = isbn.replaceAll(RegExp(r'[^\dXx]'), '');
+              if (isbn.isEmpty) isbn = null;
+            }
+          }
+
+          // Determine reading status based on Gleeph flags
+          String? readingStatus;
+          if (getBoolValue(readIdx)) {
+            readingStatus = 'read';
+          } else if (getBoolValue(readingIdx)) {
+            readingStatus = 'reading';
+          } else if (getBoolValue(wishIdx)) {
+            readingStatus = 'to_read';
+          }
+
+          // Determine if owned (Gleeph "J'ai" option)
+          final owned = getBoolValue(ownIdx);
+
+          // Create the book
+          final book = frb.FrbBook(
+            title: title,
+            isbn: isbn,
+            readingStatus: readingStatus,
+            owned: owned,
+          );
+
+          await FfiService().createBook(book);
+          imported++;
+        } catch (e) {
+          debugPrint('Error importing row $i: $e');
+          skipped++;
+        }
+      }
+
+      return Response(
+        requestOptions: RequestOptions(path: '/api/import'),
+        statusCode: 200,
+        data: {
+          'imported': imported,
+          'skipped': skipped,
+          'message': 'XLSX import successful',
+        },
+      );
+    } catch (e) {
+      debugPrint('XLSX import error: $e');
+      return Response(
+        requestOptions: RequestOptions(path: '/api/import'),
+        statusCode: 500,
+        data: {'error': 'XLSX import failed: $e'},
+      );
+    }
   }
 
   // P2P Advanced

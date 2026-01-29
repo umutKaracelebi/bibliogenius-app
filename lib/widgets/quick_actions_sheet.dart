@@ -4,6 +4,7 @@ import 'package:provider/provider.dart';
 import '../models/tag.dart';
 import '../services/api_service.dart';
 import '../services/translation_service.dart';
+import '../utils/app_constants.dart';
 
 class QuickActionsSheet extends StatelessWidget {
   final List<Widget>? contextualActions;
@@ -340,7 +341,7 @@ class QuickActionsSheet extends StatelessWidget {
                             return null;
                           },
                         ),
-                        if (shelves.isNotEmpty) ...[
+                        if (AppConstants.enableHierarchicalTags && shelves.isNotEmpty) ...[
                           const SizedBox(height: 16),
                           DropdownButtonFormField<int?>(
                             value: selectedParentId,

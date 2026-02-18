@@ -57,8 +57,8 @@ class SearchResultCard extends StatelessWidget {
                         maxLines: 2,
                         overflow: TextOverflow.ellipsis,
                         style: theme.textTheme.titleMedium?.copyWith(
-                          fontFamily:
-                              'Serif', // Use the premium font if available
+                          fontFamily: 'Serif',
+                          fontFamilyFallback: const ['Hiragino Sans', 'PingFang SC', 'Noto Sans CJK JP', 'sans-serif'],
                           fontWeight: FontWeight.bold,
                           fontSize: 16,
                           height: 1.2,

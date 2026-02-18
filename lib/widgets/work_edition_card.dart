@@ -139,7 +139,8 @@ class _WorkEditionCardState extends State<WorkEditionCard> {
                   widget.title,
                   style: theme.textTheme.titleLarge?.copyWith(
                     fontWeight: FontWeight.bold,
-                    fontFamily: 'Serif', // Elegant touch
+                    fontFamily: 'Serif',
+                    fontFamilyFallback: const ['Hiragino Sans', 'PingFang SC', 'Noto Sans CJK JP', 'sans-serif'],
                     fontSize: 18,
                   ),
                   maxLines: 2,

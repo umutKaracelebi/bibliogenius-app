@@ -188,6 +188,7 @@ class _EditionPickerSheetState extends State<EditionPickerSheet> {
                   style: theme.textTheme.titleLarge?.copyWith(
                     fontWeight: FontWeight.bold,
                     fontFamily: 'Serif',
+                    fontFamilyFallback: const ['Hiragino Sans', 'PingFang SC', 'Noto Sans CJK JP', 'sans-serif'],
                   ),
                   maxLines: 2,
                   overflow: TextOverflow.ellipsis,

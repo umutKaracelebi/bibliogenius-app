@@ -56,9 +56,14 @@ void main() {
   // Generate empty Italian .po
   _writePo(sortedKeys, {}, languages['en']!, 'it', '${outDir.path}/it.po');
 
+  // Generate empty CJK .po skeletons
+  for (final lang in ['ja', 'zh', 'ko']) {
+    _writePo(sortedKeys, {}, languages['en']!, lang, '${outDir.path}/$lang.po');
+  }
+
   print('\nGenerated:');
   print('  assets/i18n/messages.pot');
-  for (final lang in ['en', 'fr', 'es', 'de', 'it']) {
+  for (final lang in ['en', 'fr', 'es', 'de', 'it', 'ja', 'zh', 'ko']) {
     print('  assets/i18n/$lang.po');
   }
 }

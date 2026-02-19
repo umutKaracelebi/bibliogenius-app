@@ -921,7 +921,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
     ThemeProvider themeProvider,
   ) {
     final userLangs = themeProvider.userLanguages;
-    final currentLocale = themeProvider.locale.languageCode;
+    final currentLocale = themeProvider.localeTag;
 
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
@@ -1026,7 +1026,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
                 .toList(),
             onChanged: (value) {
               if (value != null) {
-                themeProvider.setLocale(Locale(value));
+                themeProvider.setLocale(parseLocaleTag(value));
               }
             },
           ),

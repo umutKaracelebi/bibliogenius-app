@@ -207,8 +207,9 @@ class _ExternalSearchScreenState extends State<ExternalSearchScreen> {
   bool _langMatches(String bookLang, String userLang) {
     if (bookLang.isEmpty || userLang.isEmpty) return false;
 
-    final b = bookLang.toLowerCase();
-    final u = userLang.toLowerCase();
+    // Strip country/region codes (e.g. "pt-BR" → "pt") before matching
+    final b = bookLang.split(RegExp(r'[-_]')).first.toLowerCase();
+    final u = userLang.split(RegExp(r'[-_]')).first.toLowerCase();
 
     if (b == u) return true;
 

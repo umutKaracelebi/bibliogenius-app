@@ -13,6 +13,7 @@ import 'services/translation_service.dart';
 import 'services/mdns_service.dart';
 import 'services/ffi_service.dart';
 import 'utils/app_constants.dart';
+import 'utils/language_constants.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'providers/theme_provider.dart';
 import 'providers/book_refresh_notifier.dart';
@@ -730,7 +731,7 @@ class _AppRouterState extends State<AppRouter> with WidgetsBindingObserver {
         GlobalCupertinoLocalizations.delegate,
       ],
       supportedLocales: TranslationService.supportedLocales
-          .map((code) => Locale(code))
+          .map((code) => parseLocaleTag(code))
           .toList(),
       scrollBehavior: AppScrollBehavior(),
       builder: (context, child) {

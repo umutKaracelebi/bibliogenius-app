@@ -1,3 +1,4 @@
+import 'package:flutter/foundation.dart' show visibleForTesting;
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'dart:convert';
@@ -8,6 +9,7 @@ import '../services/auth_service.dart';
 import '../services/mdns_service.dart';
 import '../services/translation_service.dart';
 import '../themes/base/theme_registry.dart';
+import '../utils/language_constants.dart';
 
 class ThemeProvider with ChangeNotifier {
   Color _bannerColor = Colors.blue;
@@ -17,6 +19,7 @@ class ThemeProvider with ChangeNotifier {
   bool get isSetupComplete => _isSetupComplete;
   Locale _locale = const Locale('en');
   Locale get locale => _locale;
+  String get localeTag => localeToTag(_locale);
 
   // User reading languages (multi-select, persisted as JSON in SharedPreferences)
   List<String> _userLanguages = [];
@@ -187,37 +190,41 @@ class ThemeProvider with ChangeNotifier {
 
     final languageCode = prefs.getString('languageCode');
     if (languageCode != null) {
-      _locale = Locale(languageCode);
+      _locale = parseLocaleTag(languageCode);
     } else {
       // Auto-detect system language on first launch
       final systemLocale = WidgetsBinding.instance.platformDispatcher.locale;
-      if (supportedUILanguages.contains(systemLocale.languageCode)) {
-        _locale = Locale(systemLocale.languageCode);
+      final systemTag = localeToTag(systemLocale);
+      if (supportedUILanguages.contains(systemTag) ||
+          supportedUILanguages.contains(systemLocale.languageCode)) {
+        _locale = systemLocale;
       } else {
         _locale = const Locale('en'); // Fallback to English
       }
     }
 
-    // Load user reading languages
+    // Load user reading languages (preserve regional tags like pt-BR)
     final userLangsJson = prefs.getString('userLanguages');
     if (userLangsJson != null) {
       try {
         final decoded = List<String>.from(jsonDecode(userLangsJson));
-        _userLanguages = decoded.isNotEmpty ? decoded : [_locale.languageCode];
+        _userLanguages = decoded.isNotEmpty
+            ? decoded.toSet().toList()
+            : [localeToTag(_locale)];
       } catch (e) {
         debugPrint('Error loading userLanguages: $e');
-        _userLanguages = [_locale.languageCode];
+        _userLanguages = [localeToTag(_locale)];
       }
     } else {
       // First launch: default to UI locale + system locale if different
-      final systemLang = WidgetsBinding.instance
-          .platformDispatcher.locale.languageCode;
-      _userLanguages = {_locale.languageCode, systemLang}.toList();
+      final systemTag = localeToTag(
+          WidgetsBinding.instance.platformDispatcher.locale);
+      _userLanguages = {localeToTag(_locale), systemTag}.toList();
     }
 
     // If UI locale is no longer reachable, auto-switch and persist
     if (_ensureLocaleConsistency()) {
-      await prefs.setString('languageCode', _locale.languageCode);
+      await prefs.setString('languageCode', localeToTag(_locale));
     }
 
     _currentAvatarId = prefs.getString('avatarId') ?? 'individual';
@@ -431,26 +438,35 @@ class ThemeProvider with ChangeNotifier {
   Future<void> setLocale(Locale locale) async {
     _locale = locale;
     final prefs = await SharedPreferences.getInstance();
-    await prefs.setString('languageCode', locale.languageCode);
+    await prefs.setString('languageCode', localeToTag(locale));
     notifyListeners();
+  }
+
+  /// Set locale synchronously without persisting. For tests only.
+  @visibleForTesting
+  void setLocaleSync(Locale locale) {
+    _locale = locale;
   }
 
   Future<void> setUserLanguages(List<String> langs) async {
     if (langs.isEmpty) return;
-    _userLanguages = List<String>.from(langs);
+    _userLanguages = langs.toSet().toList();
     final prefs = await SharedPreferences.getInstance();
     await prefs.setString('userLanguages', jsonEncode(_userLanguages));
     if (_ensureLocaleConsistency()) {
-      await prefs.setString('languageCode', _locale.languageCode);
+      await prefs.setString('languageCode', localeToTag(_locale));
     }
     notifyListeners();
   }
 
   /// Ensures the current UI locale is a supported UI language.
   /// Reading languages and UI language are independent concerns.
+  /// Checks both the full tag (e.g. 'pt-BR') and the base language ('pt').
   /// Returns true if the locale was changed (caller should persist).
   bool _ensureLocaleConsistency() {
-    if (supportedUILanguages.contains(_locale.languageCode)) {
+    final tag = localeToTag(_locale);
+    if (supportedUILanguages.contains(tag) ||
+        supportedUILanguages.contains(_locale.languageCode)) {
       return false;
     }
     _locale = const Locale('en');

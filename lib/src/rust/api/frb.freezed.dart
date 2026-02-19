@@ -1149,7 +1149,7 @@ as String,
 /// @nodoc
 mixin _$FrbDiscoveredPeer {
 
- String get name; String get host; int get port; List<String> get addresses; String? get libraryId; String get discoveredAt;
+ String get name; String get host; int get port; List<String> get addresses; String? get libraryId; String? get ed25519PublicKey; String? get x25519PublicKey; String get discoveredAt;
 /// Create a copy of FrbDiscoveredPeer
 /// with the given fields replaced by the non-null parameter values.
 @JsonKey(includeFromJson: false, includeToJson: false)
@@ -1160,16 +1160,16 @@ $FrbDiscoveredPeerCopyWith<FrbDiscoveredPeer> get copyWith => _$FrbDiscoveredPee
 
 @override
 bool operator ==(Object other) {
-  return identical(this, other) || (other.runtimeType == runtimeType&&other is FrbDiscoveredPeer&&(identical(other.name, name) || other.name == name)&&(identical(other.host, host) || other.host == host)&&(identical(other.port, port) || other.port == port)&&const DeepCollectionEquality().equals(other.addresses, addresses)&&(identical(other.libraryId, libraryId) || other.libraryId == libraryId)&&(identical(other.discoveredAt, discoveredAt) || other.discoveredAt == discoveredAt));
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is FrbDiscoveredPeer&&(identical(other.name, name) || other.name == name)&&(identical(other.host, host) || other.host == host)&&(identical(other.port, port) || other.port == port)&&const DeepCollectionEquality().equals(other.addresses, addresses)&&(identical(other.libraryId, libraryId) || other.libraryId == libraryId)&&(identical(other.ed25519PublicKey, ed25519PublicKey) || other.ed25519PublicKey == ed25519PublicKey)&&(identical(other.x25519PublicKey, x25519PublicKey) || other.x25519PublicKey == x25519PublicKey)&&(identical(other.discoveredAt, discoveredAt) || other.discoveredAt == discoveredAt));
 }
 
 
 @override
-int get hashCode => Object.hash(runtimeType,name,host,port,const DeepCollectionEquality().hash(addresses),libraryId,discoveredAt);
+int get hashCode => Object.hash(runtimeType,name,host,port,const DeepCollectionEquality().hash(addresses),libraryId,ed25519PublicKey,x25519PublicKey,discoveredAt);
 
 @override
 String toString() {
-  return 'FrbDiscoveredPeer(name: $name, host: $host, port: $port, addresses: $addresses, libraryId: $libraryId, discoveredAt: $discoveredAt)';
+  return 'FrbDiscoveredPeer(name: $name, host: $host, port: $port, addresses: $addresses, libraryId: $libraryId, ed25519PublicKey: $ed25519PublicKey, x25519PublicKey: $x25519PublicKey, discoveredAt: $discoveredAt)';
 }
 
 
@@ -1180,7 +1180,7 @@ abstract mixin class $FrbDiscoveredPeerCopyWith<$Res>  {
   factory $FrbDiscoveredPeerCopyWith(FrbDiscoveredPeer value, $Res Function(FrbDiscoveredPeer) _then) = _$FrbDiscoveredPeerCopyWithImpl;
 @useResult
 $Res call({
- String name, String host, int port, List<String> addresses, String? libraryId, String discoveredAt
+ String name, String host, int port, List<String> addresses, String? libraryId, String? ed25519PublicKey, String? x25519PublicKey, String discoveredAt
 });
 
 
@@ -1197,13 +1197,15 @@ class _$FrbDiscoveredPeerCopyWithImpl<$Res>
 
 /// Create a copy of FrbDiscoveredPeer
 /// with the given fields replaced by the non-null parameter values.
-@pragma('vm:prefer-inline') @override $Res call({Object? name = null,Object? host = null,Object? port = null,Object? addresses = null,Object? libraryId = freezed,Object? discoveredAt = null,}) {
+@pragma('vm:prefer-inline') @override $Res call({Object? name = null,Object? host = null,Object? port = null,Object? addresses = null,Object? libraryId = freezed,Object? ed25519PublicKey = freezed,Object? x25519PublicKey = freezed,Object? discoveredAt = null,}) {
   return _then(_self.copyWith(
 name: null == name ? _self.name : name // ignore: cast_nullable_to_non_nullable
 as String,host: null == host ? _self.host : host // ignore: cast_nullable_to_non_nullable
 as String,port: null == port ? _self.port : port // ignore: cast_nullable_to_non_nullable
 as int,addresses: null == addresses ? _self.addresses : addresses // ignore: cast_nullable_to_non_nullable
 as List<String>,libraryId: freezed == libraryId ? _self.libraryId : libraryId // ignore: cast_nullable_to_non_nullable
+as String?,ed25519PublicKey: freezed == ed25519PublicKey ? _self.ed25519PublicKey : ed25519PublicKey // ignore: cast_nullable_to_non_nullable
+as String?,x25519PublicKey: freezed == x25519PublicKey ? _self.x25519PublicKey : x25519PublicKey // ignore: cast_nullable_to_non_nullable
 as String?,discoveredAt: null == discoveredAt ? _self.discoveredAt : discoveredAt // ignore: cast_nullable_to_non_nullable
 as String,
   ));
@@ -1287,10 +1289,10 @@ return $default(_that);case _:
 /// }
 /// ```
 
-@optionalTypeArgs TResult maybeWhen<TResult extends Object?>(TResult Function( String name,  String host,  int port,  List<String> addresses,  String? libraryId,  String discoveredAt)?  $default,{required TResult orElse(),}) {final _that = this;
+@optionalTypeArgs TResult maybeWhen<TResult extends Object?>(TResult Function( String name,  String host,  int port,  List<String> addresses,  String? libraryId,  String? ed25519PublicKey,  String? x25519PublicKey,  String discoveredAt)?  $default,{required TResult orElse(),}) {final _that = this;
 switch (_that) {
 case _FrbDiscoveredPeer() when $default != null:
-return $default(_that.name,_that.host,_that.port,_that.addresses,_that.libraryId,_that.discoveredAt);case _:
+return $default(_that.name,_that.host,_that.port,_that.addresses,_that.libraryId,_that.ed25519PublicKey,_that.x25519PublicKey,_that.discoveredAt);case _:
   return orElse();
 
 }
@@ -1308,10 +1310,10 @@ return $default(_that.name,_that.host,_that.port,_that.addresses,_that.libraryId
 /// }
 /// ```
 
-@optionalTypeArgs TResult when<TResult extends Object?>(TResult Function( String name,  String host,  int port,  List<String> addresses,  String? libraryId,  String discoveredAt)  $default,) {final _that = this;
+@optionalTypeArgs TResult when<TResult extends Object?>(TResult Function( String name,  String host,  int port,  List<String> addresses,  String? libraryId,  String? ed25519PublicKey,  String? x25519PublicKey,  String discoveredAt)  $default,) {final _that = this;
 switch (_that) {
 case _FrbDiscoveredPeer():
-return $default(_that.name,_that.host,_that.port,_that.addresses,_that.libraryId,_that.discoveredAt);}
+return $default(_that.name,_that.host,_that.port,_that.addresses,_that.libraryId,_that.ed25519PublicKey,_that.x25519PublicKey,_that.discoveredAt);}
 }
 /// A variant of `when` that fallback to returning `null`
 ///
@@ -1325,10 +1327,10 @@ return $default(_that.name,_that.host,_that.port,_that.addresses,_that.libraryId
 /// }
 /// ```
 
-@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>(TResult? Function( String name,  String host,  int port,  List<String> addresses,  String? libraryId,  String discoveredAt)?  $default,) {final _that = this;
+@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>(TResult? Function( String name,  String host,  int port,  List<String> addresses,  String? libraryId,  String? ed25519PublicKey,  String? x25519PublicKey,  String discoveredAt)?  $default,) {final _that = this;
 switch (_that) {
 case _FrbDiscoveredPeer() when $default != null:
-return $default(_that.name,_that.host,_that.port,_that.addresses,_that.libraryId,_that.discoveredAt);case _:
+return $default(_that.name,_that.host,_that.port,_that.addresses,_that.libraryId,_that.ed25519PublicKey,_that.x25519PublicKey,_that.discoveredAt);case _:
   return null;
 
 }
@@ -1340,7 +1342,7 @@ return $default(_that.name,_that.host,_that.port,_that.addresses,_that.libraryId
 
 
 class _FrbDiscoveredPeer implements FrbDiscoveredPeer {
-  const _FrbDiscoveredPeer({required this.name, required this.host, required this.port, required final  List<String> addresses, this.libraryId, required this.discoveredAt}): _addresses = addresses;
+  const _FrbDiscoveredPeer({required this.name, required this.host, required this.port, required final  List<String> addresses, this.libraryId, this.ed25519PublicKey, this.x25519PublicKey, required this.discoveredAt}): _addresses = addresses;
   
 
 @override final  String name;
@@ -1354,6 +1356,8 @@ class _FrbDiscoveredPeer implements FrbDiscoveredPeer {
 }
 
 @override final  String? libraryId;
+@override final  String? ed25519PublicKey;
+@override final  String? x25519PublicKey;
 @override final  String discoveredAt;
 
 /// Create a copy of FrbDiscoveredPeer
@@ -1366,16 +1370,16 @@ _$FrbDiscoveredPeerCopyWith<_FrbDiscoveredPeer> get copyWith => __$FrbDiscovered
 
 @override
 bool operator ==(Object other) {
-  return identical(this, other) || (other.runtimeType == runtimeType&&other is _FrbDiscoveredPeer&&(identical(other.name, name) || other.name == name)&&(identical(other.host, host) || other.host == host)&&(identical(other.port, port) || other.port == port)&&const DeepCollectionEquality().equals(other._addresses, _addresses)&&(identical(other.libraryId, libraryId) || other.libraryId == libraryId)&&(identical(other.discoveredAt, discoveredAt) || other.discoveredAt == discoveredAt));
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is _FrbDiscoveredPeer&&(identical(other.name, name) || other.name == name)&&(identical(other.host, host) || other.host == host)&&(identical(other.port, port) || other.port == port)&&const DeepCollectionEquality().equals(other._addresses, _addresses)&&(identical(other.libraryId, libraryId) || other.libraryId == libraryId)&&(identical(other.ed25519PublicKey, ed25519PublicKey) || other.ed25519PublicKey == ed25519PublicKey)&&(identical(other.x25519PublicKey, x25519PublicKey) || other.x25519PublicKey == x25519PublicKey)&&(identical(other.discoveredAt, discoveredAt) || other.discoveredAt == discoveredAt));
 }
 
 
 @override
-int get hashCode => Object.hash(runtimeType,name,host,port,const DeepCollectionEquality().hash(_addresses),libraryId,discoveredAt);
+int get hashCode => Object.hash(runtimeType,name,host,port,const DeepCollectionEquality().hash(_addresses),libraryId,ed25519PublicKey,x25519PublicKey,discoveredAt);
 
 @override
 String toString() {
-  return 'FrbDiscoveredPeer(name: $name, host: $host, port: $port, addresses: $addresses, libraryId: $libraryId, discoveredAt: $discoveredAt)';
+  return 'FrbDiscoveredPeer(name: $name, host: $host, port: $port, addresses: $addresses, libraryId: $libraryId, ed25519PublicKey: $ed25519PublicKey, x25519PublicKey: $x25519PublicKey, discoveredAt: $discoveredAt)';
 }
 
 
@@ -1386,7 +1390,7 @@ abstract mixin class _$FrbDiscoveredPeerCopyWith<$Res> implements $FrbDiscovered
   factory _$FrbDiscoveredPeerCopyWith(_FrbDiscoveredPeer value, $Res Function(_FrbDiscoveredPeer) _then) = __$FrbDiscoveredPeerCopyWithImpl;
 @override @useResult
 $Res call({
- String name, String host, int port, List<String> addresses, String? libraryId, String discoveredAt
+ String name, String host, int port, List<String> addresses, String? libraryId, String? ed25519PublicKey, String? x25519PublicKey, String discoveredAt
 });
 
 
@@ -1403,13 +1407,15 @@ class __$FrbDiscoveredPeerCopyWithImpl<$Res>
 
 /// Create a copy of FrbDiscoveredPeer
 /// with the given fields replaced by the non-null parameter values.
-@override @pragma('vm:prefer-inline') $Res call({Object? name = null,Object? host = null,Object? port = null,Object? addresses = null,Object? libraryId = freezed,Object? discoveredAt = null,}) {
+@override @pragma('vm:prefer-inline') $Res call({Object? name = null,Object? host = null,Object? port = null,Object? addresses = null,Object? libraryId = freezed,Object? ed25519PublicKey = freezed,Object? x25519PublicKey = freezed,Object? discoveredAt = null,}) {
   return _then(_FrbDiscoveredPeer(
 name: null == name ? _self.name : name // ignore: cast_nullable_to_non_nullable
 as String,host: null == host ? _self.host : host // ignore: cast_nullable_to_non_nullable
 as String,port: null == port ? _self.port : port // ignore: cast_nullable_to_non_nullable
 as int,addresses: null == addresses ? _self._addresses : addresses // ignore: cast_nullable_to_non_nullable
 as List<String>,libraryId: freezed == libraryId ? _self.libraryId : libraryId // ignore: cast_nullable_to_non_nullable
+as String?,ed25519PublicKey: freezed == ed25519PublicKey ? _self.ed25519PublicKey : ed25519PublicKey // ignore: cast_nullable_to_non_nullable
+as String?,x25519PublicKey: freezed == x25519PublicKey ? _self.x25519PublicKey : x25519PublicKey // ignore: cast_nullable_to_non_nullable
 as String?,discoveredAt: null == discoveredAt ? _self.discoveredAt : discoveredAt // ignore: cast_nullable_to_non_nullable
 as String,
   ));

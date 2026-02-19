@@ -1,3 +1,4 @@
+import 'dart:convert';
 import 'dart:io';
 import 'config/platform_init.dart';
 import 'package:flutter/foundation.dart';
@@ -12,6 +13,7 @@ import 'services/sync_service.dart';
 import 'services/translation_service.dart';
 import 'services/mdns_service.dart';
 import 'services/ffi_service.dart';
+import 'src/rust/api/frb.dart' as frb;
 import 'utils/app_constants.dart';
 import 'utils/language_constants.dart';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -192,6 +194,25 @@ void main([List<String>? args]) async {
       try {
         final authService = AuthService();
         final libraryUuid = await authService.getOrCreateLibraryUuid();
+
+        // Initialize E2EE identity (generates or loads keypair)
+        String? ed25519Key;
+        String? x25519Key;
+        if (useFfi) {
+          try {
+            await frb.initIdentityFfi(libraryUuid: libraryUuid);
+            final keysJson = await frb.getPublicKeysFfi();
+            final keys = Map<String, dynamic>.from(
+              const JsonDecoder().convert(keysJson) as Map,
+            );
+            ed25519Key = keys['ed25519'] as String?;
+            x25519Key = keys['x25519'] as String?;
+            debugPrint('E2EE: Identity initialized (hasKeys=${ed25519Key != null})');
+          } catch (e) {
+            debugPrint('E2EE: Identity init failed (non-blocking): $e');
+          }
+        }
+
         // Include device hostname for network disambiguation
         final baseName = themeProvider.libraryName.isNotEmpty
             ? themeProvider.libraryName
@@ -204,6 +225,8 @@ void main([List<String>? args]) async {
           libraryName,
           httpPort,
           libraryId: libraryUuid,
+          ed25519PublicKey: ed25519Key,
+          x25519PublicKey: x25519Key,
         );
         await MdnsService.startDiscovery();
       } catch (mdnsError) {

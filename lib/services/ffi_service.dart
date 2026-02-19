@@ -310,6 +310,18 @@ class FfiService {
     }
   }
 
+  // ============ E2EE Identity ============
+
+  /// Get the node's E2EE public keys as JSON string, or null if not initialized.
+  Future<String?> getPublicKeys() async {
+    try {
+      return await frb.getPublicKeysFfi();
+    } catch (e) {
+      debugPrint('FFI getPublicKeys error: $e');
+      return null;
+    }
+  }
+
   // ============ Books Write Operations ============
 
   Future<frb.FrbBook> createBook(frb.FrbBook book) async {

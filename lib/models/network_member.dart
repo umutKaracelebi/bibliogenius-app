@@ -38,6 +38,8 @@ class NetworkMember {
   final String? url;
   final String? status; // 'connected', 'pending', 'offline'
   final String? lastSeen;
+  /// Whether E2EE key exchange is complete with this peer
+  final bool keyExchangeDone;
 
   // V4 Future: Association link
   final int? linkedPeerId;
@@ -63,6 +65,7 @@ class NetworkMember {
     this.url,
     this.status,
     this.lastSeen,
+    this.keyExchangeDone = false,
     this.linkedPeerId,
     this.linkedContactId,
   });
@@ -115,6 +118,8 @@ class NetworkMember {
       url: peer['url'] as String?,
       status: derivedStatus,
       lastSeen: peer['last_seen'] as String?,
+      keyExchangeDone: peer['key_exchange_done'] == true ||
+          peer['key_exchange_done'] == 1,
     );
   }
 

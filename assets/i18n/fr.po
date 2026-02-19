@@ -5618,3 +5618,11 @@ msgstr "Votre niveau actuel"
 msgid "your_progress"
 msgstr "Votre Progression"
 
+#. E2EE enabled tooltip
+msgid "e2ee_enabled"
+msgstr "Chiffrement de bout en bout actif"
+
+#. Share invite link
+msgid "share_invite_link"
+msgstr "Partager un lien d'invitation"
+

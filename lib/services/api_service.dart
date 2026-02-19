@@ -1107,9 +1107,19 @@ class ApiService {
   }
 
   // Peer methods
-  Future<Response> connectPeer(String name, String url) async {
+  Future<Response> connectPeer(
+    String name,
+    String url, {
+    String? ed25519PublicKey,
+    String? x25519PublicKey,
+  }) async {
     if (useFfi) {
-      return connectLocalPeer(name, url);
+      return connectLocalPeer(
+        name,
+        url,
+        ed25519PublicKey: ed25519PublicKey,
+        x25519PublicKey: x25519PublicKey,
+      );
     }
     // Fetch my config to send to remote peer for handshake
     String? myName;
@@ -1196,25 +1206,40 @@ class ApiService {
   }
 
   Future<Response> getLibraryConfig() async {
-    // In FFI mode, read from SharedPreferences
+    // In FFI mode, read from SharedPreferences + E2EE keys from Rust
     if (useFfi) {
       final prefs = await SharedPreferences.getInstance();
+      final data = <String, dynamic>{
+        'library_name':
+            prefs.getString('ffi_library_name') ?? 'Ma Bibliothèque',
+        'name': prefs.getString('ffi_library_name') ?? 'Ma Bibliothèque',
+        'description': prefs.getString('ffi_library_description') ?? '',
+        'show_borrowed_books':
+            prefs.getBool('ffi_show_borrowed_books') ?? true,
+        'share_location': prefs.getBool('ffi_share_location') ?? false,
+        'profile_type': prefs.getString('ffi_profile_type') ?? 'individual',
+        'latitude': prefs.getDouble('ffi_latitude'),
+        'longitude': prefs.getDouble('ffi_longitude'),
+        'tags': (prefs.getStringList('ffi_tags') ?? []),
+        'library_uuid': prefs.getString('library_uuid'),
+      };
+
+      // Add E2EE public keys if identity has been initialized
+      try {
+        final keysJson = await FfiService().getPublicKeys();
+        if (keysJson != null) {
+          final keys = jsonDecode(keysJson) as Map<String, dynamic>;
+          data['ed25519_public_key'] = keys['ed25519'];
+          data['x25519_public_key'] = keys['x25519'];
+        }
+      } catch (_) {
+        // Identity not initialized yet — keys will be null
+      }
+
       return Response(
         requestOptions: RequestOptions(path: '/api/config'),
         statusCode: 200,
-        data: {
-          'library_name':
-              prefs.getString('ffi_library_name') ?? 'Ma Bibliothèque',
-          'name': prefs.getString('ffi_library_name') ?? 'Ma Bibliothèque',
-          'description': prefs.getString('ffi_library_description') ?? '',
-          'show_borrowed_books':
-              prefs.getBool('ffi_show_borrowed_books') ?? true,
-          'share_location': prefs.getBool('ffi_share_location') ?? false,
-          'profile_type': prefs.getString('ffi_profile_type') ?? 'individual',
-          'latitude': prefs.getDouble('ffi_latitude'),
-          'longitude': prefs.getDouble('ffi_longitude'),
-          'tags': (prefs.getStringList('ffi_tags') ?? []),
-        },
+        data: data,
       );
     }
     return await _dio.get('/api/config');
@@ -2868,8 +2893,14 @@ class ApiService {
     return 'http://$myIp:${ApiService.httpPort}';
   }
 
-  /// Connect to a locally discovered peer by URL
-  Future<Response> connectLocalPeer(String name, String url) async {
+  /// Connect to a locally discovered peer by URL.
+  /// Optional E2EE keys from QR/invite/mDNS are forwarded to the Rust backend.
+  Future<Response> connectLocalPeer(
+    String name,
+    String url, {
+    String? ed25519PublicKey,
+    String? x25519PublicKey,
+  }) async {
     if (useFfi) {
       try {
         // 1. Get my own details
@@ -2906,24 +2937,60 @@ class ApiService {
           ),
         );
 
+        // Get our own public keys to send in the handshake
+        Map<String, dynamic>? myKeys;
+        try {
+          final localDioForKeys = Dio(
+            BaseOptions(baseUrl: 'http://localhost:${ApiService.httpPort}'),
+          );
+          final configResp = await localDioForKeys.get('/api/config');
+          if (configResp.data is Map) {
+            myKeys = {
+              if (configResp.data['ed25519_public_key'] != null)
+                'ed25519_public_key': configResp.data['ed25519_public_key'],
+              if (configResp.data['x25519_public_key'] != null)
+                'x25519_public_key': configResp.data['x25519_public_key'],
+            };
+          }
+        } catch (e) {
+          debugPrint('Could not load own E2EE keys for handshake: $e');
+        }
+
         final response = await dio.post(
           targetUrl,
-          data: {'name': myName, 'url': myUrl},
+          data: {
+            'name': myName,
+            'url': myUrl,
+            if (myKeys != null) ...myKeys,
+          },
         );
 
         debugPrint(
           'P2P Handshake Success: ${response.statusCode} - ${response.data}',
         );
 
-        // 3. Save peer locally (FFI mode)
+        // Extract the remote peer's keys from the handshake response
+        String? remoteEd25519 = ed25519PublicKey;
+        String? remoteX25519 = x25519PublicKey;
+        if (response.data is Map) {
+          remoteEd25519 ??= response.data['ed25519_public_key'] as String?;
+          remoteX25519 ??= response.data['x25519_public_key'] as String?;
+        }
+
+        // 3. Save peer locally (FFI mode) with E2EE keys
         final localDio = Dio(
           BaseOptions(baseUrl: 'http://localhost:${ApiService.httpPort}'),
         );
         final saveResponse = await localDio.post(
           '/api/peers/connect',
-          data: {'name': name, 'url': url, 'public_key': null},
+          data: {
+            'name': name,
+            'url': url,
+            if (remoteEd25519 != null) 'ed25519_public_key': remoteEd25519,
+            if (remoteX25519 != null) 'x25519_public_key': remoteX25519,
+          },
         );
-        debugPrint('✅ Peer saved locally: $name (status=${saveResponse.statusCode})');
+        debugPrint('Peer saved locally: $name (status=${saveResponse.statusCode})');
 
         return response;
       } on DioException catch (e) {

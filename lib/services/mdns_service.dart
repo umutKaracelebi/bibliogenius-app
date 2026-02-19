@@ -21,6 +21,10 @@ class DiscoveredPeer {
   final List<String> addresses;
   final String? libraryId;
   final String? deviceName;
+  /// Ed25519 public key (hex) from mDNS TXT record
+  final String? ed25519PublicKey;
+  /// X25519 public key (hex) from mDNS TXT record
+  final String? x25519PublicKey;
   final DateTime discoveredAt;
 
   DiscoveredPeer({
@@ -30,6 +34,8 @@ class DiscoveredPeer {
     required this.addresses,
     this.libraryId,
     this.deviceName,
+    this.ed25519PublicKey,
+    this.x25519PublicKey,
     required this.discoveredAt,
   });
 
@@ -40,6 +46,8 @@ class DiscoveredPeer {
     'addresses': addresses,
     'library_id': libraryId,
     'device_name': deviceName,
+    'ed25519_public_key': ed25519PublicKey,
+    'x25519_public_key': x25519PublicKey,
     'discovered_at': discoveredAt.toIso8601String(),
   };
 }
@@ -146,6 +154,8 @@ class MdnsService {
     String libraryName,
     int port, {
     String? libraryId,
+    String? ed25519PublicKey,
+    String? x25519PublicKey,
   }) async {
     try {
       // Clean name for mDNS - keep Unicode letters, numbers, spaces, hyphens
@@ -190,6 +200,9 @@ class MdnsService {
       if (hostname.isNotEmpty) {
         attributes['hostname'] = hostname;
       }
+      // E2EE public keys (64-char hex each, well within mDNS TXT limit)
+      if (ed25519PublicKey != null) attributes['ed25519'] = ed25519PublicKey;
+      if (x25519PublicKey != null) attributes['x25519'] = x25519PublicKey;
 
       final service = BonsoirService(
         name: safeName,
@@ -292,6 +305,8 @@ class MdnsService {
       addresses: [host],
       libraryId: service.attributes['library_id'],
       deviceName: service.attributes['hostname'],
+      ed25519PublicKey: service.attributes['ed25519'],
+      x25519PublicKey: service.attributes['x25519'],
       discoveredAt: DateTime.now(),
     );
 
@@ -435,6 +450,8 @@ class MdnsService {
     String libraryName,
     int port, {
     String? libraryId,
+    String? ed25519PublicKey,
+    String? x25519PublicKey,
   }) async {
     debugPrint('🔄 mDNS: Restarting service...');
     await stop();
@@ -444,6 +461,8 @@ class MdnsService {
       libraryName,
       port,
       libraryId: libraryId,
+      ed25519PublicKey: ed25519PublicKey,
+      x25519PublicKey: x25519PublicKey,
     );
     if (announceResult) {
       await startDiscovery();

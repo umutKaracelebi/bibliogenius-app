@@ -1,3 +1,4 @@
+import 'package:flutter/foundation.dart' show visibleForTesting;
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart' show rootBundle;
 import 'package:provider/provider.dart';
@@ -5,6 +6,7 @@ import 'package:shared_preferences/shared_preferences.dart';
 import 'dart:convert';
 import '../providers/theme_provider.dart';
 import '../services/api_service.dart';
+import '../utils/language_constants.dart';
 
 class TranslationService {
   static Map<String, Map<String, String>> _dynamicTranslations = {};
@@ -29,17 +31,17 @@ class TranslationService {
     try {
       final themeProvider = Provider.of<ThemeProvider>(context, listen: false);
       final api = Provider.of<ApiService>(context, listen: false);
-      final locale = themeProvider.locale.languageCode;
+      final tag = localeToTag(themeProvider.locale);
 
-      final response = await api.getTranslations(locale);
+      final response = await api.getTranslations(tag);
       if (response.statusCode == 200) {
         final Map<String, dynamic> data = response.data;
         final Map<String, String> newTranslations = data.map(
           (k, v) => MapEntry(k, v.toString()),
         );
 
-        _dynamicTranslations[locale] = {
-          ...(_dynamicTranslations[locale] ?? {}),
+        _dynamicTranslations[tag] = {
+          ...(_dynamicTranslations[tag] ?? {}),
           ...newTranslations,
         };
 
@@ -59,6 +61,14 @@ class TranslationService {
   static const List<String> supportedLocales = ['en', 'fr', 'es', 'de'];
 
   static final Map<String, Map<String, String>> _poTranslations = {};
+
+  /// Inject PO translations for testing. Do NOT use in production code.
+  @visibleForTesting
+  static void setPoTranslationsForTest(Map<String, Map<String, String>> data) {
+    _poTranslations
+      ..clear()
+      ..addAll(data);
+  }
 
   static Future<void> loadTranslations() async {
     for (final locale in supportedLocales) {
@@ -174,26 +184,39 @@ class TranslationService {
     Map<String, String>? params,
   }) {
     final themeProvider = Provider.of<ThemeProvider>(context, listen: false);
-    final lang = themeProvider.locale.languageCode;
+    final tag = localeToTag(themeProvider.locale);
+    final baseLang = themeProvider.locale.languageCode;
 
     String text = key;
 
-    // 1. Check dynamic translations for current lang
-    if (_dynamicTranslations.containsKey(lang) &&
-        _dynamicTranslations[lang]!.containsKey(key)) {
-      text = _dynamicTranslations[lang]![key]!;
+    // 1. Check dynamic translations for full tag (e.g. 'pt-BR')
+    if (_dynamicTranslations.containsKey(tag) &&
+        _dynamicTranslations[tag]!.containsKey(key)) {
+      text = _dynamicTranslations[tag]![key]!;
     }
-    // 2. Check PO translations for current lang
-    else if (_poTranslations.containsKey(lang) &&
-        _poTranslations[lang]!.containsKey(key)) {
-      text = _poTranslations[lang]![key]!;
+    // 2. Check PO translations for full tag
+    else if (_poTranslations.containsKey(tag) &&
+        _poTranslations[tag]!.containsKey(key)) {
+      text = _poTranslations[tag]![key]!;
     }
-    // 3. Fallback to English dynamic
+    // 3. Fallback to base language dynamic (e.g. 'pt')
+    else if (tag != baseLang &&
+        _dynamicTranslations.containsKey(baseLang) &&
+        _dynamicTranslations[baseLang]!.containsKey(key)) {
+      text = _dynamicTranslations[baseLang]![key]!;
+    }
+    // 4. Fallback to base language PO
+    else if (tag != baseLang &&
+        _poTranslations.containsKey(baseLang) &&
+        _poTranslations[baseLang]!.containsKey(key)) {
+      text = _poTranslations[baseLang]![key]!;
+    }
+    // 5. Fallback to English dynamic
     else if (_dynamicTranslations.containsKey('en') &&
         _dynamicTranslations['en']!.containsKey(key)) {
       text = _dynamicTranslations['en']![key]!;
     }
-    // 4. Fallback to English PO
+    // 6. Fallback to English PO
     else {
       text = _poTranslations['en']?[key] ?? key;
     }

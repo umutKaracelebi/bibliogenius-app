@@ -2917,7 +2917,7 @@ class ApiService {
           ),
         );
 
-        // Get our own public keys to send in the handshake
+        // Get our own public keys and relay info to send in the handshake
         Map<String, dynamic>? myKeys;
         try {
           final localDioForKeys = Dio(
@@ -2930,6 +2930,12 @@ class ApiService {
                 'ed25519_public_key': configResp.data['ed25519_public_key'],
               if (configResp.data['x25519_public_key'] != null)
                 'x25519_public_key': configResp.data['x25519_public_key'],
+              if (configResp.data['relay_url'] != null)
+                'relay_url': configResp.data['relay_url'],
+              if (configResp.data['mailbox_id'] != null)
+                'mailbox_id': configResp.data['mailbox_id'],
+              if (configResp.data['relay_write_token'] != null)
+                'relay_write_token': configResp.data['relay_write_token'],
             };
           }
         } catch (e) {
@@ -2949,15 +2955,22 @@ class ApiService {
           'P2P Handshake Success: ${response.statusCode} - ${response.data}',
         );
 
-        // Extract the remote peer's keys from the handshake response
+        // Extract the remote peer's keys and relay info from the handshake response
         String? remoteEd25519 = ed25519PublicKey;
         String? remoteX25519 = x25519PublicKey;
+        String? remoteRelayUrl;
+        String? remoteMailboxId;
+        String? remoteRelayWriteToken;
         if (response.data is Map) {
           remoteEd25519 ??= response.data['ed25519_public_key'] as String?;
           remoteX25519 ??= response.data['x25519_public_key'] as String?;
+          remoteRelayUrl = response.data['relay_url'] as String?;
+          remoteMailboxId = response.data['mailbox_id'] as String?;
+          remoteRelayWriteToken =
+              response.data['relay_write_token'] as String?;
         }
 
-        // 3. Save peer locally (FFI mode) with E2EE keys
+        // 3. Save peer locally (FFI mode) with E2EE keys and relay info
         final localDio = Dio(
           BaseOptions(baseUrl: 'http://localhost:${ApiService.httpPort}'),
         );
@@ -2968,6 +2981,10 @@ class ApiService {
             'url': url,
             if (remoteEd25519 != null) 'ed25519_public_key': remoteEd25519,
             if (remoteX25519 != null) 'x25519_public_key': remoteX25519,
+            if (remoteRelayUrl != null) 'relay_url': remoteRelayUrl,
+            if (remoteMailboxId != null) 'mailbox_id': remoteMailboxId,
+            if (remoteRelayWriteToken != null)
+              'relay_write_token': remoteRelayWriteToken,
           },
         );
         debugPrint('Peer saved locally: $name (status=${saveResponse.statusCode})');
@@ -3721,6 +3738,36 @@ class ApiService {
       debugPrint('📥 Sync ERROR: $e');
       return {'success': false, 'error': e.toString()};
     }
+  }
+
+  // ── Relay Hub ────────────────────────────────────────────────────────
+
+  /// Set up a relay mailbox on the given hub URL.
+  Future<Response> setupRelay({required String relayUrl}) async {
+    if (useFfi) {
+      final localDio = Dio(
+        BaseOptions(baseUrl: 'http://localhost:${ApiService.httpPort}'),
+      );
+      return localDio.post(
+        '/api/peers/relay/setup',
+        data: {'relay_url': relayUrl},
+      );
+    }
+    return _dio.post(
+      '/api/peers/relay/setup',
+      data: {'relay_url': relayUrl},
+    );
+  }
+
+  /// Get current relay configuration (if any).
+  Future<Response> getRelayConfig() async {
+    if (useFfi) {
+      final localDio = Dio(
+        BaseOptions(baseUrl: 'http://localhost:${ApiService.httpPort}'),
+      );
+      return localDio.get('/api/peers/relay/config');
+    }
+    return _dio.get('/api/peers/relay/config');
   }
 }
 

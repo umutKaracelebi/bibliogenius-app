@@ -4441,6 +4441,30 @@ msgstr "Standard Reset"
 msgid "restart_required_for_changes"
 msgstr "Restart app for changes to take effect"
 
+#. Relay Hub
+msgid "relay_hub_title"
+msgstr "Relay Hub"
+
+#. Relay hub description
+msgid "relay_hub_desc"
+msgstr "Connect to a relay for communication outside your local network"
+
+#. Connect to relay
+msgid "relay_connect"
+msgstr "Connect"
+
+#. Relay connected status
+msgid "relay_connected"
+msgstr "Connected"
+
+#. Relay disconnected status
+msgid "relay_disconnected"
+msgstr "Not connected"
+
+#. Hub URL label
+msgid "relay_url_label"
+msgstr "Hub URL"
+
 #. Retry
 msgid "retry"
 msgstr "Retry"

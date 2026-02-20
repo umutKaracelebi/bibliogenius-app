@@ -53,8 +53,7 @@ class _BookDetailsScreenState extends State<BookDetailsScreen> {
     super.initState();
     if (widget.book != null) {
       _book = widget.book;
-      _fetchCopies();
-      // Optionally refresh book details in background
+      // _fetchBookDetails already fetches copies — no need for separate _fetchCopies()
       _fetchBookDetails();
     } else {
       _isLoadingBook = true;

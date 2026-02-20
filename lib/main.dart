@@ -7,6 +7,7 @@ import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:provider/provider.dart';
 import 'package:go_router/go_router.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
+import 'package:dio/dio.dart';
 import 'services/auth_service.dart';
 import 'services/api_service.dart';
 import 'services/sync_service.dart';
@@ -232,6 +233,34 @@ void main([List<String>? args]) async {
         await MdnsService.startDiscovery();
       } catch (mdnsError) {
         debugPrint('mDNS: Init failed (non-blocking): $mdnsError');
+      }
+
+      // Auto-setup relay hub for WAN communication (if not already configured)
+      try {
+        final localDio = Dio(
+          BaseOptions(baseUrl: 'http://localhost:$httpPort'),
+        );
+        bool needsSetup = true;
+        try {
+          final configRes = await localDio.get('/api/peers/relay/config');
+          if (configRes.statusCode == 200 &&
+              configRes.data is Map &&
+              configRes.data['relay_url'] != null) {
+            needsSetup = false;
+            debugPrint('Relay: Already configured (${configRes.data['relay_url']})');
+          }
+        } on DioException {
+          // 404 = no config yet → needs setup
+        }
+        if (needsSetup) {
+          await localDio.post(
+            '/api/peers/relay/setup',
+            data: {'relay_url': 'https://hub.bibliogenius.org'},
+          );
+          debugPrint('Relay: Auto-configured with hub.bibliogenius.org');
+        }
+      } catch (e) {
+        debugPrint('Relay: Auto-setup failed (non-blocking): $e');
       }
     } else {
       debugPrint('mDNS: Disabled by user preference');

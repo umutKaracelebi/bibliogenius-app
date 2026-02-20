@@ -261,10 +261,10 @@ class ThemeProvider with ChangeNotifier {
     // Default to false (opt-in) for privacy
     _networkDiscoveryEnabled =
         prefs.getBool('networkDiscoveryEnabled') ?? false;
-    // Default to false (opt-in) for privacy - caches peer's library locally
+    // Default to true — required for relay to be useful (offline peer browsing)
     _peerOfflineCachingEnabled =
-        prefs.getBool('peerOfflineCachingEnabled') ?? false;
-    _allowLibraryCaching = prefs.getBool('allowLibraryCaching') ?? false;
+        prefs.getBool('peerOfflineCachingEnabled') ?? true;
+    _allowLibraryCaching = prefs.getBool('allowLibraryCaching') ?? true;
     _connectionValidationEnabled =
         prefs.getBool('connectionValidationEnabled') ?? false;
     _autoApproveLoanRequests =

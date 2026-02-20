@@ -101,17 +101,19 @@ class _SettingsScreenState extends State<SettingsScreen> {
         }
       }
 
-      // Load relay config
+      // Load relay config (may have been auto-configured at startup)
       try {
         final relayRes = await api.getRelayConfig();
-        if (relayRes.statusCode == 200 && relayRes.data is Map) {
+        if (relayRes.statusCode == 200 && relayRes.data is Map &&
+            relayRes.data['relay_url'] != null) {
           _relayConnected = true;
           _relayMailboxUuid = relayRes.data['mailbox_uuid'] as String?;
           _relayUrlController.text =
               relayRes.data['relay_url'] as String? ?? '';
+        } else {
+          _relayUrlController.text = 'https://hub.bibliogenius.org';
         }
       } catch (_) {
-        // No relay config — pre-fill with default hub URL
         _relayUrlController.text = 'https://hub.bibliogenius.org';
       }
 

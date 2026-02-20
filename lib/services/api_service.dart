@@ -2521,79 +2521,19 @@ class ApiService {
     String isbn,
     String title,
   ) async {
-    if (useFfi) {
-      try {
-        // 1. Get my info
-        final configRes = await getLibraryConfig();
-        final myName = configRes.data['library_name'];
-        // In FFI/P2P mode, we calculate our dynamic IP URL
-        final myUrl = await _getMyUrl();
-        if (myUrl == null) {
-          throw Exception('No valid LAN IP available for P2P loan request');
-        }
-        // Get stable UUID for peer deduplication
-        final authService = AuthService();
-        final libraryUuid = await authService.getOrCreateLibraryUuid();
-
-        // 2. Send request to peer
-        // Use clean URL without trailing slash
-        final cleanPeerUrl = peerUrl.endsWith('/')
-            ? peerUrl.substring(0, peerUrl.length - 1)
-            : peerUrl;
-
-        final remoteDio = Dio(
-          BaseOptions(
-            baseUrl: cleanPeerUrl,
-            connectTimeout: const Duration(seconds: 5),
-          ),
-        );
-
-        debugPrint(
-          '📡 Sending P2P loan request to $cleanPeerUrl/api/peers/requests/incoming',
-        );
-        final remoteRes = await remoteDio.post(
-          '/api/peers/requests/incoming',
-          data: {
-            'from_name': myName,
-            'from_url': myUrl,
-            'library_uuid': libraryUuid,
-            'book_isbn': isbn,
-            'book_title': title,
-          },
-        );
-
-        if (remoteRes.statusCode == 200) {
-          // 3. Log outgoing request locally with same ID for sync
-          final requestId = remoteRes.data['request_id'];
-          debugPrint('📝 Got request_id from peer: $requestId');
-
-          final localDio = Dio(
-            BaseOptions(baseUrl: 'http://127.0.0.1:$httpPort'),
-          );
-          await localDio.post(
-            '/api/peers/requests/outgoing',
-            data: {
-              'to_peer_url': cleanPeerUrl,
-              'book_isbn': isbn,
-              'book_title': title,
-              'request_id': requestId, // Use same ID for sync
-            },
-          );
-          return remoteRes;
-        } else {
-          throw Exception(
-            'Remote peer rejected request: ${remoteRes.statusCode}',
-          );
-        }
-      } catch (e) {
-        debugPrint('❌ requestBookByUrl error: $e');
-        rethrow;
-      }
-    }
-    return await _dio.post(
+    // Route through local Rust backend which handles E2EE encryption,
+    // outgoing request tracking, and plaintext fallback internally.
+    final dio = useFfi
+        ? Dio(BaseOptions(baseUrl: 'http://127.0.0.1:$httpPort'))
+        : _dio;
+    debugPrint('📡 Sending loan request via local backend for peer $peerUrl');
+    final response = await dio.post(
       '/api/peers/request_by_url',
       data: {'peer_url': peerUrl, 'book_isbn': isbn, 'book_title': title},
     );
+    final msg = response.data is Map ? response.data['message'] : '';
+    debugPrint('📡 Loan request result: $msg');
+    return response;
   }
 
   Future<Response> getIncomingRequests() async {

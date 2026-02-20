@@ -2317,7 +2317,7 @@ class ApiService {
           );
         }
 
-        // 1. Ask remote peer to sync from us
+        // 1. Ask remote peer to sync from us (non-blocking for step 2)
         final dio = Dio(
           BaseOptions(
             connectTimeout: const Duration(seconds: 5),
@@ -2327,16 +2327,21 @@ class ApiService {
         debugPrint(
           'P2P Sync: Requesting sync from $normalizedUrl/api/peers/sync_by_url with my URL $myUrl',
         );
-        final remoteRes = await dio.post(
-          '$normalizedUrl/api/peers/sync_by_url',
-          data: {'url': myUrl},
-        );
+        Response? remoteRes;
+        try {
+          remoteRes = await dio.post(
+            '$normalizedUrl/api/peers/sync_by_url',
+            data: {'url': myUrl},
+          );
+        } catch (e) {
+          debugPrint('P2P remote sync error (non-fatal): $e');
+        }
 
-        // 2. Also sync locally from the remote peer (updates peer name, books, stats)
+        // 2. Sync locally from the remote peer via local backend (handles E2EE)
         try {
           final localDio = Dio(
             BaseOptions(
-              baseUrl: 'http://localhost:${ApiService.httpPort}',
+              baseUrl: 'http://127.0.0.1:${ApiService.httpPort}',
               connectTimeout: const Duration(seconds: 10),
               receiveTimeout: const Duration(seconds: 30),
             ),
@@ -2349,7 +2354,11 @@ class ApiService {
           debugPrint('P2P local sync error (non-fatal): $e');
         }
 
-        return remoteRes;
+        return remoteRes ?? Response(
+          requestOptions: RequestOptions(path: '/api/peers/sync_by_url'),
+          statusCode: 200,
+          data: {'message': 'Local sync completed'},
+        );
       } catch (e) {
         debugPrint('P2P Sync Error: $e');
         return Response(
@@ -2374,23 +2383,38 @@ class ApiService {
   }
 
   Future<Response> getPeerBooksByUrl(String peerUrl) async {
-    // Direct P2P call to the peer's API
-    // We use a fresh Dio instance to avoid using our backend's BaseURL/Auth tokens
-    // which are not valid for the peer.
+    // Route through local Rust backend which handles E2EE encryption
+    // and plaintext fallback internally.
+    if (useFfi) {
+      try {
+        final dio = Dio(BaseOptions(
+          baseUrl: 'http://127.0.0.1:$httpPort',
+          connectTimeout: const Duration(seconds: 5),
+          receiveTimeout: const Duration(seconds: 15),
+        ));
+        debugPrint('📡 Fetching peer books via local backend for $peerUrl');
+        final response = await dio.post(
+          '/api/peers/proxy_search',
+          data: {'peer_url': peerUrl, 'query': ''},
+        );
+        debugPrint('📡 Peer books result: ${response.data?.length ?? 0} books');
+        return response;
+      } catch (e) {
+        debugPrint('📡 Peer books via backend failed: $e');
+        rethrow;
+      }
+    }
+    // HTTP mode: direct P2P call
     try {
       final cleanUrl = peerUrl.endsWith('/')
           ? peerUrl.substring(0, peerUrl.length - 1)
           : peerUrl;
       final targetUrl = '$cleanUrl/api/books';
-
       debugPrint('P2P: Fetching books from $targetUrl');
-
-      final dio = Dio(
-        BaseOptions(
-          connectTimeout: const Duration(seconds: 5),
-          receiveTimeout: const Duration(seconds: 10),
-        ),
-      );
+      final dio = Dio(BaseOptions(
+        connectTimeout: const Duration(seconds: 5),
+        receiveTimeout: const Duration(seconds: 10),
+      ));
       return await dio.get(targetUrl);
     } catch (e) {
       debugPrint('P2P: Error fetching books from $peerUrl - $e');

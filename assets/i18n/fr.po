@@ -1016,6 +1016,34 @@ msgstr "Validation des connexions"
 msgid "connection_validation_desc"
 msgstr "Exiger votre approbation avant que de nouveaux pairs puissent accéder à votre bibliothèque"
 
+#. Approuver automatiquement les emprunts
+msgid "auto_approve_loans_title"
+msgstr "Approuver automatiquement les emprunts"
+
+#. Accepter automatiquement les demandes d'emprunt des contacts approuvés
+msgid "auto_approve_loans_desc"
+msgstr "Accepter automatiquement les demandes d'emprunt des contacts approuvés"
+
+#. Vous avez {count} demande(s) de connexion en attente
+msgid "pending_connections_banner"
+msgstr "Vous avez {count} demande(s) de connexion en attente"
+
+#. Voir
+msgid "review_connections"
+msgstr "Voir"
+
+#. Demandes en attente
+msgid "pending_requests_section"
+msgstr "Demandes en attente"
+
+#. Accepter
+msgid "accept_connection"
+msgstr "Accepter"
+
+#. Refuser
+msgid "reject_connection"
+msgstr "Refuser"
+
 #. Address
 msgid "contact_address_label"
 msgstr "Adresse"

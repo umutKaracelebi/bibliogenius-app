@@ -1016,6 +1016,34 @@ msgstr "Connection Approval"
 msgid "connection_validation_desc"
 msgstr "Require your approval before new peers can access your library"
 
+#. Auto-approve loan requests
+msgid "auto_approve_loans_title"
+msgstr "Auto-approve loan requests"
+
+#. Automatically accept loan requests from approved contacts
+msgid "auto_approve_loans_desc"
+msgstr "Automatically accept loan requests from approved contacts"
+
+#. You have {count} pending connection request(s)
+msgid "pending_connections_banner"
+msgstr "You have {count} pending connection request(s)"
+
+#. Review
+msgid "review_connections"
+msgstr "Review"
+
+#. Pending requests
+msgid "pending_requests_section"
+msgstr "Pending requests"
+
+#. Accept
+msgid "accept_connection"
+msgstr "Accept"
+
+#. Reject
+msgid "reject_connection"
+msgstr "Reject"
+
 #. Address
 msgid "contact_address_label"
 msgstr "Address"

@@ -399,6 +399,15 @@ class _SettingsScreenState extends State<SettingsScreen> {
                   ),
                 _buildModuleToggle(
                   context,
+                  'auto_approve_loans_title',
+                  'auto_approve_loans_desc',
+                  Icons.auto_awesome,
+                  themeProvider.autoApproveLoanRequests,
+                  (value) =>
+                      themeProvider.setAutoApproveLoanRequests(value),
+                ),
+                _buildModuleToggle(
+                  context,
                   'enable_borrowing_module',
                   'borrowing_module_desc',
                   Icons.swap_horiz,

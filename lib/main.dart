@@ -19,6 +19,7 @@ import 'utils/language_constants.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'providers/theme_provider.dart';
 import 'providers/book_refresh_notifier.dart';
+import 'providers/pending_peers_provider.dart';
 import 'audio/audio_module.dart'; // Audio module (decoupled)
 import 'data/repositories/book_repository.dart';
 import 'data/repositories/tag_repository.dart';
@@ -322,6 +323,9 @@ class MyApp extends StatelessWidget {
         Provider<SyncService>(create: (_) => SyncService(apiService)),
         // Audio module (decoupled, can be removed without breaking the app)
         ChangeNotifierProvider<AudioProvider>(create: (_) => AudioProvider()),
+        ChangeNotifierProvider<PendingPeersProvider>(
+          create: (_) => PendingPeersProvider(apiService),
+        ),
       ],
       child: const AppRouter(),
     );

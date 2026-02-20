@@ -600,6 +600,22 @@ class ApiService {
     return await _dio.post('/api/loans/$loanId/return');
   }
 
+  /// Borrower-initiated return: notifies the lender and cleans up local data.
+  Future<Response> returnBorrowedBook({required int copyId}) async {
+    if (useFfi) {
+      final localDio =
+          Dio(BaseOptions(baseUrl: 'http://127.0.0.1:$httpPort'));
+      return await localDio.post(
+        '/api/peers/return_book',
+        data: {'copy_id': copyId},
+      );
+    }
+    return await _dio.post(
+      '/api/peers/return_book',
+      data: {'copy_id': copyId},
+    );
+  }
+
   // Helper to get a Dio instance for local FFI server with retry logic
   // This handles the race condition where the server might still be binding
   // and auto-restarts the server if it has crashed

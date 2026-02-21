@@ -600,6 +600,22 @@ class ApiService {
     return await _dio.post('/api/loans/$loanId/return');
   }
 
+  /// Borrower-initiated return: notifies the lender and cleans up local data.
+  Future<Response> returnBorrowedBook({required int copyId}) async {
+    if (useFfi) {
+      final localDio =
+          Dio(BaseOptions(baseUrl: 'http://127.0.0.1:$httpPort'));
+      return await localDio.post(
+        '/api/peers/return_book',
+        data: {'copy_id': copyId},
+      );
+    }
+    return await _dio.post(
+      '/api/peers/return_book',
+      data: {'copy_id': copyId},
+    );
+  }
+
   // Helper to get a Dio instance for local FFI server with retry logic
   // This handles the race condition where the server might still be binding
   // and auto-restarts the server if it has crashed
@@ -1107,9 +1123,19 @@ class ApiService {
   }
 
   // Peer methods
-  Future<Response> connectPeer(String name, String url) async {
+  Future<Response> connectPeer(
+    String name,
+    String url, {
+    String? ed25519PublicKey,
+    String? x25519PublicKey,
+  }) async {
     if (useFfi) {
-      return connectLocalPeer(name, url);
+      return connectLocalPeer(
+        name,
+        url,
+        ed25519PublicKey: ed25519PublicKey,
+        x25519PublicKey: x25519PublicKey,
+      );
     }
     // Fetch my config to send to remote peer for handshake
     String? myName;
@@ -1196,25 +1222,40 @@ class ApiService {
   }
 
   Future<Response> getLibraryConfig() async {
-    // In FFI mode, read from SharedPreferences
+    // In FFI mode, read from SharedPreferences + E2EE keys from Rust
     if (useFfi) {
       final prefs = await SharedPreferences.getInstance();
+      final data = <String, dynamic>{
+        'library_name':
+            prefs.getString('ffi_library_name') ?? 'Ma Bibliothèque',
+        'name': prefs.getString('ffi_library_name') ?? 'Ma Bibliothèque',
+        'description': prefs.getString('ffi_library_description') ?? '',
+        'show_borrowed_books':
+            prefs.getBool('ffi_show_borrowed_books') ?? true,
+        'share_location': prefs.getBool('ffi_share_location') ?? false,
+        'profile_type': prefs.getString('ffi_profile_type') ?? 'individual',
+        'latitude': prefs.getDouble('ffi_latitude'),
+        'longitude': prefs.getDouble('ffi_longitude'),
+        'tags': (prefs.getStringList('ffi_tags') ?? []),
+        'library_uuid': prefs.getString('library_uuid'),
+      };
+
+      // Add E2EE public keys if identity has been initialized
+      try {
+        final keysJson = await FfiService().getPublicKeys();
+        if (keysJson != null) {
+          final keys = jsonDecode(keysJson) as Map<String, dynamic>;
+          data['ed25519_public_key'] = keys['ed25519'];
+          data['x25519_public_key'] = keys['x25519'];
+        }
+      } catch (_) {
+        // Identity not initialized yet — keys will be null
+      }
+
       return Response(
         requestOptions: RequestOptions(path: '/api/config'),
         statusCode: 200,
-        data: {
-          'library_name':
-              prefs.getString('ffi_library_name') ?? 'Ma Bibliothèque',
-          'name': prefs.getString('ffi_library_name') ?? 'Ma Bibliothèque',
-          'description': prefs.getString('ffi_library_description') ?? '',
-          'show_borrowed_books':
-              prefs.getBool('ffi_show_borrowed_books') ?? true,
-          'share_location': prefs.getBool('ffi_share_location') ?? false,
-          'profile_type': prefs.getString('ffi_profile_type') ?? 'individual',
-          'latitude': prefs.getDouble('ffi_latitude'),
-          'longitude': prefs.getDouble('ffi_longitude'),
-          'tags': (prefs.getStringList('ffi_tags') ?? []),
-        },
+        data: data,
       );
     }
     return await _dio.get('/api/config');
@@ -2292,7 +2333,7 @@ class ApiService {
           );
         }
 
-        // 1. Ask remote peer to sync from us
+        // 1. Ask remote peer to sync from us (non-blocking for step 2)
         final dio = Dio(
           BaseOptions(
             connectTimeout: const Duration(seconds: 5),
@@ -2302,16 +2343,21 @@ class ApiService {
         debugPrint(
           'P2P Sync: Requesting sync from $normalizedUrl/api/peers/sync_by_url with my URL $myUrl',
         );
-        final remoteRes = await dio.post(
-          '$normalizedUrl/api/peers/sync_by_url',
-          data: {'url': myUrl},
-        );
+        Response? remoteRes;
+        try {
+          remoteRes = await dio.post(
+            '$normalizedUrl/api/peers/sync_by_url',
+            data: {'url': myUrl},
+          );
+        } catch (e) {
+          debugPrint('P2P remote sync error (non-fatal): $e');
+        }
 
-        // 2. Also sync locally from the remote peer (updates peer name, books, stats)
+        // 2. Sync locally from the remote peer via local backend (handles E2EE)
         try {
           final localDio = Dio(
             BaseOptions(
-              baseUrl: 'http://localhost:${ApiService.httpPort}',
+              baseUrl: 'http://127.0.0.1:${ApiService.httpPort}',
               connectTimeout: const Duration(seconds: 10),
               receiveTimeout: const Duration(seconds: 30),
             ),
@@ -2324,7 +2370,11 @@ class ApiService {
           debugPrint('P2P local sync error (non-fatal): $e');
         }
 
-        return remoteRes;
+        return remoteRes ?? Response(
+          requestOptions: RequestOptions(path: '/api/peers/sync_by_url'),
+          statusCode: 200,
+          data: {'message': 'Local sync completed'},
+        );
       } catch (e) {
         debugPrint('P2P Sync Error: $e');
         return Response(
@@ -2349,23 +2399,38 @@ class ApiService {
   }
 
   Future<Response> getPeerBooksByUrl(String peerUrl) async {
-    // Direct P2P call to the peer's API
-    // We use a fresh Dio instance to avoid using our backend's BaseURL/Auth tokens
-    // which are not valid for the peer.
+    // Route through local Rust backend which handles E2EE encryption
+    // and plaintext fallback internally.
+    if (useFfi) {
+      try {
+        final dio = Dio(BaseOptions(
+          baseUrl: 'http://127.0.0.1:$httpPort',
+          connectTimeout: const Duration(seconds: 5),
+          receiveTimeout: const Duration(seconds: 15),
+        ));
+        debugPrint('📡 Fetching peer books via local backend for $peerUrl');
+        final response = await dio.post(
+          '/api/peers/proxy_search',
+          data: {'peer_url': peerUrl, 'query': ''},
+        );
+        debugPrint('📡 Peer books result: ${response.data?.length ?? 0} books');
+        return response;
+      } catch (e) {
+        debugPrint('📡 Peer books via backend failed: $e');
+        rethrow;
+      }
+    }
+    // HTTP mode: direct P2P call
     try {
       final cleanUrl = peerUrl.endsWith('/')
           ? peerUrl.substring(0, peerUrl.length - 1)
           : peerUrl;
       final targetUrl = '$cleanUrl/api/books';
-
       debugPrint('P2P: Fetching books from $targetUrl');
-
-      final dio = Dio(
-        BaseOptions(
-          connectTimeout: const Duration(seconds: 5),
-          receiveTimeout: const Duration(seconds: 10),
-        ),
-      );
+      final dio = Dio(BaseOptions(
+        connectTimeout: const Duration(seconds: 5),
+        receiveTimeout: const Duration(seconds: 10),
+      ));
       return await dio.get(targetUrl);
     } catch (e) {
       debugPrint('P2P: Error fetching books from $peerUrl - $e');
@@ -2496,79 +2561,19 @@ class ApiService {
     String isbn,
     String title,
   ) async {
-    if (useFfi) {
-      try {
-        // 1. Get my info
-        final configRes = await getLibraryConfig();
-        final myName = configRes.data['library_name'];
-        // In FFI/P2P mode, we calculate our dynamic IP URL
-        final myUrl = await _getMyUrl();
-        if (myUrl == null) {
-          throw Exception('No valid LAN IP available for P2P loan request');
-        }
-        // Get stable UUID for peer deduplication
-        final authService = AuthService();
-        final libraryUuid = await authService.getOrCreateLibraryUuid();
-
-        // 2. Send request to peer
-        // Use clean URL without trailing slash
-        final cleanPeerUrl = peerUrl.endsWith('/')
-            ? peerUrl.substring(0, peerUrl.length - 1)
-            : peerUrl;
-
-        final remoteDio = Dio(
-          BaseOptions(
-            baseUrl: cleanPeerUrl,
-            connectTimeout: const Duration(seconds: 5),
-          ),
-        );
-
-        debugPrint(
-          '📡 Sending P2P loan request to $cleanPeerUrl/api/peers/requests/incoming',
-        );
-        final remoteRes = await remoteDio.post(
-          '/api/peers/requests/incoming',
-          data: {
-            'from_name': myName,
-            'from_url': myUrl,
-            'library_uuid': libraryUuid,
-            'book_isbn': isbn,
-            'book_title': title,
-          },
-        );
-
-        if (remoteRes.statusCode == 200) {
-          // 3. Log outgoing request locally with same ID for sync
-          final requestId = remoteRes.data['request_id'];
-          debugPrint('📝 Got request_id from peer: $requestId');
-
-          final localDio = Dio(
-            BaseOptions(baseUrl: 'http://127.0.0.1:$httpPort'),
-          );
-          await localDio.post(
-            '/api/peers/requests/outgoing',
-            data: {
-              'to_peer_url': cleanPeerUrl,
-              'book_isbn': isbn,
-              'book_title': title,
-              'request_id': requestId, // Use same ID for sync
-            },
-          );
-          return remoteRes;
-        } else {
-          throw Exception(
-            'Remote peer rejected request: ${remoteRes.statusCode}',
-          );
-        }
-      } catch (e) {
-        debugPrint('❌ requestBookByUrl error: $e');
-        rethrow;
-      }
-    }
-    return await _dio.post(
+    // Route through local Rust backend which handles E2EE encryption,
+    // outgoing request tracking, and plaintext fallback internally.
+    final dio = useFfi
+        ? Dio(BaseOptions(baseUrl: 'http://127.0.0.1:$httpPort'))
+        : _dio;
+    debugPrint('📡 Sending loan request via local backend for peer $peerUrl');
+    final response = await dio.post(
       '/api/peers/request_by_url',
       data: {'peer_url': peerUrl, 'book_isbn': isbn, 'book_title': title},
     );
+    final msg = response.data is Map ? response.data['message'] : '';
+    debugPrint('📡 Loan request result: $msg');
+    return response;
   }
 
   Future<Response> getIncomingRequests() async {
@@ -2868,8 +2873,14 @@ class ApiService {
     return 'http://$myIp:${ApiService.httpPort}';
   }
 
-  /// Connect to a locally discovered peer by URL
-  Future<Response> connectLocalPeer(String name, String url) async {
+  /// Connect to a locally discovered peer by URL.
+  /// Optional E2EE keys from QR/invite/mDNS are forwarded to the Rust backend.
+  Future<Response> connectLocalPeer(
+    String name,
+    String url, {
+    String? ed25519PublicKey,
+    String? x25519PublicKey,
+  }) async {
     if (useFfi) {
       try {
         // 1. Get my own details
@@ -2906,24 +2917,77 @@ class ApiService {
           ),
         );
 
+        // Get our own public keys and relay info to send in the handshake
+        Map<String, dynamic>? myKeys;
+        try {
+          final localDioForKeys = Dio(
+            BaseOptions(baseUrl: 'http://localhost:${ApiService.httpPort}'),
+          );
+          final configResp = await localDioForKeys.get('/api/config');
+          if (configResp.data is Map) {
+            myKeys = {
+              if (configResp.data['ed25519_public_key'] != null)
+                'ed25519_public_key': configResp.data['ed25519_public_key'],
+              if (configResp.data['x25519_public_key'] != null)
+                'x25519_public_key': configResp.data['x25519_public_key'],
+              if (configResp.data['relay_url'] != null)
+                'relay_url': configResp.data['relay_url'],
+              if (configResp.data['mailbox_id'] != null)
+                'mailbox_id': configResp.data['mailbox_id'],
+              if (configResp.data['relay_write_token'] != null)
+                'relay_write_token': configResp.data['relay_write_token'],
+            };
+          }
+        } catch (e) {
+          debugPrint('Could not load own E2EE keys for handshake: $e');
+        }
+
         final response = await dio.post(
           targetUrl,
-          data: {'name': myName, 'url': myUrl},
+          data: {
+            'name': myName,
+            'url': myUrl,
+            if (myKeys != null) ...myKeys,
+          },
         );
 
         debugPrint(
           'P2P Handshake Success: ${response.statusCode} - ${response.data}',
         );
 
-        // 3. Save peer locally (FFI mode)
+        // Extract the remote peer's keys and relay info from the handshake response
+        String? remoteEd25519 = ed25519PublicKey;
+        String? remoteX25519 = x25519PublicKey;
+        String? remoteRelayUrl;
+        String? remoteMailboxId;
+        String? remoteRelayWriteToken;
+        if (response.data is Map) {
+          remoteEd25519 ??= response.data['ed25519_public_key'] as String?;
+          remoteX25519 ??= response.data['x25519_public_key'] as String?;
+          remoteRelayUrl = response.data['relay_url'] as String?;
+          remoteMailboxId = response.data['mailbox_id'] as String?;
+          remoteRelayWriteToken =
+              response.data['relay_write_token'] as String?;
+        }
+
+        // 3. Save peer locally (FFI mode) with E2EE keys and relay info
         final localDio = Dio(
           BaseOptions(baseUrl: 'http://localhost:${ApiService.httpPort}'),
         );
         final saveResponse = await localDio.post(
           '/api/peers/connect',
-          data: {'name': name, 'url': url, 'public_key': null},
+          data: {
+            'name': name,
+            'url': url,
+            if (remoteEd25519 != null) 'ed25519_public_key': remoteEd25519,
+            if (remoteX25519 != null) 'x25519_public_key': remoteX25519,
+            if (remoteRelayUrl != null) 'relay_url': remoteRelayUrl,
+            if (remoteMailboxId != null) 'mailbox_id': remoteMailboxId,
+            if (remoteRelayWriteToken != null)
+              'relay_write_token': remoteRelayWriteToken,
+          },
         );
-        debugPrint('✅ Peer saved locally: $name (status=${saveResponse.statusCode})');
+        debugPrint('Peer saved locally: $name (status=${saveResponse.statusCode})');
 
         return response;
       } on DioException catch (e) {
@@ -3674,6 +3738,36 @@ class ApiService {
       debugPrint('📥 Sync ERROR: $e');
       return {'success': false, 'error': e.toString()};
     }
+  }
+
+  // ── Relay Hub ────────────────────────────────────────────────────────
+
+  /// Set up a relay mailbox on the given hub URL.
+  Future<Response> setupRelay({required String relayUrl}) async {
+    if (useFfi) {
+      final localDio = Dio(
+        BaseOptions(baseUrl: 'http://localhost:${ApiService.httpPort}'),
+      );
+      return localDio.post(
+        '/api/peers/relay/setup',
+        data: {'relay_url': relayUrl},
+      );
+    }
+    return _dio.post(
+      '/api/peers/relay/setup',
+      data: {'relay_url': relayUrl},
+    );
+  }
+
+  /// Get current relay configuration (if any).
+  Future<Response> getRelayConfig() async {
+    if (useFfi) {
+      final localDio = Dio(
+        BaseOptions(baseUrl: 'http://localhost:${ApiService.httpPort}'),
+      );
+      return localDio.get('/api/peers/relay/config');
+    }
+    return _dio.get('/api/peers/relay/config');
   }
 }
 

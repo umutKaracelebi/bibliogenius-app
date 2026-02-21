@@ -91,19 +91,15 @@ class _AudioSectionState extends State<AudioSection> {
   }
 
   void _triggerSearchIfNeeded(AudioProvider provider) {
-    // Re-arm if cache was cleared externally (e.g. metadata refresh)
-    if (_searchTriggered &&
-        !provider.hasSearched(widget.bookId) &&
-        !provider.isSearching(widget.bookId)) {
-      _searchTriggered = false;
-    }
     if (_searchTriggered) return;
     if (!provider.isInitialized) return;
     if (!provider.isEnabled) return;
     if (provider.hasSearched(widget.bookId)) return;
+    if (provider.isSearching(widget.bookId)) return;
 
     _searchTriggered = true;
     WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (!mounted) return;
       final languages = _searchLanguages;
       debugPrint('[AudioSection] bookLanguage=${widget.bookLanguage}, userLanguages=${widget.userLanguages}, searchLanguages=$languages');
       if (languages.length > 1) {

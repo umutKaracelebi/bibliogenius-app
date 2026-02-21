@@ -53,8 +53,7 @@ class _BookDetailsScreenState extends State<BookDetailsScreen> {
     super.initState();
     if (widget.book != null) {
       _book = widget.book;
-      _fetchCopies();
-      // Optionally refresh book details in background
+      // _fetchBookDetails already fetches copies — no need for separate _fetchCopies()
       _fetchBookDetails();
     } else {
       _isLoadingBook = true;
@@ -1915,50 +1914,64 @@ class _BookDetailsScreenState extends State<BookDetailsScreen> {
   Future<void> _returnBook(BuildContext context) async {
     final copyRepo = Provider.of<CopyRepository>(context, listen: false);
     final loanRepo = Provider.of<LoanRepository>(context, listen: false);
+    final api = Provider.of<ApiService>(context, listen: false);
 
     try {
       if (_book == null) return;
-      // Find copies for this book
       final copies = await copyRepo.getBookCopies(_book!.id!);
-
       if (copies.isEmpty) {
         throw Exception('No copy found for this book');
       }
 
-      // Get the lent copy - find one with 'loaned' status first
       var lentCopies = copies.where((c) => c.status == 'loaned').toList();
       if (lentCopies.isEmpty) {
         lentCopies = copies.where((c) => c.status == 'borrowed').toList();
       }
-
       if (lentCopies.isEmpty) {
         throw Exception('No lent copy found for this book');
       }
-      final lentCopy = lentCopies.first;
 
-      // Find active loan for this copy
-      final loans = await loanRepo.getLoans(status: 'active');
-
-      // Find the loan matching this copy
-      final matchingLoans = loans
-          .where((l) => l.copyId == lentCopy.id)
-          .toList();
-
-      if (matchingLoans.isNotEmpty) {
-        // Return the loan
-        await loanRepo.returnLoan(matchingLoans.first.id);
+      // Try P2P return: find matching incoming p2p_request for this book
+      bool p2pHandled = false;
+      final isbn = _book!.isbn;
+      if (isbn != null && isbn.isNotEmpty) {
+        try {
+          final inRes = await api.getIncomingRequests();
+          final requests = inRes.data as List? ?? [];
+          final matching = requests.firstWhere(
+            (r) =>
+                r['book_isbn'] == isbn &&
+                r['status'] == 'accepted',
+            orElse: () => null,
+          );
+          if (matching != null) {
+            await api.updateRequestStatus(matching['id'], 'returned');
+            p2pHandled = true;
+          }
+        } catch (_) {
+          // P2P lookup failed — fall through to local-only return
+        }
       }
 
-      // Update copy status back to 'available'
-      await copyRepo.updateCopy(lentCopy.id!, {'status': 'available'});
+      // Fallback: local-only return (non-P2P loans or if P2P lookup failed)
+      if (!p2pHandled) {
+        final lentCopy = lentCopies.first;
+        final loans = await loanRepo.getLoans(status: 'active');
+        final matchingLoans =
+            loans.where((l) => l.copyId == lentCopy.id).toList();
+        if (matchingLoans.isNotEmpty) {
+          await loanRepo.returnLoan(matchingLoans.first.id);
+        }
+        await copyRepo.updateCopy(lentCopy.id!, {'status': 'available'});
+      }
 
       if (context.mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
             content: Text(
-              TranslationService.translate(context, 'book_returned') ??
-                  'Book returned',
+              TranslationService.translate(context, 'book_returned'),
             ),
+            backgroundColor: Colors.green,
           ),
         );
         _fetchBookDetails();
@@ -2077,32 +2090,55 @@ class _BookDetailsScreenState extends State<BookDetailsScreen> {
 
   /// Give back a borrowed book - removes the borrowed copy
   Future<void> _giveBackBook(BuildContext context) async {
-    final copyRepo = Provider.of<CopyRepository>(context, listen: false);
+    if (_book == null) return;
+
+    // Find the borrowed copy
+    final borrowedCopies =
+        _copies.where((c) => c.status == 'borrowed').toList();
+    if (borrowedCopies.isEmpty) return;
+    final borrowedCopy = borrowedCopies.first;
+
+    // Confirmation dialog
+    final confirmed = await showDialog<bool>(
+      context: context,
+      builder: (ctx) => AlertDialog(
+        title: Text(
+          TranslationService.translate(context, 'confirm_return_title'),
+        ),
+        content: Text(
+          TranslationService.translate(context, 'confirm_return_borrowed'),
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(ctx, false),
+            child: Text(TranslationService.translate(context, 'cancel')),
+          ),
+          FilledButton(
+            onPressed: () => Navigator.pop(ctx, true),
+            child: Text(TranslationService.translate(context, 'confirm')),
+          ),
+        ],
+      ),
+    );
+
+    if (confirmed != true) return;
 
     try {
-      if (_book == null) return;
-
-      // Find the borrowed copy
-      final borrowedCopies = _copies
-          .where((c) => c.status == 'borrowed')
-          .toList();
-      if (borrowedCopies.isEmpty) {
-        throw Exception('No borrowed copy found');
-      }
-      final borrowedCopy = borrowedCopies.first;
-
-      // Delete the borrowed copy (book was given back, no longer in our possession)
-      await copyRepo.deleteCopy(borrowedCopy.id!);
+      final api = Provider.of<ApiService>(context, listen: false);
+      // Notify lender via P2P (E2EE or plaintext) and clean up locally
+      await api.returnBorrowedBook(copyId: borrowedCopy.id!);
 
       if (context.mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
             content: Text(
-              TranslationService.translate(context, 'book_given_back') ??
-                  'Book given back',
+              TranslationService.translate(context, 'book_returned_success'),
             ),
+            backgroundColor: Colors.green,
           ),
         );
+        // Backend deletes copy + potentially the book if no remaining copies.
+        // Refresh to reflect the new state (or navigate back if book was deleted).
         _fetchBookDetails();
       }
     } catch (e) {

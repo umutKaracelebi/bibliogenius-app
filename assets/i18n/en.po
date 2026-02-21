@@ -1016,6 +1016,34 @@ msgstr "Connection Approval"
 msgid "connection_validation_desc"
 msgstr "Require your approval before new peers can access your library"
 
+#. Auto-approve loan requests
+msgid "auto_approve_loans_title"
+msgstr "Auto-approve loan requests"
+
+#. Automatically accept loan requests from approved contacts
+msgid "auto_approve_loans_desc"
+msgstr "Automatically accept loan requests from approved contacts"
+
+#. You have {count} pending connection request(s)
+msgid "pending_connections_banner"
+msgstr "You have {count} pending connection request(s)"
+
+#. Review
+msgid "review_connections"
+msgstr "Review"
+
+#. Pending requests
+msgid "pending_requests_section"
+msgstr "Pending requests"
+
+#. Accept
+msgid "accept_connection"
+msgstr "Accept"
+
+#. Reject
+msgid "reject_connection"
+msgstr "Reject"
+
 #. Address
 msgid "contact_address_label"
 msgstr "Address"
@@ -4413,6 +4441,30 @@ msgstr "Standard Reset"
 msgid "restart_required_for_changes"
 msgstr "Restart app for changes to take effect"
 
+#. Relay Hub
+msgid "relay_hub_title"
+msgstr "Relay Hub"
+
+#. Relay hub description
+msgid "relay_hub_desc"
+msgstr "Connect to a relay for communication outside your local network"
+
+#. Connect to relay
+msgid "relay_connect"
+msgstr "Connect"
+
+#. Relay connected status
+msgid "relay_connected"
+msgstr "Connected"
+
+#. Relay disconnected status
+msgid "relay_disconnected"
+msgstr "Not connected"
+
+#. Hub URL label
+msgid "relay_url_label"
+msgstr "Hub URL"
+
 #. Retry
 msgid "retry"
 msgstr "Retry"
@@ -5617,4 +5669,12 @@ msgstr "Your current level"
 #. Your Progress
 msgid "your_progress"
 msgstr "Your Progress"
+
+#. E2EE enabled tooltip
+msgid "e2ee_enabled"
+msgstr "End-to-end encryption enabled"
+
+#. Share invite link
+msgid "share_invite_link"
+msgstr "Share invite link"
 

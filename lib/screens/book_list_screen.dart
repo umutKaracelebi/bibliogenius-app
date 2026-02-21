@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import '../widgets/genie_app_bar.dart';
@@ -66,6 +68,7 @@ class _BookListScreenState extends State<BookListScreen>
   ViewMode _viewMode = ViewMode.coverGrid; // Default to cover grid
   String _searchQuery = '';
   final TextEditingController _searchController = TextEditingController();
+  Timer? _searchDebounce;
   bool _isSearching = false;
   bool _isReordering = false;
   String? _libraryName; // Store library name for title
@@ -200,6 +203,7 @@ class _BookListScreenState extends State<BookListScreen>
     widget.refreshNotifier?.removeListener(_handleRefreshTrigger);
     _globalRefreshNotifier?.removeListener(_handleRefreshTrigger);
     _searchController.dispose();
+    _searchDebounce?.cancel();
     super.dispose();
   }
 
@@ -242,7 +246,7 @@ class _BookListScreenState extends State<BookListScreen>
       return Container(
         decoration: BoxDecoration(
           gradient: AppDesign.pageGradientForTheme(
-            Provider.of<ThemeProvider>(context).themeStyle,
+            context.select<ThemeProvider, String>((p) => p.themeStyle),
           ),
         ),
         child: SafeArea(
@@ -516,7 +520,7 @@ class _BookListScreenState extends State<BookListScreen>
       body: Container(
         decoration: BoxDecoration(
           gradient: AppDesign.pageGradientForTheme(
-            Provider.of<ThemeProvider>(context).themeStyle,
+            context.select<ThemeProvider, String>((p) => p.themeStyle),
           ),
         ),
         child: SafeArea(
@@ -719,9 +723,7 @@ class _BookListScreenState extends State<BookListScreen>
       return a.title.toLowerCase().compareTo(b.title.toLowerCase());
     });
 
-    setState(() {
-      _filteredBooks = tempBooks;
-    });
+    _filteredBooks = tempBooks;
   }
 
   void _showTagFilterDialog() async {
@@ -836,10 +838,15 @@ class _BookListScreenState extends State<BookListScreen>
               ),
             ),
             onChanged: (value) {
-              if (!mounted) return; // Guard against unmounted state
-              setState(() {
-                _searchQuery = value;
-                _filterBooks(); // Trigger filter on search query change
+              if (!mounted) return;
+              _searchQuery = value;
+              _searchDebounce?.cancel();
+              _searchDebounce = Timer(const Duration(milliseconds: 300), () {
+                if (mounted) {
+                  setState(() {
+                    _filterBooks();
+                  });
+                }
               });
             },
           );

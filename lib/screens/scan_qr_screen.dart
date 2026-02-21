@@ -145,7 +145,13 @@ class _ScanContactViewState extends State<ScanContactView> {
             _isProcessingScan = true;
             setState(() {});
             _controller?.stop();
-            _connect(data['name'] as String, data['url'] as String);
+            // QR v2 includes E2EE keys; v1 won't have them (null)
+            _connect(
+              data['name'] as String,
+              data['url'] as String,
+              ed25519PublicKey: data['ed25519_public_key'] as String?,
+              x25519PublicKey: data['x25519_public_key'] as String?,
+            );
             return;
           }
         } catch (_) {}
@@ -153,11 +159,21 @@ class _ScanContactViewState extends State<ScanContactView> {
     }
   }
 
-  Future<void> _connect(String name, String url) async {
+  Future<void> _connect(
+    String name,
+    String url, {
+    String? ed25519PublicKey,
+    String? x25519PublicKey,
+  }) async {
     final api = Provider.of<ApiService>(context, listen: false);
     try {
-      debugPrint('📷 [CONNECT] Calling connectPeer($name, $url)...');
-      final response = await api.connectPeer(name, url);
+      debugPrint('QR Connect: connectPeer($name, $url, hasKeys=${ed25519PublicKey != null})');
+      final response = await api.connectPeer(
+        name,
+        url,
+        ed25519PublicKey: ed25519PublicKey,
+        x25519PublicKey: x25519PublicKey,
+      );
       debugPrint('📷 [CONNECT] Response: status=${response.statusCode}, data=${response.data}');
 
       // connectLocalPeer returns error responses instead of throwing

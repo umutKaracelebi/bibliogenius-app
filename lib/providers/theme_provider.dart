@@ -118,6 +118,11 @@ class ThemeProvider with ChangeNotifier {
   bool _connectionValidationEnabled = false;
   bool get connectionValidationEnabled => _connectionValidationEnabled;
 
+  // Auto-approve loan requests from approved contacts
+  // Enabled by default (like a public library — borrow freely once connected)
+  bool _autoApproveLoanRequests = true;
+  bool get autoApproveLoanRequests => _autoApproveLoanRequests;
+
   // Network Gamification: compare progress with connected peers
   // Disabled by default (opt-in)
   bool _networkGamificationEnabled = false;
@@ -256,12 +261,14 @@ class ThemeProvider with ChangeNotifier {
     // Default to false (opt-in) for privacy
     _networkDiscoveryEnabled =
         prefs.getBool('networkDiscoveryEnabled') ?? false;
-    // Default to false (opt-in) for privacy - caches peer's library locally
+    // Default to true — required for relay to be useful (offline peer browsing)
     _peerOfflineCachingEnabled =
-        prefs.getBool('peerOfflineCachingEnabled') ?? false;
-    _allowLibraryCaching = prefs.getBool('allowLibraryCaching') ?? false;
+        prefs.getBool('peerOfflineCachingEnabled') ?? true;
+    _allowLibraryCaching = prefs.getBool('allowLibraryCaching') ?? true;
     _connectionValidationEnabled =
         prefs.getBool('connectionValidationEnabled') ?? false;
+    _autoApproveLoanRequests =
+        prefs.getBool('autoApproveLoanRequests') ?? true;
     _networkGamificationEnabled =
         prefs.getBool('networkGamificationEnabled') ?? false;
     _shareGamificationStats =
@@ -779,6 +786,16 @@ class ThemeProvider with ChangeNotifier {
     notifyListeners();
   }
 
+  /// Enable/disable auto-approve loan requests
+  /// When enabled, loan requests from approved contacts are instantly accepted
+  Future<void> setAutoApproveLoanRequests(bool enabled) async {
+    _autoApproveLoanRequests = enabled;
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.setBool('autoApproveLoanRequests', enabled);
+    await _updateEnabledModules();
+    notifyListeners();
+  }
+
   /// Enable/disable network gamification leaderboard
   Future<void> setNetworkGamificationEnabled(bool enabled) async {
     _networkGamificationEnabled = enabled;
@@ -886,6 +903,9 @@ class ThemeProvider with ChangeNotifier {
     if (allowLibraryCaching) enabledModules.add('allow_library_caching');
     if (connectionValidationEnabled) {
       enabledModules.add('connection_validation');
+    }
+    if (autoApproveLoanRequests) {
+      enabledModules.add('auto_approve_loans');
     }
     if (commerceEnabled) enabledModules.add('commerce');
     if (networkGamificationEnabled) {

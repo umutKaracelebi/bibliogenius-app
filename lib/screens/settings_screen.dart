@@ -32,6 +32,11 @@ class _SettingsScreenState extends State<SettingsScreen> {
   Map<String, bool> _searchPrefs = {};
   String _googleBooksApiKey = '';
   final _apiKeyController = TextEditingController();
+  // Relay Hub state
+  String? _relayMailboxUuid;
+  bool _relayConnected = false;
+  bool _relayLoading = false;
+  final _relayUrlController = TextEditingController();
 
   @override
   void initState() {
@@ -42,6 +47,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
   @override
   void dispose() {
     _apiKeyController.dispose();
+    _relayUrlController.dispose();
     super.dispose();
   }
 
@@ -93,6 +99,22 @@ class _SettingsScreenState extends State<SettingsScreen> {
             _apiKeyController.text = _googleBooksApiKey;
           }
         }
+      }
+
+      // Load relay config (may have been auto-configured at startup)
+      try {
+        final relayRes = await api.getRelayConfig();
+        if (relayRes.statusCode == 200 && relayRes.data is Map &&
+            relayRes.data['relay_url'] != null) {
+          _relayConnected = true;
+          _relayMailboxUuid = relayRes.data['mailbox_uuid'] as String?;
+          _relayUrlController.text =
+              relayRes.data['relay_url'] as String? ?? '';
+        } else {
+          _relayUrlController.text = 'https://hub.bibliogenius.org';
+        }
+      } catch (_) {
+        _relayUrlController.text = 'https://hub.bibliogenius.org';
       }
 
       if (mounted) {
@@ -397,6 +419,20 @@ class _SettingsScreenState extends State<SettingsScreen> {
                           themeProvider.setConnectionValidationEnabled(value),
                     ),
                   ),
+                  // Relay Hub section (within network module)
+                  Padding(
+                    padding: const EdgeInsets.only(left: 16.0),
+                    child: _buildRelayHubCard(context),
+                  ),
+                _buildModuleToggle(
+                  context,
+                  'auto_approve_loans_title',
+                  'auto_approve_loans_desc',
+                  Icons.auto_awesome,
+                  themeProvider.autoApproveLoanRequests,
+                  (value) =>
+                      themeProvider.setAutoApproveLoanRequests(value),
+                ),
                 _buildModuleToggle(
                   context,
                   'enable_borrowing_module',
@@ -1040,6 +1076,170 @@ class _SettingsScreenState extends State<SettingsScreen> {
     return TranslationService.translate(context, key) ??
         ThemeRegistry.get(themeId)?.displayName ??
         themeId;
+  }
+
+  Widget _buildRelayHubCard(BuildContext context) {
+    final api = Provider.of<ApiService>(context, listen: false);
+
+    return Card(
+      margin: const EdgeInsets.only(bottom: 12),
+      child: Padding(
+        padding: const EdgeInsets.all(16.0),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Row(
+              children: [
+                Icon(
+                  Icons.cloud_outlined,
+                  color: _relayConnected ? Colors.green : null,
+                ),
+                const SizedBox(width: 12),
+                Expanded(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        TranslationService.translate(
+                              context,
+                              'relay_hub_title',
+                            ) ??
+                            'Relay Hub',
+                        style: Theme.of(context).textTheme.titleMedium,
+                      ),
+                      Text(
+                        TranslationService.translate(
+                              context,
+                              'relay_hub_desc',
+                            ) ??
+                            'Connect to a relay for communication outside your local network',
+                        style: Theme.of(context).textTheme.bodySmall,
+                      ),
+                    ],
+                  ),
+                ),
+                if (_relayConnected)
+                  Chip(
+                    label: Text(
+                      TranslationService.translate(
+                            context,
+                            'relay_connected',
+                          ) ??
+                          'Connected',
+                      style: const TextStyle(fontSize: 12),
+                    ),
+                    backgroundColor: Colors.green.withValues(alpha: 0.15),
+                    side: BorderSide.none,
+                    padding: EdgeInsets.zero,
+                    visualDensity: VisualDensity.compact,
+                  )
+                else
+                  Chip(
+                    label: Text(
+                      TranslationService.translate(
+                            context,
+                            'relay_disconnected',
+                          ) ??
+                          'Not connected',
+                      style: const TextStyle(fontSize: 12),
+                    ),
+                    side: BorderSide.none,
+                    padding: EdgeInsets.zero,
+                    visualDensity: VisualDensity.compact,
+                  ),
+              ],
+            ),
+            const SizedBox(height: 12),
+            TextField(
+              controller: _relayUrlController,
+              decoration: InputDecoration(
+                labelText: TranslationService.translate(
+                      context,
+                      'relay_url_label',
+                    ) ??
+                    'Hub URL',
+                hintText: 'https://hub.bibliogenius.org',
+                isDense: true,
+                border: const OutlineInputBorder(),
+              ),
+              enabled: !_relayLoading,
+            ),
+            if (_relayMailboxUuid != null) ...[
+              const SizedBox(height: 8),
+              Text(
+                'Mailbox: ${_relayMailboxUuid!.substring(0, 8)}...',
+                style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                      fontFamily: 'monospace',
+                      color: Theme.of(context).colorScheme.outline,
+                    ),
+              ),
+            ],
+            const SizedBox(height: 12),
+            SizedBox(
+              width: double.infinity,
+              child: ElevatedButton.icon(
+                onPressed: _relayLoading
+                    ? null
+                    : () async {
+                        final url = _relayUrlController.text.trim();
+                        if (url.isEmpty) return;
+
+                        setState(() => _relayLoading = true);
+                        try {
+                          final res = await api.setupRelay(relayUrl: url);
+                          if (!mounted) return;
+                          if (res.statusCode == 200 && res.data is Map) {
+                            setState(() {
+                              _relayConnected = true;
+                              _relayMailboxUuid =
+                                  res.data['mailbox_uuid'] as String?;
+                            });
+                            ScaffoldMessenger.of(context).showSnackBar(
+                              SnackBar(
+                                content: Text(
+                                  TranslationService.translate(
+                                        context,
+                                        'relay_connected',
+                                      ) ??
+                                      'Connected',
+                                ),
+                              ),
+                            );
+                          } else {
+                            final error =
+                                res.data?['error'] ?? 'Connection failed';
+                            ScaffoldMessenger.of(context).showSnackBar(
+                              SnackBar(content: Text(error.toString())),
+                            );
+                          }
+                        } catch (e) {
+                          if (!mounted) return;
+                          ScaffoldMessenger.of(context).showSnackBar(
+                            SnackBar(content: Text(e.toString())),
+                          );
+                        } finally {
+                          if (mounted) {
+                            setState(() => _relayLoading = false);
+                          }
+                        }
+                      },
+                icon: _relayLoading
+                    ? const SizedBox(
+                        width: 16,
+                        height: 16,
+                        child: CircularProgressIndicator(strokeWidth: 2),
+                      )
+                    : const Icon(Icons.link),
+                label: Text(
+                  TranslationService.translate(context, 'relay_connect') ??
+                      'Connect',
+                ),
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
   }
 
   Widget _buildModuleToggle(

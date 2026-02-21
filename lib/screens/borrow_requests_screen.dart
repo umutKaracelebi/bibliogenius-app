@@ -627,9 +627,9 @@ class _LoansScreenState extends State<LoansScreen>
 
     if (confirmed == true) {
       try {
-        final copyRepo = Provider.of<CopyRepository>(context, listen: false);
-        // Delete the temporary copy when returned
-        await copyRepo.deleteCopy(copyId);
+        final api = Provider.of<ApiService>(context, listen: false);
+        // Notify lender and clean up via backend
+        await api.returnBorrowedBook(copyId: copyId);
         _fetchAllData();
         if (mounted) {
           ScaffoldMessenger.of(context).showSnackBar(

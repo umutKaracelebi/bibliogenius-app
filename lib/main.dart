@@ -1,3 +1,4 @@
+import 'dart:convert';
 import 'dart:io';
 import 'config/platform_init.dart';
 import 'package:flutter/foundation.dart';
@@ -6,17 +7,20 @@ import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:provider/provider.dart';
 import 'package:go_router/go_router.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
+import 'package:dio/dio.dart';
 import 'services/auth_service.dart';
 import 'services/api_service.dart';
 import 'services/sync_service.dart';
 import 'services/translation_service.dart';
 import 'services/mdns_service.dart';
 import 'services/ffi_service.dart';
+import 'src/rust/api/frb.dart' as frb;
 import 'utils/app_constants.dart';
 import 'utils/language_constants.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'providers/theme_provider.dart';
 import 'providers/book_refresh_notifier.dart';
+import 'providers/pending_peers_provider.dart';
 import 'audio/audio_module.dart'; // Audio module (decoupled)
 import 'data/repositories/book_repository.dart';
 import 'data/repositories/tag_repository.dart';
@@ -192,6 +196,25 @@ void main([List<String>? args]) async {
       try {
         final authService = AuthService();
         final libraryUuid = await authService.getOrCreateLibraryUuid();
+
+        // Initialize E2EE identity (generates or loads keypair)
+        String? ed25519Key;
+        String? x25519Key;
+        if (useFfi) {
+          try {
+            await frb.initIdentityFfi(libraryUuid: libraryUuid);
+            final keysJson = await frb.getPublicKeysFfi();
+            final keys = Map<String, dynamic>.from(
+              const JsonDecoder().convert(keysJson) as Map,
+            );
+            ed25519Key = keys['ed25519'] as String?;
+            x25519Key = keys['x25519'] as String?;
+            debugPrint('E2EE: Identity initialized (hasKeys=${ed25519Key != null})');
+          } catch (e) {
+            debugPrint('E2EE: Identity init failed (non-blocking): $e');
+          }
+        }
+
         // Include device hostname for network disambiguation
         final baseName = themeProvider.libraryName.isNotEmpty
             ? themeProvider.libraryName
@@ -204,10 +227,40 @@ void main([List<String>? args]) async {
           libraryName,
           httpPort,
           libraryId: libraryUuid,
+          ed25519PublicKey: ed25519Key,
+          x25519PublicKey: x25519Key,
         );
         await MdnsService.startDiscovery();
       } catch (mdnsError) {
         debugPrint('mDNS: Init failed (non-blocking): $mdnsError');
+      }
+
+      // Auto-setup relay hub for WAN communication (if not already configured)
+      try {
+        final localDio = Dio(
+          BaseOptions(baseUrl: 'http://localhost:$httpPort'),
+        );
+        bool needsSetup = true;
+        try {
+          final configRes = await localDio.get('/api/peers/relay/config');
+          if (configRes.statusCode == 200 &&
+              configRes.data is Map &&
+              configRes.data['relay_url'] != null) {
+            needsSetup = false;
+            debugPrint('Relay: Already configured (${configRes.data['relay_url']})');
+          }
+        } on DioException {
+          // 404 = no config yet → needs setup
+        }
+        if (needsSetup) {
+          await localDio.post(
+            '/api/peers/relay/setup',
+            data: {'relay_url': 'https://hub.bibliogenius.org'},
+          );
+          debugPrint('Relay: Auto-configured with hub.bibliogenius.org');
+        }
+      } catch (e) {
+        debugPrint('Relay: Auto-setup failed (non-blocking): $e');
       }
     } else {
       debugPrint('mDNS: Disabled by user preference');
@@ -299,6 +352,9 @@ class MyApp extends StatelessWidget {
         Provider<SyncService>(create: (_) => SyncService(apiService)),
         // Audio module (decoupled, can be removed without breaking the app)
         ChangeNotifierProvider<AudioProvider>(create: (_) => AudioProvider()),
+        ChangeNotifierProvider<PendingPeersProvider>(
+          create: (_) => PendingPeersProvider(apiService),
+        ),
       ],
       child: const AppRouter(),
     );

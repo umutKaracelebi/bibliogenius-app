@@ -8,7 +8,7 @@ import 'package:flutter_rust_bridge/flutter_rust_bridge_for_generated.dart';
 import 'package:freezed_annotation/freezed_annotation.dart' hide protected;
 part 'frb.freezed.dart';
 
-// These functions are ignored because they are not marked as `pub`: `db`, `install_panic_hook`, `runtime`
+// These functions are ignored because they are not marked as `pub`: `db`, `install_panic_hook`, `load_google_books_api_key`, `runtime`
 // These function are ignored because they are on traits that is not defined in current crate (put an empty `#[frb]` on it to unignore): `from`, `from`, `from`, `from`, `from`, `from`
 
 /// Initialize the FFI backend with database at the given path
@@ -45,14 +45,62 @@ Future<String> initMdnsFfi({
   required String libraryName,
   required int port,
   String? libraryId,
+  String? ed25519PublicKey,
+  String? x25519PublicKey,
 }) => RustLib.instance.api.crateApiFrbInitMdnsFfi(
   libraryName: libraryName,
   port: port,
   libraryId: libraryId,
+  ed25519PublicKey: ed25519PublicKey,
+  x25519PublicKey: x25519PublicKey,
 );
 
 /// Stop mDNS service
 Future<String> stopMdnsFfi() => RustLib.instance.api.crateApiFrbStopMdnsFfi();
+
+/// Initialize the node's cryptographic identity.
+/// Must be called after init_backend and after obtaining the library UUID.
+/// Uses Argon2(library_uuid) to encrypt/decrypt the stored keypair.
+Future<String> initIdentityFfi({required String libraryUuid}) =>
+    RustLib.instance.api.crateApiFrbInitIdentityFfi(libraryUuid: libraryUuid);
+
+/// Get the node's public keys as JSON: {"ed25519": "hex...", "x25519": "hex..."}
+Future<String> getPublicKeysFfi() =>
+    RustLib.instance.api.crateApiFrbGetPublicKeysFfi();
+
+/// Generate a QR v2 payload as JSON string.
+/// Includes library name, URL, UUID, and public keys.
+Future<String> generateQrPayloadFfi({
+  required String libraryName,
+  required String url,
+  required String libraryUuid,
+}) => RustLib.instance.api.crateApiFrbGenerateQrPayloadFfi(
+  libraryName: libraryName,
+  url: url,
+  libraryUuid: libraryUuid,
+);
+
+/// Parse a QR payload (supports both v1 and v2 formats).
+/// Returns a normalized JSON string with all available fields.
+Future<String> parseQrPayloadFfi({required String payload}) =>
+    RustLib.instance.api.crateApiFrbParseQrPayloadFfi(payload: payload);
+
+/// Generate an invite link with the library's connection info encoded in the URL fragment.
+/// Format: https://bibliogenius.app/invite#BASE64URL(json)
+/// The fragment (#) is never sent to the web server (B8 compliance).
+Future<String> generateInviteLinkFfi({
+  required String libraryName,
+  required String url,
+  required String libraryUuid,
+}) => RustLib.instance.api.crateApiFrbGenerateInviteLinkFfi(
+  libraryName: libraryName,
+  url: url,
+  libraryUuid: libraryUuid,
+);
+
+/// Parse an invite link, extracting the JSON payload from the URL fragment.
+Future<String> parseInviteLinkFfi({required String link}) =>
+    RustLib.instance.api.crateApiFrbParseInviteLinkFfi(link: link);
 
 /// Create a new book
 Future<FrbBook> createBook({required FrbBook book}) =>
@@ -317,6 +365,8 @@ sealed class FrbDiscoveredPeer with _$FrbDiscoveredPeer {
     required int port,
     required List<String> addresses,
     String? libraryId,
+    String? ed25519PublicKey,
+    String? x25519PublicKey,
     required String discoveredAt,
   }) = _FrbDiscoveredPeer;
 }

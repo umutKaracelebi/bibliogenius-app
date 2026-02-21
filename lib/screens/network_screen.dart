@@ -11,10 +11,12 @@ import '../data/repositories/contact_repository.dart';
 import '../services/api_service.dart';
 import '../services/auth_service.dart';
 import '../services/mdns_service.dart';
+import '../providers/pending_peers_provider.dart';
 import '../services/translation_service.dart';
 import '../utils/app_constants.dart';
 import 'package:qr_flutter/qr_flutter.dart';
 import 'package:network_info_plus/network_info_plus.dart';
+import 'package:share_plus/share_plus.dart';
 import 'borrow_requests_screen.dart';
 
 /// Filter options for the network list
@@ -264,6 +266,10 @@ class _ContactsListViewState extends State<ContactsListView> {
 
   void reloadMembers() {
     _loadAllMembers();
+    // Also refresh pending peers count
+    if (mounted) {
+      context.read<PendingPeersProvider>().refresh();
+    }
   }
 
   Future<void> _loadAllMembers() async {
@@ -522,8 +528,39 @@ class _ContactsListViewState extends State<ContactsListView> {
 
   @override
   Widget build(BuildContext context) {
+    final pendingProvider = context.watch<PendingPeersProvider>();
+    final pendingCount = pendingProvider.pendingCount;
+
     return Column(
       children: [
+        // Pending connections banner
+        if (pendingCount > 0)
+          MaterialBanner(
+            padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+            leading: Badge(
+              label: Text('$pendingCount'),
+              child: const Icon(Icons.person_add),
+            ),
+            content: Text(
+              TranslationService.translate(
+                    context,
+                    'pending_connections_banner',
+                  )
+                  .replaceAll('{count}', '$pendingCount'),
+            ),
+            actions: [
+              TextButton(
+                onPressed: () {
+                  // Scroll to pending section (handled by Item 4)
+                  // For now, just dismiss
+                  pendingProvider.refresh();
+                },
+                child: Text(
+                  TranslationService.translate(context, 'review_connections'),
+                ),
+              ),
+            ],
+          ),
         // Filter Chips
         Padding(
           padding: const EdgeInsets.all(8.0),
@@ -558,33 +595,63 @@ class _ContactsListViewState extends State<ContactsListView> {
               ? const Center(child: CircularProgressIndicator())
               : (_filteredMembers.isEmpty && _localPeers.isEmpty)
               ? _buildEmptyState(context)
-              : ListView(
-                  key: const Key('networkMemberList'),
-                  children: [
-                    // Local Network section (mDNS discovered peers)
-                    if (_localPeers.isNotEmpty &&
-                        _filter != NetworkFilter.contacts) ...[
-                      _buildSectionHeader(
-                        context,
-                        TranslationService.translate(
-                          context,
-                          'local_network_title',
-                        ),
-                        Icons.wifi,
-                        key: const Key('localNetworkSection'),
-                        subtitle: TranslationService.translate(
-                          context,
-                          'local_network_hint',
-                        ),
-                      ),
-                      ..._localPeers.map((peer) => _buildLocalPeerTile(peer)),
-                    ],
-                    // Regular members section
-                    ..._filteredMembers.map((member) {
-                      final isOnline = _peerConnectivity[member.id] ?? false;
-                      return _buildMemberTile(member, isOnline);
-                    }),
-                  ],
+              : Builder(
+                  builder: (context) {
+                    final pendingMembers = _filteredMembers
+                        .where((m) => m.isPending)
+                        .toList();
+                    final regularMembers = _filteredMembers
+                        .where((m) => !m.isPending)
+                        .toList();
+
+                    return ListView(
+                      key: const Key('networkMemberList'),
+                      children: [
+                        // Pending connections section
+                        if (pendingMembers.isNotEmpty) ...[
+                          _buildSectionHeader(
+                            context,
+                            TranslationService.translate(
+                              context,
+                              'pending_requests_section',
+                            ),
+                            Icons.person_add,
+                            key: const Key('pendingConnectionsSection'),
+                          ),
+                          ...pendingMembers.map(
+                            (member) => _buildPendingPeerCard(member),
+                          ),
+                          const Divider(),
+                        ],
+                        // Local Network section (mDNS discovered peers)
+                        if (_localPeers.isNotEmpty &&
+                            _filter != NetworkFilter.contacts) ...[
+                          _buildSectionHeader(
+                            context,
+                            TranslationService.translate(
+                              context,
+                              'local_network_title',
+                            ),
+                            Icons.wifi,
+                            key: const Key('localNetworkSection'),
+                            subtitle: TranslationService.translate(
+                              context,
+                              'local_network_hint',
+                            ),
+                          ),
+                          ..._localPeers.map(
+                            (peer) => _buildLocalPeerTile(peer),
+                          ),
+                        ],
+                        // Regular members section
+                        ...regularMembers.map((member) {
+                          final isOnline =
+                              _peerConnectivity[member.id] ?? false;
+                          return _buildMemberTile(member, isOnline);
+                        }),
+                      ],
+                    );
+                  },
                 ),
         ),
       ],
@@ -1078,7 +1145,12 @@ class _ContactsListViewState extends State<ContactsListView> {
           onPressed: () async {
             final api = Provider.of<ApiService>(context, listen: false);
             try {
-              await api.connectPeer(peer.name, url);
+              await api.connectPeer(
+                peer.name,
+                url,
+                ed25519PublicKey: peer.ed25519PublicKey,
+                x25519PublicKey: peer.x25519PublicKey,
+              );
               if (mounted) {
                 ScaffoldMessenger.of(context).showSnackBar(
                   SnackBar(
@@ -1129,7 +1201,23 @@ class _ContactsListViewState extends State<ContactsListView> {
       onTap = null;
     }
 
-    final statusBadge = _buildStatusBadge(badgeText, badgeColor);
+    // Show E2EE lock for connected peers with key exchange done,
+    // or for mDNS peers advertising keys
+    final hasE2ee = (mergedMember?.keyExchangeDone ?? false) ||
+        (peer.ed25519PublicKey != null && peer.x25519PublicKey != null);
+    final statusBadge = Row(
+      mainAxisSize: MainAxisSize.min,
+      children: [
+        _buildStatusBadge(badgeText, badgeColor),
+        if (hasE2ee) ...[
+          const SizedBox(width: 4),
+          Tooltip(
+            message: TranslationService.translate(context, 'e2ee_enabled'),
+            child: Icon(Icons.lock, size: 14, color: Colors.green.shade600),
+          ),
+        ],
+      ],
+    );
     final isActiveOnly = mergedMember == null && !isPending;
 
     // Use compact two-row layout on narrow screens to avoid icon overflow
@@ -1261,6 +1349,87 @@ class _ContactsListViewState extends State<ContactsListView> {
     );
   }
 
+  Widget _buildPendingPeerCard(NetworkMember member) {
+    return Card(
+      margin: const EdgeInsets.symmetric(horizontal: 12, vertical: 4),
+      child: ListTile(
+        leading: CircleAvatar(
+          backgroundColor:
+              Theme.of(context).colorScheme.primaryContainer,
+          child: const Icon(Icons.person_add),
+        ),
+        title: Text(member.displayName),
+        subtitle: Text(
+          member.url?.replaceAll('http://', '') ?? '',
+          style: Theme.of(context).textTheme.bodySmall,
+        ),
+        trailing: Row(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            TextButton(
+              onPressed: () => _rejectPeer(member.id),
+              child: Text(
+                TranslationService.translate(context, 'reject_connection'),
+                style: TextStyle(
+                  color: Theme.of(context).colorScheme.error,
+                ),
+              ),
+            ),
+            const SizedBox(width: 4),
+            FilledButton(
+              onPressed: () => _acceptPeer(member.id),
+              child: Text(
+                TranslationService.translate(context, 'accept_connection'),
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Future<void> _acceptPeer(int peerId) async {
+    final api = Provider.of<ApiService>(context, listen: false);
+    try {
+      await api.updatePeerStatus(peerId, 'accepted');
+      if (mounted) {
+        context.read<PendingPeersProvider>().decrement();
+        _loadAllMembers();
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text(
+              TranslationService.translate(context, 'connection_success_hint'),
+            ),
+            backgroundColor: Colors.green,
+          ),
+        );
+      }
+    } catch (e) {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text(e.toString())),
+        );
+      }
+    }
+  }
+
+  Future<void> _rejectPeer(int peerId) async {
+    final api = Provider.of<ApiService>(context, listen: false);
+    try {
+      await api.deletePeer(peerId);
+      if (mounted) {
+        context.read<PendingPeersProvider>().decrement();
+        _loadAllMembers();
+      }
+    } catch (e) {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text(e.toString())),
+        );
+      }
+    }
+  }
+
   Widget _buildMemberTile(NetworkMember member, bool isOnline) {
     final isNetwork = member.source == NetworkMemberSource.network;
 
@@ -1303,7 +1472,19 @@ class _ContactsListViewState extends State<ContactsListView> {
         ? TranslationService.translate(context, 'status_active')
         : TranslationService.translate(context, 'status_offline');
     final statusColor = isOnline ? Colors.green : Colors.grey;
-    final statusBadge = _buildStatusBadge(statusText, statusColor);
+    final statusBadge = Row(
+      mainAxisSize: MainAxisSize.min,
+      children: [
+        _buildStatusBadge(statusText, statusColor),
+        if (member.keyExchangeDone) ...[
+          const SizedBox(width: 4),
+          Tooltip(
+            message: TranslationService.translate(context, 'e2ee_enabled'),
+            child: Icon(Icons.lock, size: 14, color: Colors.green.shade600),
+          ),
+        ],
+      ],
+    );
 
     final VoidCallback? onTap = AppConstants.enableP2PFeatures && member.url != null
         ? () {
@@ -1498,11 +1679,18 @@ class _ShareContactViewState extends State<ShareContactView> {
 
       final configRes = await apiService.getLibraryConfig();
       String libraryName = configRes.data['library_name'] ?? 'My Library';
-      debugPrint('📱 [QR] libraryName = $libraryName');
+      final libraryUuid = configRes.data['library_uuid'] as String?;
+      final ed25519Key = configRes.data['ed25519_public_key'] as String?;
+      final x25519Key = configRes.data['x25519_public_key'] as String?;
+      debugPrint('📱 [QR] libraryName=$libraryName, hasKeys=${ed25519Key != null}');
 
-      final data = {
+      final data = <String, dynamic>{
+        "version": 2,
         "name": libraryName,
         "url": "http://$localIp:${ApiService.httpPort}",
+        if (libraryUuid != null) "library_uuid": libraryUuid,
+        if (ed25519Key != null) "ed25519_public_key": ed25519Key,
+        if (x25519Key != null) "x25519_public_key": x25519Key,
       };
       if (mounted) {
         setState(() {
@@ -1578,6 +1766,20 @@ class _ShareContactViewState extends State<ShareContactView> {
           _buildStep(context, 2, TranslationService.translate(context, 'show_code_step_2')),
           const SizedBox(height: 8),
           _buildStep(context, 3, TranslationService.translate(context, 'show_code_step_3')),
+          const SizedBox(height: 16),
+          // Share invite link button
+          OutlinedButton.icon(
+            key: const Key('shareInviteLinkBtn'),
+            onPressed: () {
+              final fragment = base64Url.encode(utf8.encode(_qrData!));
+              final link = 'https://bibliogenius.app/invite#$fragment';
+              Share.share(link);
+            },
+            icon: const Icon(Icons.link, size: 18),
+            label: Text(
+              TranslationService.translate(context, 'share_invite_link'),
+            ),
+          ),
         ] else
           Padding(
             padding: const EdgeInsets.all(16),

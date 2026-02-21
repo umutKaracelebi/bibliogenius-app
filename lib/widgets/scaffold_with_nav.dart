@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
+import 'package:provider/provider.dart';
+import '../providers/pending_peers_provider.dart';
 import '../services/translation_service.dart';
 import 'app_drawer.dart';
 import '../utils/global_keys.dart';
@@ -96,7 +98,16 @@ class ScaffoldWithNav extends StatelessWidget {
         route: '/network',
         matchPrefixes: ['/network', '/contacts', '/peers', '/requests'],
         destination: NavigationRailDestination(
-          icon: const Icon(Icons.people),
+          icon: Consumer<PendingPeersProvider>(
+            builder: (context, provider, child) {
+              final count = provider.pendingCount;
+              return Badge(
+                isLabelVisible: count > 0,
+                label: Text('$count'),
+                child: const Icon(Icons.people),
+              );
+            },
+          ),
           label: Text(TranslationService.translate(context, 'network')),
         ),
       ),

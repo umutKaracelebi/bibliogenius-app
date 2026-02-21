@@ -885,7 +885,7 @@ msgstr "Kod"
 
 #. Collection \"{title}\" created with {count} books.
 msgid "collection_created"
-msgstr ""{title}" koleksiyonu {count} kitapla oluşturuldu."{title}\" created with {count} books."
+msgstr "\"{title}\" koleksiyonu {count} kitapla oluşturuldu."
 
 #. Collection Details
 msgid "collection_details"
@@ -1602,7 +1602,7 @@ msgstr "Hiyerarşik Etiketler"
 
 #. Use \"Parent > Child\" naming to create sub-tags
 msgid "enable_taxonomy_subtitle"
-msgstr "Alt etiketler oluşturmak için "Üst > Alt" adlandırmasını kullanın"Parent > Child\" naming to create sub-tags"
+msgstr "Alt etiketler oluşturmak için \"Üst > Alt\" adlandırmasını kullanın"
 
 #. Enter author name
 msgid "enter_author"
@@ -2344,7 +2344,7 @@ msgstr "Bir kitap iste"
 
 #. Find a book and tap \"Request\" to ask for a loan
 msgid "help_ctx_network_tip_request_desc"
-msgstr "Bir kitap bulun ve ödünç almak için "İste"ye dokunun"Request\" to ask for a loan"
+msgstr "Bir kitap bulun ve ödünç almak için \"İste\"ye dokunun"
 
 #. Network Help
 msgid "help_ctx_network_title"
@@ -2408,7 +2408,7 @@ msgstr "Ayarlar Yardımı"
 
 #. Shelves help you organize your books into categories. Create custom shelves like \"To Read\", \"Favorites\", or by genre.
 msgid "help_ctx_shelves_content"
-msgstr "Raflar, kitaplarınızı kategorilere ayırmanıza yardımcı olur. "Okunacaklar", "Favoriler" veya türe göre özel raflar oluşturun."To Read\", \"Favorites\", or by genre."
+msgstr "Raflar, kitaplarınızı kategorilere ayırmanıza yardımcı olur. \"Okunacaklar\", \"Favoriler\" veya türe göre özel raflar oluşturun."
 
 #. Assign books
 msgid "help_ctx_shelves_tip_assign"
@@ -2448,7 +2448,7 @@ msgstr "Kitapların yayın on yılına göre dağılımı."
 
 #. Analyze your reading status distribution. \"Read\" means finished books, \"Reading\" are currently in progress.
 msgid "help_ctx_stats_reading_habits"
-msgstr "Okuma durumu dağılımınızı analiz edin. "Okundu" bitmiş kitapları, "Okunuyor" devam edenleri ifade eder."Read\" means finished books, \"Reading\" are currently in progress."
+msgstr "Okuma durumu dağılımınızı analiz edin. \"Okundu\" bitmiş kitapları, \"Okunuyor\" devam edenleri ifade eder."
 
 #. Revenue and sales data for your book sales.
 msgid "help_ctx_stats_sales"
@@ -2464,7 +2464,7 @@ msgstr "Okuma hızınız ve tercihleriniz hakkında eğlenceli gerçekler."
 
 #. Go to \"My Library\" and tap the \"+\" button. You can scan a barcode or search by title/ISBN.
 msgid "help_desc_add_book"
-msgstr ""Kütüphanem"e gidin ve "+" düğmesine dokunun. Bir barkod tarayabilir veya başlığa/ISBN'ye göre arama yapabilirsiniz."My Library\" and tap the \"+\" button. You can scan a barcode or search by title/ISBN."
+msgstr "\"Kütüphanem\"e gidin ve \"+\" düğmesine dokunun. Bir barkod tarayabilir veya başlığa/ISBN'ye göre arama yapabilirsiniz."
 
 #. The Audio module lets you manage audiobooks and track listening progress. Enable it in your profile settings, then add audiobook versions to any book in your library.
 msgid "help_desc_audio"
@@ -2476,11 +2476,11 @@ msgstr "Koleksiyonlar; kitapları özel listeler (sagalar, temalar, okuma listel
 
 #. Go to \"Connect Library\" to share your QR code or scan a friend's code.
 msgid "help_desc_connect"
-msgstr "QR kodunuzu paylaşmak veya bir arkadaşınızın kodunu taramak için "Kütüphane Bağla"ya gidin."Connect Library\" to share your QR code or scan a friend's code."
+msgstr "QR kodunuzu paylaşmak veya bir arkadaşınızın kodunu taramak için \"Kütüphane Bağla\"ya gidin."
 
 #. Go to \"Network\" to add friends or libraries. You can add borrowers (who can borrow your books) or libraries (whose catalog you can browse).
 msgid "help_desc_contacts"
-msgstr "Arkadaşlarınızı veya kütüphaneleri eklemek için "Ağ"a gidin. Ödünç alanları (kitaplarınızı ödünç alabilenler) veya kütüphaneleri (kataloglarına göz atabildiğiniz yerler) ekleyebilirsiniz."Network\" to add friends or libraries. You can add borrowers (who can borrow your books) or libraries (whose catalog you can browse)."
+msgstr "Arkadaşlarınızı veya kütüphaneleri eklemek için \"Ağ\"a gidin. Ödünç alanları (kitaplarınızı ödünç alabilenler) veya kütüphaneleri (kataloglarına göz atabildiğiniz yerler) ekleyebilirsiniz."
 
 #. Your library data is stored locally on your device. When you connect with friends, only the books you choose to share are visible to them. You can export a backup anytime from your Profile.
 msgid "help_desc_data_privacy"
@@ -2496,11 +2496,11 @@ msgstr "Gleeph, Goodreads, Babelio veya herhangi bir CSV dosyasından kitapları
 
 #. Find the book in your library, tap \"Manage Copies\", then \"Lend\". Select a contact to lend to.
 msgid "help_desc_lend"
-msgstr "Kütüphanenizde kitabı bulun, "Kopyaları Yönet"e, ardından "Ödünç Ver"e dokunun. Ödünç verilecek bir kişi seçin."Manage Copies\", then \"Lend\". Select a contact to lend to."
+msgstr "Kütüphanenizde kitabı bulun, \"Kopyaları Yönet\"e, ardından \"Ödünç Ver\"e dokunun. Ödünç verilecek bir kişi seçin."
 
 #. The \"Network\" section lets you discover and browse catalogs of libraries you've added. You can request to borrow books from there.
 msgid "help_desc_network"
-msgstr ""Ağ" bölümü, eklediğiniz kütüphanelerin kataloglarını keşfetmenizi ve göz atmanızı sağlar. Oradan kitap ödünç alma isteği gönderebilirsiniz."Network\" section lets you discover and browse catalogs of libraries you've added. You can request to borrow books from there."
+msgstr "\"Ağ\" bölümü, eklediğiniz kütüphanelerin kataloglarını keşfetmenizi ve göz atmanızı sağlar. Oradan kitap ödünç alma isteği gönderebilirsiniz."
 
 #. 1. Create thematic shelves for your books (e.g., \"SciFi\", \"Favorites\").\n2. In your Library, tap a shelf to filter.\n3. Tap the Sort icon (≡) to enter reorder mode.\n4. Drag books to your preferred order, or tap A→Z for auto-sort by author.\n5. Tap ✓ to save your custom arrangement!
 msgid "help_desc_organize_shelf"
@@ -2513,11 +2513,11 @@ msgstr "1. Kitaplarınız için tematik raflar oluşturun (örn. "Bilim Kurgu", 
 
 #. Open a book and tap \"Mark as Reading\" to start tracking. Update your progress as you read. When finished, mark it as \"Read\" to earn XP and unlock achievements!
 msgid "help_desc_reading_progress"
-msgstr "Bir kitabı açın ve takibi başlatmak için "Okunuyor Olarak İşaretle"ye dokunun. Okudukça ilerlemenizi güncelleyin. Bitirdiğinizde, XP kazanmak ve başarıların kilidini açmak için "Okundu" olarak işaretleyin!"Mark as Reading\" to start tracking. Update your progress as you read. When finished, mark it as \"Read\" to earn XP and unlock achievements!"
+msgstr "Bir kitabı açın ve takibi başlatmak için \"Okunuyor Olarak İşaretle\"ye dokunun. Okudukça ilerlemenizi güncelleyin. Bitirdiğinizde, XP kazanmak ve başarıların kilidini açmak için \"Okundu\" olarak işaretleyin!"
 
 #. In \"Requests\", you can see all incoming borrow requests (people wanting your books) and outgoing ones (your requests to others). Accept, decline, or mark as returned.
 msgid "help_desc_requests"
-msgstr ""İstekler" bölümünde, tüm gelen ödünç alma isteklerini (kitaplarınızı isteyenler) ve gidenleri (başkalarına gönderdiğiniz istekler) görebilirsiniz. Kabul edin, reddedin veya iade edildi olarak işaretleyin."Requests\", you can see all incoming borrow requests (people wanting your books) and outgoing ones (your requests to others). Accept, decline, or mark as returned."
+msgstr "\"İstekler\" bölümünde, tüm gelen ödünç alma isteklerini (kitaplarınızı isteyenler) ve gidenleri (başkalarına gönderdiğiniz istekler) görebilirsiniz. Kabul edin, reddedin veya iade edildi olarak işaretleyin."
 
 #. Frequently Asked Questions
 msgid "help_faq_title"
@@ -2617,7 +2617,7 @@ msgstr "Hiyerarşik raf yönetimi"
 
 #. Tip: Use \"Parent > Child\" to create sub-tags
 msgid "hierarchical_tag_hint"
-msgstr "İpucu: Alt raflar oluşturmak için "Üst > Alt" kullanın"Parent > Child\" to create sub-tags"
+msgstr "İpucu: Alt raflar oluşturmak için \"Üst > Alt\" kullanın"
 
 #. Home
 msgid "home"
@@ -2625,7 +2625,7 @@ msgstr "Ana Sayfa"
 
 #. Connecting lets you manage loans and sync books. Ask your friend to open their app, go to \"Network\" and tap +, then \"Show My Code\". On your side, tap \"Scan QR Code\" to connect instantly.
 msgid "how_to_add_contact_help_desc"
-msgstr "Bağlanmak, ödünç vermeleri yönetmenizi ve kitapları senkronize etmenizi sağlar. Arkadaşınızdan uygulamasını açmasını, "Ağ"a gidip + simgesine, ardından "Kodumu Göster"e dokunmasını isteyin. Kendi tarafınızda, anında bağlanmak için "QR Kodunu Tara"ya dokunun."Network\" and tap +, then \"Show My Code\". On your side, tap \"Scan QR Code\" to connect instantly."
+msgstr "Bağlanmak, ödünç vermeleri yönetmenizi ve kitapları senkronize etmenizi sağlar. Arkadaşınızdan uygulamasını açmasını, \"Ağ\"a gidip + simgesine, ardından \"Kodumu Göster\"e dokunmasını isteyin. Kendi tarafınızda, anında bağlanmak için \"QR Kodunu Tara\"ya dokunun."
 
 #. Add Contact via QR Code
 msgid "how_to_add_contact_help_title"
@@ -2637,7 +2637,7 @@ msgstr "QR kodu ile kişi nasıl eklenir"
 
 #. Go to the \"Network\" tab. Tap the + button at the bottom right of the screen and tap \"Show My Code\". Your friends can scan it by tapping \"Scan QR Code\" to connect to your library.
 msgid "how_to_show_code_help_desc"
-msgstr ""Ağ" sekmesine gidin. Ekranın sağ altındaki + düğmesine ve ardından "Kodumu Göster"e dokunun. Arkadaşlarınız kütüphanenize bağlanmak için "QR Kodunu Tara"ya dokunarak tarayabilirler."Network\" tab. Tap the + button at the bottom right of the screen and tap \"Show My Code\". Your friends can scan it by tapping \"Scan QR Code\" to connect to your library."
+msgstr "\"Ağ\" sekmesine gidin. Ekranın sağ altındaki + düğmesine ve ardından \"Kodumu Göster\"e dokunun. Arkadaşlarınız kütüphanenize bağlanmak için \"QR Kodunu Tara\"ya dokunarak tarayabilirler."
 
 #. Show My QR Code
 msgid "how_to_show_code_help_title"
@@ -2717,7 +2717,7 @@ msgstr "Bu, {count} kitap içeren yeni bir koleksiyon oluşturacaktır."
 
 #. Import \"{title}\"?
 msgid "import_list_title"
-msgstr ""{title}" içe aktarılsın mı?"{title}\"?"
+msgstr "\"{title}\" içe aktarılsın mı?"
 
 #. Tap to select a .bibliogenius file
 msgid "import_method_file_desc"
@@ -4553,7 +4553,7 @@ msgstr "Kitap ara..."
 
 #. ex: \"Science Fiction\", \"Asimov\"
 msgid "search_hint_example"
-msgstr "örn: "Bilim Kurgu", "Asimov""Science Fiction\", \"Asimov\""
+msgstr "örn: \"Bilim Kurgu\", \"Asimov\""
 
 #. Search in library
 msgid "search_in_library"
@@ -4756,7 +4756,7 @@ msgstr "Kurulum başarısız"
 
 #. Click \"Finish\" to start adding books to your library.
 msgid "setup_finish_body"
-msgstr "Kütüphanenize kitap eklemeye başlamak için "Bitir"e tıklayın."Finish\" to start adding books to your library."
+msgstr "Kütüphanenize kitap eklemeye başlamak için \"Bitir\"e tıklayın."
 
 #. You are all set!
 msgid "setup_finish_header"
@@ -4892,7 +4892,7 @@ msgstr "Bu kodu bir arkadaşınıza gösterin"
 
 #. They tap + then "Scan QR Code" in their app
 msgid "show_code_step_2"
-msgstr "Uygulamalarında + simgesine, ardından "QR Kodunu Tara"ya dokunurlar"Scan QR Code\" in their app"
+msgstr "Uygulamalarında + simgesine, ardından \"QR Kodunu Tara\"ya dokunurlar"
 
 #. You both get access to loans and sync
 msgid "show_code_step_3"
